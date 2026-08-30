@@ -10,6 +10,7 @@ import ViewQuiz from "@/components/profiles/student/quizes/ViewQuiz";
 
 const RootLayout = lazy(() => import("@/layout/RootLayout"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
+const Unauthorized = lazy(() => import("@/pages/Unauthorized"));
 const ProtectedRoute = lazy(() => import("@/components/auth/ProtectedRoute"));
 
 // Public
@@ -181,6 +182,9 @@ const routes = createRoutesFromElements(
         id="update-profile"
       />
     </Route>
+
+    <Route path="/unauthorized" element={<Unauthorized />} id="unauthorized" />
+
     {/* NotFound */}
     <Route path="*" element={<NotFound />} id="not-found" />
   </>

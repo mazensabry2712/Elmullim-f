@@ -1,0 +1,45 @@
+.chat-room::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 400px 400px;
+  border-color: transparent transparent #0ab99d transparent;
+  bottom: 0;
+  right: 0;
+  z-index: 10;
+}
+.logo::before {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 200px 150px;
+  border-color: transparent transparent white transparent;
+  bottom: -10px;
+  right: -7px;
+  z-index: -1;
+}
+.logo::after {
+  content: "";
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 0 0 150px 200px;
+  border-color: transparent transparent transparent white;
+  top: -22px;
+  left: 1px;
+  z-index: -1;
+}
+
+@media (width <= 768px) {
+  .chat-room::before {
+    top: 0;
+    right: 0;
+    border-width: 0 350px 350px 0;
+    border-color: transparent #0ab99d transparent transparent;
+  }
+}

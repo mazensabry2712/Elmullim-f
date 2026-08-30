@@ -8,7 +8,6 @@ import { useEffect } from "react";
 import {
   Outlet,
   ScrollRestoration,
-  useLocation,
   useNavigate,
 } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -16,27 +15,48 @@ import { toast } from "react-toastify";
 const RootLayout = () => {
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const location = useLocation();
-  const token = cookieService.getToken()!;
+  const token = cookieService.getToken();
   const { mutateAsync: checkAuth } = useCheckAuth();
 
   useEffect(() => {
-    (async () => {
-      const { data, message, status } = await checkAuth(token);
-      const { auth } = data;
+    if (!token) return;
 
-      if (!status) return toast.error(message);
+    let cancelled = false;
 
-      // * User not authenticated
-      if (!auth) return dispatch(logout());
+    const validateAuthentication = async () => {
+      try {
+        const { data, message, status } = await checkAuth(token);
+        if (cancelled) return;
 
-      // * Account not verified
-      if (auth && !data["email-verified"]) {
-        toast.warn("Please verify your account");
-        return navigate("/verify-account");
+        if (!status) {
+          toast.error(message);
+          return;
+        }
+
+        const { auth } = data;
+
+        if (!auth) {
+          dispatch(logout());
+          return;
+        }
+
+        if (!data["email-verified"]) {
+          toast.warn("Please verify your account");
+          navigate("/verify-account");
+        }
+      } catch {
+        if (!cancelled) {
+          toast.error("Unable to verify your session. Please try again later.");
+        }
       }
-    })();
-  }, [token, checkAuth, navigate, dispatch, location]);
+    };
+
+    void validateAuthentication();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [token, checkAuth, navigate, dispatch]);
 
   return (
     <>

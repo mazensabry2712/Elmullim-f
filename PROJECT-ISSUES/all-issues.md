@@ -10,38 +10,70 @@
 
 ## 05 — Client-Side Role Cookie Used for Authorization Decisions
 
-## 06 — RootLayout Performs Authentication Check on Public Pages
+## 06 — Password-Reset Authorization State Trusted from Client-Side Cookie
 
-## 07 — Authentication Check Re-runs on Every Location Change
+## 07 — Malformed Encrypted Reset Cookie Can Break Password-Reset Flow
 
-## 08 — Missing /unauthorized Route
+## 08 — RootLayout Owns Authentication Validation for Public and Protected Areas
 
-## 09 — Inconsistent Route Naming Between /course and /courses
+## 09 — Authentication Validation Request Is Not Aborted When the Layout Unmounts
 
-## 10 — Duplicate Role-to-Route Mapping Logic
+## 10 — Missing /unauthorized Route
 
-## 11 — Authentication State Has Multiple Sources of Truth
+## 11 — Inconsistent Route Naming Between /course and /courses
 
-## 12 — Weak Authentication State Model
+## 12 — Duplicate Role-to-Route Mapping Logic
 
-## 13 — Axios Authentication Header Handling Is Duplicated Across Services
+## 13 — Authentication State Has Multiple Sources of Truth
 
-## 14 — Incorrect HTTP 500 Error Status Handling in Axios Interceptor
+## 14 — Weak Authentication State Model
 
-## 15 — Inconsistent Error/Notification Handling Between Toast and SweetAlert
+## 15 — Client-Side Role Determines Profile Rendering
 
-## 16 — React Query Online-State Configuration Uses a Non-Reactive Snapshot
+## 16 — ProtectedRoute Performs Client-Side Authorization Based on Mutable Cookie Role
 
-## 17 — Production Repository Contains dist.zip Build Artifact
+## 17 — Axios Authentication Headers Are Duplicated Across Services
 
-## 18 — README Is Still the Default Vite Template
+## 18 — Axios 500 Error Detection Uses the Wrong Error Property
 
-## 19 — Incomplete Page-Level SEO Metadata Strategy
+## 19 — Global Axios 401 Interceptor Forces Logout for Every Matching API Request
 
-## 20 — HTML Language Configuration Is Hardcoded to English
+## 20 — React Query Online-State Configuration Uses a Non-Reactive Snapshot
 
-## 21 — Authentication and Protected Route Architecture Needs Hardening
+## 21 — API Query Parameters Are Manually Concatenated Without Encoding
 
-## 22 — Missing Production Testing and CI/CD Hardening
+## 22 — API Response Contracts Are Trusted Only at Compile Time
 
-## 23 — Git Commit History and Commit Naming Need Cleanup
+## 23 — Pusher/Echo Authentication Token Is Captured Once at Module Initialization
+
+## 24 — ChatWindow Calls leaveAllChannels and Can Disrupt Other Realtime Channels
+
+## 25 — Chat Code Contains Production Console Logging and Browser Alerts
+
+## 26 — ChatWindow Contains a Large Embedded Base64 Image
+
+## 27 — Chat Sidebar Is Excessively Large and Creates a Heavy Bundle Boundary
+
+## 28 — Large Production JavaScript and CSS Bundles
+
+## 29 — Missing Route-Level Error Boundaries
+
+## 30 — Playwright Script Exists Without a Playwright Configuration File
+
+## 31 — Test Suite Coverage Is Extremely Limited
+
+## 32 — No CI Workflow Is Present for Automated Build and Test Validation
+
+## 33 — README Is Still the Default Vite Template
+
+## 34 — Incomplete Page-Level SEO Metadata Strategy
+
+## 35 — HTML Language Configuration Is Hardcoded to English
+
+## 36 — Hardcoded User-Facing Strings Prevent a Consistent Internationalization Strategy
+
+## 37 — Client Environment Configuration Contains Development Mode in the Tracked .env
+
+## 38 — .gitignore Does Not Exclude Environment Files
+
+## 39 — Git Repository Hygiene and Commit Conventions Need Improvement

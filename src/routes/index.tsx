@@ -44,7 +44,7 @@ const TeacherViewCourse = lazy(
 const Profile = lazy(() => import("@/pages/profile/Profile"));
 const UpdateProfile = lazy(() => import("@/pages/profile/UpdateProfile"));
 
-const routes = createRoutesFromElements(
+export const routes = createRoutesFromElements(
   <>
     {/* Root */}
     <Route
@@ -190,7 +190,7 @@ const routes = createRoutesFromElements(
   </>
 );
 
-const router = createBrowserRouter([...routes, ...authRoutes], {
+export const router = createBrowserRouter([...routes, ...authRoutes], {
   basename: "/",
 });
 

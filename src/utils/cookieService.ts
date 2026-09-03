@@ -1,6 +1,5 @@
 import { TRole } from "@/types";
 import Cookies from "universal-cookie";
-import { decryptData, encryptData } from "./encryptData";
 
 class CookieService {
   private cookies: Cookies;
@@ -9,16 +8,22 @@ class CookieService {
     this.cookies = new Cookies();
   }
 
-  setToken(token: string, expiresInDays: number = 7) {
-    if (!token) throw new Error("Invalid token: Cannot set empty token");
-
+  private getCookieOptions(expiresInDays: number = 7) {
     const expires = new Date();
     expires.setDate(expires.getDate() + expiresInDays);
-    this.cookies.set("t_n", token, {
+
+    return {
       expires,
       path: "/",
       secure: import.meta.env.VITE_ENV === "production",
-    });
+      sameSite: "strict" as const,
+    };
+  }
+
+  setToken(token: string, expiresInDays: number = 7) {
+    if (!token) throw new Error("Invalid token: Cannot set empty token");
+
+    this.cookies.set("t_n", token, this.getCookieOptions(expiresInDays));
   }
 
   getToken(): string | undefined {
@@ -29,13 +34,7 @@ class CookieService {
   setRole(role: TRole, expiresInDays: number = 7) {
     if (!role) throw new Error("Invalid role: Cannot set empty role");
 
-    const expires = new Date();
-    expires.setDate(expires.getDate() + expiresInDays);
-    this.cookies.set("r_l", role, {
-      expires,
-      path: "/",
-      secure: import.meta.env.VITE_ENV === "production",
-    });
+    this.cookies.set("r_l", role, this.getCookieOptions(expiresInDays));
   }
 
   getRole(): TRole | undefined {
@@ -46,29 +45,26 @@ class CookieService {
   clearAllCookies() {
     this.cookies.remove("t_n", { path: "/" });
     this.cookies.remove("r_l", { path: "/" });
+    this.cookies.remove("_cr_p", { path: "/" });
   }
 
   setCanResetPass(role: TRole) {
-    const encryptReset = encryptData(role);
-    this.cookies.set("_cr_p", encryptReset, {
-      path: "/",
-      secure: import.meta.env.VITE_ENV === "production",
-      expires: new Date(Date.now() + 60 * 60 * 1000),
-      sameSite: "strict",
+    this.cookies.set("_cr_p", role, {
+      ...this.getCookieOptions(1 / 24),
     });
   }
 
   getCanResetPass(): TRole | undefined {
     const canResetPass = this.cookies.get("_cr_p");
-    if (!canResetPass) return undefined;
-    const decryptCanReset = decryptData(canResetPass);
     if (
-      decryptCanReset !== "student" &&
-      decryptCanReset !== "parent" &&
-      decryptCanReset !== "teacher"
-    )
+      canResetPass !== "student" &&
+      canResetPass !== "parent" &&
+      canResetPass !== "teacher"
+    ) {
       return undefined;
-    return decryptCanReset;
+    }
+
+    return canResetPass;
   }
 
   clearCanResetPass() {

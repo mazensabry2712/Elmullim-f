@@ -11,6 +11,8 @@ const I18nProbe = () => {
       <span data-testid="language">{language}</span>
       <span data-testid="direction">{direction}</span>
       <span>{t("nav.home")}</span>
+      <span>{t("home.hero.benefit.securedPayment.title")}</span>
+      <span>{t("home.hero.benefit.securedPayment.description")}</span>
       <button type="button" onClick={toggleLanguage}>
         toggle
       </button>
@@ -37,6 +39,8 @@ describe("frontend i18n", () => {
     expect(screen.getByTestId("language")).toHaveTextContent("en");
     expect(screen.getByTestId("direction")).toHaveTextContent("ltr");
     expect(screen.getByText("Home")).toBeInTheDocument();
+    expect(screen.getByText("Secured Payment")).toBeInTheDocument();
+    expect(screen.getByText("Make secure payments through a trusted learning platform.")).toBeInTheDocument();
 
     await user.click(screen.getByRole("button", { name: "toggle" }));
 
@@ -45,6 +49,8 @@ describe("frontend i18n", () => {
     expect(document.documentElement.lang).toBe("ar");
     expect(document.documentElement.dir).toBe("rtl");
     expect(screen.getByText("الرئيسية")).toBeInTheDocument();
+    expect(screen.getByText("دفع آمن")).toBeInTheDocument();
+    expect(screen.getByText("أجرِ مدفوعاتك بأمان من خلال منصة تعليمية موثوقة.")).toBeInTheDocument();
     expect(localStorage.getItem("elmullim-language")).toBe("ar");
   });
 });

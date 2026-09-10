@@ -164,7 +164,7 @@ const ViewCourse = () => {
                 <aside className="w-full lg:w-[30%] xl:w-1/4 p-4" aria-label={copy.content}>
                   <h3 className="text-black-blue text-2xl font-bold mb-5">{copy.content}</h3>
                   <div className="max-h-screen overflow-y-auto">
-                    <ViewCourseContent courseId={numericCourseId} />
+                    <ViewCourseContent courseId={numericCourseId} copy={copy} />
                   </div>
                 </aside>
               </div>

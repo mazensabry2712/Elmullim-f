@@ -5,7 +5,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import Events from "@/pages/events/Events";
 import EventDetails from "@/pages/events/EventDetails";
-import { I18nProvider } from "@/i18n";
+import { I18nProvider, useI18n } from "@/i18n";
 
 vi.mock("framer-motion", () => ({
   motion: {
@@ -22,8 +22,12 @@ const renderPage = (children: React.ReactNode, initialEntries = ["/"]) =>
   );
 
 const LanguageToggle = () => {
-  const { toggleLanguage } = require("@/i18n") as typeof import("@/i18n");
-  return null;
+  const { toggleLanguage } = useI18n();
+  return (
+    <button type="button" onClick={toggleLanguage}>
+      toggle
+    </button>
+  );
 };
 
 describe("Events", () => {
@@ -51,34 +55,25 @@ describe("Events", () => {
     expect(screen.getByRole("heading", { name: /event unavailable/i, level: 2 })).toBeInTheDocument();
     expect(screen.getByText("#123")).toBeInTheDocument();
 
-    await user.click(screen.getByRole("link", { name: /back to events/i }));
     expect(screen.getByRole("link", { name: /back to events/i })).toHaveAttribute("href", "/events");
+    await user.click(screen.getByRole("link", { name: /back to events/i }));
   });
 
   it("supports Arabic and RTL on the events page", async () => {
-    const { toggleLanguage } = await import("@/i18n");
-    const Harness = () => {
-      const { toggleLanguage: toggle } = require("@/i18n") as typeof import("@/i18n");
-      return (
-        <button type="button" onClick={toggleLanguage}>
-          toggle
-        </button>
-      );
-    };
+    const user = userEvent.setup();
 
     renderPage(
       <>
         <Events />
-        <Harness />
+        <LanguageToggle />
       </>
     );
 
-    await userEvent.setup().click(screen.getByRole("button", { name: "toggle" }));
+    await user.click(screen.getByRole("button", { name: "toggle" }));
 
     expect(screen.getByRole("heading", { name: /الفعاليات/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /لا توجد فعاليات متاحة حاليًا/i, level: 2 })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("ar");
     expect(document.documentElement.dir).toBe("rtl");
-    void toggleLanguage;
   });
 });

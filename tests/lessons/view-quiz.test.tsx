@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
@@ -105,7 +105,7 @@ describe("ViewQuiz", () => {
     expect(screen.queryByLabelText(/enter your name/i)).not.toBeInTheDocument();
   });
 
-  it("requires an answer for every question before submission", () => {
+  it("requires an answer for every question before submission", async () => {
     mockUseGetStudentQuiz.mockReturnValue({
       data: quizData,
       isLoading: false,
@@ -118,10 +118,12 @@ describe("ViewQuiz", () => {
 
     renderPage(<ViewQuiz />);
 
-    screen.getByLabelText("4").click();
-    screen.getByRole("button", { name: /submit quiz/i }).click();
+    fireEvent.click(screen.getByLabelText("4"));
+    fireEvent.click(screen.getByRole("button", { name: /submit quiz/i }));
 
-    expect(screen.getByRole("alert")).toHaveTextContent(/answer all questions/i);
+    await waitFor(() => {
+      expect(screen.getByRole("alert")).toHaveTextContent(/answer all questions/i);
+    });
     expect(mutateAsync).not.toHaveBeenCalled();
   });
 
@@ -179,9 +181,9 @@ describe("ViewQuiz", () => {
 
     renderPage(<ViewQuiz />);
 
-    screen.getByLabelText("4").click();
-    screen.getByLabelText("6").click();
-    screen.getByRole("button", { name: /submit quiz/i }).click();
+    fireEvent.click(screen.getByLabelText("4"));
+    fireEvent.click(screen.getByLabelText("6"));
+    fireEvent.click(screen.getByRole("button", { name: /submit quiz/i }));
 
     await waitFor(() => {
       expect(screen.getByRole("heading", { name: /quiz result/i, level: 1 })).toBeInTheDocument();
@@ -213,9 +215,9 @@ describe("ViewQuiz", () => {
 
     renderPage(<ViewQuiz />);
 
-    screen.getByLabelText("4").click();
-    screen.getByLabelText("6").click();
-    screen.getByRole("button", { name: /submit quiz/i }).click();
+    fireEvent.click(screen.getByLabelText("4"));
+    fireEvent.click(screen.getByLabelText("6"));
+    fireEvent.click(screen.getByRole("button", { name: /submit quiz/i }));
 
     await waitFor(() => {
       expect(screen.getByRole("alert")).toHaveTextContent(/unable to submit the quiz/i);
@@ -251,7 +253,7 @@ describe("ViewQuiz", () => {
       </>
     );
 
-    screen.getByRole("button", { name: "toggle" }).click();
+    fireEvent.click(screen.getByRole("button", { name: "toggle" }));
 
     expect(screen.getByRole("heading", { name: "اختبار الرياضيات", level: 1 })).toBeInTheDocument();
     await waitFor(() => {

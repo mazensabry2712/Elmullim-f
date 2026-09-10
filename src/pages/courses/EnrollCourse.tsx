@@ -23,7 +23,6 @@ function EnrollCourse() {
     data: course,
     isLoading,
     isError,
-    failureReason,
     refetch,
   } = useGetCourseById({
     courseId: numericCourseId,

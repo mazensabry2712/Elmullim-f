@@ -1,18 +1,10 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { beforeEach, describe, expect, it } from "vitest";
 import ContactUs from "@/pages/ContactUs";
 import ContactUsForm from "@/components/forms/contactUs/ContactUsForm";
 import { I18nProvider, useI18n } from "@/i18n";
-
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
-    section: ({ children }: { children?: React.ReactNode }) => <section>{children}</section>,
-  },
-}));
 
 const LanguageToggle = () => {
   const { toggleLanguage } = useI18n();
@@ -23,16 +15,6 @@ const LanguageToggle = () => {
   );
 };
 
-const renderPage = () =>
-  render(
-    <MemoryRouter>
-      <I18nProvider>
-        <ContactUs />
-        <LanguageToggle />
-      </I18nProvider>
-    </MemoryRouter>
-  );
-
 describe("Contact Us", () => {
   beforeEach(() => {
     localStorage.setItem("elmullim-language", "en");
@@ -41,7 +23,11 @@ describe("Contact Us", () => {
   });
 
   it("renders contact information and form", () => {
-    renderPage();
+    render(
+      <I18nProvider>
+        <ContactUs />
+      </I18nProvider>
+    );
 
     expect(screen.getByRole("heading", { name: /contact us/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /get in touch/i, level: 2 })).toBeInTheDocument();
@@ -49,7 +35,7 @@ describe("Contact Us", () => {
       "href",
       "mailto:support@elmullim.com"
     );
-    expect(screen.getByRole("link", { name: /\+99- 35895-4565/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /\+99-35895-4565/i })).toHaveAttribute(
       "href",
       "tel:+99358954565"
     );
@@ -76,7 +62,13 @@ describe("Contact Us", () => {
 
   it("switches contact content to Arabic and RTL", async () => {
     const user = userEvent.setup();
-    renderPage();
+
+    render(
+      <I18nProvider>
+        <ContactUs />
+        <LanguageToggle />
+      </I18nProvider>
+    );
 
     await user.click(screen.getByRole("button", { name: "toggle" }));
 

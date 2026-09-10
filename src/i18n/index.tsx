@@ -77,6 +77,8 @@ const translations: Record<Language, TranslationTree> = {
     "home.lessons.titlePrefix": "Buy these lessons too and join",
     "home.lessons.titleSuffix": "many other students in these lessons",
     "home.lessons.allLessons": "All Lessons",
+    "home.teachers.title": "Our Teachers",
+    "home.teachers.imageAlt": "Teacher",
   },
   ar: {
     "nav.home": "الرئيسية",
@@ -149,6 +151,8 @@ const translations: Record<Language, TranslationTree> = {
     "home.lessons.titlePrefix": "اشترِ هذه الدروس أيضًا وانضم إلى",
     "home.lessons.titleSuffix": "العديد من الطلاب الآخرين في هذه الدروس",
     "home.lessons.allLessons": "كل الدروس",
+    "home.teachers.title": "معلمونا",
+    "home.teachers.imageAlt": "معلم",
   },
 };
 

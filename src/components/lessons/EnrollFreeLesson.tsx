@@ -18,33 +18,25 @@ const EnrollFreeLesson = ({ lessonId, copy }: IProps) => {
   const navigate = useNavigate();
   const { mutateAsync: enrollLesson, isPending } = useEnrollFreeLesson();
 
+  const isArabic = copy?.enroll === "اشترك الآن";
   const text = {
     button: copy?.enroll ?? "Enroll now",
     title: copy?.detailTitle ?? "Enroll Lesson",
-    description: copy?.enroll === "اشترك الآن" ? "هل تريد الاشتراك في هذا الدرس المجاني؟" : "Are you sure you want this free lesson?",
+    description: isArabic ? "هل تريد الاشتراك في هذا الدرس المجاني؟" : "Are you sure you want this free lesson?",
     confirm: copy?.enroll ?? "Enroll now",
-    success: copy?.enroll === "اشترك الآن" ? "تم الاشتراك بنجاح" : "Lesson enrolled successfully",
-    error: copy?.enroll === "اشترك الآن" ? "حدث خطأ" : "Error",
+    success: isArabic ? "تم الاشتراك بنجاح" : "Lesson enrolled successfully",
+    error: isArabic ? "حدث خطأ" : "Error",
   };
 
   const handleEnroll = async () => {
     try {
       const { status, message } = await enrollLesson({ token, lessonId });
       if (!status) {
-        await Swal.fire({
-          icon: "error",
-          title: text.error,
-          text: message,
-        });
+        await Swal.fire({ icon: "error", title: text.error, text: message });
         return;
       }
 
-      await Swal.fire({
-        icon: "success",
-        title: text.success,
-        text: message,
-      });
-
+      await Swal.fire({ icon: "success", title: text.success, text: message });
       navigate("/profile", { state: { myLessons: true } });
     } catch (error) {
       handleResError(error);
@@ -65,7 +57,7 @@ const EnrollFreeLesson = ({ lessonId, copy }: IProps) => {
 
       <Modal
         isOpen={isOpen}
-        onOpenChange={setIsOpen}
+        onOpenChange={() => setIsOpen(false)}
         title={text.title}
         description={{ text: text.description }}
         isLoading={isPending}

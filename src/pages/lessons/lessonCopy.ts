@@ -28,6 +28,7 @@ const copy = {
     details: "View lesson details",
     content: "Lesson content",
     noContent: "No content available for this lesson.",
+    relatedLessons: "Students also join these lessons",
   },
   ar: {
     title: "الدروس",
@@ -56,6 +57,7 @@ const copy = {
     details: "عرض تفاصيل الدرس",
     content: "محتوى الدرس",
     noContent: "لا يوجد محتوى متاح لهذا الدرس.",
+    relatedLessons: "طلاب آخرون يلتحقون بهذه الدروس أيضًا",
   },
 } as const;
 

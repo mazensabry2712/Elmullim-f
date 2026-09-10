@@ -104,7 +104,7 @@ const ViewQuiz = () => {
   const quizId = Number(searchParams.get("quiz"));
   const validQuizId = Number.isInteger(quizId) && quizId > 0;
   const { data, isLoading, isError, refetch } = useGetStudentQuiz({ token, quizId });
-  const startQuiz = useStartStudentQuiz();
+  const { mutateAsync: startQuiz, isPending: isStartPending } = useStartStudentQuiz();
   const submitQuiz = useSubmitStudentQuiz();
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -132,7 +132,7 @@ const ViewQuiz = () => {
     hasStartedRef.current = true;
     setStartError(null);
 
-    void startQuiz.mutateAsync({ token, quizId })
+    void startQuiz({ token, quizId })
       .then((response) => {
         const attempt = response.data;
         setDeadlineAt(attempt.deadline_at);
@@ -206,7 +206,7 @@ const ViewQuiz = () => {
     );
   }
 
-  if (startQuiz.isPending || (!hasStartedRef.current && !startError)) {
+  if (isStartPending || (!hasStartedRef.current && !startError)) {
     return (
       <main>
         <div className="container py-24" role="status" aria-live="polite">

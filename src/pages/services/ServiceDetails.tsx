@@ -17,7 +17,7 @@ const ServiceDetails = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="container space-y-4 pt-20 text-center text-white md:space-y-6 md:pt-32 md:pb-24 pb-16"
+        className="container space-y-4 pt-20 pb-16 text-center text-white md:space-y-6 md:pt-32 md:pb-24"
       >
         <h1 className="text-4xl font-bold uppercase leading-[74px] md:text-6xl">
           {copy.detailsTitle}
@@ -30,10 +30,7 @@ const ServiceDetails = () => {
         </p>
       </motion.div>
 
-      <section
-        className="bg-white"
-        aria-labelledby="service-unavailable-title"
-      >
+      <section className="bg-white" aria-labelledby="service-unavailable-title">
         <div className="container py-12 md:py-24">
           <div className="mx-auto max-w-2xl rounded-[5px] border border-black/10 bg-white px-6 py-12 text-center shadow-[0px_0px_40px_0px_#0E2A4614] sm:px-10">
             <div
@@ -53,7 +50,7 @@ const ServiceDetails = () => {
               id="service-unavailable-title"
               className="font-epilogue text-2xl font-bold leading-9 text-black-blue md:text-3xl"
             >
-              {service ? copy.unavailableTitle : copy.unavailableTitle}
+              {copy.unavailableTitle}
             </h2>
             <p className="mt-4 font-sora text-base leading-7 text-[#4D5756] md:text-lg">
               {copy.unavailableDescription}

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
@@ -54,7 +54,7 @@ describe("ViewQuiz", () => {
     expect(screen.queryByLabelText(/enter your name/i)).not.toBeInTheDocument();
   });
 
-  it("supports Arabic and RTL with backend quiz data", () => {
+  it("supports Arabic and RTL with backend quiz data", async () => {
     mockUseGetStudentQuiz.mockReturnValue({
       data: {
         data: {
@@ -83,7 +83,9 @@ describe("ViewQuiz", () => {
       </>
     );
 
-    screen.getByRole("button", { name: "toggle" }).click();
+    await act(async () => {
+      screen.getByRole("button", { name: "toggle" }).click();
+    });
 
     expect(screen.getByRole("heading", { name: "اختبار الرياضيات", level: 1 })).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("ar");

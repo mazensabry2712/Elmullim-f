@@ -1,357 +1,144 @@
-import { Clock, Table, User } from 'lucide-react';
-
-import { useState } from 'react';
-
-import { useNavigate } from 'react-router-dom'; // Import useNavigate
-
-
-
-const days = ['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'];
-
-
-
-const schedule = [
-
-  { day: 'Fri', subject: 'English', teacher: 'Mr / John', time: '8:00 PM', date: '15/6', button: 'View Quiz' },
-
-  { day: 'Sat', subject: 'English', teacher: 'Mr / John', time: '8:00 PM', date: '18/6', button: 'Join Now' },
-
-  { day: 'Sun', subject: 'English', teacher: 'Mr / John', time: '8:00 PM', date: '19/6', button: 'Join Now' },
-
-  { day: 'Mon', subject: 'English', teacher: 'Mr / John', time: '8:00 PM', date: '20/6', button: 'Join Now' },
-
-  { day: 'Tue', subject: 'English', teacher: 'Mr / John', time: '8:00 PM', date: '21/6', button: 'Join Now' },
-
-  { day: 'Wed', subject: 'English', teacher: 'Mr / John', time: '8:00 PM', date: '22/6', button: 'Join Now' },
-
-  { day: 'Thu', subject: 'English', teacher: 'Mr / John', time: '8:00 PM', date: '23/6', button: 'Join Now' },
-
-];
-
-
-
-const ExamSchedules = () => {
-
-  const [selectedDay, setSelectedDay] = useState(null);
-
-  const [showDropdown, setShowDropdown] = useState(false);
-
-  const navigate = useNavigate(); // Initialize useNavigate
-
-
-
-  const handleDaySelect = (day:any) => {
-
-    setSelectedDay(day);
-
-    setShowDropdown(false);
-
-  };
-
-
-
-  const handleButtonClick = (buttonType:string) => {
-
-    if (buttonType === 'View Quiz') {
-
-      navigate('/view-quiz'); // Navigate to /view-quiz route
-
-    }
-
-    // You can add more conditions here for other button types if needed
-
-  };
-
-
-
-  const filteredSchedule = selectedDay
-
-    ? schedule.filter((item) => item.day === selectedDay)
-
-    : schedule;
-
-
-
-  return (
-
-    <div className="p-6 bg-white rounded-md pb-10">
-
-      <div className="w-full flex justify-end mb-5">
-
-        <input
-
-          type="search"
-
-          className="border border-main rounded-md p-2 w-[100%] md:w-[50%] focus:outline-none"
-
-          placeholder="🔍 Search"
-
-        />
-
-      </div>
-
-      <div className="bg-[#194D80] ps-2 rounded-md md:w-[80%] mx-auto mb-10">
-
-        <div className="w-full bg-white flex justify-between items-center mb-4">
-
-          <h2 className="text-xl font-bold text-[#194D80] font-epilogue ps-2">
-
-            Exam Schedule
-
-          </h2>
-
-          <div className="flex items-center gap-2">
-
-            <button
-
-              className="border border-[#194D80] text-[#194D80] px-3 py-1 rounded-md font-bold"
-
-              onClick={() => setSelectedDay(null)}
-
-            >
-
-              All
-
-            </button>
-
-            <div className="relative">
-
-              <button
-
-                className="bg-main text-white px-3 py-1 rounded-md flex items-center gap-1"
-
-                onClick={() => setShowDropdown(!showDropdown)}
-
-              >
-
-                Select Day <Table size={20} />
-
-              </button>
-
-              {showDropdown && (
-
-                <div className="absolute right-0 mt-2 w-32 bg-white border border-[#194D80] rounded-md shadow-lg z-10">
-
-                  {days.map((day) => (
-
-                    <button
-
-                      key={day}
-
-                      className="block w-full text-left px-4 py-2 text-[#194D80] hover:bg-main hover:text-white"
-
-                      onClick={() => handleDaySelect(day)}
-
-                    >
-
-                      {day}
-
-                    </button>
-
-                  ))}
-
-                </div>
-
-              )}
-
-            </div>
-
-          </div>
-
-        </div>
-
-      </div>
-
-
-
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-2">
-
-        {days.map((day, dayIndex) => {
-
-          const isLastDay = day === 'Thu';
-
-          const isBottomDay = ['Sat', 'Mon', 'Wed'].includes(day);
-
-
-
-          return (
-
-            <div
-
-              key={dayIndex}
-
-              className={`pe-2 h-[400px] ${isLastDay ? '' : 'border-e'}`}
-
-            >
-
-              <p className="font-medium text-center mb-4 text-[#194D80] capitalize">
-
-                {day}
-
-              </p>
-
-
-
-              {!isBottomDay && (
-
-                <div className="flex flex-col">
-
-                  {filteredSchedule
-
-                    .filter((item) => item.day === day)
-
-                    .map((item, index) => (
-
-                      <div
-
-                        key={index}
-
-                        className="shadow-md flex flex-col items-center gap-1 rounded-lg p-4 mb-4 border-s-4 border-s-[#194D80] border-b-4 border-b-main bg-white"
-
-                      >
-
-                        <p className="text-[#14B8AF] font-bold">{item.subject}</p>
-
-                        <p className="text-xs text-[#194D80] flex items-center gap-1">
-
-                          <User size={15} />
-
-                          {item.teacher}
-
-                        </p>
-
-                        <p className="text-xs text-[#194D80] flex items-center gap-1">
-
-                          <Clock size={15} className="text-main" />
-
-                          {item.time}
-
-                        </p>
-
-                        <p className="text-xs text-[#194D80] flex items-center gap-1">
-
-                          <Clock size={15} className="text-main" />
-
-                          {item.date}
-
-                        </p>
-
-                        <button
-
-                          className={`text-xs w-full rounded-lg py-1 ${
-
-                            item.button === 'View Quiz'
-
-                              ? 'bg-[#194D80] text-white'
-
-                              : 'bg-main text-white'
-
-                          }`}
-
-                          onClick={() => handleButtonClick(item.button)} // Call handleButtonClick on click
-
-                        >
-
-                          {item.button}
-
-                        </button>
-
-                      </div>
-
-                    ))}
-
-                </div>
-
-              )}
-
-
-
-              {isBottomDay && (
-
-                <div className="flex flex-col justify-end h-full">
-
-                  {filteredSchedule
-
-                    .filter((item) => item.day === day)
-
-                    .map((item, index) => (
-
-                      <div
-
-                        key={index}
-
-                        className="shadow-md flex flex-col items-center gap-1 rounded-lg p-4 mb-12 border-s-4 border-s-[#194D80] border-b-4 border-b-main bg-white mt-auto"
-
-                      >
-
-                        <p className="text-[#14B8AF] font-bold">{item.subject}</p>
-
-                        <p className="text-xs text-[#194D80] flex items-center gap-1">
-
-                          <User size={15} />
-
-                          {item.teacher}
-
-                        </p>
-
-                        <p className="text-xs text-[#194D80] flex items-center gap-1">
-
-                          <Clock size={15} className="text-main" />
-
-                          {item.time}
-
-                        </p>
-
-                        <p className="text-xs text-[#194D80] flex items-center gap-1">
-
-                          <Clock size={15} className="text-main" />
-
-                          {item.date}
-
-                        </p>
-
-                        <button
-
-                          className={`text-xs w-full rounded-lg py-1 ${
-
-                            item.button === 'View Quiz'
-
-                              ? 'bg-[#194D80] text-white'
-
-                              : 'bg-main text-white'
-
-                          }`}
-
-                          onClick={() => handleButtonClick(item.button)} // Call handleButtonClick on click
-
-                        >
-
-                          {item.button}
-
-                        </button>
-
-                      </div>
-
-                    ))}
-
-                </div>
-
-              )}
-
-            </div>
-
-          );
-
-        })}
-
-      </div>
-
-    </div>
-
-  );
-
+import { Clock, User, Search, Loader, AlertCircle } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import cookieService from "@/utils/cookieService";
+import { useGetStudentQuizzes } from "@/lib/react-query/student/quizzes";
+import { useI18n } from "@/i18n";
+
+type QuizScheduleCopy = {
+  title: string;
+  search: string;
+  all: string;
+  selectDay: string;
+  noQuizzes: string;
+  unavailable: string;
+  retry: string;
+  viewQuiz: string;
+  time: string;
 };
 
+const copy: Record<"en" | "ar", QuizScheduleCopy> = {
+  en: {
+    title: "Quiz Schedule",
+    search: "Search quizzes...",
+    all: "All",
+    selectDay: "Select day",
+    noQuizzes: "No quizzes are available for your education level.",
+    unavailable: "Unable to load quizzes right now.",
+    retry: "Try again",
+    viewQuiz: "View Quiz",
+    time: "Time",
+  },
+  ar: {
+    title: "جدول الاختبارات",
+    search: "ابحث عن الاختبارات...",
+    all: "الكل",
+    selectDay: "اختر اليوم",
+    noQuizzes: "لا توجد اختبارات متاحة لمستواك التعليمي حاليًا.",
+    unavailable: "تعذر تحميل الاختبارات حاليًا.",
+    retry: "حاول مرة أخرى",
+    viewQuiz: "عرض الاختبار",
+    time: "الوقت",
+  },
+};
 
+const getDayName = (date: string | null | undefined, language: "en" | "ar") =>
+  date
+    ? new Intl.DateTimeFormat(language, { weekday: "short" }).format(new Date(date))
+    : "—";
 
-export default ExamSchedules;
+const QuizSchedules = () => {
+  const { language } = useI18n();
+  const pageCopy = copy[language];
+  const token = cookieService.getToken() || undefined;
+  const navigate = useNavigate();
+  const [search, setSearch] = useState("");
+  const [selectedDay, setSelectedDay] = useState<string>("");
+  const { data, isLoading, isError, refetch } = useGetStudentQuizzes(token);
+
+  const quizzes = useMemo(() => {
+    const normalized = search.trim().toLowerCase();
+    return (data?.data ?? []).filter((quiz) => {
+      const day = getDayName(quiz.date, language);
+      const matchesDay = !selectedDay || day === selectedDay;
+      const haystack = [quiz.title, quiz.subject?.name, quiz.teacher?.name, quiz.academic_year]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return matchesDay && (!normalized || haystack.includes(normalized));
+    });
+  }, [data?.data, language, search, selectedDay]);
+
+  const days = useMemo(
+    () => Array.from(new Set((data?.data ?? []).map((quiz) => getDayName(quiz.date, language)).filter((day) => day !== "—"))),
+    [data?.data, language]
+  );
+
+  return (
+    <section className="p-6 bg-white rounded-md pb-10" aria-labelledby="quiz-schedule-title">
+      <div className="flex flex-col md:flex-row gap-3 justify-between mb-6">
+        <h2 id="quiz-schedule-title" className="text-xl font-bold text-[#194D80]">{pageCopy.title}</h2>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <label className="relative">
+            <span className="sr-only">{pageCopy.search}</span>
+            <Search className="absolute start-3 top-1/2 -translate-y-1/2" size={18} aria-hidden="true" />
+            <input
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              className="border border-main rounded-md py-2 ps-9 pe-3 w-full sm:w-64 focus:outline-none focus:ring-2 focus:ring-main"
+              placeholder={pageCopy.search}
+              aria-label={pageCopy.search}
+            />
+          </label>
+          <select
+            value={selectedDay}
+            onChange={(event) => setSelectedDay(event.target.value)}
+            className="border border-[#194D80] rounded-md px-3 py-2"
+            aria-label={pageCopy.selectDay}
+          >
+            <option value="">{pageCopy.all}</option>
+            {days.map((day) => <option key={day} value={day}>{day}</option>)}
+          </select>
+        </div>
+      </div>
+
+      {isLoading ? (
+        <div className="py-12" role="status" aria-live="polite">
+          <Loader className="mx-auto animate-spin" size={40} aria-hidden="true" />
+        </div>
+      ) : isError ? (
+        <div className="py-12 text-center" role="alert">
+          <AlertCircle className="mx-auto mb-3 text-main" size={36} aria-hidden="true" />
+          <p className="text-[#194D80]">{pageCopy.unavailable}</p>
+          <button type="button" onClick={() => void refetch()} className="mt-4 bg-main text-white rounded-md px-5 py-2">
+            {pageCopy.retry}
+          </button>
+        </div>
+      ) : !quizzes.length ? (
+        <p className="py-12 text-center text-[#194D80]" role="status">{pageCopy.noQuizzes}</p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+          {quizzes.map((quiz) => (
+            <article key={quiz.id} className="shadow-md rounded-lg p-5 border-s-4 border-s-[#194D80] border-b-4 border-b-main bg-white">
+              <p className="text-main font-bold">{quiz.subject?.name || "—"}</p>
+              <h3 className="text-lg font-bold text-[#194D80] mt-1">{quiz.title || "—"}</h3>
+              <p className="text-sm text-[#194D80] flex items-center gap-2 mt-2"><User size={16} aria-hidden="true" />{quiz.teacher?.name || "—"}</p>
+              <p className="text-sm text-[#194D80] flex items-center gap-2"><Clock size={16} aria-hidden="true" />{quiz.start_time || "—"} – {quiz.end_time || "—"}</p>
+              <p className="text-sm text-[#194D80] mt-1">{quiz.date ? new Date(quiz.date).toLocaleDateString(language) : "—"}</p>
+              <button
+                type="button"
+                onClick={() => navigate(`/view-quiz?quiz=${quiz.id}`)}
+                className="mt-4 text-xs w-full rounded-lg py-2 bg-[#194D80] text-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+              >
+                {pageCopy.viewQuiz}
+              </button>
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  );
+};
+
+export default QuizSchedules;

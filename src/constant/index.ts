@@ -635,17 +635,18 @@ export const CHAT_OPTIONS = [
   {
     title: "Create a New Room",
     description:
-      "Create a private chat room and add your team to complete your project.",
+      "Create a private chat room for focused learning conversations.",
     icon: faChalkboardTeacher,
   },
   {
     title: "Join a Room",
-    description: "Join a room using the promo code.",
+    description: "Join your teacher's chat room using a room code.",
     icon: faUsers,
   },
   {
     title: "View Available Rooms",
-    description: "View all available rooms and request to join.",
+    description:
+      "Browse available rooms and request to join a learning conversation.",
     icon: faEye,
   },
 ];

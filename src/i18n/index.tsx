@@ -22,6 +22,7 @@ const translations: Record<Language, TranslationTree> = {
     "nav.toggleMenu": "Toggle Menu",
     "language.english": "English",
     "language.arabic": "العربية",
+    "common.loading": "Loading",
     "home.hero.title": "Get The Best Learning Experience With",
     "home.hero.whyChooseUs": "Why Choose Us",
     "home.hero.description": "Learn with qualified teachers, access engaging courses and lessons, and stay connected through a learning experience designed for students, teachers, and families.",
@@ -68,6 +69,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.career.items.1.title": "For Teachers",
     "home.career.items.1.description": "Share your knowledge, inspire students, and grow your teaching career.",
     "home.career.joinNow": "Join Now",
+    "home.courses.badge": "Top Popular Courses",
+    "home.courses.titlePrefix": "Buy these courses too and join",
+    "home.courses.titleSuffix": "many other students in these courses",
+    "home.courses.allCourses": "All Courses",
   },
   ar: {
     "nav.home": "الرئيسية",
@@ -85,6 +90,7 @@ const translations: Record<Language, TranslationTree> = {
     "nav.toggleMenu": "فتح وإغلاق القائمة",
     "language.english": "English",
     "language.arabic": "العربية",
+    "common.loading": "جاري التحميل",
     "home.hero.title": "احصل على أفضل تجربة تعليمية مع",
     "home.hero.whyChooseUs": "لماذا نحن؟",
     "home.hero.description": "تعلّم مع معلمين مؤهلين، واستفد من الكورسات والدروس التفاعلية، وابقَ على تواصل من خلال تجربة تعليمية مصممة للطلاب والمعلمين والعائلات.",
@@ -131,6 +137,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.career.items.1.title": "للمعلمين",
     "home.career.items.1.description": "شارك معرفتك، وألهم الطلاب، وطوّر مسيرتك التعليمية.",
     "home.career.joinNow": "انضم الآن",
+    "home.courses.badge": "أشهر الكورسات",
+    "home.courses.titlePrefix": "اشترِ هذه الكورسات أيضًا وانضم إلى",
+    "home.courses.titleSuffix": "العديد من الطلاب الآخرين في هذه الكورسات",
+    "home.courses.allCourses": "كل الكورسات",
   },
 };
 

@@ -6,11 +6,13 @@ import ViewQuiz from "@/components/profiles/student/quizes/ViewQuiz";
 import { I18nProvider, useI18n } from "@/i18n";
 
 const mockUseGetStudentQuiz = vi.fn();
+const mockUseStartStudentQuiz = vi.fn();
 const mockUseSubmitStudentQuiz = vi.fn();
 const mockUseGetStudentQuizResult = vi.fn();
 
 vi.mock("@/lib/react-query/student/quizzes", () => ({
   useGetStudentQuiz: (...args: unknown[]) => mockUseGetStudentQuiz(...args),
+  useStartStudentQuiz: (...args: unknown[]) => mockUseStartStudentQuiz(...args),
   useSubmitStudentQuiz: (...args: unknown[]) => mockUseSubmitStudentQuiz(...args),
   useGetStudentQuizResult: (...args: unknown[]) => mockUseGetStudentQuizResult(...args),
 }));
@@ -32,6 +34,26 @@ describe("ViewQuiz", () => {
     localStorage.setItem("elmullim-language", "en");
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
+
+    mockUseStartStudentQuiz.mockReturnValue({
+      mutateAsync: vi.fn().mockResolvedValue({
+        status: true,
+        message: "Quiz started successfully",
+        data: {
+          id: 11,
+          quiz_id: 7,
+          score: 0,
+          total_score: 0,
+          percentage: 0,
+          correct_answers: 0,
+          started_at: new Date().toISOString(),
+          deadline_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
+          submitted_at: null,
+          answers: [],
+        },
+      }),
+      isPending: false,
+    });
 
     mockUseSubmitStudentQuiz.mockReturnValue({
       mutateAsync: vi.fn(),
@@ -118,6 +140,7 @@ describe("ViewQuiz", () => {
 
     renderPage(<ViewQuiz />);
 
+    await waitFor(() => expect(screen.getByLabelText("4")).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText("4"));
     fireEvent.click(screen.getByRole("button", { name: /submit quiz/i }));
 
@@ -145,6 +168,8 @@ describe("ViewQuiz", () => {
         total_score: 5,
         percentage: 100,
         correct_answers: 2,
+        started_at: new Date().toISOString(),
+        deadline_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
         submitted_at: "2026-09-10T10:31:00Z",
         answers: [
           { question_id: 101, selected_option_id: 201, is_correct: true, awarded_score: 2 },
@@ -166,6 +191,8 @@ describe("ViewQuiz", () => {
                 total_score: 5,
                 percentage: 100,
                 correct_answers: 2,
+                started_at: new Date().toISOString(),
+                deadline_at: new Date(Date.now() + 5 * 60 * 1000).toISOString(),
                 submitted_at: "2026-09-10T10:31:00Z",
                 answers: [
                   { question_id: 101, selected_option_id: 201, is_correct: true, awarded_score: 2 },
@@ -181,6 +208,7 @@ describe("ViewQuiz", () => {
 
     renderPage(<ViewQuiz />);
 
+    await waitFor(() => expect(screen.getByLabelText("4")).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText("4"));
     fireEvent.click(screen.getByLabelText("6"));
     fireEvent.click(screen.getByRole("button", { name: /submit quiz/i }));
@@ -202,6 +230,65 @@ describe("ViewQuiz", () => {
     expect(screen.getByText("2")).toBeInTheDocument();
   });
 
+  it("restores the saved result when the student revisits an already submitted quiz", async () => {
+    mockUseGetStudentQuiz.mockReturnValue({
+      data: quizData,
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    mockUseStartStudentQuiz.mockReturnValue({
+      mutateAsync: vi.fn().mockResolvedValue({
+        status: true,
+        message: "Quiz attempt already exists",
+        data: {
+          id: 11,
+          quiz_id: 7,
+          score: 5,
+          total_score: 5,
+          percentage: 100,
+          correct_answers: 2,
+          started_at: "2026-09-10T10:00:00Z",
+          deadline_at: "2026-09-10T10:30:00Z",
+          submitted_at: "2026-09-10T10:31:00Z",
+          answers: [],
+        },
+      }),
+      isPending: false,
+    });
+
+    mockUseGetStudentQuizResult.mockReturnValue({
+      data: {
+        status: true,
+        message: null,
+        data: {
+          id: 11,
+          quiz_id: 7,
+          score: 5,
+          total_score: 5,
+          percentage: 100,
+          correct_answers: 2,
+          started_at: "2026-09-10T10:00:00Z",
+          deadline_at: "2026-09-10T10:30:00Z",
+          submitted_at: "2026-09-10T10:31:00Z",
+          answers: [],
+        },
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    renderPage(<ViewQuiz />);
+
+    await waitFor(() => {
+      expect(screen.getByRole("heading", { name: /quiz result/i, level: 1 })).toBeInTheDocument();
+    });
+
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
+    expect(screen.getByText("5 / 5")).toBeInTheDocument();
+  });
+
   it("shows an inline error when quiz submission fails", async () => {
     mockUseGetStudentQuiz.mockReturnValue({
       data: quizData,
@@ -215,6 +302,7 @@ describe("ViewQuiz", () => {
 
     renderPage(<ViewQuiz />);
 
+    await waitFor(() => expect(screen.getByLabelText("4")).toBeInTheDocument());
     fireEvent.click(screen.getByLabelText("4"));
     fireEvent.click(screen.getByLabelText("6"));
     fireEvent.click(screen.getByRole("button", { name: /submit quiz/i }));

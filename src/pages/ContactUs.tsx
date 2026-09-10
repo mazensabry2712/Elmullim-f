@@ -7,18 +7,12 @@ import {
   faPhone,
   IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
-import {
-  faFacebookF,
-  faInstagram,
-  faTwitter,
-  faYoutube,
-} from "@fortawesome/free-brands-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
 import { useI18n } from "@/i18n";
 
 const contactInfo: {
-  title: string;
+  title: "address" | "hours" | "phone" | "email";
   description: string;
   subDescription?: string;
   icon: IconDefinition;
@@ -49,8 +43,32 @@ const contactInfo: {
   },
 ];
 
+const contactCopy = {
+  en: {
+    title: "Contact Us",
+    getInTouch: "Get in Touch",
+    description: "Have a question or need help? Send us a message and our team will get back to you.",
+    address: "Our Address",
+    hours: "Hours of Operation",
+    phone: "Phone",
+    email: "Email",
+    holiday: "[2nd Sat Holiday]",
+  },
+  ar: {
+    title: "تواصل معنا",
+    getInTouch: "تواصل معنا",
+    description: "هل لديك سؤال أو تحتاج إلى مساعدة؟ أرسل لنا رسالة وسيتواصل معك فريقنا.",
+    address: "العنوان",
+    hours: "ساعات العمل",
+    phone: "الهاتف",
+    email: "البريد الإلكتروني",
+    holiday: "[عطلة السبت الثاني]",
+  },
+} as const;
+
 const ContactUs = () => {
-  const { t } = useI18n();
+  const { language, t } = useI18n();
+  const copy = contactCopy[language];
 
   return (
     <main>
@@ -65,11 +83,11 @@ const ContactUs = () => {
           id="contact-us-title"
           className="uppercase text-4xl md:text-6xl font-bold leading-[74px]"
         >
-          {t("contact.hero.title")}
+          {copy.title}
         </h1>
         <p className="font-sora font-light capitalize leading-[30px]">
           <span>{t("nav.home")}</span> <span className="text-main">//</span>{" "}
-          <span>{t("contact.hero.title")}</span>
+          <span>{copy.title}</span>
         </p>
       </motion.div>
       <motion.section
@@ -92,26 +110,27 @@ const ContactUs = () => {
                 <div className="space-y-10">
                   <div className="space-y-3 text-center lg:text-start">
                     <h2 className="font-bold text-3xl md:text-4xl text-black-blue">
-                      {t("contact.form.title")}
+                      {copy.getInTouch}
                     </h2>
                     <p className="font-sora text-sm md:text-[17px] text-[#4D5756]">
-                      {t("contact.form.description")}
+                      {copy.description}
                     </p>
                   </div>
                   <div className="bg-white py-12 px-4 xl:px-9">
                     <div className="space-y-7">
                       {contactInfo.map((item) => {
+                        const label = copy[item.title];
                         const content = (
                           <>
                             <p className="text-sm md:text-base font-sora text-[#4D5756] capitalize">
-                              {t(`contact.info.${item.title}`)}
+                              {label}
                             </p>
                             <h3 className="md:text-[21px] font-bold text-black-blue break-words">
                               {item.description}
                             </h3>
                             {item.subDescription && (
                               <p className="text-sm md:text-base font-sora text-[#4D5756] capitalize">
-                                {t("contact.info.holiday")}
+                                {copy.holiday}
                               </p>
                             )}
                           </>
@@ -130,7 +149,7 @@ const ContactUs = () => {
                               {item.href ? (
                                 <a
                                   href={item.href}
-                                  className="group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 rounded-sm"
+                                  className="focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 rounded-sm"
                                 >
                                   {content}
                                 </a>

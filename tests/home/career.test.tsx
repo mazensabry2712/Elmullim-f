@@ -16,17 +16,30 @@ vi.mock("@/components/ui/BadgeTitle", () => ({
 }));
 
 vi.mock("@/components/home/Career/CareerCard", () => ({
-  default: ({ title, description }: { title: string; description: string }) => (
+  default: ({
+    title,
+    description,
+    href,
+  }: {
+    title: string;
+    description: string;
+    href: string;
+  }) => (
     <article>
       <h3>{title}</h3>
       <p>{description}</p>
+      <a href={href}>Join</a>
     </article>
   ),
 }));
 
 const LanguageToggle = () => {
   const { toggleLanguage } = useI18n();
-  return <button type="button" onClick={toggleLanguage}>toggle</button>;
+  return (
+    <button type="button" onClick={toggleLanguage}>
+      toggle
+    </button>
+  );
 };
 
 const renderCareer = () =>
@@ -50,6 +63,16 @@ describe("Home career", () => {
     expect(screen.getByRole("heading", { name: /discover your gain/i })).toBeInTheDocument();
     expect(screen.getByText("For Students")).toBeInTheDocument();
     expect(screen.getByText("For Teachers")).toBeInTheDocument();
+  });
+
+  it("links each career CTA to the correct signup route", () => {
+    renderCareer();
+
+    expect(screen.getAllByRole("link", { name: "Join" })[0]).toHaveAttribute("href", "/sign-up");
+    expect(screen.getAllByRole("link", { name: "Join" })[1]).toHaveAttribute(
+      "href",
+      "/teacher/sign-up"
+    );
   });
 
   it("switches career content to Arabic and RTL", async () => {

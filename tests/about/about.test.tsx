@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import About from "@/pages/About";
 import { I18nProvider, useI18n } from "@/i18n";
 
@@ -30,7 +31,15 @@ const Toggle = () => {
   return <button onClick={toggleLanguage}>toggle</button>;
 };
 
-const renderAbout = () => render(<I18nProvider><About /><Toggle /></I18nProvider>);
+const renderAbout = () =>
+  render(
+    <MemoryRouter>
+      <I18nProvider>
+        <About />
+        <Toggle />
+      </I18nProvider>
+    </MemoryRouter>
+  );
 
 describe("About page", () => {
   beforeEach(() => {

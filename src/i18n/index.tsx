@@ -57,6 +57,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.chat.availableTitle": "View Available Rooms",
     "home.chat.availableDescription": "Explore available learning rooms and request to join.",
     "home.chat.imageAlt": "Elmullim learning platform",
+    "home.comments.badge": "Comments",
+    "home.comments.title": "User Comments",
+    "home.comments.role": "Happy Customer",
+    "home.comments.quote": "The learning experience is clear, engaging, and easy to follow. Elmullim helps students stay connected with their teachers.",
   },
   ar: {
     "nav.home": "الرئيسية",
@@ -109,6 +113,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.chat.availableTitle": "عرض الغرف المتاحة",
     "home.chat.availableDescription": "استعرض الغرف التعليمية المتاحة واطلب الانضمام إليها.",
     "home.chat.imageAlt": "منصة المعلّم التعليمية",
+    "home.comments.badge": "التعليقات",
+    "home.comments.title": "آراء المستخدمين",
+    "home.comments.role": "عميل سعيد",
+    "home.comments.quote": "تجربة التعلم واضحة وممتعة وسهلة المتابعة. المعلّم يساعد الطلاب على البقاء على تواصل مع معلميهم.",
   },
 };
 

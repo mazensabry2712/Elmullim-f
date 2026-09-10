@@ -2,7 +2,16 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it } from "vitest";
 import FactCard from "@/components/FactCard";
-import { I18nProvider } from "@/i18n";
+import { I18nProvider, useI18n } from "@/i18n";
+
+const LanguageToggle = () => {
+  const { toggleLanguage } = useI18n();
+  return (
+    <button type="button" onClick={toggleLanguage}>
+      toggle
+    </button>
+  );
+};
 
 describe("Home fun facts", () => {
   beforeEach(() => {
@@ -30,11 +39,6 @@ describe("Home fun facts", () => {
 
   it("renders the statistic in Arabic and preserves RTL", async () => {
     const user = userEvent.setup();
-
-    const LanguageToggle = () => {
-      const { toggleLanguage } = require("@/i18n") as typeof import("@/i18n");
-      return <button type="button" onClick={toggleLanguage}>toggle</button>;
-    };
 
     render(
       <I18nProvider>

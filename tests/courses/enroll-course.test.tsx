@@ -6,9 +6,14 @@ import EnrollCourse from "@/pages/courses/EnrollCourse";
 import { I18nProvider } from "@/i18n";
 
 const mockUseGetCourseById = vi.fn();
+const mockUseInitiatePayment = vi.fn();
 
 vi.mock("@/lib/react-query/courses/courses", () => ({
   useGetCourseById: (...args: unknown[]) => mockUseGetCourseById(...args),
+}));
+
+vi.mock("@/lib/react-query/student/enrolling", () => ({
+  useInitiatePayment: (...args: unknown[]) => mockUseInitiatePayment(...args),
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -59,6 +64,11 @@ describe("Course enrollment", () => {
     localStorage.setItem("elmullim-language", "en");
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
+    mockUseInitiatePayment.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+      isError: false,
+    });
   });
 
   it("shows a real free-course enrollment action", () => {
@@ -88,7 +98,7 @@ describe("Course enrollment", () => {
     expect(screen.getByRole("button", { name: /enroll free course 7/i })).toBeInTheDocument();
   });
 
-  it("does not present a fake payment form for paid courses", () => {
+  it("uses the real Paymob wallet payment flow for paid courses", () => {
     mockUseGetCourseById.mockReturnValue({
       data: {
         data: {
@@ -110,10 +120,12 @@ describe("Course enrollment", () => {
 
     renderPage();
 
-    expect(screen.getByText(/online payment is not available yet/i)).toBeInTheDocument();
-    expect(screen.getByText(/connected payment gateway/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /pay securely with your wallet/i, level: 3 })).toBeInTheDocument();
+    expect(screen.getByLabelText(/wallet number/i)).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();
+    expect(screen.queryByLabelText(/card number/i)).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/cvv/i)).not.toBeInTheDocument();
     expect(screen.queryByLabelText(/email/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /^pay$/i })).not.toBeInTheDocument();
   });
 
   it("renders a retryable error state when the course cannot be loaded", () => {

@@ -7,46 +7,13 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { containerVariants, itemVariants } from "@/animations";
-
-const items = [
-  {
-    title: "Why do students prefer online learning?",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  },
-  {
-    title: "Where should I study abroad?",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  },
-  {
-    title: "How can I contact a school directly?",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  },
-  {
-    title: "How do I find a school where I want to study?",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  },
-  {
-    title: "How does it create content?",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  },
-  {
-    title: "Why students love doing anlot of creativity ideas?",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  },
-  {
-    title: "How to help student approve himself?",
-    content:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
-  },
-];
+import { useI18n } from "@/i18n";
+import { getFaqCopy } from "./faqCopy";
 
 const Faqs = () => {
+  const { language } = useI18n();
+  const copy = getFaqCopy(language);
+
   return (
     <main>
       <motion.div
@@ -57,18 +24,23 @@ const Faqs = () => {
         className="container text-center text-white space-y-4 md:space-y-6 pt-20 md:pt-32 pb-16 md:pb-24"
       >
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
-          faqs
+          {copy.title}
         </h1>
-        <p className="font-sora font-light capitalize leading-[30px]">
-          home <span className="text-main">//</span> FAQS
+        <p
+          className="font-sora font-light capitalize leading-[30px]"
+          aria-label={copy.breadcrumb}
+        >
+          {copy.breadcrumbHome} <span className="text-main">//</span> {copy.title}
         </p>
       </motion.div>
+
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
         className="bg-white"
+        aria-label={copy.title}
       >
         <div className="container py-12 md:py-24">
           <Accordion defaultValue="item-0" type="single" collapsible>
@@ -78,17 +50,17 @@ const Faqs = () => {
               initial="hidden"
               whileInView="visible"
             >
-              {items.map(({ title, content }, index) => (
-                <motion.div key={index} variants={itemVariants}>
+              {copy.items.map((item, index) => (
+                <motion.div key={item.question} variants={itemVariants}>
                   <AccordionItem
                     value={`item-${index}`}
-                    className="border border-[##2E1E1] rounded-[5px]"
+                    className="overflow-hidden rounded-[5px] border border-[#2E1E1]"
                   >
-                    <AccordionTrigger className="font-semibold text-black-blue text-xl data-[state=open]:text-white data-[state=open]:bg-[#FC9F0B] px-4 data-[state=open]:mb-5 rounded-t-[5px] hover:no-underline	 ">
-                      {title}
+                    <AccordionTrigger className="px-4 text-start text-xl font-semibold text-black-blue hover:no-underline data-[state=open]:mb-5 data-[state=open]:rounded-b-none data-[state=open]:bg-[#FC9F0B] data-[state=open]:text-white">
+                      {item.question}
                     </AccordionTrigger>
-                    <AccordionContent className="px-4 text-[#333931] font-sora text-[17px] leading-[32px]">
-                      {content}
+                    <AccordionContent className="px-4 text-start font-sora text-[17px] leading-[32px] text-[#333931]">
+                      {item.answer}
                     </AccordionContent>
                   </AccordionItem>
                 </motion.div>
@@ -96,9 +68,7 @@ const Faqs = () => {
             </motion.div>
           </Accordion>
         </div>
-        <div>
-          <Newsletter />
-        </div>
+        <Newsletter />
       </motion.section>
     </main>
   );

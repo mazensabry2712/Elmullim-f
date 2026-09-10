@@ -1,5 +1,6 @@
 import { itemVariants } from "@/animations";
 import { motion } from "framer-motion";
+import { useI18n } from "@/i18n";
 import TeacherSocial from "./TeacherSocial";
 
 interface IProps {
@@ -13,7 +14,10 @@ interface IProps {
     };
   };
 }
+
 const TeacherCard = ({ teacher }: IProps) => {
+  const { t } = useI18n();
+
   return (
     <motion.div
       key={teacher.id}
@@ -23,7 +27,7 @@ const TeacherCard = ({ teacher }: IProps) => {
       <div className="h-96 overflow-hidden">
         <img
           src={teacher.img}
-          alt="teacher"
+          alt={t("home.teachers.imageAlt")}
           className="w-full h-full"
           loading="lazy"
         />

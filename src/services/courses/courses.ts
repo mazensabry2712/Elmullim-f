@@ -10,7 +10,8 @@ export const getAllCourses = async ({
   q?: string;
   token?: string;
 }): Promise<ICoursesRes> => {
-  const { data } = await axiosAPI.get(`/courses/all${q ? `?q=${q}` : ""}`, {
+  const query = q?.trim() ? `?q=${encodeURIComponent(q.trim())}` : "";
+  const { data } = await axiosAPI.get(`/courses/all${query}`, {
     headers: {
       Authorization: token ? `Bearer ${token}` : undefined,
     },

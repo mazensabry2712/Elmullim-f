@@ -79,6 +79,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.lessons.allLessons": "All Lessons",
     "home.teachers.title": "Our Teachers",
     "home.teachers.imageAlt": "Teacher",
+    "home.teachers.toggleSocialLinks": "Toggle teacher social links",
+    "home.teachers.facebook": "Open teacher Facebook profile",
+    "home.teachers.linkedin": "Open teacher LinkedIn profile",
+    "home.teachers.x": "Open teacher X profile",
   },
   ar: {
     "nav.home": "الرئيسية",
@@ -153,6 +157,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.lessons.allLessons": "كل الدروس",
     "home.teachers.title": "معلمونا",
     "home.teachers.imageAlt": "معلم",
+    "home.teachers.toggleSocialLinks": "فتح وإغلاق روابط التواصل مع المعلم",
+    "home.teachers.facebook": "فتح الملف الشخصي للمعلم على فيسبوك",
+    "home.teachers.linkedin": "فتح الملف الشخصي للمعلم على لينكدإن",
+    "home.teachers.x": "فتح الملف الشخصي للمعلم على X",
   },
 };
 

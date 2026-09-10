@@ -20,7 +20,7 @@ const Hero = () => {
           initial="hidden"
           animate="visible"
           viewport={{ once: true }}
-          className="flex flex-col xl:flex-row  justify-between gap-4"
+          className="flex flex-col xl:flex-row justify-between gap-4"
         >
           <div className="w-full xl:max-w-[646px] mt-6 xl:mt-0 relative">
             <motion.div
@@ -34,7 +34,7 @@ const Hero = () => {
             />
             <motion.h1
               variants={itemVariants}
-              className="max-w-[646px] mx-auto font-bold text-[45px] capitalize leading-[45px] text-center text-black-blue"
+              className="max-w-[646px] mx-auto font-bold text-4xl md:text-[45px] leading-tight md:leading-[45px] capitalize text-center text-black-blue"
             >
               Get The Best Learning Experience With{" "}
               <span className="font-exo font-semibold text-main text-4xl">
@@ -47,11 +47,10 @@ const Hero = () => {
                 className="mt-4 flex flex-col gap-2 items-center xl:items-start"
               >
                 <BadgeTitle title="Why Choose Us" />
-                <p className="max-w-[646px] text-[17px] leading-relaxed text-[#333931] text-center xl:text-start">
-                  Lorem Ipsumis simply dummy text of the printing and
-                  typesetting industry. Lorem Ipsum has been the industry's
-                  standard dummy text ever since the 1500s, when an unknown
-                  printer took a galley
+                <p className="max-w-[646px] text-[16px] md:text-[17px] leading-relaxed text-[#333931] text-center xl:text-start">
+                  Learn with qualified teachers, access engaging courses and
+                  lessons, and stay connected through a learning experience
+                  designed for students, teachers, and families.
                 </p>
               </motion.div>
               <motion.div
@@ -83,7 +82,7 @@ const Hero = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.3 }}
                 src="/images/hero-img-bg.webp"
-                alt="elmullim"
+                alt="Elmullim learning experience background"
                 className="max-w-xl w-full absolute"
               />
               <motion.img
@@ -92,7 +91,7 @@ const Hero = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1, duration: 0.3 }}
                 src="/images/hero-img.webp"
-                alt="elmullim"
+                alt="Elmullim learning experience"
                 className="max-w-xl w-full relative z-10 filter drop-shadow-[4px_4px_4px_rgba(0,0,0,0.25)]"
               />
               <motion.img
@@ -101,7 +100,7 @@ const Hero = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1, duration: 0.3 }}
                 src="/icons/cap-icon.svg"
-                alt="elmullim"
+                alt="Graduation cap"
                 className="absolute -left-8 top-12 xl:-translate-y-1/2"
               />
             </div>

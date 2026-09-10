@@ -14,43 +14,98 @@ import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { Loader } from "lucide-react";
 import { useEffect } from "react";
+import { useI18n } from "@/i18n";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { getLessonsCopy } from "./lessonCopy";
 
 const ViewLesson = () => {
-  const token = cookieService.getToken()!;
-  const { lessonId } = useParams();
+  const { language } = useI18n();
+  const copy = getLessonsCopy(language);
+  const token = cookieService.getToken() || "";
+  const { lessonId } = useParams<{ lessonId: string }>();
   const navigate = useNavigate();
-  const {
-    data: lesson,
-    isLoading,
-    failureReason,
-  } = useGetLessonById({
+  const numericLessonId = Number(lessonId);
+  const validLessonId = Number.isInteger(numericLessonId) && numericLessonId > 0;
+  const location = useLocation();
+
+  const { data: lesson, isLoading, isError, failureReason } = useGetLessonById({
     token,
-    lessonId: Number(lessonId),
+    lessonId: numericLessonId,
   });
-  const lessonFailure = failureReason as AxiosResErr;
+  const lessonFailure = failureReason as AxiosResErr | undefined;
+
   const { data: contents, isLoading: isLoadingContent } = useGetLessonContents(
-    Number(lessonId)
+    numericLessonId
   );
-  const { data: lectures, isLoading: isLoadingLectures } = useGetLessonLectures(
-    {
-      token,
-      lessonId: Number(lessonId),
-      contentId: contents?.data[0].id as number,
-    }
-  );
-  const { lecture } = (useLocation().state as { lecture: ILecture }) || {
-    lecture: lectures?.data?.[0] ?? null,
-  };
+  const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
+  const firstContentId = contents?.data?.[0]?.id;
+  const { data: lectures, isLoading: isLoadingLectures } = useGetLessonLectures({
+    token,
+    lessonId: numericLessonId,
+    contentId: firstContentId as number,
+  });
+  const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
+
   useEffect(() => {
-    if (!Number(lessonId)) navigate("/", { replace: true });
-    if (!lesson?.data.hasEnrolled && !isLoading) navigate(-1);
-    if (lessonFailure) {
-      toast.error(lessonFailure.response?.data.message);
-      navigate(-1);
+    document.title = `${copy.viewTitle} | Elmullim`;
+  }, [copy.viewTitle]);
+
+  useEffect(() => {
+    if (!validLessonId) {
+      navigate("/lessons", { replace: true });
+      return;
     }
-  }, [lessonId, navigate, lesson, token, isLoading, lessonFailure, lecture]);
+
+    if (lessonFailure) {
+      toast.error(lessonFailure.response?.data?.message || copy.detailsError);
+      navigate("/lessons", { replace: true });
+      return;
+    }
+
+    if (!isLoading && isError) {
+      toast.error(copy.detailsError);
+      navigate("/lessons", { replace: true });
+      return;
+    }
+
+    if (!isLoading && lesson?.data && !lesson.data.hasEnrolled) {
+      navigate(`/lessons/${numericLessonId}`, { replace: true });
+    }
+  }, [validLessonId, navigate, lessonFailure, isError, isLoading, lesson, numericLessonId, copy.detailsError]);
+
+  if (!validLessonId) return null;
+
+  if (isLoading) {
+    return (
+      <main>
+        <div className="container py-24" role="status" aria-live="polite">
+          <Loader size={40} className="mx-auto animate-spin" aria-hidden="true" />
+          <span className="sr-only">{copy.loadingLesson}</span>
+        </div>
+      </main>
+    );
+  }
+
+  if (isError || !lesson?.data || !lesson.data.hasEnrolled) {
+    return (
+      <main>
+        <div className="container py-24 text-center" role="alert">
+          <p className="font-sora text-lg text-[#4D5756]">{copy.detailsError}</p>
+          <button
+            type="button"
+            onClick={() => navigate(`/lessons/${numericLessonId}`)}
+            className="mt-5 bg-main text-white rounded-[5px] px-6 py-2"
+          >
+            {copy.backToLessons}
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  const lessonData = lesson.data;
+
   return (
     <main>
       <motion.div
@@ -61,10 +116,10 @@ const ViewLesson = () => {
         className="container text-center text-white space-y-4 md:space-y-6 pt-16 md:pt-24 pb-12 md:pb-20"
       >
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
-          View Lesson
+          {copy.viewTitle}
         </h1>
-        <p className="font-sora font-light capitalize leading-[30px]">
-          home <span className="text-main">//</span> view lesson
+        <p className="font-sora font-light leading-[30px]" aria-label={copy.viewBreadcrumb}>
+          {copy.home} <span className="text-main">//</span> {copy.viewTitle}
         </p>
       </motion.div>
       <motion.section
@@ -73,47 +128,52 @@ const ViewLesson = () => {
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
         className="bg-white"
+        aria-labelledby="view-lesson-title"
       >
         <div className="py-12 md:py-24">
-          {isLoading || isLoadingContent || isLoadingLectures ? (
-            <Loader size={40} className="mx-auto animate-spin" />
+          {isLoadingContent || isLoadingLectures ? (
+            <div className="py-10" role="status" aria-live="polite">
+              <Loader size={40} className="mx-auto animate-spin" aria-hidden="true" />
+              <span className="sr-only">{copy.loadingLesson}</span>
+            </div>
           ) : (
             <>
               <div className="flex flex-col lg:flex-row px-2 md:px-6 xl:px-12">
                 <div className="flex-1">
-                  <h1 className="pl-6 xl:pl-16 text-2xl font-bold mb-4 text-black-blue">
-                    {lesson?.data.title}
-                  </h1>
-
+                  <h2 id="view-lesson-title" className="pl-6 xl:pl-16 text-2xl font-bold mb-4 text-black-blue">
+                    {lessonData.title}
+                  </h2>
                   <div className="flex flex-col xl:flex-row text-black-blue">
                     <div className="flex-1 px-6 lg:pl-16">
                       <div className="aspect-video w-full rounded overflow-hidden mb-6">
-                        <VideoPlayer videoUrl={lecture?.videoUrl} />
+                        <VideoPlayer videoUrl={lecture?.videoUrl || ""} />
                       </div>
-                      <div className="my-4">
-                        <h2 className="text-2xl font-bold">{lecture.title}</h2>
-                        <p>{lecture.description}</p>
-                      </div>
+                      {lecture ? (
+                        <div className="my-4">
+                          <h3 className="text-2xl font-bold">{lecture.title}</h3>
+                          <p>{lecture.description}</p>
+                        </div>
+                      ) : (
+                        <p className="my-4 text-center text-muted" role="status">{copy.noLectures}</p>
+                      )}
                     </div>
                   </div>
                 </div>
 
-                <aside className="w-full lg:w-[30%] xl:w-1/4 p-4">
-                  <h3 className="text-black-blue text-2xl capitalize font-bold mb-5">
-                    Lesson Content
-                  </h3>
+                <aside className="w-full lg:w-[30%] xl:w-1/4 p-4" aria-label={copy.content}>
+                  <h3 className="text-black-blue text-2xl font-bold mb-5">{copy.content}</h3>
                   <div className="max-h-screen overflow-y-auto">
-                    <ViewLessonContent lessonId={Number(lessonId)} />
+                    <ViewLessonContent lessonId={numericLessonId} copy={copy} />
                   </div>
                 </aside>
               </div>
+
               <div className="container">
-                <InstructorDetails
-                  instructor={lesson?.data.teacher as ITeacher}
-                />
+                <InstructorDetails instructor={lessonData.teacher as ITeacher} />
                 <RelatedLessons
-                  lessonId={lesson?.data.id as number}
-                  teacherId={lesson?.data.teacher.id as number}
+                  lessonId={lessonData.id}
+                  teacherId={lessonData.teacher.id}
+                  copy={copy}
                 />
               </div>
             </>

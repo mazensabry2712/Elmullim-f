@@ -3,8 +3,22 @@ import CategoryCard from "./CategoryCard";
 import { containerVariants, itemVariants } from "@/animations";
 import { CATEGORIES } from "@/constant";
 import BadgeTitle from "@/components/ui/BadgeTitle";
+import { useI18n } from "@/i18n";
+
+const categoryTranslationKeys: Record<string, string> = {
+  Physics: "home.categories.physics",
+  Maths: "home.categories.maths",
+  Languages: "home.categories.languages",
+  History: "home.categories.history",
+  Geography: "home.categories.geography",
+  Chemistry: "home.categories.chemistry",
+  Biology: "home.categories.biology",
+  "philosophy and Logic": "home.categories.philosophyLogic",
+};
 
 const Categories = () => {
+  const { t } = useI18n();
+
   return (
     <section
       id="categories"
@@ -26,12 +40,15 @@ const Categories = () => {
             transition={{ duration: 0.5 }}
             className="flex flex-col items-center gap-2 md:items-start"
           >
-            <BadgeTitle title="Categories" />
+            <BadgeTitle title={t("home.categories.badge")} />
             <h2
               id="home-categories-title"
               className="text-center text-3xl font-bold capitalize leading-tight text-black-blue sm:text-4xl md:text-left lg:text-[45px]"
             >
-              Browse by <span className="font-exo font-semibold text-main">Categories</span>
+              {t("home.categories.titlePrefix")} {" "}
+              <span className="font-exo font-semibold text-main">
+                {t("home.categories.titleHighlight")}
+              </span>
             </h2>
           </motion.div>
         </motion.div>
@@ -45,7 +62,10 @@ const Categories = () => {
         >
           {CATEGORIES.map((category) => (
             <motion.div variants={itemVariants} key={category.title}>
-              <CategoryCard title={category.title} icon={category.icon} />
+              <CategoryCard
+                title={t(categoryTranslationKeys[category.title] ?? category.title)}
+                icon={category.icon}
+              />
             </motion.div>
           ))}
         </motion.div>

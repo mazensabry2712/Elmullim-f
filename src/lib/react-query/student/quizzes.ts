@@ -3,6 +3,7 @@ import {
   getStudentQuiz,
   getStudentQuizResult,
   getStudentQuizzes,
+  startStudentQuiz,
   submitStudentQuiz,
 } from "@/services/student/quizzes";
 import type { IStudentQuizSubmissionAnswer } from "@/interfaces/quizzes/quizzes";
@@ -20,6 +21,12 @@ export const useGetStudentQuiz = ({ token, quizId }: { token?: string; quizId: n
     queryKey: [QueryKeys.STUDENT_QUIZ, quizId],
     queryFn: () => getStudentQuiz({ token: token as string, quizId }),
     enabled: !!token && Number.isInteger(quizId) && quizId > 0,
+  });
+
+export const useStartStudentQuiz = () =>
+  useMutation({
+    mutationFn: ({ token, quizId }: { token: string; quizId: number }) =>
+      startStudentQuiz({ token, quizId }),
   });
 
 export const useSubmitStudentQuiz = () =>

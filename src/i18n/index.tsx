@@ -83,6 +83,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.teachers.facebook": "Open teacher Facebook profile",
     "home.teachers.linkedin": "Open teacher LinkedIn profile",
     "home.teachers.x": "Open teacher X profile",
+    "home.statistics.graduated": "Successfully graduated",
+    "home.statistics.classesCompleted": "Classes Completed",
+    "home.statistics.satisfactionRate": "Satisfaction Rate",
+    "home.statistics.studentsCommunity": "Students Community",
   },
   ar: {
     "nav.home": "الرئيسية",
@@ -161,6 +165,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.teachers.facebook": "فتح الملف الشخصي للمعلم على فيسبوك",
     "home.teachers.linkedin": "فتح الملف الشخصي للمعلم على لينكدإن",
     "home.teachers.x": "فتح الملف الشخصي للمعلم على X",
+    "home.statistics.graduated": "خريجون بنجاح",
+    "home.statistics.classesCompleted": "الفصول المكتملة",
+    "home.statistics.satisfactionRate": "نسبة الرضا",
+    "home.statistics.studentsCommunity": "مجتمع الطلاب",
   },
 };
 

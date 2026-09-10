@@ -1,11 +1,18 @@
 import { containerVariants, itemVariants } from "@/animations";
 import { motion } from "framer-motion";
 import { TEACHERS } from "@/constant";
+import { useI18n } from "@/i18n";
 import TeacherCard from "./TeacherCard";
 
 const OurTeachers = () => {
+  const { t } = useI18n();
+
   return (
-    <section className="bg-main pt-20 pb-10">
+    <section
+      id="our-teachers"
+      aria-labelledby="our-teachers-title"
+      className="bg-main pt-20 pb-10"
+    >
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -14,9 +21,12 @@ const OurTeachers = () => {
         className="container"
       >
         <motion.div variants={itemVariants}>
-          <h3 className="capitalize text-6xl font-sora font-semibold text-white text-center">
-            our teachers
-          </h3>
+          <h2
+            id="our-teachers-title"
+            className="capitalize text-6xl font-sora font-semibold text-white text-center"
+          >
+            {t("home.teachers.title")}
+          </h2>
         </motion.div>
 
         <motion.div

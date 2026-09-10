@@ -3,12 +3,14 @@ import BenefitCard from "./BenefitCard";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "@/animations";
 import BadgeTitle from "@/components/ui/BadgeTitle";
+import { useI18n } from "@/i18n";
 
 const Hero = () => {
+  const { t } = useI18n();
+
   return (
     <section className="bg-[#F2F2F2] pt-6 py-8">
       <div className="relative container">
-        {/* Blur */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -36,9 +38,9 @@ const Hero = () => {
               variants={itemVariants}
               className="max-w-[646px] mx-auto font-bold text-4xl md:text-[45px] leading-tight md:leading-[45px] capitalize text-center text-black-blue"
             >
-              Get The Best Learning Experience With{" "}
+              {t("home.hero.title")} {" "}
               <span className="font-exo font-semibold text-main text-4xl">
-                ELMULIM
+                ELMULLIM
               </span>
             </motion.h1>
             <div className="space-y-6 font-sora">
@@ -46,18 +48,16 @@ const Hero = () => {
                 variants={itemVariants}
                 className="mt-4 flex flex-col gap-2 items-center xl:items-start"
               >
-                <BadgeTitle title="Why Choose Us" />
+                <BadgeTitle title={t("home.hero.whyChooseUs")} />
                 <p className="max-w-[646px] text-[16px] md:text-[17px] leading-relaxed text-[#333931] text-center xl:text-start">
-                  Learn with qualified teachers, access engaging courses and
-                  lessons, and stay connected through a learning experience
-                  designed for students, teachers, and families.
+                  {t("home.hero.description")}
                 </p>
               </motion.div>
               <motion.div
                 variants={itemVariants}
                 className="flex flex-col gap-4 items-center xl:items-start"
               >
-                <BadgeTitle title="Benefits With Us" />
+                <BadgeTitle title={t("home.hero.benefits")} />
                 <motion.div
                   variants={containerVariants}
                   className="grid grid-cols-1 md:grid-cols-2 gap-3"
@@ -82,7 +82,7 @@ const Hero = () => {
                 viewport={{ once: true }}
                 transition={{ duration: 0.3 }}
                 src="/images/hero-img-bg.webp"
-                alt="Elmullim learning experience background"
+                alt={t("home.hero.backgroundAlt")}
                 className="max-w-xl w-full absolute"
               />
               <motion.img
@@ -91,7 +91,7 @@ const Hero = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1, duration: 0.3 }}
                 src="/images/hero-img.webp"
-                alt="Elmullim learning experience"
+                alt={t("home.hero.imageAlt")}
                 className="max-w-xl w-full relative z-10 filter drop-shadow-[4px_4px_4px_rgba(0,0,0,0.25)]"
               />
               <motion.img
@@ -100,7 +100,7 @@ const Hero = () => {
                 viewport={{ once: true }}
                 transition={{ delay: 0.1, duration: 0.3 }}
                 src="/icons/cap-icon.svg"
-                alt="Graduation cap"
+                alt={t("home.hero.capAlt")}
                 className="absolute -left-8 top-12 xl:-translate-y-1/2"
               />
             </div>

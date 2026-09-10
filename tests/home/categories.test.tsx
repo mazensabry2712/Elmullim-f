@@ -1,8 +1,9 @@
 import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, beforeEach, vi } from "vitest";
 import React from "react";
 import Categories from "@/components/home/categories/Categories";
-import { I18nProvider } from "@/i18n";
+import { I18nProvider, useI18n } from "@/i18n";
 
 vi.mock("framer-motion", () => ({
   motion: {
@@ -18,9 +19,20 @@ vi.mock("@/components/home/categories/CategoryCard", () => ({
   default: ({ title }: { title: string }) => <article>{title}</article>,
 }));
 
+const LanguageToggle = () => {
+  const { toggleLanguage } = useI18n();
+
+  return (
+    <button type="button" onClick={toggleLanguage}>
+      toggle
+    </button>
+  );
+};
+
 const renderCategories = () =>
   render(
     <I18nProvider>
+      <LanguageToggle />
       <Categories />
     </I18nProvider>
   );
@@ -32,7 +44,7 @@ describe("Home categories", () => {
     document.documentElement.dir = "ltr";
   });
 
-  it("renders the categories section with all configured categories", () => {
+  it("renders all configured categories in English", () => {
     renderCategories();
 
     expect(
@@ -51,5 +63,32 @@ describe("Home categories", () => {
     ]) {
       expect(screen.getByText(category)).toBeInTheDocument();
     }
+  });
+
+  it("switches category content to Arabic with RTL direction", async () => {
+    const user = userEvent.setup();
+    renderCategories();
+
+    await user.click(screen.getByRole("button", { name: "toggle" }));
+
+    expect(
+      screen.getByRole("heading", { name: /تصفح حسب التصنيفات/i })
+    ).toBeInTheDocument();
+
+    for (const category of [
+      "الفيزياء",
+      "الرياضيات",
+      "اللغات",
+      "التاريخ",
+      "الجغرافيا",
+      "الكيمياء",
+      "الأحياء",
+      "الفلسفة والمنطق",
+    ]) {
+      expect(screen.getByText(category)).toBeInTheDocument();
+    }
+
+    expect(document.documentElement.lang).toBe("ar");
+    expect(document.documentElement.dir).toBe("rtl");
   });
 });

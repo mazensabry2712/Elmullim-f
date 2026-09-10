@@ -6,38 +6,42 @@ import BadgeTitle from "@/components/ui/BadgeTitle";
 
 const Categories = () => {
   return (
-    <section className="bg-white py-10 relative z-10">
+    <section
+      id="categories"
+      aria-labelledby="home-categories-title"
+      className="relative z-10 bg-white py-14 md:py-16"
+    >
       <div className="container">
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.2 }}
           variants={containerVariants}
-          className="flex flex-col md:flex-row gap-4 md:justify-between items-center md:items-end"
+          className="flex flex-col items-center justify-between gap-4 md:flex-row md:items-end"
         >
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+            viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5 }}
-            className="flex flex-col gap-2 items-center md:items-start"
+            className="flex flex-col items-center gap-2 md:items-start"
           >
-            <BadgeTitle title="categories" />
-            <h4 className="capitalize text-black-blue font-bold text-[45px] text-center md:text-left">
-              Browse By{" "}
-              <span className="font-exo font-semibold text-main text-4xl">
-                Categories
-              </span>
-            </h4>
+            <BadgeTitle title="Categories" />
+            <h2
+              id="home-categories-title"
+              className="text-center text-3xl font-bold capitalize leading-tight text-black-blue sm:text-4xl md:text-left lg:text-[45px]"
+            >
+              Browse by <span className="font-exo font-semibold text-main">Categories</span>
+            </h2>
           </motion.div>
         </motion.div>
 
         <motion.div
           initial="hidden"
           whileInView="visible"
-          viewport={{ once: true }}
+          viewport={{ once: true, amount: 0.1 }}
           variants={containerVariants}
-          className="card cursor-pointer grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 md:gap-9 gap-y-10 mt-4 lg:mt-16"
+          className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:mt-12 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4"
         >
           {CATEGORIES.map((category) => (
             <motion.div variants={itemVariants} key={category.title}>

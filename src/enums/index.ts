@@ -22,6 +22,7 @@ enum QueryKeys {
   RELATED_LESSON = "relatedLesson",
   STUDENT_QUIZZES = "studentQuizzes",
   STUDENT_QUIZ = "studentQuiz",
+  STUDENT_QUIZ_RESULT = "studentQuizResult",
   TEACHER_COURSES = "teacherCourses",
   TEACHER_COURSE = "teacherCourse",
   TEACHER_COURSE_CONTENTS = "teacherCourseContents",

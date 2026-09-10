@@ -61,6 +61,13 @@ const translations: Record<Language, TranslationTree> = {
     "home.comments.title": "User Comments",
     "home.comments.role": "Happy Customer",
     "home.comments.quote": "The learning experience is clear, engaging, and easy to follow. Elmullim helps students stay connected with their teachers.",
+    "home.career.badge": "Choose Your Career",
+    "home.career.title": "Discover Your Gain",
+    "home.career.items.0.title": "For Students",
+    "home.career.items.0.description": "Start your learning journey and build the skills you need for your future.",
+    "home.career.items.1.title": "For Teachers",
+    "home.career.items.1.description": "Share your knowledge, inspire students, and grow your teaching career.",
+    "home.career.joinNow": "Join Now",
   },
   ar: {
     "nav.home": "الرئيسية",
@@ -117,6 +124,13 @@ const translations: Record<Language, TranslationTree> = {
     "home.comments.title": "آراء المستخدمين",
     "home.comments.role": "عميل سعيد",
     "home.comments.quote": "تجربة التعلم واضحة وممتعة وسهلة المتابعة. المعلّم يساعد الطلاب على البقاء على تواصل مع معلميهم.",
+    "home.career.badge": "اختر مسارك المهني",
+    "home.career.title": "اكتشف مستقبلك",
+    "home.career.items.0.title": "للطلاب",
+    "home.career.items.0.description": "ابدأ رحلتك التعليمية وابنِ المهارات التي تحتاجها لمستقبلك.",
+    "home.career.items.1.title": "للمعلمين",
+    "home.career.items.1.description": "شارك معرفتك، وألهم الطلاب، وطوّر مسيرتك التعليمية.",
+    "home.career.joinNow": "انضم الآن",
   },
 };
 

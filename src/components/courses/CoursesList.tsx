@@ -3,16 +3,24 @@ import CourseCard from "./CourseCard";
 import { motion } from "framer-motion";
 import { ICourse } from "@/interfaces/courses/courses";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
+import { getCoursesCopy } from "@/pages/courses/courseCopy";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   courses: ICourse[];
-  copy: CoursesCopy;
+  copy?: CoursesCopy;
 }
 
-const CoursesList = ({ courses, copy }: IProps) => {
+const CoursesList = ({ courses, copy: providedCopy }: IProps) => {
+  const { language } = useI18n();
+  const copy = providedCopy ?? getCoursesCopy(language);
+
   if (!courses.length) {
     return (
-      <p className="font-medium font-sora text-lg text-center text-[#4D5756] pt-5" role="status">
+      <p
+        className="font-medium font-sora text-lg text-center text-[#4D5756] pt-5"
+        role="status"
+      >
         {copy.empty}
       </p>
     );

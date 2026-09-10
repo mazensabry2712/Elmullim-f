@@ -16,7 +16,11 @@ vi.mock("framer-motion", () => ({
 
 const LanguageToggle = () => {
   const { toggleLanguage } = useI18n();
-  return <button type="button" onClick={toggleLanguage}>toggle</button>;
+  return (
+    <button type="button" onClick={toggleLanguage}>
+      toggle
+    </button>
+  );
 };
 
 const renderPage = (children: React.ReactNode, initialEntries = ["/"]) =>
@@ -43,21 +47,27 @@ describe("Services", () => {
     expect(screen.queryByText(/lorem ipsum/i)).not.toBeInTheDocument();
   });
 
-  it("uses a unique service route and safe unavailable details state", async () => {
+  it("uses unique service routes and renders a safe unavailable details state", async () => {
     const user = userEvent.setup();
     renderPage(
       <Routes>
-        <Route path="/" element={<Services />} />
+        <Route path="/services" element={<Services />} />
         <Route path="/services/:serviceId" element={<ServiceDetails />} />
       </Routes>,
       ["/services/video"]
     );
 
-    expect(screen.getByRole("heading", { name: /service details are not available yet/i, level: 2 })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", {
+        name: /service details are not available yet/i,
+        level: 2,
+      })
+    ).toBeInTheDocument();
     expect(screen.getByText(/video learning/i)).toBeInTheDocument();
     expect(screen.queryByText(/lorem ipsum/i)).not.toBeInTheDocument();
 
     await user.click(screen.getByRole("link", { name: /back to services/i }));
+    expect(screen.getByRole("heading", { name: /services/i, level: 1 })).toBeInTheDocument();
   });
 
   it("supports Arabic and RTL", async () => {
@@ -72,7 +82,9 @@ describe("Services", () => {
     await user.click(screen.getByRole("button", { name: "toggle" }));
 
     expect(screen.getByRole("heading", { name: /الخدمات/i, level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole("heading", { name: /الدعم والإرشاد التعليمي/i, level: 2 })).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /الدعم والإرشاد التعليمي/i, level: 2 })
+    ).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("ar");
     expect(document.documentElement.dir).toBe("rtl");
   });

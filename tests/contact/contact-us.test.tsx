@@ -2,6 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import ContactUs from "@/pages/ContactUs";
 import ContactUsForm from "@/components/forms/contactUs/ContactUsForm";
 import { I18nProvider, useI18n } from "@/i18n";
@@ -22,6 +23,13 @@ const LanguageToggle = () => {
   );
 };
 
+const renderPage = (children: React.ReactNode) =>
+  render(
+    <MemoryRouter>
+      <I18nProvider>{children}</I18nProvider>
+    </MemoryRouter>
+  );
+
 describe("Contact Us", () => {
   beforeEach(() => {
     localStorage.setItem("elmullim-language", "en");
@@ -30,11 +38,7 @@ describe("Contact Us", () => {
   });
 
   it("renders contact information and form", () => {
-    render(
-      <I18nProvider>
-        <ContactUs />
-      </I18nProvider>
-    );
+    renderPage(<ContactUs />);
 
     expect(screen.getByRole("heading", { name: /contact us/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /get in touch/i, level: 2 })).toBeInTheDocument();
@@ -52,11 +56,7 @@ describe("Contact Us", () => {
   it("shows validation feedback for an empty form", async () => {
     const user = userEvent.setup();
 
-    render(
-      <I18nProvider>
-        <ContactUsForm />
-      </I18nProvider>
-    );
+    renderPage(<ContactUsForm />);
 
     await user.click(screen.getByRole("button", { name: /send a message/i }));
 
@@ -70,11 +70,11 @@ describe("Contact Us", () => {
   it("switches contact content to Arabic and RTL", async () => {
     const user = userEvent.setup();
 
-    render(
-      <I18nProvider>
+    renderPage(
+      <>
         <ContactUs />
         <LanguageToggle />
-      </I18nProvider>
+      </>
     );
 
     await user.click(screen.getByRole("button", { name: "toggle" }));

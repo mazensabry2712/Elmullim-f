@@ -4,8 +4,26 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { CHAT_OPTIONS } from "@/constant";
 import { containerVariants, itemVariants } from "@/animations";
 import { motion } from "framer-motion";
+import { useI18n } from "@/i18n";
+
+const chatTranslationKeys = [
+  {
+    title: "home.chat.createTitle",
+    description: "home.chat.createDescription",
+  },
+  {
+    title: "home.chat.joinTitle",
+    description: "home.chat.joinDescription",
+  },
+  {
+    title: "home.chat.availableTitle",
+    description: "home.chat.availableDescription",
+  },
+] as const;
 
 const ChatRoom = () => {
+  const { t } = useI18n();
+
   return (
     <section
       aria-labelledby="chat-rooms-title"
@@ -28,7 +46,7 @@ const ChatRoom = () => {
           >
             <img
               src="/Image.png"
-              alt="ELMULLIM learning platform"
+              alt={t("home.chat.imageAlt")}
               width={384}
               height={384}
               loading="lazy"
@@ -45,44 +63,48 @@ const ChatRoom = () => {
             transition={{ duration: 0.8 }}
             className="flex flex-col justify-center items-center lg:items-start gap-4"
           >
-            <BadgeTitle title="CHAT ROOMS" />
+            <BadgeTitle title={t("home.chat.badge")} />
             <h2
               id="chat-rooms-title"
               className="capitalize text-black-blue font-bold text-4xl md:text-[45px] text-center lg:text-start leading-[55px]"
             >
-              Stay In Touch With Your Teacher <br /> Through Our Chat Rooms
+              {t("home.chat.title")}
             </h2>
           </motion.div>
 
           <div className="w-full max-w-3xl" role="list">
-            {CHAT_OPTIONS.map((item) => (
-              <motion.article
-                variants={itemVariants}
-                key={item.title}
-                role="listitem"
-                className="relative group w-full bg-white shadow-md hover:shadow-lg rounded-lg p-4 mb-4 flex items-center gap-5 transition-shadow duration-300 overflow-hidden"
-              >
-                <div
-                  aria-hidden="true"
-                  className="absolute bg-[url('/images/chat-card-bg.png')] opacity-0 group-hover:opacity-100 inset-0 bg-cover bg-center transition-opacity rounded-lg duration-500"
-                />
-                <div className="relative z-10 flex shrink-0 justify-center items-center rounded-full p-6 bg-main group-hover:bg-white transition-colors duration-200">
-                  <FontAwesomeIcon
-                    className="text-2xl text-white group-hover:text-main transition-colors duration-200 w-6 h-6"
-                    icon={item.icon}
+            {CHAT_OPTIONS.map((item, index) => {
+              const translation = chatTranslationKeys[index];
+
+              return (
+                <motion.article
+                  variants={itemVariants}
+                  key={item.title}
+                  role="listitem"
+                  className="relative group w-full bg-white shadow-md hover:shadow-lg rounded-lg p-4 mb-4 flex items-center gap-5 transition-shadow duration-300 overflow-hidden"
+                >
+                  <div
                     aria-hidden="true"
+                    className="absolute bg-[url('/images/chat-card-bg.png')] opacity-0 group-hover:opacity-100 inset-0 bg-cover bg-center transition-opacity rounded-lg duration-500"
                   />
-                </div>
-                <div className="relative z-10">
-                  <h3 className="text-lg font-bold font-epilogue text-black-blue group-hover:text-white transition-colors duration-200">
-                    {item.title}
-                  </h3>
-                  <p className="font-sora text-muted group-hover:text-white transition-colors duration-200">
-                    {item.description}
-                  </p>
-                </div>
-              </motion.article>
-            ))}
+                  <div className="relative z-10 flex shrink-0 justify-center items-center rounded-full p-6 bg-main group-hover:bg-white transition-colors duration-200">
+                    <FontAwesomeIcon
+                      className="text-2xl text-white group-hover:text-main transition-colors duration-200 w-6 h-6"
+                      icon={item.icon}
+                      aria-hidden="true"
+                    />
+                  </div>
+                  <div className="relative z-10">
+                    <h3 className="text-lg font-bold font-epilogue text-black-blue group-hover:text-white transition-colors duration-200">
+                      {translation ? t(translation.title) : item.title}
+                    </h3>
+                    <p className="font-sora text-muted group-hover:text-white transition-colors duration-200">
+                      {translation ? t(translation.description) : item.description}
+                    </p>
+                  </div>
+                </motion.article>
+              );
+            })}
           </div>
         </div>
       </motion.div>

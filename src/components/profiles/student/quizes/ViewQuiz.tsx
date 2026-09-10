@@ -45,7 +45,7 @@ const ViewQuiz = () => {
 
   const { data: resultData, isLoading: isResultLoading, isError: isResultError } = useGetStudentQuizResult({ token, quizId, enabled: isSubmitted });
 
-  const quiz = data?.data?.quiz;
+  const quiz = data?.data?.quiz!;
   const questions = data?.data?.questions ?? [];
 
   useEffect(() => {

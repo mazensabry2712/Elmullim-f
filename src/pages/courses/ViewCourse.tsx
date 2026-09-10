@@ -147,7 +147,7 @@ const ViewCourse = () => {
                   <div className="flex flex-col xl:flex-row text-black-blue">
                     <div className="flex-1 px-6 lg:pl-16">
                       <div className="aspect-video w-full rounded overflow-hidden mb-6">
-                        <VideoPlayer videoUrl={lecture?.videoUrl} />
+                        <VideoPlayer videoUrl={lecture?.videoUrl || ""} />
                       </div>
                       {lecture ? (
                         <div className="my-4">

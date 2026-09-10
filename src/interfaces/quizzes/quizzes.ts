@@ -53,3 +53,32 @@ export interface IStudentQuizDetailsResponse {
     questions: IStudentQuizQuestion[];
   };
 }
+
+export interface IStudentQuizSubmissionAnswer {
+  question_id: number;
+  option_id: number;
+}
+
+export interface IStudentQuizAttemptAnswer {
+  question_id: number;
+  selected_option_id: number;
+  is_correct: boolean;
+  awarded_score: number;
+}
+
+export interface IStudentQuizAttempt {
+  id: number;
+  quiz_id: number;
+  score: number;
+  total_score: number;
+  percentage: number;
+  correct_answers: number;
+  submitted_at: string | null;
+  answers: IStudentQuizAttemptAnswer[];
+}
+
+export interface IStudentQuizAttemptResponse {
+  status: boolean;
+  message: string | null;
+  data: IStudentQuizAttempt;
+}

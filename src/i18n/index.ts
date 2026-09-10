@@ -22,16 +22,21 @@ const translations: Record<Language, TranslationTree> = {
     "nav.toggleMenu": "Toggle Menu",
     "language.english": "English",
     "language.arabic": "العربية",
-
     "home.hero.title": "Get The Best Learning Experience With",
     "home.hero.whyChooseUs": "Why Choose Us",
-    "home.hero.description":
-      "Learn with qualified teachers, access engaging courses and lessons, and stay connected through a learning experience designed for students, teachers, and families.",
+    "home.hero.description": "Learn with qualified teachers, access engaging courses and lessons, and stay connected through a learning experience designed for students, teachers, and families.",
     "home.hero.benefits": "Benefits With Us",
     "home.hero.backgroundAlt": "Elmullim learning experience background",
     "home.hero.imageAlt": "Elmullim learning experience",
     "home.hero.capAlt": "Graduation cap",
-
+    "home.hero.benefit.securedPayment.title": "Secured Payment",
+    "home.hero.benefit.securedPayment.description": "Secure payment options for your learning journey.",
+    "home.hero.benefit.rating.title": "Rating for Teachers & Students",
+    "home.hero.benefit.rating.description": "Share and discover ratings across the learning community.",
+    "home.hero.benefit.parentDashboard.title": "Dashboard for Parents to oversee their children",
+    "home.hero.benefit.parentDashboard.description": "Parents can follow their children's learning progress from one dashboard.",
+    "home.hero.benefit.onlineOffline.title": "Ability to learn Online or Offline",
+    "home.hero.benefit.onlineOffline.description": "Choose the learning experience that fits your needs.",
     "home.categories.badge": "Categories",
     "home.categories.titlePrefix": "Browse By",
     "home.categories.titleHighlight": "Categories",
@@ -43,7 +48,6 @@ const translations: Record<Language, TranslationTree> = {
     "home.categories.chemistry": "Chemistry",
     "home.categories.biology": "Biology",
     "home.categories.philosophyLogic": "Philosophy and Logic",
-
     "home.chat.badge": "Chat Rooms",
     "home.chat.title": "Stay In Touch With Your Teacher Through Our Chat Rooms",
     "home.chat.createTitle": "Create a New Room",
@@ -70,16 +74,21 @@ const translations: Record<Language, TranslationTree> = {
     "nav.toggleMenu": "فتح وإغلاق القائمة",
     "language.english": "English",
     "language.arabic": "العربية",
-
     "home.hero.title": "احصل على أفضل تجربة تعليمية مع",
     "home.hero.whyChooseUs": "لماذا نحن؟",
-    "home.hero.description":
-      "تعلّم مع معلمين مؤهلين، واستفد من الكورسات والدروس التفاعلية، وابقَ على تواصل من خلال تجربة تعليمية مصممة للطلاب والمعلمين والعائلات.",
+    "home.hero.description": "تعلّم مع معلمين مؤهلين، واستفد من الكورسات والدروس التفاعلية، وابقَ على تواصل من خلال تجربة تعليمية مصممة للطلاب والمعلمين والعائلات.",
     "home.hero.benefits": "مميزاتنا",
     "home.hero.backgroundAlt": "خلفية تجربة التعلم في المعلّم",
     "home.hero.imageAlt": "تجربة التعلم في المعلّم",
     "home.hero.capAlt": "قبعة تخرج",
-
+    "home.hero.benefit.securedPayment.title": "دفع آمن",
+    "home.hero.benefit.securedPayment.description": "خيارات دفع آمنة لرحلتك التعليمية.",
+    "home.hero.benefit.rating.title": "تقييم المعلمين والطلاب",
+    "home.hero.benefit.rating.description": "شارك التقييمات واستكشفها داخل المجتمع التعليمي.",
+    "home.hero.benefit.parentDashboard.title": "لوحة تحكم لأولياء الأمور لمتابعة أبنائهم",
+    "home.hero.benefit.parentDashboard.description": "يمكن لأولياء الأمور متابعة تقدم أبنائهم التعليمي من لوحة تحكم واحدة.",
+    "home.hero.benefit.onlineOffline.title": "التعلم أونلاين أو أوفلاين",
+    "home.hero.benefit.onlineOffline.description": "اختر تجربة التعلم التي تناسب احتياجاتك.",
     "home.categories.badge": "التصنيفات",
     "home.categories.titlePrefix": "تصفح حسب",
     "home.categories.titleHighlight": "التصنيفات",
@@ -91,7 +100,6 @@ const translations: Record<Language, TranslationTree> = {
     "home.categories.chemistry": "الكيمياء",
     "home.categories.biology": "الأحياء",
     "home.categories.philosophyLogic": "الفلسفة والمنطق",
-
     "home.chat.badge": "غرف الدردشة",
     "home.chat.title": "ابقَ على تواصل مع معلمك من خلال غرف الدردشة",
     "home.chat.createTitle": "إنشاء غرفة جديدة",
@@ -109,7 +117,6 @@ const LANGUAGE_STORAGE_KEY = "elmullim-language";
 const getInitialLanguage = (): Language => {
   const storedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
   if (storedLanguage === "ar" || storedLanguage === "en") return storedLanguage;
-
   return navigator.language.toLowerCase().startsWith("ar") ? "ar" : "en";
 };
 
@@ -135,17 +142,13 @@ export const I18nProvider = ({ children }: { children: ReactNode }) => {
 
   const setLanguage = (nextLanguage: Language) => setLanguageState(nextLanguage);
   const toggleLanguage = () => setLanguageState((current) => (current === "en" ? "ar" : "en"));
-
-  const value = useMemo<I18nContextValue>(
-    () => ({
-      language,
-      direction,
-      setLanguage,
-      toggleLanguage,
-      t: (key) => translations[language][key] ?? translations.en[key] ?? key,
-    }),
-    [direction, language]
-  );
+  const value = useMemo<I18nContextValue>(() => ({
+    language,
+    direction,
+    setLanguage,
+    toggleLanguage,
+    t: (key) => translations[language][key] ?? translations.en[key] ?? key,
+  }), [direction, language]);
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 };

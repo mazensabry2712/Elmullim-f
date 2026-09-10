@@ -3,14 +3,19 @@ import { containerVariants, itemVariants } from "@/animations";
 import CommentCard from "./CommentCard";
 import BadgeTitle from "@/components/ui/BadgeTitle";
 import FunFacts from "../../FunFacts";
+import { useI18n } from "@/i18n";
 
 const Comments = () => {
+  const { t } = useI18n();
+
   return (
-    <section className="bg-[#F8F6F1]">
-      {/* Statistics Section */}
+    <section
+      id="comments"
+      aria-labelledby="home-comments-title"
+      className="bg-[#F8F6F1]"
+    >
       <FunFacts />
 
-      {/* Title & Button */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -19,23 +24,27 @@ const Comments = () => {
         className="container mt-8"
       >
         <div className="flex flex-col gap-4">
-          <BadgeTitle title="Comment" />
-          <h4 className="capitalize text-black-blue font-bold text-4xl md:text-[45px]">
-            user comments
-          </h4>
+          <BadgeTitle title={t("home.comments.badge")} />
+          <h2
+            id="home-comments-title"
+            className="capitalize text-black-blue font-bold text-4xl md:text-[45px]"
+          >
+            {t("home.comments.title")}
+          </h2>
         </div>
       </motion.div>
 
-      {/* User Comments */}
       <motion.div
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true }}
         className="container mt-9 space-y-9"
+        role="list"
+        aria-label={t("home.comments.title")}
       >
         {Array.from({ length: 2 }, (_, idx) => (
-          <motion.div key={idx} variants={itemVariants}>
+          <motion.div key={idx} variants={itemVariants} role="listitem">
             <CommentCard />
           </motion.div>
         ))}

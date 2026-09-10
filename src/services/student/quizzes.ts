@@ -31,6 +31,21 @@ export const getStudentQuiz = async ({
   return data;
 };
 
+export const startStudentQuiz = async ({
+  token,
+  quizId,
+}: {
+  token: string;
+  quizId: number;
+}): Promise<IStudentQuizAttemptResponse> => {
+  const { data } = await axiosAPI.post(
+    `/student/quizzes/${quizId}/start`,
+    undefined,
+    authHeaders(token)
+  );
+  return data;
+};
+
 export const submitStudentQuiz = async ({
   token,
   quizId,

@@ -73,6 +73,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.courses.titlePrefix": "Buy these courses too and join",
     "home.courses.titleSuffix": "many other students in these courses",
     "home.courses.allCourses": "All Courses",
+    "home.lessons.badge": "Top Popular Lessons",
+    "home.lessons.titlePrefix": "Buy these lessons too and join",
+    "home.lessons.titleSuffix": "many other students in these lessons",
+    "home.lessons.allLessons": "All Lessons",
   },
   ar: {
     "nav.home": "الرئيسية",
@@ -141,6 +145,10 @@ const translations: Record<Language, TranslationTree> = {
     "home.courses.titlePrefix": "اشترِ هذه الكورسات أيضًا وانضم إلى",
     "home.courses.titleSuffix": "العديد من الطلاب الآخرين في هذه الكورسات",
     "home.courses.allCourses": "كل الكورسات",
+    "home.lessons.badge": "أشهر الدروس",
+    "home.lessons.titlePrefix": "اشترِ هذه الدروس أيضًا وانضم إلى",
+    "home.lessons.titleSuffix": "العديد من الطلاب الآخرين في هذه الدروس",
+    "home.lessons.allLessons": "كل الدروس",
   },
 };
 

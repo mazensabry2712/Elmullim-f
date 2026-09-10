@@ -41,10 +41,11 @@ const BenefitCard = ({ benefit: { title, description } }: IProps) => {
         <FontAwesomeIcon
           icon={faCheck}
           className="text-white bg-main w-3 h-3 p-1 rounded-full flex-shrink-0"
+          aria-hidden="true"
         />
         {titleText}
       </h3>
-      <p className="text-[15px] text-muted pl-8">{descriptionText}</p>
+      <p className="text-[15px] text-muted ps-8">{descriptionText}</p>
     </div>
   );
 };

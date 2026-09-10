@@ -5,19 +5,23 @@ interface IProps {
   title: string;
   icon: IconDefinition;
 }
+
 const CategoryCard = ({ title, icon }: IProps) => {
   return (
-    <div className="bg-background py-16 md:py-12 px-4 gap-5 group flex flex-col items-center text-black-blue justify-center rounded-xl hover:bg-main hover:text-white duration-300 shadow-md hover:shadow-lg">
-      <span className="bg-background p-2 border-[3px] border-main border-dashed rounded-full group-hover:border-background group-hover:bg-main duration-300">
+    <article className="group flex min-h-64 flex-col items-center justify-center gap-5 rounded-xl bg-background px-4 py-12 text-center text-black-blue shadow-md transition duration-300 hover:bg-main hover:text-white hover:shadow-lg">
+      <span
+        aria-hidden="true"
+        className="rounded-full border-[3px] border-dashed border-main bg-background p-2 transition duration-300 group-hover:border-background group-hover:bg-main"
+      >
         <FontAwesomeIcon
-          className="text-white h-10 w-10 p-5 bg-main text-[45px] rounded-full group-hover:bg-background group-hover:text-main duration-300 "
+          className="h-10 w-10 rounded-full bg-main p-5 text-[45px] text-white transition duration-300 group-hover:bg-background group-hover:text-main"
           icon={icon}
         />
       </span>
-      <h2 className="font-extrabold text-[21px] capitalize text-center">
+      <h3 className="text-[20px] font-extrabold capitalize leading-tight sm:text-[21px]">
         {title}
-      </h2>
-    </div>
+      </h3>
+    </article>
   );
 };
 

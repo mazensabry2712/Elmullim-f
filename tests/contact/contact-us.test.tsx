@@ -1,10 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import ContactUs from "@/pages/ContactUs";
 import ContactUsForm from "@/components/forms/contactUs/ContactUsForm";
 import { I18nProvider, useI18n } from "@/i18n";
+
+vi.mock("framer-motion", () => ({
+  motion: {
+    div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+    section: ({ children }: { children?: React.ReactNode }) => <section>{children}</section>,
+  },
+}));
 
 const LanguageToggle = () => {
   const { toggleLanguage } = useI18n();
@@ -35,7 +42,7 @@ describe("Contact Us", () => {
       "href",
       "mailto:support@elmullim.com"
     );
-    expect(screen.getByRole("link", { name: /\+99-35895-4565/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /phone \+99-35895-4565/i })).toHaveAttribute(
       "href",
       "tel:+99358954565"
     );

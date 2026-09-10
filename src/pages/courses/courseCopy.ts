@@ -11,7 +11,7 @@ const copy = {
     empty: "No courses found",
     error: "Unable to load courses right now. Please try again.",
     retry: "Try again",
-    categoryImageAlt: "Course image",
+    categoryImageAlt: "Course category",
     teacherImageAlt: "Teacher profile",
     by: "By",
     free: "Free",
@@ -30,7 +30,7 @@ const copy = {
     empty: "لم يتم العثور على كورسات",
     error: "تعذر تحميل الكورسات حاليًا. يرجى المحاولة مرة أخرى.",
     retry: "حاول مرة أخرى",
-    categoryImageAlt: "صورة الكورس",
+    categoryImageAlt: "تصنيف الكورس",
     teacherImageAlt: "صورة المعلم",
     by: "بواسطة",
     free: "مجاني",
@@ -41,4 +41,6 @@ const copy = {
   },
 } as const;
 
-export const getCoursesCopy = (language: Language) => copy[language];
+export type CoursesCopy = (typeof copy)[Language];
+
+export const getCoursesCopy = (language: Language): CoursesCopy => copy[language];

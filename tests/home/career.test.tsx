@@ -3,7 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import React from "react";
 import Career from "@/components/home/Career/Career";
-import { I18nProvider } from "@/i18n";
+import { I18nProvider, useI18n } from "@/i18n";
 
 vi.mock("framer-motion", () => ({
   motion: {
@@ -25,9 +25,8 @@ vi.mock("@/components/home/Career/CareerCard", () => ({
 }));
 
 const LanguageToggle = () => {
-  const { toggleLanguage } = require("@/i18n") as typeof import("@/i18n");
-  const { toggleLanguage: toggle } = toggleLanguage ? { toggleLanguage } : { toggleLanguage: () => undefined };
-  return <button type="button" onClick={toggle}>toggle</button>;
+  const { toggleLanguage } = useI18n();
+  return <button type="button" onClick={toggleLanguage}>toggle</button>;
 };
 
 const renderCareer = () =>

@@ -73,6 +73,8 @@ export interface IStudentQuizAttempt {
   total_score: number;
   percentage: number;
   correct_answers: number;
+  started_at: string | null;
+  deadline_at: string | null;
   submitted_at: string | null;
   answers: IStudentQuizAttemptAnswer[];
 }

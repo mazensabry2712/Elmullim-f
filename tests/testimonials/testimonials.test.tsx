@@ -53,7 +53,7 @@ describe("Testimonials", () => {
     await user.click(screen.getByRole("button", { name: "toggle" }));
 
     expect(screen.getByRole("heading", { name: /آراء المستخدمين/i, level: 1 })).toBeInTheDocument();
-    expect(screen.getByText(/المعلّم يجعل متابعة الدروس أسهل/i)).toBeInTheDocument();
+    expect(screen.getByText(/Elmullim يجعل متابعة الدروس أسهل/i)).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("ar");
     expect(document.documentElement.dir).toBe("rtl");
   });

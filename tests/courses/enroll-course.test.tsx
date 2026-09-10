@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import EnrollCourse from "@/pages/courses/EnrollCourse";
 import { I18nProvider } from "@/i18n";
 
@@ -31,7 +31,14 @@ vi.mock("@/components/courses/EnrollFreeCourse", () => ({
 vi.mock("framer-motion", () => ({
   motion: {
     div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
-    section: ({ children }: { children?: React.ReactNode }) => <section>{children}</section>,
+    section: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
+      const { initial, whileInView, viewport, transition, ...rest } = props;
+      void initial;
+      void whileInView;
+      void viewport;
+      void transition;
+      return <section {...rest}>{children}</section>;
+    },
   },
 }));
 
@@ -39,7 +46,9 @@ const renderPage = () =>
   render(
     <MemoryRouter initialEntries={["/course/7/enroll"]}>
       <I18nProvider>
-        <EnrollCourse />
+        <Routes>
+          <Route path="/course/:courseId/enroll" element={<EnrollCourse />} />
+        </Routes>
       </I18nProvider>
     </MemoryRouter>
   );

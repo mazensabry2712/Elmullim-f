@@ -1,7 +1,8 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, beforeEach, vi } from "vitest";
 import React from "react";
 import Categories from "@/components/home/categories/Categories";
+import { I18nProvider } from "@/i18n";
 
 vi.mock("framer-motion", () => ({
   motion: {
@@ -17,9 +18,22 @@ vi.mock("@/components/home/categories/CategoryCard", () => ({
   default: ({ title }: { title: string }) => <article>{title}</article>,
 }));
 
+const renderCategories = () =>
+  render(
+    <I18nProvider>
+      <Categories />
+    </I18nProvider>
+  );
+
 describe("Home categories", () => {
+  beforeEach(() => {
+    localStorage.setItem("elmullim-language", "en");
+    document.documentElement.lang = "en";
+    document.documentElement.dir = "ltr";
+  });
+
   it("renders the categories section with all configured categories", () => {
-    render(<Categories />);
+    renderCategories();
 
     expect(
       screen.getByRole("heading", { name: /browse by categories/i })
@@ -33,7 +47,7 @@ describe("Home categories", () => {
       "Geography",
       "Chemistry",
       "Biology",
-      "philosophy and Logic",
+      "Philosophy and Logic",
     ]) {
       expect(screen.getByText(category)).toBeInTheDocument();
     }

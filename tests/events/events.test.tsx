@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import Events from "@/pages/events/Events";
 import EventDetails from "@/pages/events/EventDetails";
 import { I18nProvider, useI18n } from "@/i18n";
@@ -18,6 +18,17 @@ const renderPage = (children: React.ReactNode, initialEntries = ["/"]) =>
   render(
     <MemoryRouter initialEntries={initialEntries}>
       <I18nProvider>{children}</I18nProvider>
+    </MemoryRouter>
+  );
+
+const renderEventDetails = (initialEntries = ["/events/123"]) =>
+  render(
+    <MemoryRouter initialEntries={initialEntries}>
+      <I18nProvider>
+        <Routes>
+          <Route path="/events/:eventId" element={<EventDetails />} />
+        </Routes>
+      </I18nProvider>
     </MemoryRouter>
   );
 
@@ -47,16 +58,17 @@ describe("Events", () => {
     expect(screen.queryByText(/print, and publishing industries/i)).not.toBeInTheDocument();
   });
 
-  it("renders the unavailable event details state and lets users return to events", async () => {
+  it("renders the unavailable event details state for the requested route", async () => {
     const user = userEvent.setup();
-    renderPage(<EventDetails />, ["/events/123"]);
+    renderEventDetails();
 
     expect(screen.getByRole("heading", { name: /event details/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: /event unavailable/i, level: 2 })).toBeInTheDocument();
     expect(screen.getByText("#123")).toBeInTheDocument();
 
-    expect(screen.getByRole("link", { name: /back to events/i })).toHaveAttribute("href", "/events");
-    await user.click(screen.getByRole("link", { name: /back to events/i }));
+    const backLink = screen.getByRole("link", { name: /back to events/i });
+    expect(backLink).toHaveAttribute("href", "/events");
+    await user.click(backLink);
   });
 
   it("supports Arabic and RTL on the events page", async () => {

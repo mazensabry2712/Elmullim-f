@@ -1,4 +1,4 @@
-import { act, render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
@@ -83,12 +83,12 @@ describe("ViewQuiz", () => {
       </>
     );
 
-    await act(async () => {
-      screen.getByRole("button", { name: "toggle" }).click();
-    });
+    screen.getByRole("button", { name: "toggle" }).click();
 
     expect(screen.getByRole("heading", { name: "اختبار الرياضيات", level: 1 })).toBeInTheDocument();
-    expect(document.documentElement.lang).toBe("ar");
-    expect(document.documentElement.dir).toBe("rtl");
+    await waitFor(() => {
+      expect(document.documentElement.lang).toBe("ar");
+      expect(document.documentElement.dir).toBe("rtl");
+    });
   });
 });

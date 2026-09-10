@@ -25,14 +25,14 @@ const EnrollFreeCourse = ({ courseId, copy }: IProps) => {
       if (!status) {
         return Swal.fire({
           icon: "error",
-          title: "Error",
+          title: copy.enrollmentError,
           text: message,
         });
       }
 
       Swal.fire({
         icon: "success",
-        title: "Success",
+        title: copy.enrollmentSuccess,
         text: message,
       });
 
@@ -59,10 +59,10 @@ const EnrollFreeCourse = ({ courseId, copy }: IProps) => {
         onOpenChange={() => setIsOpen(false)}
         title={copy.enroll}
         description={{
-          text: `${copy.enroll}?`,
+          text: copy.enrollConfirmation,
         }}
         isLoading={isPending}
-        confirmText={copy.enroll}
+        confirmText={copy.confirmEnrollment}
         onConfirm={handleEnroll}
         showFooter
       />

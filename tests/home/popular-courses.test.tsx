@@ -1,5 +1,6 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import React from "react";
 import PopularCourses from "@/components/home/PopularCourses";
@@ -27,6 +28,15 @@ vi.mock("@/utils/cookieService", () => ({
   default: { getToken: () => null },
 }));
 
+const renderPopularCourses = () =>
+  render(
+    <MemoryRouter>
+      <I18nProvider>
+        <PopularCourses />
+      </I18nProvider>
+    </MemoryRouter>
+  );
+
 const LanguageToggle = () => {
   const { toggleLanguage } = require("@/i18n") as typeof import("@/i18n");
   return <button type="button" onClick={toggleLanguage}>toggle</button>;
@@ -40,11 +50,7 @@ describe("Home popular courses", () => {
   });
 
   it("renders the English content and courses link", () => {
-    render(
-      <I18nProvider>
-        <PopularCourses />
-      </I18nProvider>
-    );
+    renderPopularCourses();
 
     expect(screen.getByRole("heading", { name: /buy these courses too and join/i })).toBeInTheDocument();
     expect(screen.getByRole("link", { name: "All Courses" })).toHaveAttribute("href", "/courses");
@@ -54,10 +60,12 @@ describe("Home popular courses", () => {
   it("switches to Arabic and RTL", async () => {
     const user = userEvent.setup();
     render(
-      <I18nProvider>
-        <PopularCourses />
-        <LanguageToggle />
-      </I18nProvider>
+      <MemoryRouter>
+        <I18nProvider>
+          <PopularCourses />
+          <LanguageToggle />
+        </I18nProvider>
+      </MemoryRouter>
     );
 
     await user.click(screen.getByRole("button", { name: "toggle" }));

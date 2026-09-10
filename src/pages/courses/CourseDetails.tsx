@@ -109,10 +109,7 @@ const CourseDetails = () => {
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
           {copy.detailTitle}
         </h1>
-        <p
-          className="font-sora font-light leading-[30px]"
-          aria-label={copy.detailBreadcrumb}
-        >
+        <p className="font-sora font-light leading-[30px]" aria-label={copy.detailBreadcrumb}>
           {copy.home} <span className="text-main">//</span> {copy.detailTitle}
         </p>
       </motion.div>
@@ -148,9 +145,7 @@ const CourseDetails = () => {
                       />
                       <h3>
                         {copy.by}{" "}
-                        <span className="text-main">
-                          {courseData.teacher?.name ?? "—"}
-                        </span>
+                        <span className="text-main">{courseData.teacher?.name ?? "—"}</span>
                       </h3>
                     </div>
                     <h3 className="capitalize font-sora text-black-blue font-medium flex items-center gap-2">
@@ -160,13 +155,9 @@ const CourseDetails = () => {
                   </div>
 
                   <div>
-                    {isAuthenticated &&
-                      role === "student" &&
-                      !courseData.hasEnrolled &&
-                      Number(courseData.price) === 0 && (
-                        <EnrollFreeCourse courseId={courseData.id} copy={copy} />
-                      )}
-
+                    {isAuthenticated && role === "student" && !courseData.hasEnrolled && Number(courseData.price) === 0 && (
+                      <EnrollFreeCourse courseId={courseData.id} copy={copy} />
+                    )}
                     {isAuthenticated && role === "student" && courseData.hasEnrolled && (
                       <Link
                         to={`/courses/${courseData.id}/view`}
@@ -175,7 +166,6 @@ const CourseDetails = () => {
                         {copy.watch}
                       </Link>
                     )}
-
                     {!isAuthenticated && (
                       <Link
                         to="/sign-in"
@@ -208,12 +198,14 @@ const CourseDetails = () => {
             <CourseContent
               courseId={courseData.id}
               hasEnrolled={courseData.hasEnrolled || false}
+              copy={copy}
             />
           </div>
           <InstructorDetails instructor={courseData.teacher as ITeacher} />
           <RelatedCourses
             courseId={numericCourseId}
             subCategoryId={courseData.sub_category?.id as number}
+            copy={copy}
           />
         </div>
 

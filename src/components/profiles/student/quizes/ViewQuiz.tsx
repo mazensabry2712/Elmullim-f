@@ -1,5 +1,5 @@
 import { AlertCircle, ArrowLeft, Loader, Clock, Award, CheckCircle2 } from "lucide-react";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import cookieService from "@/utils/cookieService";
@@ -142,7 +142,7 @@ const ViewQuiz = () => {
   const quiz = data.data.quiz;
   const questions = data.data.questions;
 
-  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmissionError(null);
 
@@ -307,7 +307,7 @@ const ViewQuiz = () => {
                       <label key={option.id} className="flex items-center gap-3 rounded-md border border-[#5299E0] p-3 cursor-pointer">
                         <input
                           type="radio"
-                          name={`question-${question.id}`
+                          name={`question-${question.id}`}
                           value={option.id}
                           checked={answers[question.id] === option.id}
                           onChange={() => setAnswers((current) => ({ ...current, [question.id]: option.id }))}

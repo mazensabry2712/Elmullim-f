@@ -1,20 +1,95 @@
-import cookieService from "@/utils/cookieService";
-import { useParams } from "react-router-dom";
+import { Loader, ArrowLeft } from "lucide-react";
+import { useEffect } from "react";
+import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
+import { useSelector } from "react-redux";
 import { useGetCourseById } from "@/lib/react-query/courses/courses";
-import { Input } from "@/components/ui/input";
+import EnrollFreeCourse from "@/components/courses/EnrollFreeCourse";
+import { RootState } from "@/store/store";
+import cookieService from "@/utils/cookieService";
+import { useI18n } from "@/i18n";
+import { getCoursesCopy } from "./courseCopy";
+
 function EnrollCourse() {
-   const token = cookieService.getToken()!;
-  const { courseId } = useParams();
+  const { language } = useI18n();
+  const copy = getCoursesCopy(language);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const token = cookieService.getToken() || undefined;
+  const { courseId } = useParams<{ courseId: string }>();
+  const numericCourseId = Number(courseId);
+  const validCourseId = Number.isInteger(numericCourseId) && numericCourseId > 0;
+
   const {
-      data: course,
-    } = useGetCourseById({
-      courseId: Number(courseId),
-      ...(token && { token }),
-    });
+    data: course,
+    isLoading,
+    isError,
+    failureReason,
+    refetch,
+  } = useGetCourseById({
+    courseId: numericCourseId,
+    ...(token && { token }),
+  });
+
+  useEffect(() => {
+    document.title = `${copy.enrollmentTitle} | Elmullim`;
+  }, [copy.enrollmentTitle]);
+
+  if (!validCourseId) {
+    return (
+      <main>
+        <div className="container py-24 text-center" role="alert">
+          <p className="font-sora text-lg text-[#4D5756]">{copy.enrollmentError}</p>
+          <Link to="/courses" className="inline-flex items-center gap-2 mt-5 bg-main text-white rounded-[5px] px-6 py-2">
+            <ArrowLeft size={18} aria-hidden="true" />
+            {copy.backToCourses}
+          </Link>
+        </div>
+      </main>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <main>
+        <div className="container py-24" role="status" aria-live="polite">
+          <Loader className="mx-auto animate-spin" size={40} aria-hidden="true" />
+          <span className="sr-only">{copy.loadingCourse}</span>
+        </div>
+      </main>
+    );
+  }
+
+  if (isError || !course?.data) {
+    return (
+      <main>
+        <div className="container py-24 text-center" role="alert">
+          <p className="font-sora text-lg text-[#4D5756]">{copy.enrollmentError}</p>
+          <div className="mt-5 flex justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => void refetch()}
+              className="bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2"
+            >
+              {copy.retry}
+            </button>
+            <Link
+              to="/courses"
+              className="border border-main text-main hover:bg-main hover:text-white transition-all duration-200 rounded-[5px] font-sora text-sm px-6 py-2"
+            >
+              {copy.backToCourses}
+            </Link>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
+  const courseData = course.data;
+  const isFree = Number(courseData.price) === 0;
+  const canEnrollFree = isAuthenticated && cookieService.getRole() === "student" && !courseData.hasEnrolled;
+
   return (
-     <main>
+    <main>
       <motion.div
         initial={{ opacity: 0, y: -40 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -23,153 +98,89 @@ function EnrollCourse() {
         className="container text-center text-white space-y-4 md:space-y-6 pt-16 md:pt-24 pb-12 md:pb-20"
       >
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
-          Students Subscriptions
+          {copy.enrollmentTitle}
         </h1>
-        <p className="font-sora font-light capitalize leading-[30px]">
-          home <span className="text-main">//</span>  Subscription <span className="text-main">// </span> Payment
+        <p
+          className="font-sora font-light leading-[30px]"
+          aria-label={copy.enrollmentBreadcrumb}
+        >
+          {copy.home} <span className="text-main">//</span> {copy.enrollmentTitle}
         </p>
       </motion.div>
+
       <motion.section
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
         className="bg-white"
+        aria-labelledby="enrollment-title"
       >
-        <div className="pt-5 p-9">
-          <div className="flex items-center gap-3 mb-8 ms-4">
-            <img
-              src="/icons/left-chevron.png"
-              alt="left arrow"
-              width={48}
-              height={48}
-              style={{
-                border: '1px solid #21374B',
-                borderRadius: '5px',
-                width: '48px',
-                height: '48px',
-                objectFit: 'cover',
-              }}
-            />
-            <p
-              className="font-roboto font-bold text-[42px] leading-[100%] tracking-[0] text-black-blue "
-              style={{ textTransform: 'capitalize' }}
-            >
-              payment method
-            </p>
-          </div>
-          {/* Another section in a different row */}
-            <h2 className="text-xl font-bold mb-2 text-black-blue text-center">Electronic wallet</h2>
-          <div
-            className="mt-8 p-6 shadow flex items-center justify-between gap-4 bg-[#21374BBD] rounded-[20px] w-[80%] m-auto"
-          >
-            <p
-              className="text-[32px] font-bold ms-5 px-4 py-2 rounded-lg"
-              style={{ color: 'hsl(var(--white-gray))', }}
-            >
-              {course?.data.price} L.E
-            </p>
-            {/* Button to add money to wallet */}
-            <Button
-              className="mt-2 me-6 w-90  bg-white text-[hsl(var(--black-blue))] py-7 hover:text-white hover:bg-main/90 transition-all duration-200 rounded-[5px] font-sora font-weight-semibold"
-              size="lg"
-            >
-              Add Money To Wallet
-            </Button>
-          </div>
-          {/* New grid section with two cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 w-[80%] m-auto">
-            {/* Card 1: Course Details */}
-            <div className="bg-[#F0FEFC] rounded-[20px] shadow p-6 flex flex-col items-center">
+        <div className="container py-12 md:py-20">
+          <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+            <article className="rounded-[20px] shadow p-6 bg-[#F0FEFC]">
               <img
-                src={course?.data?.image}
-                alt={course?.data?.title}
-                className="object-cover rounded-lg mb-4"
-                style={{ width: '376px', height: '256px', maxWidth: '100%' }}
+                src={courseData.image || "/images/placeholder-img.webp"}
+                alt={courseData.title}
+                className="w-full max-h-72 object-cover rounded-lg mb-5"
               />
-              <div style={{ maxWidth: '90%', width: '100%' }}>
-                <div className="w-85 flex items-center justify-between mb-2">
-                  <span className="font-medium text-[28px] text-black-blue" style={{ fontWeight: 500 }}>Course Name</span>
-                  <span className="font-normal text-[24px] text-black-blue" style={{ fontWeight: 400 }}>{course?.data?.title}</span>
-                </div>
-                <p className="text-base font-normal mb-4 text-black-blue leading-relaxed text-center">{course?.data?.description}</p>
-                <div className="w-[70%] mx-auto">
-                  <p className="text-lg font-semibold text-main mb-2 flex justify-around">
-                    <span>Price</span>
-                    <span>{course?.data?.price} L.E</span>
-                  </p>
-                  <p className="text-left text-black-blue mb-2 flex justify-between">
-                    <span>Trainer Name</span>
-                    <span>{course?.data?.teacher?.name}</span>
-                  </p>
-                  <p className="text-left text-black-blue mb-2 flex justify-between">
-                    <span>Level:</span>
-                    <span>{course?.data?.level}</span>
-                  </p>
-                  <p className="text-base text-black-blue mb-2 flex justify-between">
-                    <span>Start Date:</span>
-                    <span>{course?.data?.created_at ? new Date(course.data.created_at).toLocaleDateString() : '-'}</span>
-                  </p>
-                  <p className="text-base text-black-blue mb-2 flex justify-between">
-                    <span>How to attend:</span>
-                    <span>Online</span>
-                  </p>
-                </div>
-              </div>
-            </div>
-            {/* Card 2: Payment Form */}
-            <div className="bg-white rounded-[20px] shadow p-6 flex flex-col gap-6">
-              <form className="flex flex-col gap-4  ">
-                <label className="font-bold text-black-blue">Email</label>
-                <Input type="email" placeholder="@gmail.com" className="mb-2" />
-                {/* Payment method tabs */}
-                <div className="flex gap-2 mb-4">
-                  <Button type="button" className="px-4 py-2 rounded bg-[#E6E6E6] text-[#194C80] border border-main font-bold hover:bg-white">Visa</Button>
-                  <Button type="button" className="px-4 py-2 rounded bg-[#E6E6E6] text-[#194C80] border border-main font-bold hover:bg-white">Electronic Wallet</Button>
-                  <Button type="button" className="px-4 py-2 rounded bg-[#E6E6E6] text-[#194C80] border border-main font-bold hover:bg-white">Bank Transfer</Button>
-                </div>
-                {/* Card details form */}
-                <div className="bg-[#F0FEFC] rounded-[20px] border border-[#21374B] p-[37px_25px]">
+              <h2 id="enrollment-title" className="text-3xl font-bold text-black-blue mb-3">
+                {courseData.title}
+              </h2>
+              <p className="text-[#4D5756] leading-relaxed mb-5">{courseData.description}</p>
+              <dl className="space-y-3 text-black-blue">
+                <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.coursePrice}</dt><dd>{courseData.price} L.E</dd></div>
+                <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.trainerName}</dt><dd>{courseData.teacher?.name ?? "—"}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.level}</dt><dd>{courseData.level}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.startDate}</dt><dd>{courseData.created_at ? new Date(courseData.created_at).toLocaleDateString(language) : "—"}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.attendance}</dt><dd>{copy.online}</dd></div>
+              </dl>
+            </article>
 
-                <div className="mb-2">
-                  <label className="block text-black-blue font-normal text-[1rem] mb-1" style={{ fontWeight: 400 }}>Name Of Card</label>
-                  <Input type="text" className="mb-2 h-8 border border-[#194C80]" />
+            <section className="rounded-[20px] shadow p-8 bg-white" aria-live="polite">
+              {courseData.hasEnrolled ? (
+                <div className="space-y-4 text-center">
+                  <h3 className="text-2xl font-bold text-black-blue">{copy.watch}</h3>
+                  <Link
+                    to={`/courses/${courseData.id}/view`}
+                    className="inline-flex bg-main text-white rounded-[5px] px-6 py-3 font-sora"
+                  >
+                    {copy.watch}
+                  </Link>
                 </div>
-                <div className="mb-2">
-                  <label className="block text-black-blue font-normal text-[1rem] mb-1" style={{ fontWeight: 400 }}>Card Number</label>
-                  <Input type="text" className="mb-2 h-8 border border-[#194C80]" />
+              ) : isFree ? (
+                <div className="space-y-5 text-center">
+                  <h3 className="text-2xl font-bold text-black-blue">{copy.free}</h3>
+                  <p className="text-[#4D5756]">{copy.freeEnrollmentPrompt}</p>
+                  {canEnrollFree ? (
+                    <EnrollFreeCourse courseId={courseData.id} copy={copy} />
+                  ) : (
+                    <Link
+                      to="/sign-in"
+                      className="inline-flex bg-main text-white rounded-[5px] px-6 py-3 font-sora"
+                    >
+                      {copy.enroll}
+                    </Link>
+                  )}
                 </div>
-                <div className="flex gap-2">
-                  <div className="w-1/2 mb-2">
-                    <label className="block text-black-blue font-normal text-[1rem] mb-1" style={{ fontWeight: 400 }}>Expire Date</label>
-                    <Input type="text" className="mb-2 h-8 border border-[#194C80]" />
-                  </div>
-                  <div className="w-1/2 mb-2">
-                    <label className="block text-black-blue font-normal text-[1rem] mb-1" style={{ fontWeight: 400 }}>CVV</label>
-                    <Input type="text" className="mb-2 h-8 border border-[#194C80]"/>
-                  </div>
+              ) : (
+                <div className="space-y-5 text-center">
+                  <h3 className="text-2xl font-bold text-black-blue">{copy.paymentUnavailable}</h3>
+                  <p className="text-[#4D5756] leading-relaxed">{copy.paymentUnavailableDescription}</p>
+                  <Link
+                    to={`/courses/${courseData.id}`}
+                    className="inline-flex bg-main text-white rounded-[5px] px-6 py-3 font-sora"
+                  >
+                    {copy.returnToCourse}
+                  </Link>
                 </div>
-                <div className="mb-2">
-                  <label className="block text-black-blue font-normal text-[1rem] mb-1" style={{ fontWeight: 400 }}>Zip Code</label>
-                  <Input type="text" className="mb-2 h-8 border border-[#194C80]" />
-                </div>
-                <div className="mb-2">
-                  <label className="block text-black-blue font-normal text-[1rem] mb-1" style={{ fontWeight: 400 }}>Address</label>
-                  <Input type="text" className="mb-2 h-8 border border-[#194C80]" />
-                </div>
-                </div>
-                <div className="flex items-center gap-2 mt-2 w-53 m-auto">
-                  <input type="checkbox" id="save-info" className="w-5 h-5" />
-                  <label htmlFor="save-info" className="bg-main rounded-[5px] text-white p-1  text-sm">Securely save my information for 1-click checkout</label>
-                </div>
-                <Button className="mt-4 w-48 m-auto bg-[#194C80] text-white py-4 rounded-1 font-bold text-lg">Pay</Button>
-              </form>
-            </div>
+              )}
+            </section>
           </div>
         </div>
       </motion.section>
     </main>
-  )
+  );
 }
 
-export default EnrollCourse
+export default EnrollCourse;

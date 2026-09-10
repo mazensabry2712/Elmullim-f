@@ -16,8 +16,12 @@ import { Loader } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useI18n } from "@/i18n";
+import { getCoursesCopy } from "./courseCopy";
 
 const ViewCourse = () => {
+  const { language } = useI18n();
+  const copy = getCoursesCopy(language);
   const token = cookieService.getToken()!;
   const { courseId } = useParams();
   const navigate = useNavigate();
@@ -44,13 +48,14 @@ const ViewCourse = () => {
     lecture: lectures?.data?.[0] ?? null,
   };
   useEffect(() => {
+    document.title = `${copy.detailTitle} | Elmullim`;
     if (!Number(courseId)) navigate("/", { replace: true });
     if (!course?.data.hasEnrolled && !isLoading) navigate(-1);
     if (courseFailure) {
       toast.error(courseFailure.response?.data.message);
       navigate(-1);
     }
-  }, [courseId, navigate, course, token, isLoading, courseFailure, lecture]);
+  }, [courseId, navigate, course, token, isLoading, courseFailure, lecture, copy.detailTitle]);
 
   return (
     <main>
@@ -62,10 +67,10 @@ const ViewCourse = () => {
         className="container text-center text-white space-y-4 md:space-y-6 pt-16 md:pt-24 pb-12 md:pb-20"
       >
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
-          View Course
+          {copy.detailTitle}
         </h1>
-        <p className="font-sora font-light capitalize leading-[30px]">
-          home <span className="text-main">//</span> view course
+        <p className="font-sora font-light capitalize leading-[30px]" aria-label={copy.detailBreadcrumb}>
+          {copy.home} <span className="text-main">//</span> {copy.detailTitle}
         </p>
       </motion.div>
       <motion.section
@@ -77,7 +82,10 @@ const ViewCourse = () => {
       >
         <div className="py-12 md:py-24">
           {isLoading || isLoadingContent || isLoadingLectures ? (
-            <Loader size={40} className="mx-auto animate-spin" />
+            <div role="status" aria-live="polite">
+              <Loader size={40} className="mx-auto animate-spin" aria-hidden="true" />
+              <span className="sr-only">{copy.loading}</span>
+            </div>
           ) : (
             <>
               <div className="flex flex-col lg:flex-row px-2 md:px-6 xl:px-12">
@@ -91,17 +99,23 @@ const ViewCourse = () => {
                       <div className="aspect-video w-full rounded overflow-hidden mb-6">
                         <VideoPlayer videoUrl={lecture?.videoUrl} />
                       </div>
-                      <div className="my-4">
-                        <h2 className="text-2xl font-bold">{lecture.title}</h2>
-                        <p>{lecture.description}</p>
-                      </div>
+                      {lecture ? (
+                        <div className="my-4">
+                          <h2 className="text-2xl font-bold">{lecture.title}</h2>
+                          <p>{lecture.description}</p>
+                        </div>
+                      ) : (
+                        <p className="my-4 text-center text-muted" role="status">
+                          {copy.empty}
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
 
                 <aside className="w-full lg:w-[30%] xl:w-1/4 p-4">
                   <h3 className="text-black-blue text-2xl capitalize font-bold mb-5">
-                    Course Content
+                    {copy.detailTitle}
                   </h3>
                   <div className="max-h-screen overflow-y-auto">
                     <ViewCourseContent courseId={Number(courseId)} />
@@ -115,6 +129,7 @@ const ViewCourse = () => {
                 <RelatedCourses
                   courseId={course?.data.id as number}
                   subCategoryId={course?.data.sub_category.id as number}
+                  copy={copy}
                 />
               </div>
             </>

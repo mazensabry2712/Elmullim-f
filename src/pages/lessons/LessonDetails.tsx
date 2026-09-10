@@ -51,7 +51,6 @@ const LessonDetails = () => {
   }, [copy.detailTitle, copy.detailsError, navigate, lessonFailure, isError, lessonId]);
 
   const lessonData = lesson?.data;
-  const hasLesson = Boolean(lessonData);
 
   return (
     <main>
@@ -82,7 +81,7 @@ const LessonDetails = () => {
                 <Loader className="mx-auto animate-spin" size={40} aria-hidden="true" />
                 <span className="sr-only">{copy.loading}</span>
               </div>
-            ) : !hasLesson ? (
+            ) : !lessonData ? (
               <div className="py-10 text-center" role="alert">
                 <p className="font-sora text-lg text-[#4D5756]">{copy.detailsError}</p>
                 <Link

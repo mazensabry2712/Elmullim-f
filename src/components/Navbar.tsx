@@ -8,32 +8,34 @@ import {
   logoVariants,
   navItemsVariants,
 } from "@/animations";
-import { AlignJustify, ChevronDown, X } from "lucide-react";
+import { AlignJustify, ChevronDown, Languages, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import ProfileDropdownMenu from "./profiles/ProfileMenu";
+import { useI18n } from "@/i18n";
 
 const links = [
-  { name: "Home", path: "/" },
-  { name: "About", path: "/about" },
-  { name: "Services", path: "/services" },
-  { name: "Courses", path: "/courses" },
-  { name: "Lessons", path: "/lessons" },
-  { name: "Contact Us", path: "/contact-us" },
-  { name: "FAQs", path: "/faqs" },
-];
+  { key: "home", path: "/" },
+  { key: "about", path: "/about" },
+  { key: "services", path: "/services" },
+  { key: "courses", path: "/courses" },
+  { key: "lessons", path: "/lessons" },
+  { key: "contactUs", path: "/contact-us" },
+  { key: "faqs", path: "/faqs" },
+] as const;
 
 const loginLinks = [
-  { name: "Student", path: "/sign-in" },
-  { name: "Parent", path: "/parent/sign-in" },
-  { name: "Teacher", path: "/teacher/sign-in" },
-];
+  { key: "studentLogin", path: "/sign-in" },
+  { key: "parentLogin", path: "/parent/sign-in" },
+  { key: "teacherLogin", path: "/teacher/sign-in" },
+] as const;
 
 const Navbar = () => {
   const [openNav, setOpenNav] = useState(false);
   const [openLogin, setOpenLogin] = useState(false);
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const path = useLocation().pathname;
+  const { language, t, toggleLanguage } = useI18n();
 
   useEffect(() => {
     const handleResize = () => {
@@ -44,6 +46,11 @@ const Navbar = () => {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  const switchLanguage = () => {
+    toggleLanguage();
+    setOpenNav(false);
+  };
+
   return (
     <motion.nav
       initial="hidden"
@@ -51,12 +58,12 @@ const Navbar = () => {
       variants={navItemsVariants}
       className="flex justify-between w-full flex-wrap items-center py-2"
     >
-      <div className="flex items-center justify-between w-full pr-3">
+      <div className="flex items-center justify-between w-full px-3">
         <motion.div variants={logoVariants}>
           <Link to="/" className="flex items-center">
             <motion.img
               src="/images/logo.webp"
-              alt="logo"
+              alt="Elmullim"
               variants={logoVariants}
               initial="hidden"
               animate="visible"
@@ -76,7 +83,7 @@ const Navbar = () => {
         >
           {links.map((link) => (
             <motion.li
-              key={link.name}
+              key={link.key}
               variants={navItemsVariants}
               className="flex items-center justify-center"
             >
@@ -88,13 +95,26 @@ const Navbar = () => {
                     : "text-black-blue hover:text-main transition-all duration-200"
                 }`}
               >
-                {link.name}
+                {t(`nav.${link.key}`)}
               </NavLink>
             </motion.li>
           ))}
         </motion.ul>
 
-        <motion.div className="flex items-center gap-3 relative">
+        <motion.div className="flex items-center gap-2 relative">
+          <motion.button
+            type="button"
+            variants={navItemsVariants}
+            onClick={switchLanguage}
+            aria-label={
+              language === "en" ? t("language.arabic") : t("language.english")
+            }
+            className="inline-flex items-center gap-1.5 rounded-md border border-black-blue/10 px-2.5 py-2 text-sm font-semibold text-black-blue hover:border-main hover:text-main transition-colors"
+          >
+            <Languages size={17} aria-hidden="true" />
+            <span>{language === "en" ? t("language.arabic") : t("language.english")}</span>
+          </motion.button>
+
           {isAuthenticated ? (
             <motion.div variants={navItemsVariants}>
               <ProfileDropdownMenu />
@@ -108,7 +128,7 @@ const Navbar = () => {
                 onClick={() => setOpenLogin((value) => !value)}
                 className="bg-main text-white font-sora font-medium rounded-[5px] shadow transition-all duration-300 hover:bg-main/90 hover:shadow-md px-3 sm:px-5 py-2 flex justify-center items-center gap-2"
               >
-                Login
+                {t("nav.login")}
                 <ChevronDown
                   size={18}
                   className={`transition-transform ${openLogin ? "rotate-180" : ""}`}
@@ -126,13 +146,13 @@ const Navbar = () => {
                   >
                     {loginLinks.map((loginLink) => (
                       <Link
-                        key={loginLink.name}
+                        key={loginLink.key}
                         to={loginLink.path}
                         role="menuitem"
                         onClick={() => setOpenLogin(false)}
                         className="block rounded-md px-4 py-2 text-sm font-semibold text-black-blue hover:bg-white-gray hover:text-main"
                       >
-                        {loginLink.name} Login
+                        {t(`nav.${loginLink.key}`)}
                       </Link>
                     ))}
                   </motion.div>
@@ -142,7 +162,7 @@ const Navbar = () => {
           )}
 
           <motion.button
-            aria-label="Toggle Menu"
+            aria-label={t("nav.toggleMenu")}
             aria-expanded={openNav}
             variants={navItemsVariants}
             className="flex justify-center items-center lg:hidden text-black-blue"
@@ -189,7 +209,7 @@ const Navbar = () => {
               <motion.ul className="w-full flex flex-col gap-1">
                 {links.map((link) => (
                   <motion.li
-                    key={link.name}
+                    key={link.key}
                     variants={navItemsVariants}
                     className="flex items-center justify-center w-full"
                   >
@@ -202,24 +222,34 @@ const Navbar = () => {
                       }`}
                       onClick={() => setOpenNav(false)}
                     >
-                      {link.name}
+                      {t(`nav.${link.key}`)}
                     </NavLink>
                   </motion.li>
                 ))}
 
+                <motion.li variants={navItemsVariants} className="pt-2">
+                  <button
+                    type="button"
+                    onClick={switchLanguage}
+                    className="w-full rounded-md border border-main/20 px-4 py-2 text-sm font-semibold text-black-blue hover:text-main"
+                  >
+                    {language === "en" ? t("language.arabic") : t("language.english")}
+                  </button>
+                </motion.li>
+
                 {!isAuthenticated && (
                   <motion.li variants={navItemsVariants} className="pt-3">
                     <div className="rounded-lg border border-main/20 bg-white-gray p-2">
-                      <p className="px-2 pb-2 text-sm font-semibold text-black-blue">Sign in as</p>
+                      <p className="px-2 pb-2 text-sm font-semibold text-black-blue">{t("nav.signInAs")}</p>
                       <div className="grid grid-cols-1 gap-1">
                         {loginLinks.map((loginLink) => (
                           <Link
-                            key={loginLink.name}
+                            key={loginLink.key}
                             to={loginLink.path}
                             onClick={() => setOpenNav(false)}
                             className="rounded-md px-3 py-2 text-sm font-semibold text-black-blue hover:bg-white hover:text-main"
                           >
-                            {loginLink.name} Login
+                            {t(`nav.${loginLink.key}`)}
                           </Link>
                         ))}
                       </div>

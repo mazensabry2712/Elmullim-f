@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import ViewLesson from "@/pages/lessons/ViewLesson";
 import { I18nProvider } from "@/i18n";
 
@@ -73,7 +73,9 @@ describe("ViewLesson", () => {
     render(
       <MemoryRouter initialEntries={[path]}>
         <I18nProvider>
-          <ViewLesson />
+          <Routes>
+            <Route path="/lessons/:lessonId/view" element={<ViewLesson />} />
+          </Routes>
         </I18nProvider>
       </MemoryRouter>
     );

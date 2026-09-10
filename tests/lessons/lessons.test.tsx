@@ -1,0 +1,110 @@
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import React from "react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter } from "react-router-dom";
+import Lessons from "@/pages/lessons/Lessons";
+import { I18nProvider, useI18n } from "@/i18n";
+
+const mockRefetch = vi.fn();
+const mockUseGetLessons = vi.fn();
+
+vi.mock("@/lib/react-query/lessons/lessons", () => ({
+  useGetLessons: (...args: unknown[]) => mockUseGetLessons(...args),
+}));
+
+vi.mock("@/utils/cookieService", () => ({
+  default: { getToken: vi.fn(() => undefined) },
+}));
+
+vi.mock("@/components/lessons/LessonsList", () => ({
+  default: ({ lessons, copy }: { lessons: Array<{ title: string }>; copy: { empty: string } }) =>
+    lessons.length ? (
+      <div data-testid="lessons-list">{lessons.map((lesson) => <span key={lesson.title}>{lesson.title}</span>)}</div>
+    ) : (
+      <p>{copy.empty}</p>
+    ),
+}));
+
+vi.mock("framer-motion", () => ({
+  motion: {
+    div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+    section: ({ children }: { children?: React.ReactNode }) => <section>{children}</section>,
+  },
+}));
+
+const LanguageToggle = () => {
+  const { toggleLanguage } = useI18n();
+  return <button type="button" onClick={toggleLanguage}>toggle</button>;
+};
+
+const renderPage = (children: React.ReactNode) =>
+  render(
+    <MemoryRouter>
+      <I18nProvider>{children}</I18nProvider>
+    </MemoryRouter>
+  );
+
+describe("Lessons", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    localStorage.setItem("elmullim-language", "en");
+    document.documentElement.lang = "en";
+    document.documentElement.dir = "ltr";
+  });
+
+  it("renders API lessons and an accessible search field", () => {
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [{ id: 1, title: "Algebra Basics" }] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    renderPage(<Lessons />);
+
+    expect(screen.getByRole("heading", { name: /lessons/i, level: 1 })).toBeInTheDocument();
+    expect(screen.getByRole("searchbox", { name: /search lessons/i })).toBeInTheDocument();
+    expect(screen.getByTestId("lessons-list")).toHaveTextContent("Algebra Basics");
+  });
+
+  it("renders a retryable error state", async () => {
+    const user = userEvent.setup();
+    mockUseGetLessons.mockReturnValue({
+      data: undefined,
+      isLoading: false,
+      isError: true,
+      refetch: mockRefetch,
+    });
+
+    renderPage(<Lessons />);
+
+    expect(screen.getByRole("alert")).toBeInTheDocument();
+    await user.click(screen.getByRole("button", { name: /try again/i }));
+    expect(mockRefetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("supports Arabic and RTL", async () => {
+    const user = userEvent.setup();
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    renderPage(
+      <>
+        <Lessons />
+        <LanguageToggle />
+      </>
+    );
+
+    await user.click(screen.getByRole("button", { name: "toggle" }));
+
+    expect(screen.getByRole("heading", { name: /الدروس/i, level: 1 })).toBeInTheDocument();
+    expect(screen.getByText(/لم يتم العثور على دروس/i)).toBeInTheDocument();
+    expect(document.documentElement.lang).toBe("ar");
+    expect(document.documentElement.dir).toBe("rtl");
+  });
+});

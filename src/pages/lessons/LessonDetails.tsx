@@ -50,7 +50,8 @@ const LessonDetails = () => {
     }
   }, [copy.detailTitle, copy.detailsError, navigate, lessonFailure, isError, lessonId]);
 
-  const hasLesson = Boolean(lesson?.data);
+  const lessonData = lesson?.data;
+  const hasLesson = Boolean(lessonData);
 
   return (
     <main>
@@ -95,30 +96,30 @@ const LessonDetails = () => {
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 lg:col-span-7 order-2 h-fit">
                   <div className="space-y-2 text-center lg:text-start mt-8 lg:mt-0">
-                    <h2 className="text-black-blue font-bold text-3xl lg:text-5xl">{lesson.data.title}</h2>
-                    <p className="font-sora text-[15px] text-[#4D5756] leading-relaxed px-4">{lesson.data.description}</p>
+                    <h2 className="text-black-blue font-bold text-3xl lg:text-5xl">{lessonData.title}</h2>
+                    <p className="font-sora text-[15px] text-[#4D5756] leading-relaxed px-4">{lessonData.description}</p>
                   </div>
 
                   <div className="mt-4 flex flex-col md:flex-row items-center justify-between gap-4 px-4">
                     <div className="font-sora text-lg font-medium flex items-center gap-2">
                       <img
-                        src={lesson.data.teacher.profile_image || "/images/profile-avatar.webp"}
-                        alt={`${copy.teacherImageAlt}: ${lesson.data.teacher.name}`}
+                        src={lessonData.teacher.profile_image || "/images/profile-avatar.webp"}
+                        alt={`${copy.teacherImageAlt}: ${lessonData.teacher.name}`}
                         className="w-10 h-10 rounded-full bg-black-blue object-cover object-top shrink-0"
                       />
                       <h3>
-                        {copy.by} <span className="text-main">{lesson.data.teacher.name}</span>
+                        {copy.by} <span className="text-main">{lessonData.teacher.name}</span>
                       </h3>
                     </div>
 
                     <div>
-                      {isAuthenticated && role === "student" && !lesson.data.hasEnrolled && Number(lesson.data.price) === 0 && (
-                        <EnrollFreeLesson lessonId={lesson.data.id} copy={copy} />
+                      {isAuthenticated && role === "student" && !lessonData.hasEnrolled && Number(lessonData.price) === 0 && (
+                        <EnrollFreeLesson lessonId={lessonData.id} copy={copy} />
                       )}
 
-                      {isAuthenticated && role === "student" && lesson.data.hasEnrolled && (
+                      {isAuthenticated && role === "student" && lessonData.hasEnrolled && (
                         <Link
-                          to={`/lessons/${lesson.data.id}/view`}
+                          to={`/lessons/${lessonData.id}/view`}
                           className="block w-fit lg:w-full xl:w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
                         >
                           {copy.watch}
@@ -140,8 +141,8 @@ const LessonDetails = () => {
                 <div className="order-1 lg:order-2 col-span-12 lg:col-span-5">
                   <div className="max-h-96 overflow-hidden relative z-10 before:absolute before:w-full before:h-full before:top-3 lg:before:top-6 before:left-3 lg:before:left-6 before:bg-black-blue before:-z-10 before:rounded-lg before:shadow-lg">
                     <img
-                      src={lesson.data.logo || "/images/placeholder-img.webp"}
-                      alt={`${copy.imageAlt}: ${lesson.data.title}`}
+                      src={lessonData.logo || "/images/placeholder-img.webp"}
+                      alt={`${copy.imageAlt}: ${lessonData.title}`}
                       height="100%"
                       width="100%"
                       className="rounded-lg shadow-lg max-h-96 object-cover"
@@ -154,16 +155,14 @@ const LessonDetails = () => {
         </div>
 
         <div className="container py-5">
-          {hasLesson && !isLoading && (
+          {lessonData && (
             <>
               <div className="w-full lg:w-4/5 mx-auto py-10">
-                <LessonContent lessonId={lesson.data.id} hasEnrolled={lesson.data.hasEnrolled || false} />
+                <LessonContent lessonId={lessonData.id} hasEnrolled={lessonData.hasEnrolled || false} />
               </div>
-              <InstructorDetails instructor={lesson.data.teacher as ITeacher} />
+              <InstructorDetails instructor={lessonData.teacher as ITeacher} />
+              <RelatedLessons lessonId={Number(lessonId)} teacherId={lessonData.teacher.id} />
             </>
-          )}
-          {hasLesson && (
-            <RelatedLessons lessonId={Number(lessonId)} teacherId={lesson.data.teacher.id} />
           )}
         </div>
         <Newsletter />

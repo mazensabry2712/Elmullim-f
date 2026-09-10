@@ -25,14 +25,14 @@ const EnrollFreeCourse = ({ courseId, copy }: IProps) => {
       if (!status) {
         return Swal.fire({
           icon: "error",
-          title: copy.enrollmentError,
+          title: copy.enrollmentErrorTitle,
           text: message,
         });
       }
 
       Swal.fire({
         icon: "success",
-        title: copy.enrollmentSuccess,
+        title: copy.enrollmentSuccessTitle,
         text: message,
       });
 

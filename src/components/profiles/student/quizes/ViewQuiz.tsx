@@ -1,11 +1,12 @@
 import { AlertCircle, ArrowLeft, Loader, Clock, Award, CheckCircle2 } from "lucide-react";
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import cookieService from "@/utils/cookieService";
 import {
   useGetStudentQuiz,
   useGetStudentQuizResult,
+  useStartStudentQuiz,
   useSubmitStudentQuiz,
 } from "@/lib/react-query/student/quizzes";
 
@@ -15,6 +16,7 @@ const copy = {
     breadcrumb: "Quiz page breadcrumb",
     home: "Home",
     loading: "Loading quiz",
+    starting: "Starting your quiz",
     unavailable: "Unable to load this quiz right now.",
     retry: "Try again",
     back: "Back to quiz schedule",
@@ -31,6 +33,9 @@ const copy = {
     submitting: "Submitting...",
     answerAll: "Please answer all questions before submitting.",
     submitFailed: "Unable to submit the quiz right now. Please try again.",
+    startFailed: "Unable to start this quiz right now.",
+    expired: "The quiz time has expired. Your answers can no longer be submitted.",
+    remaining: "Time remaining",
     resultLoading: "Loading your saved result",
     resultUnavailable: "Your submission was saved, but the result could not be loaded.",
     resultTitle: "Quiz result",
@@ -49,6 +54,7 @@ const copy = {
     breadcrumb: "مسار صفحة الاختبار",
     home: "الرئيسية",
     loading: "جاري تحميل الاختبار",
+    starting: "جاري بدء الاختبار",
     unavailable: "تعذر تحميل هذا الاختبار حاليًا.",
     retry: "حاول مرة أخرى",
     back: "العودة إلى جدول الاختبارات",
@@ -65,6 +71,9 @@ const copy = {
     submitting: "جاري الإرسال...",
     answerAll: "يرجى الإجابة عن جميع الأسئلة قبل إرسال الاختبار.",
     submitFailed: "تعذر إرسال الاختبار حاليًا. حاول مرة أخرى.",
+    startFailed: "تعذر بدء الاختبار حاليًا.",
+    expired: "انتهى وقت الاختبار، ولا يمكن إرسال الإجابات الآن.",
+    remaining: "الوقت المتبقي",
     resultLoading: "جاري تحميل النتيجة المحفوظة",
     resultUnavailable: "تم حفظ إجابتك، لكن تعذر تحميل النتيجة.",
     resultTitle: "نتيجة الاختبار",
@@ -80,6 +89,13 @@ const copy = {
   },
 } as const;
 
+const formatRemainingTime = (seconds: number) => {
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  return `${String(minutes).padStart(2, "0")}:${String(remainingSeconds).padStart(2, "0")}`;
+};
+
 const ViewQuiz = () => {
   const { language } = useI18n();
   const pageCopy = copy[language];
@@ -88,10 +104,15 @@ const ViewQuiz = () => {
   const quizId = Number(searchParams.get("quiz"));
   const validQuizId = Number.isInteger(quizId) && quizId > 0;
   const { data, isLoading, isError, refetch } = useGetStudentQuiz({ token, quizId });
+  const startQuiz = useStartStudentQuiz();
   const submitQuiz = useSubmitStudentQuiz();
   const [answers, setAnswers] = useState<Record<number, number>>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submissionError, setSubmissionError] = useState<string | null>(null);
+  const [deadlineAt, setDeadlineAt] = useState<string | null>(null);
+  const [clockMs, setClockMs] = useState(() => Date.now());
+  const [startError, setStartError] = useState<string | null>(null);
+  const hasStartedRef = useRef(false);
 
   const { data: resultData, isLoading: isResultLoading, isError: isResultError } =
     useGetStudentQuizResult({
@@ -99,6 +120,52 @@ const ViewQuiz = () => {
       quizId,
       enabled: isSubmitted,
     });
+
+  const quiz = data?.data?.quiz;
+  const questions = data?.data?.questions ?? [];
+
+  useEffect(() => {
+    if (!validQuizId || !token || !quiz || hasStartedRef.current) {
+      return;
+    }
+
+    hasStartedRef.current = true;
+    setStartError(null);
+
+    void startQuiz.mutateAsync({ token, quizId })
+      .then((response) => {
+        const attempt = response.data;
+        setDeadlineAt(attempt.deadline_at);
+        setIsSubmitted(Boolean(attempt.submitted_at));
+      })
+      .catch(() => {
+        hasStartedRef.current = false;
+        setStartError(pageCopy.startFailed);
+      });
+  }, [pageCopy.startFailed, quiz, quizId, startQuiz, token, validQuizId]);
+
+  useEffect(() => {
+    if (!deadlineAt || isSubmitted) {
+      return;
+    }
+
+    const updateClock = () => setClockMs(Date.now());
+    updateClock();
+
+    const interval = window.setInterval(updateClock, 1000);
+    return () => window.clearInterval(interval);
+  }, [deadlineAt, isSubmitted]);
+
+  const remainingSeconds = deadlineAt
+    ? Math.max(0, Math.ceil((Date.parse(deadlineAt) - clockMs) / 1000))
+    : null;
+  const isExpired = remainingSeconds !== null && remainingSeconds <= 0;
+
+  useEffect(() => {
+    if (isExpired && !isSubmitted) {
+      setSubmissionError(pageCopy.expired);
+    }
+  }, [isExpired, isSubmitted, pageCopy.expired]);
 
   if (!validQuizId) {
     return (
@@ -139,12 +206,37 @@ const ViewQuiz = () => {
     );
   }
 
-  const quiz = data.data.quiz;
-  const questions = data.data.questions;
+  if (startQuiz.isPending || (!hasStartedRef.current && !startError)) {
+    return (
+      <main>
+        <div className="container py-24" role="status" aria-live="polite">
+          <Loader className="mx-auto animate-spin" size={40} aria-hidden="true" />
+          <p className="mt-4 text-center text-[#4D5756]">{pageCopy.starting}</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (startError) {
+    return (
+      <main>
+        <div className="container py-24 text-center" role="alert">
+          <AlertCircle className="mx-auto mb-3 text-main" size={40} aria-hidden="true" />
+          <p className="text-[#4D5756]">{startError}</p>
+          <button type="button" onClick={() => { setStartError(null); hasStartedRef.current = false; }} className="mt-5 bg-main text-white rounded-[5px] px-6 py-2">{pageCopy.retry}</button>
+        </div>
+      </main>
+    );
+  }
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmissionError(null);
+
+    if (isExpired) {
+      setSubmissionError(pageCopy.expired);
+      return;
+    }
 
     const answeredQuestionIds = new Set(Object.keys(answers).map(Number));
     const hasAllAnswers = questions.every((question) => answeredQuestionIds.has(question.id));
@@ -212,7 +304,7 @@ const ViewQuiz = () => {
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-sm text-[#4D5756]">{pageCopy.resultTitle}</p>
-                  <h2 id="quiz-result-title" className="mt-1 text-2xl md:text-3xl font-bold text-[#194D80]">{quiz.title}</h2>
+                  <h2 id="quiz-result-title" className="mt-1 text-2xl md:text-3xl font-bold text-[#194D80]">{quiz?.title}</h2>
                 </div>
                 <CheckCircle2 className="text-main shrink-0" size={32} aria-hidden="true" />
               </div>
@@ -291,6 +383,12 @@ const ViewQuiz = () => {
               <p className="flex items-center gap-2"><Clock size={16} aria-hidden="true" /><strong>{pageCopy.time}:</strong> {quiz.start_time || "—"} – {quiz.end_time || "—"}</p>
               <p><strong>{pageCopy.limit}:</strong> {quiz.time_limit} {pageCopy.minutes}</p>
               <p className="flex items-center gap-2"><Award size={16} aria-hidden="true" /><strong>{pageCopy.score}:</strong> {quiz.total_score}</p>
+              {remainingSeconds !== null && (
+                <p className="flex items-center gap-2 font-semibold" role="timer" aria-live="polite">
+                  <Clock size={16} aria-hidden="true" />
+                  <strong>{pageCopy.remaining}:</strong> {formatRemainingTime(remainingSeconds)}
+                </p>
+              )}
             </div>
           </div>
 
@@ -299,7 +397,7 @@ const ViewQuiz = () => {
           ) : (
             <form className="space-y-8" onSubmit={(event) => void handleSubmit(event)}>
               {questions.map((question, index) => (
-                <fieldset key={question.id} className="rounded-xl border border-[#194D80] p-6">
+                <fieldset key={question.id} className="rounded-xl border border-[#194D80] p-6" disabled={isExpired || submitQuiz.isPending}>
                   <legend className="px-2 text-lg font-bold text-[#194D80]">{index + 1}. {question.title}</legend>
                   <p className="mt-2 text-sm text-[#4D5756]">{pageCopy.choose}</p>
                   <div className="mt-4 grid gap-3">
@@ -327,7 +425,7 @@ const ViewQuiz = () => {
 
               <button
                 type="submit"
-                disabled={submitQuiz.isPending}
+                disabled={submitQuiz.isPending || isExpired}
                 className="inline-flex items-center justify-center gap-2 bg-main text-white rounded-[5px] px-6 py-3 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitQuiz.isPending && <Loader className="animate-spin" size={18} aria-hidden="true" />}

@@ -16,7 +16,9 @@ axiosAPI.interceptors.response.use(
     if (error?.response?.status === 401) {
       store.dispatch(logout());
       toast.warn("Please login to continue");
-    } else if (error?.status === 500) toast.error("Try again later");
+    } else if (error?.response?.status === 500) {
+      toast.error("Try again later");
+    }
     return Promise.reject(error);
   }
 );

@@ -56,6 +56,11 @@ const Navbar = () => {
     setOpenLogin(false);
   };
 
+  const isLinkActive = (linkPath: string) =>
+    linkPath === "/"
+      ? path === "/"
+      : path === linkPath || path.startsWith(`${linkPath}/`);
+
   return (
     <motion.nav
       initial="hidden"
@@ -86,16 +91,21 @@ const Navbar = () => {
           animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
         >
-          {links.map((link) => (
-            <motion.li key={link.key} variants={navItemsVariants} className="flex items-center justify-center">
-              <NavLink
-                to={link.path}
-                className={`font-semibold text-[17px] ${path === link.path ? "text-main" : "text-black-blue hover:text-main transition-all duration-200"}`}
-              >
-                {t(`nav.${link.key}`)}
-              </NavLink>
-            </motion.li>
-          ))}
+          {links.map((link) => {
+            const active = isLinkActive(link.path);
+
+            return (
+              <motion.li key={link.key} variants={navItemsVariants} className="flex items-center justify-center">
+                <NavLink
+                  to={link.path}
+                  aria-current={active ? "page" : undefined}
+                  className={`font-semibold text-[17px] ${active ? "text-main" : "text-black-blue hover:text-main transition-all duration-200"}`}
+                >
+                  {t(`nav.${link.key}`)}
+                </NavLink>
+              </motion.li>
+            );
+          })}
         </motion.ul>
 
         <motion.div className="relative flex shrink-0 items-center gap-2" variants={navItemsVariants}>
@@ -188,17 +198,22 @@ const Navbar = () => {
           >
             <motion.div variants={navItemsVariants} className="mx-auto w-full max-w-xl py-2">
               <motion.ul className="flex w-full flex-col gap-1">
-                {links.map((link) => (
-                  <motion.li key={link.key} variants={navItemsVariants} className="flex w-full items-center justify-center">
-                    <NavLink
-                      to={link.path}
-                      className={`w-full rounded-md px-3 py-2.5 font-semibold text-[16px] transition-all duration-200 sm:px-4 sm:text-[17px] ${path === link.path ? "bg-main/10 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`}
-                      onClick={() => setOpenNav(false)}
-                    >
-                      {t(`nav.${link.key}`)}
-                    </NavLink>
-                  </motion.li>
-                ))}
+                {links.map((link) => {
+                  const active = isLinkActive(link.path);
+
+                  return (
+                    <motion.li key={link.key} variants={navItemsVariants} className="flex w-full items-center justify-center">
+                      <NavLink
+                        to={link.path}
+                        aria-current={active ? "page" : undefined}
+                        className={`w-full rounded-md px-3 py-2.5 font-semibold text-[16px] transition-all duration-200 sm:px-4 sm:text-[17px] ${active ? "bg-main/10 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`}
+                        onClick={() => setOpenNav(false)}
+                      >
+                        {t(`nav.${link.key}`)}
+                      </NavLink>
+                    </motion.li>
+                  );
+                })}
 
                 <motion.li variants={navItemsVariants} className="pt-2">
                   <button type="button" onClick={switchLanguage} className="flex w-full items-center justify-center gap-2 rounded-md border border-main/20 px-4 py-2.5 text-sm font-semibold text-black-blue hover:text-main">

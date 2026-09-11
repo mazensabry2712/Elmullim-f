@@ -1,7 +1,10 @@
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useI18n } from "@/i18n";
 
 const Footer = () => {
+  const { t } = useI18n();
+
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -18,34 +21,13 @@ const Footer = () => {
   };
 
   const quickLinks = [
-    {
-      name: "Home",
-      path: "/",
-    },
-    {
-      name: "About",
-      path: "/about",
-    },
-    {
-      name: "Services",
-      path: "/services",
-    },
-    {
-      name: "Contact Us",
-      path: "/contact-us",
-    },
-    {
-      name: "Courses",
-      path: "/courses",
-    },
-    {
-      name: "Lessons",
-      path: "/lessons",
-    },
-    {
-      name: "FAQs",
-      path: "/faqs",
-    },
+    { key: "footer.home", path: "/", translation: "nav.home" },
+    { key: "footer.about", path: "/about", translation: "nav.about" },
+    { key: "footer.services", path: "/services", translation: "nav.services" },
+    { key: "footer.contactUs", path: "/contact-us", translation: "nav.contactUs" },
+    { key: "footer.courses", path: "/courses", translation: "nav.courses" },
+    { key: "footer.lessons", path: "/lessons", translation: "nav.lessons" },
+    { key: "footer.faqs", path: "/faqs", translation: "nav.faqs" },
   ];
 
   return (
@@ -57,23 +39,21 @@ const Footer = () => {
         viewport={{ once: true }}
         className="container"
       >
-        {/* Main Content */}
-        <div className="ml-0 text-center md:text-start max-w-[930px] py-16 lg:py-20 grid grid-cols-1 md:grid-cols-2 gap-x-6 lg:gap-x-24 gap-y-14">
-          {/* Left Section */}
+        <div className="ml-0 max-w-[930px] grid grid-cols-1 gap-x-6 gap-y-14 py-16 text-center md:grid-cols-2 md:text-start lg:gap-x-24 lg:py-20">
           <motion.div variants={itemVariants} className="space-y-[14px]">
-            <div className="bg-white flex justify-center items-center shadow-[1px_2px_4px_rgba(255,255,255,0.25)] rounded-2xl py-1">
-              <Link to={"/"} className="flex items-center">
+            <div className="flex items-center justify-center rounded-2xl bg-white py-1 shadow-[1px_2px_4px_rgba(255,255,255,0.25)]">
+              <Link to="/" className="flex items-center">
                 <motion.img
-                  src={"/images/logo.webp"}
+                  src="/images/logo.webp"
                   alt="logo"
-                  className="w-14 h-14 cursor-pointer p-1"
+                  className="h-14 w-14 cursor-pointer p-1"
                   initial={{ opacity: 0, scale: 0.8 }}
                   whileInView={{ opacity: 1, scale: 1 }}
                   transition={{ duration: 0.6 }}
                   viewport={{ once: true }}
                 />
                 <motion.h3
-                  className="font-bold text-black-blue text-2xl font-epilogue"
+                  className="font-epilogue text-2xl font-bold text-black-blue"
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.6 }}
@@ -83,65 +63,39 @@ const Footer = () => {
                 </motion.h3>
               </Link>
             </div>
-            <motion.p
-              variants={itemVariants}
-              className="text-white-gray text-[17px] font-sora"
-            >
-              Interdum velit laoreet id donec ultrices tincidunt arcu. Tincidunt
-              tortor aliquam nulla facilisi cras fermentum odio eu.
+            <motion.p variants={itemVariants} className="font-sora text-[17px] text-white-gray">
+              {t("footer.description")}
             </motion.p>
           </motion.div>
 
-          {/* Right Section */}
-          <motion.div
-            variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-9"
-          >
-            {/* Services List */}
+          <motion.div variants={containerVariants} className="grid grid-cols-1 gap-x-4 gap-y-9 md:grid-cols-2">
             <motion.div variants={itemVariants} className="space-y-8">
-              <h4 className="font-bold text-white text-[22px] capitalize">
-                Our Services:
-              </h4>
-              <ul className="text-white-gray space-y-4">
+              <h4 className="text-[22px] font-bold capitalize text-white">{t("footer.servicesTitle")}</h4>
+              <ul className="space-y-4 text-white-gray">
                 {[
-                  "learning",
-                  "parent control",
-                  "Management",
-                  "master teachers",
-                ].map((service, idx) => (
-                  <motion.li
-                    key={idx}
-                    variants={itemVariants}
-                    className="text-[17px] font-sora capitalize"
-                  >
-                    {service}
+                  "footer.services.learning",
+                  "footer.services.parentControl",
+                  "footer.services.management",
+                  "footer.services.masterTeachers",
+                  "footer.services.news",
+                ].map((key) => (
+                  <motion.li key={key} variants={itemVariants} className="font-sora text-[17px] capitalize">
+                    {t(key)}
                   </motion.li>
                 ))}
-                <motion.li
-                  variants={itemVariants}
-                  className="text-[17px] font-sora capitalize"
-                >
-                  <span className="uppercase font-sora text-main text-xl">
-                    ELMULIM
-                  </span>{" "}
-                  news
-                </motion.li>
               </ul>
             </motion.div>
 
-            {/* Quick Links */}
             <motion.div variants={itemVariants} className="space-y-8">
-              <h4 className="font-bold text-white text-[22px] capitalize">
-                Quick Links:
-              </h4>
-              <ul className="text-white-gray space-y-4">
-                {quickLinks.map((link, idx) => (
+              <h4 className="text-[22px] font-bold capitalize text-white">{t("footer.quickLinksTitle")}</h4>
+              <ul className="space-y-4 text-white-gray">
+                {quickLinks.map((link) => (
                   <motion.li
-                    key={idx}
+                    key={link.key}
                     variants={itemVariants}
-                    className="text-[17px] font-sora hover:text-main capitalize transition-colors duration-200"
+                    className="font-sora text-[17px] capitalize transition-colors duration-200 hover:text-main"
                   >
-                    <Link to={link.path}>{link.name}</Link>
+                    <Link to={link.path}>{t(link.translation)}</Link>
                   </motion.li>
                 ))}
               </ul>
@@ -150,17 +104,14 @@ const Footer = () => {
         </div>
       </motion.div>
 
-      {/* Copyright Section */}
       <motion.div
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.8 }}
         viewport={{ once: true }}
-        className="font-normal bg-[#1F2C3B] text-center py-3 text-white font-sora capitalize text-[17px]"
+        className="bg-[#1F2C3B] py-3 text-center font-exo text-[17px] font-normal capitalize text-white font-sora"
       >
-        &copy; {new Date().getFullYear()}{" "}
-        <span className="text-main font-exo font-black">Elmullim</span> || All
-        Rights Reserved
+        &copy; {new Date().getFullYear()} <span className="font-black text-main">Elmullim</span> || {t("footer.rightsReserved")}
       </motion.div>
     </footer>
   );

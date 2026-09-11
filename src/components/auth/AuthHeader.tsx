@@ -14,6 +14,7 @@ interface IProps {
   description: string | ReactNode;
   discover?: boolean;
 }
+
 const AuthHeader = ({
   title,
   linkPath,
@@ -24,27 +25,26 @@ const AuthHeader = ({
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   return (
-    <div className="bg-black-blue bg-[url('/images/header-auth-bg.svg')] bg-center lg:bg-right-top bg-no-repeat pt-4">
-      <motion.header className="container">
+    <div className="bg-black-blue bg-[url('/images/header-auth-bg.svg')] bg-cover bg-center lg:bg-right-top bg-no-repeat pt-3 sm:pt-4">
+      <motion.header className="container px-2 sm:px-4">
         <motion.nav
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className={`flex justify-between w-full flex-wrap items-center bg-white rounded-lg`}
+          className="w-full overflow-hidden rounded-lg bg-white shadow-lg"
         >
-          <div className="flex items-center justify-between w-full pr-3">
-            {/* Logo */}
-            <motion.div variants={logoVariants}>
-              <Link to={"/"} className="flex p-1">
+          <div className="flex min-w-0 w-full items-center justify-between gap-2 px-2 py-1.5 sm:px-3 sm:py-2">
+            <motion.div variants={logoVariants} className="min-w-0 shrink">
+              <Link to="/" className="flex min-w-0 items-center gap-1.5 p-0.5 sm:gap-2">
                 <motion.img
-                  src={"/images/logo.webp"}
-                  alt="logo"
+                  src="/images/logo.webp"
+                  alt="Elmullim"
                   variants={logoVariants}
                   initial="hidden"
                   animate="visible"
-                  className="w-14 h-14 cursor-pointer"
+                  className="h-11 w-11 shrink-0 cursor-pointer sm:h-14 sm:w-14"
                 />
-                <h3 className="font-bold text-black-blue text-xl md:text-2xl font-epilogue flex justify-center items-center">
+                <h3 className="truncate font-epilogue text-lg font-extrabold tracking-tight text-black-blue sm:text-xl lg:text-2xl">
                   Elm<span className="text-main">ullim</span>
                 </h3>
               </Link>
@@ -52,51 +52,49 @@ const AuthHeader = ({
 
             {discover && (
               <motion.div
-                className="hidden lg:flex h-full items-center justify-center"
+                className="hidden h-14 items-center justify-center lg:flex"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ duration: 0.5 }}
               >
                 <motion.h2
                   variants={navItemsVariants}
-                  className="flex items-center justify-center text-white bg-main px-2 h-16 capitalize font-semibold text-[17px]"
+                  className="flex h-full items-center justify-center bg-main px-5 capitalize font-semibold text-[16px] text-white xl:px-7 xl:text-[17px]"
                 >
                   discover
                 </motion.h2>
               </motion.div>
             )}
 
-            {/* Right */}
             <motion.div
               variants={navItemsVariants}
-              className="flex items-center gap-2"
+              className="flex shrink-0 items-center gap-1.5 sm:gap-2"
             >
               {isAuthenticated ? (
                 <LogoutAuthButton />
               ) : (
-                <button className="bg-main rounded-[5px]">
-                  <Link
-                    to={linkPath || ""}
-                    className="text-[15px] flex justify-center items-center gap-2 text-white px-4 py-2.5 font-bold capitalize"
-                  >
-                    {linkTitle}
-                    <ArrowRight size={18} />
-                  </Link>
-                </button>
+                <Link
+                  to={linkPath || "/"}
+                  className="flex items-center justify-center gap-1.5 rounded-[5px] bg-main px-2.5 py-2 text-[13px] font-bold capitalize text-white shadow-sm transition-colors hover:bg-main/90 sm:px-4 sm:py-2.5 sm:text-[15px]"
+                >
+                  <span className="max-w-[110px] truncate sm:max-w-none">{linkTitle}</span>
+                  <ArrowRight size={17} aria-hidden="true" />
+                </Link>
               )}
             </motion.div>
           </div>
         </motion.nav>
+
         <motion.div
-          className="py-36 space-y-4"
+          className="space-y-3 px-2 py-20 sm:py-28 lg:py-36"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
         >
-          <h1 className="uppercase text-white font-bold text-4xl md:text-6xl text-center">
+          <h1 className="text-center text-3xl font-bold uppercase leading-tight text-white sm:text-4xl md:text-5xl lg:text-6xl">
             {title}
           </h1>
-          <p className="text-white capitalize font-sora text-center font-light">
+          <p className="mx-auto max-w-3xl text-center font-sora text-sm font-light capitalize leading-relaxed text-white sm:text-base">
             {description}
           </p>
         </motion.div>

@@ -1,11 +1,13 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import PageTitle from "@/components/PageTitle";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const NotFound = () => {
   return (
     <main>
+      <PageTitle />
       <Header />
       <section>
         <div className="bg-[#21374B] py-10 md:py-28">

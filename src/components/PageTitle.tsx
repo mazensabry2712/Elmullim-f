@@ -58,8 +58,36 @@ export const getPageTitle = (
   const exact = pageTitles[pathname];
   if (exact) return exact[language];
 
+  if (pathname.startsWith("/courses/") && pathname.endsWith("/view")) {
+    return language === "ar" ? "مشاهدة الكورس" : "View Course";
+  }
+
+  if (pathname.startsWith("/lessons/") && pathname.endsWith("/view")) {
+    return language === "ar" ? "مشاهدة الدرس" : "View Lesson";
+  }
+
+  if (pathname.startsWith("/profile/my-courses/") && pathname.endsWith("/update")) {
+    return language === "ar" ? "تحديث الكورس" : "Update Course";
+  }
+
+  if (pathname.startsWith("/profile/my-lessons/") && pathname.endsWith("/update")) {
+    return language === "ar" ? "تحديث الدرس" : "Update Lesson";
+  }
+
+  if (pathname.startsWith("/profile/my-courses/") && pathname.endsWith("/view")) {
+    return language === "ar" ? "مشاهدة الكورس" : "View My Course";
+  }
+
+  if (pathname.startsWith("/profile/my-lessons/") && pathname.endsWith("/view")) {
+    return language === "ar" ? "مشاهدة الدرس" : "View My Lesson";
+  }
+
   const dynamic = dynamicTitles.find(([prefix]) => pathname.startsWith(prefix));
-  return dynamic ? dynamic[1][language] : language === "ar" ? "الصفحة غير موجودة" : "Page Not Found";
+  return dynamic
+    ? dynamic[1][language]
+    : language === "ar"
+      ? "الصفحة غير موجودة"
+      : "Page Not Found";
 };
 
 const PageTitle = () => {

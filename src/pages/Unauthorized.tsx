@@ -1,8 +1,10 @@
+import PageTitle from "@/components/PageTitle";
 import { Link } from "react-router-dom";
 
 const Unauthorized = () => {
   return (
     <main className="min-h-screen bg-white flex items-center justify-center px-6 py-16">
+      <PageTitle />
       <section className="w-full max-w-2xl text-center">
         <p className="text-sm font-semibold uppercase tracking-wider text-main">
           Access denied

@@ -17,21 +17,21 @@ const CareerCard = ({ title, description, image, href }: Props) => {
   return (
     <motion.div
       variants={itemVariants}
-      className="bg-main relative py-10 lg:pt-16 px-9 overflow-hidden rounded-[5px] h-[280px] shadow-md"
+      className="relative h-[280px] overflow-hidden rounded-[5px] bg-main px-6 py-8 shadow-md sm:px-9 sm:py-10 lg:pt-16"
     >
       <div className="relative z-20 max-w-64 space-y-5">
-        <p className="capitalize text-xl font-sora text-white-gray">{title}</p>
-        <h4 className="text-xl font-bold text-white">{description}</h4>
+        <p className="font-sora text-lg capitalize text-white-gray sm:text-xl">{title}</p>
+        <h4 className="max-w-[15rem] text-lg font-bold text-white sm:text-xl">{description}</h4>
         <Link
           to={href}
-          className="w-auto h-auto font-sora text-[15px] !px-7 !py-4 text-white bg-black-blue hover:bg-black-blue/90 rounded-[5px] inline-flex items-center gap-x-2"
+          className="inline-flex h-auto w-auto items-center gap-x-2 rounded-[5px] bg-black-blue !px-5 !py-3 font-sora text-sm text-white hover:bg-black-blue/90 sm:!px-7 sm:!py-4 sm:text-[15px]"
         >
           {t("home.career.joinNow")}
           <ArrowRight aria-hidden="true" />
         </Link>
       </div>
       <div
-        className="w-80 h-80 bg-white bg-top bg-no-repeat absolute -right-28 -bottom-40 md:-right-20 md:-bottom-32 lg:-right-24 lg:-bottom-40 xl:-right-16 xl:-bottom-32 rounded-full flex justify-center overflow-hidden"
+        className="absolute -bottom-28 -right-24 flex h-56 w-56 justify-center overflow-hidden rounded-full bg-white bg-top bg-no-repeat sm:-bottom-32 sm:-right-20 sm:h-72 sm:w-72 lg:-bottom-40 lg:-right-24 xl:-bottom-32 xl:-right-16"
         style={{ backgroundImage: `url(${image})` }}
         aria-hidden="true"
       />

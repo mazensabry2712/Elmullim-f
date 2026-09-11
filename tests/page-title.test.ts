@@ -13,10 +13,10 @@ describe("page titles", () => {
 
   it("handles dynamic pages and Arabic titles", () => {
     expect(getPageTitle("/courses/123", "en")).toBe("Course Details");
-    expect(getPageTitle("/courses/123/view", "en")).toBe("Course Details");
+    expect(getPageTitle("/courses/123/view", "en")).toBe("View Course");
     expect(getPageTitle("/lessons/456", "ar")).toBe("تفاصيل الدرس");
     expect(getPageTitle("/services/789", "ar")).toBe("تفاصيل الخدمة");
-    expect(getPageTitle("/profile/my-courses/123/update", "ar")).toBe("الكورس الخاص بي");
+    expect(getPageTitle("/profile/my-courses/123/update", "ar")).toBe("تحديث الكورس");
     expect(getPageTitle("/parent/sign-in", "ar")).toBe("تسجيل دخول ولي الأمر");
     expect(getPageTitle("/teacher/sign-in", "ar")).toBe("تسجيل دخول المعلم");
   });

@@ -1,4 +1,5 @@
 import Footer from "@/components/Footer";
+import PageTitle from "@/components/PageTitle";
 import { RootState } from "@/store/store";
 import { useSelector } from "react-redux";
 import { Navigate, Outlet, ScrollRestoration } from "react-router-dom";
@@ -12,6 +13,7 @@ const AuthLayout = () => {
 
   return (
     <>
+      <PageTitle />
       <ScrollRestoration />
       <main>
         <Outlet />

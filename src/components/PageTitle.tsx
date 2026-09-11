@@ -2,14 +2,14 @@ import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/i18n";
 
-type PageTitle = {
+type PageTitleValue = {
   en: string;
   ar: string;
 };
 
 const BASE_TITLE = "Elmullim";
 
-const pageTitles: Record<string, PageTitle> = {
+const pageTitles: Record<string, PageTitleValue> = {
   "/": { en: "Home", ar: "الرئيسية" },
   "/about": { en: "About Us", ar: "من نحن" },
   "/contact-us": { en: "Contact Us", ar: "تواصل معنا" },
@@ -41,22 +41,25 @@ const pageTitles: Record<string, PageTitle> = {
   "/unauthorized": { en: "Unauthorized", ar: "غير مصرح" },
 };
 
-const getDynamicTitle = (pathname: string, language: "en" | "ar") => {
+const dynamicTitles: Array<[string, PageTitleValue]> = [
+  ["/courses/", { en: "Course Details", ar: "تفاصيل الكورس" }],
+  ["/course/", { en: "Enroll Course", ar: "الاشتراك في الكورس" }],
+  ["/lessons/", { en: "Lesson Details", ar: "تفاصيل الدرس" }],
+  ["/services/", { en: "Service Details", ar: "تفاصيل الخدمة" }],
+  ["/events/", { en: "Event Details", ar: "تفاصيل الفعالية" }],
+  ["/profile/my-courses/", { en: "My Course", ar: "الكورس الخاص بي" }],
+  ["/profile/my-lessons/", { en: "My Lesson", ar: "الدرس الخاص بي" }],
+];
+
+export const getPageTitle = (
+  pathname: string,
+  language: "en" | "ar"
+): string => {
   const exact = pageTitles[pathname];
   if (exact) return exact[language];
 
-  const checks: Array<[string, PageTitle]> = [
-    ["/events/", { en: "Event Details", ar: "تفاصيل الفعالية" }],
-    ["/courses/", { en: "Course Details", ar: "تفاصيل الكورس" }],
-    ["/lessons/", { en: "Lesson Details", ar: "تفاصيل الدرس" }],
-    ["/services/", { en: "Service Details", ar: "تفاصيل الخدمة" }],
-    ["/profile/my-courses/", { en: "My Course", ar: "الكورس الخاص بي" }],
-    ["/profile/my-lessons/", { en: "My Lesson", ar: "الدرس الخاص بي" }],
-    ["/course/", { en: "Enroll Course", ar: "الاشتراك في الكورس" }],
-  ];
-
-  const match = checks.find(([prefix]) => pathname.startsWith(prefix));
-  return match ? match[1][language] : null;
+  const dynamic = dynamicTitles.find(([prefix]) => pathname.startsWith(prefix));
+  return dynamic ? dynamic[1][language] : language === "ar" ? "الصفحة غير موجودة" : "Page Not Found";
 };
 
 const PageTitle = () => {
@@ -64,8 +67,7 @@ const PageTitle = () => {
   const { language } = useI18n();
 
   useEffect(() => {
-    const pageTitle = getDynamicTitle(pathname, language);
-    document.title = pageTitle ? `${BASE_TITLE} | ${pageTitle}` : `${BASE_TITLE} | Page Not Found`;
+    document.title = `${BASE_TITLE} | ${getPageTitle(pathname, language)}`;
   }, [language, pathname]);
 
   return null;

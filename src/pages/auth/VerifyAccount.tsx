@@ -20,23 +20,32 @@ const VerifyAccount = () => {
 
   useEffect(() => {
     (async () => {
-      const { data, message, status } = await checkAuth(token);
-      const { auth } = data;
+      try {
+        const { data, message, status } = await checkAuth(token);
 
-      if (!status) return toast.error(message);
-
-      // * User not authenticated
-      if (!auth) {
-        dispatch(logout());
-        if (location.pathname !== "/") {
-          navigate("/login");
-          toast.warn("Please login to continue");
+        if (!status) {
+          toast.error(message);
+          return;
         }
-        return;
-      }
 
-      // * Account verified
-      if (auth && data["email-verified"]) return navigate("/");
+        const { auth } = data;
+
+        if (!auth) {
+          dispatch(logout());
+          if (location.pathname !== "/") {
+            navigate("/login");
+            toast.warn("Please login to continue");
+          }
+          return;
+        }
+
+        if (data["email-verified"]) {
+          navigate("/", { replace: true });
+        }
+      } catch {
+        dispatch(logout());
+        navigate("/login", { replace: true });
+      }
     })();
   }, [token, checkAuth, navigate, dispatch, location]);
 

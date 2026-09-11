@@ -39,9 +39,7 @@ const Navbar = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) {
-        setOpenNav(false);
-      }
+      if (window.innerWidth >= 1024) setOpenNav(false);
     };
 
     window.addEventListener("resize", handleResize);
@@ -67,7 +65,7 @@ const Navbar = () => {
     >
       <div className="flex w-full min-w-0 items-center justify-between px-2 sm:px-3">
         <motion.div variants={logoVariants} className="min-w-0 shrink">
-          <Link to="/" className="flex min-w-0 items-center">
+          <Link to="/" className="flex min-w-0 items-center gap-1.5 sm:gap-2">
             <motion.img
               src="/images/logo.webp"
               alt="Elmullim"
@@ -76,9 +74,9 @@ const Navbar = () => {
               animate="visible"
               className="h-12 w-12 shrink-0 cursor-pointer sm:h-14 sm:w-14"
             />
-            <h3 className="truncate font-bold text-lg text-black-blue font-epilogue sm:text-2xl">
+            <span className="whitespace-nowrap font-epilogue text-[21px] font-extrabold leading-none tracking-[-0.035em] text-black-blue sm:text-2xl lg:text-[23px] xl:text-[25px]">
               Elm<span className="text-main">ullim</span>
-            </h3>
+            </span>
           </Link>
         </motion.div>
 
@@ -89,18 +87,10 @@ const Navbar = () => {
           transition={{ duration: 0.5 }}
         >
           {links.map((link) => (
-            <motion.li
-              key={link.key}
-              variants={navItemsVariants}
-              className="flex items-center justify-center"
-            >
+            <motion.li key={link.key} variants={navItemsVariants} className="flex items-center justify-center">
               <NavLink
                 to={link.path}
-                className={`font-semibold text-[17px] ${
-                  path === link.path
-                    ? "text-main"
-                    : "text-black-blue hover:text-main transition-all duration-200"
-                }`}
+                className={`font-semibold text-[17px] ${path === link.path ? "text-main" : "text-black-blue hover:text-main transition-all duration-200"}`}
               >
                 {t(`nav.${link.key}`)}
               </NavLink>
@@ -108,14 +98,12 @@ const Navbar = () => {
           ))}
         </motion.ul>
 
-        <motion.div className="flex shrink-0 items-center gap-2 relative" variants={navItemsVariants}>
+        <motion.div className="relative flex shrink-0 items-center gap-2" variants={navItemsVariants}>
           <div className="hidden items-center gap-2 lg:flex">
             <motion.button
               type="button"
               onClick={switchLanguage}
-              aria-label={
-                language === "en" ? t("language.arabic") : t("language.english")
-              }
+              aria-label={language === "en" ? t("language.arabic") : t("language.english")}
               className="inline-flex items-center gap-1.5 rounded-md border border-black-blue/10 px-2.5 py-2 text-sm font-semibold text-black-blue transition-colors hover:border-main hover:text-main"
             >
               <Languages size={17} aria-hidden="true" />
@@ -123,9 +111,7 @@ const Navbar = () => {
             </motion.button>
 
             {isAuthenticated ? (
-              <motion.div>
-                <ProfileDropdownMenu />
-              </motion.div>
+              <motion.div><ProfileDropdownMenu /></motion.div>
             ) : (
               <motion.div className="relative">
                 <motion.button
@@ -136,10 +122,7 @@ const Navbar = () => {
                   className="flex items-center justify-center gap-2 rounded-[5px] bg-main px-3 py-2 font-sora font-medium text-white shadow transition-all duration-300 hover:bg-main/90 hover:shadow-md sm:px-5"
                 >
                   {t("nav.login")}
-                  <ChevronDown
-                    size={18}
-                    className={`transition-transform ${openLogin ? "rotate-180" : ""}`}
-                  />
+                  <ChevronDown size={18} className={`transition-transform ${openLogin ? "rotate-180" : ""}`} />
                 </motion.button>
 
                 <AnimatePresence>
@@ -179,23 +162,11 @@ const Navbar = () => {
           >
             <AnimatePresence mode="wait" initial={false}>
               {openNav ? (
-                <motion.span
-                  key="close-icon"
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  variants={menuIconVariants}
-                >
+                <motion.span key="close-icon" initial="hidden" animate="visible" exit="hidden" variants={menuIconVariants}>
                   <X size={34} aria-hidden="true" />
                 </motion.span>
               ) : (
-                <motion.span
-                  key="menu-icon"
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  variants={menuIconVariants}
-                >
+                <motion.span key="menu-icon" initial="hidden" animate="visible" exit="hidden" variants={menuIconVariants}>
                   <AlignJustify size={34} aria-hidden="true" />
                 </motion.span>
               )}
@@ -218,18 +189,10 @@ const Navbar = () => {
             <motion.div variants={navItemsVariants} className="mx-auto w-full max-w-xl py-2">
               <motion.ul className="flex w-full flex-col gap-1">
                 {links.map((link) => (
-                  <motion.li
-                    key={link.key}
-                    variants={navItemsVariants}
-                    className="flex w-full items-center justify-center"
-                  >
+                  <motion.li key={link.key} variants={navItemsVariants} className="flex w-full items-center justify-center">
                     <NavLink
                       to={link.path}
-                      className={`w-full rounded-md px-3 py-2.5 font-semibold text-[16px] transition-all duration-200 sm:px-4 sm:text-[17px] ${
-                        path === link.path
-                          ? "bg-main/10 text-main"
-                          : "text-black-blue hover:bg-white-gray hover:text-main"
-                      }`}
+                      className={`w-full rounded-md px-3 py-2.5 font-semibold text-[16px] transition-all duration-200 sm:px-4 sm:text-[17px] ${path === link.path ? "bg-main/10 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`}
                       onClick={() => setOpenNav(false)}
                     >
                       {t(`nav.${link.key}`)}
@@ -238,11 +201,7 @@ const Navbar = () => {
                 ))}
 
                 <motion.li variants={navItemsVariants} className="pt-2">
-                  <button
-                    type="button"
-                    onClick={switchLanguage}
-                    className="flex w-full items-center justify-center gap-2 rounded-md border border-main/20 px-4 py-2.5 text-sm font-semibold text-black-blue hover:text-main"
-                  >
+                  <button type="button" onClick={switchLanguage} className="flex w-full items-center justify-center gap-2 rounded-md border border-main/20 px-4 py-2.5 text-sm font-semibold text-black-blue hover:text-main">
                     <Languages size={17} aria-hidden="true" />
                     {language === "en" ? t("language.arabic") : t("language.english")}
                   </button>
@@ -251,17 +210,10 @@ const Navbar = () => {
                 {!isAuthenticated && (
                   <motion.li variants={navItemsVariants} className="pt-3">
                     <div className="rounded-lg border border-main/20 bg-white-gray p-2">
-                      <p className="px-2 pb-2 text-sm font-semibold text-black-blue">
-                        {t("nav.signInAs")}
-                      </p>
+                      <p className="px-2 pb-2 text-sm font-semibold text-black-blue">{t("nav.signInAs")}</p>
                       <div className="grid grid-cols-1 gap-1">
                         {loginLinks.map((loginLink) => (
-                          <Link
-                            key={loginLink.key}
-                            to={loginLink.path}
-                            onClick={() => setOpenNav(false)}
-                            className="rounded-md px-3 py-2 text-sm font-semibold text-black-blue hover:bg-white hover:text-main"
-                          >
+                          <Link key={loginLink.key} to={loginLink.path} onClick={() => setOpenNav(false)} className="rounded-md px-3 py-2 text-sm font-semibold text-black-blue hover:bg-white hover:text-main">
                             {t(`nav.${loginLink.key}`)}
                           </Link>
                         ))}

@@ -9,7 +9,7 @@ import PopularLessons from "@/components/home/PopularLesson";
 
 const Home = () => {
   return (
-    <main>
+    <main className="w-full overflow-x-clip">
       <Hero />
       <Category />
       <ChatRoom />

@@ -10,7 +10,8 @@ export const getAllLessons = async ({
   token?: string;
   q?: string;
 }): Promise<ILessonsRes> => {
-  const { data } = await axiosAPI.get(`/lessons/all${q ? `?q=${q}` : ""}`, {
+  const query = q?.trim() ? `?q=${encodeURIComponent(q.trim())}` : "";
+  const { data } = await axiosAPI.get(`/lessons/all${query}`, {
     headers: {
       Authorization: token ? `Bearer ${token}` : undefined,
     },

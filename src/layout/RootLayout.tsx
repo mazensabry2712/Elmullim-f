@@ -1,5 +1,6 @@
 import Footer from "@/components/Footer";
 import Header from "@/components/Header";
+import PageTitle from "@/components/PageTitle";
 import { useCheckAuth } from "@/lib/react-query/auth";
 import { logout } from "@/store/features/auth/authSlice";
 import { useAppDispatch } from "@/store/store";
@@ -60,6 +61,7 @@ const RootLayout = () => {
 
   return (
     <>
+      <PageTitle />
       <ScrollRestoration />
       <Header />
       <Outlet />

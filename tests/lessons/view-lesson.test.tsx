@@ -27,6 +27,7 @@ vi.mock("react-router-dom", async () => {
   return {
     ...actual,
     useNavigate: () => mockNavigate,
+    useParams: () => ({ lessonId: "7" }),
   };
 });
 
@@ -69,9 +70,9 @@ describe("ViewLesson", () => {
     });
   });
 
-  const renderPage = (path = "/lessons/7/view") =>
+  const renderPage = () =>
     render(
-      <MemoryRouter initialEntries={[path]}>
+      <MemoryRouter initialEntries={["/lessons/7/view"]}>
         <I18nProvider>
           <Routes>
             <Route path="/lessons/:lessonId/view" element={<ViewLesson />} />

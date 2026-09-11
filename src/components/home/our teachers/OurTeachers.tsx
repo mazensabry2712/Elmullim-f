@@ -11,7 +11,7 @@ const OurTeachers = () => {
     <section
       id="our-teachers"
       aria-labelledby="our-teachers-title"
-      className="bg-main pt-20 pb-10"
+      className="overflow-hidden bg-main pb-10 pt-16 sm:pt-20"
     >
       <motion.div
         variants={containerVariants}
@@ -23,14 +23,14 @@ const OurTeachers = () => {
         <motion.div variants={itemVariants}>
           <h2
             id="our-teachers-title"
-            className="capitalize text-6xl font-sora font-semibold text-white text-center"
+            className="px-2 text-center font-sora text-4xl font-semibold leading-tight capitalize text-white sm:text-5xl lg:text-6xl"
           >
             {t("home.teachers.title")}
           </h2>
         </motion.div>
 
         <motion.div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-10"
+          className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4"
           variants={containerVariants}
         >
           {TEACHERS.map((teacher) => (

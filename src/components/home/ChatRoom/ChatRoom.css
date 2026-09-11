@@ -1,3 +1,7 @@
+.chat-room {
+  overflow: hidden;
+}
+
 .chat-room::before {
   content: "";
   position: absolute;
@@ -9,7 +13,9 @@
   bottom: 0;
   right: 0;
   z-index: 10;
+  pointer-events: none;
 }
+
 .logo::before {
   content: "";
   position: absolute;
@@ -22,6 +28,7 @@
   right: -7px;
   z-index: -1;
 }
+
 .logo::after {
   content: "";
   position: absolute;
@@ -39,7 +46,7 @@
   .chat-room::before {
     top: 0;
     right: 0;
-    border-width: 0 350px 350px 0;
+    border-width: 0 45vw 45vw 0;
     border-color: transparent #0ab99d transparent transparent;
   }
 }

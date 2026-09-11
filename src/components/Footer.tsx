@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { useI18n } from "@/i18n";
 
 const Footer = () => {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -64,7 +64,9 @@ const Footer = () => {
               </Link>
             </div>
             <motion.p variants={itemVariants} className="font-sora text-[17px] text-white-gray">
-              {t("footer.description")}
+              {language === "ar"
+                ? "منصة تعليمية تجمع الطلاب والمعلمين وأولياء الأمور لتقديم تجربة تعلم واضحة ومترابطة وسهلة الوصول."
+                : t("footer.description")}
             </motion.p>
           </motion.div>
 

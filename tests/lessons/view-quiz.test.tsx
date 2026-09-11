@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ViewQuiz from "@/components/profiles/student/quizes/ViewQuiz";
 import { I18nProvider, useI18n } from "@/i18n";
 
@@ -67,12 +68,22 @@ describe("ViewQuiz", () => {
     });
   });
 
-  const renderPage = (children: React.ReactNode, path = "/view-quiz?quiz=7") =>
-    render(
-      <MemoryRouter initialEntries={[path]}>
-        <I18nProvider>{children}</I18nProvider>
-      </MemoryRouter>
+  const renderPage = (children: React.ReactNode, path = "/view-quiz?quiz=7") => {
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
+
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter initialEntries={[path]}>
+          <I18nProvider>{children}</I18nProvider>
+        </MemoryRouter>
+      </QueryClientProvider>
     );
+  };
 
   const quizData = {
     data: {

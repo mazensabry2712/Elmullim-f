@@ -7,7 +7,7 @@ const Header = () => {
   const path = useLocation().pathname;
   return (
     <div
-      className={`${
+      className={`relative z-50 ${
         path === "/"
           ? "bg-[#F2F2F2] text-black-blue"
           : "bg-[#21374B] text-white"
@@ -17,9 +17,9 @@ const Header = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="container lg:px-20 2xl:px-32"
+        className="container relative z-50 lg:px-20 2xl:px-32"
       >
-        <div className="relative z-10 px-2 pt-1 sm:px-4 md:pt-0 md:space-y-2">
+        <div className="relative z-50 px-2 pt-1 sm:px-4 md:pt-0 md:space-y-2">
           <motion.div
             initial="hidden"
             animate="visible"
@@ -60,7 +60,7 @@ const Header = () => {
               <p className="text-[15px]">Hudson, Wisconsin(WI), 54016</p>
             </motion.div>
           </motion.div>
-          <div className="rounded-lg bg-white shadow-[0px_0px_50px_0px_hsla(210,67%,16%,0.1)]">
+          <div className="relative z-50 rounded-lg bg-white shadow-[0px_0px_50px_0px_hsla(210,67%,16%,0.1)] overflow-visible">
             <Navbar />
           </div>
         </div>

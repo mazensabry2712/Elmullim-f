@@ -1,4 +1,5 @@
 import AuthHeader from "@/components/auth/AuthHeader";
+import PageTitle from "@/components/PageTitle";
 import SignFooter from "@/components/Newsletter";
 import { useAppDispatch } from "@/store/store";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -51,6 +52,7 @@ const VerifyAccount = () => {
 
   return (
     <main>
+      <PageTitle />
       <AuthHeader
         title="verification"
         description={"Verification Code"}

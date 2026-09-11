@@ -14,7 +14,7 @@ const Career = () => {
     <section
       id="career"
       aria-labelledby="career-title"
-      className="from-[#F8F6F1] bg-gradient-to-b to-[#FFFFFF] py-20"
+      className="bg-gradient-to-b from-[#F8F6F1] to-[#FFFFFF] py-16 sm:py-20"
     >
       <div className="container">
         <motion.div
@@ -22,12 +22,12 @@ const Career = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.5 }}
-          className="flex flex-col gap-2 items-center pt-10"
+          className="flex flex-col items-center gap-2 pt-6 sm:pt-10"
         >
           <BadgeTitle title={t("home.career.badge")} />
           <h2
             id="career-title"
-            className="capitalize text-black-blue font-bold text-[45px] text-center md:text-left"
+            className="px-2 text-center text-3xl font-bold capitalize leading-tight text-black-blue sm:text-4xl md:text-left lg:text-[45px]"
           >
             {t("home.career.title")}
           </h2>
@@ -37,7 +37,7 @@ const Career = () => {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-10 lg:mt-20"
+          className="mt-10 grid grid-cols-1 gap-6 lg:mt-20 lg:grid-cols-2"
         >
           {CAREER_CONTENT.map((item, index) => (
             <CareerCard

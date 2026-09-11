@@ -1,5 +1,6 @@
 import { render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
+import { I18nProvider } from "@/i18n";
 import RootLayout from "@/layout/RootLayout";
 
 const checkAuth = vi.fn();
@@ -35,7 +36,11 @@ beforeEach(() => {
 
 describe("RootLayout authentication bootstrap", () => {
   it("does not call checkAuth when there is no authentication token", async () => {
-    render(<RootLayout />);
+    render(
+      <I18nProvider>
+        <RootLayout />
+      </I18nProvider>
+    );
 
     await waitFor(() => {
       expect(checkAuth).not.toHaveBeenCalled();

@@ -1,8 +1,12 @@
 import BlogPost from "@/components/blog/BlogPost";
 import BlogAside from "@/components/blog/BlogAside";
 import { motion } from "framer-motion";
+import { useI18n } from "@/i18n";
 
 const BlogDetails = () => {
+  const { language, t } = useI18n();
+  const title = language === "ar" ? "تفاصيل المقال" : "Blog Details";
+
   return (
     <main>
       <motion.div
@@ -13,10 +17,10 @@ const BlogDetails = () => {
         className="container text-center text-white space-y-4 md:space-y-6 pt-20 md:pt-32 pb-16 md:pb-24"
       >
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
-          Blog DETAILS
+          {title}
         </h1>
         <p className="font-sora font-light capitalize leading-[30px]">
-          home <span className="text-main">//</span> blog
+          {t("nav.home")} <span className="text-main">//</span> {title}
         </p>
       </motion.div>
       <motion.section
@@ -26,7 +30,7 @@ const BlogDetails = () => {
         transition={{ duration: 0.8 }}
         className="bg-white"
       >
-        <div className="container  py-12 md:py-24 flex flex-col lg:flex-row gap-8">
+        <div className="container py-12 md:py-24 flex flex-col lg:flex-row gap-8">
           <div className="lg:w-2/3 w-full">
             <BlogPost />
           </div>

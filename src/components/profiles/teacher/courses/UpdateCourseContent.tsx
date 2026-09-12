@@ -24,6 +24,7 @@ import {
 } from "@/lib/react-query/teacher/courses";
 import { courseContentSchema } from "@/validations/teacher/courseSchema";
 import { IContent } from "@/interfaces/courses/contents";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   courseContent: IContent;
@@ -33,6 +34,7 @@ interface IProps {
 const UpdateCourseContent = ({ courseContent, courseId }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
+  const { language } = useI18n();
 
   const { data: courses } = useGetTeacherCourses(token);
   const coursesOptions = courses?.data.map((course) => ({
@@ -69,13 +71,13 @@ const UpdateCourseContent = ({ courseContent, courseId }: IProps) => {
       if (!status)
         return Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: language === "ar" ? "حدث خطأ" : "Oops...",
           text: message,
         });
 
       Swal.fire({
         icon: "success",
-        title: "Success",
+        title: language === "ar" ? "تم بنجاح" : "Success",
         text: message,
       });
     } catch (error) {
@@ -96,6 +98,8 @@ const UpdateCourseContent = ({ courseContent, courseId }: IProps) => {
         onClick={() => setIsOpen(true)}
         className="bg-blue-600 hover:bg-blue-500/90"
         size="icon"
+        aria-label={language === "ar" ? "تحديث المحتوى" : "Update content"}
+        title={language === "ar" ? "تحديث المحتوى" : "Update content"}
       >
         <Pen className="w-4 h-4" />
       </Button>
@@ -103,9 +107,12 @@ const UpdateCourseContent = ({ courseContent, courseId }: IProps) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
-        title="Update Course Content"
+        title={language === "ar" ? "تحديث محتوى الكورس" : "Update Course Content"}
         description={{
-          text: "You can update course content here",
+          text:
+            language === "ar"
+              ? "يمكنك تحديث محتوى الكورس من هنا"
+              : "You can update course content here",
         }}
         showFooter={false}
       >
@@ -156,14 +163,14 @@ const UpdateCourseContent = ({ courseContent, courseId }: IProps) => {
                 onClick={handleCloseModal}
                 className="text-black py-2.5 h-auto"
               >
-                Cancel
+                {language === "ar" ? "إلغاء" : "Cancel"}
               </AlertDialogCancel>
               <Button
                 type="submit"
                 disabled={isPending}
                 className="py-2.5 h-auto bg-main hover:bg-main/90"
               >
-                Update
+                {language === "ar" ? "تحديث" : "Update"}
                 {isPending && <Loader2 className="animate-spin ml-2" />}
               </Button>
             </AlertDialogFooter>

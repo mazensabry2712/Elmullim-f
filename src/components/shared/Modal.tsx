@@ -9,15 +9,13 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   isOpen: boolean;
   onOpenChange: () => void;
   title: string;
-  description: {
-    text: string;
-    color?: string;
-  };
+  description: { text: string; color?: string };
   children?: React.ReactNode;
   onCancel?: () => void;
   onConfirm?: () => void;
@@ -35,48 +33,39 @@ const Modal = ({
   children,
   onCancel,
   onConfirm,
-  confirmText = "confirm",
+  confirmText,
   isLoading = false,
   showFooter = true,
   variant,
 }: IProps) => {
+  const { language } = useI18n();
+  const cancelText = language === "ar" ? "إلغاء" : "Cancel";
+  const resolvedConfirmText = confirmText ?? (language === "ar" ? "تأكيد" : "Confirm");
+
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent className="border-muted !z-[1000] rounded-lg">
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-black-blue text-center">
-            {title}
-          </AlertDialogTitle>
-          <AlertDialogDescription
-            className={`text-center max-w-sm mx-auto font-sora ${
-              description.color ? description.color : ""
-            }`}
-          >
+          <AlertDialogTitle className="text-black-blue text-center">{title}</AlertDialogTitle>
+          <AlertDialogDescription className={`text-center max-w-sm mx-auto font-sora ${description.color ?? ""}`}>
             {description.text}
           </AlertDialogDescription>
         </AlertDialogHeader>
-
         {children}
-
         {showFooter && (
           <AlertDialogFooter className="text-start gap-2">
-            <AlertDialogCancel
-              onClick={onCancel}
-              className="text-black-blue py-2.5 h-auto"
-            >
-              Cancel
+            <AlertDialogCancel onClick={onCancel} className="text-black-blue py-2.5 h-auto">
+              {cancelText}
             </AlertDialogCancel>
             {onConfirm && (
               <Button
                 onClick={onConfirm}
                 disabled={isLoading}
-                className={`py-2.5 h-auto ${
-                  variant ? "" : "bg-main hover:bg-main/90"
-                }`}
+                className={`py-2.5 h-auto ${variant ? "" : "bg-main hover:bg-main/90"}`}
                 variant={variant}
               >
                 {isLoading && <Loader2 className="animate-spin ml-2" />}
-                {confirmText}
+                {resolvedConfirmText}
               </Button>
             )}
           </AlertDialogFooter>

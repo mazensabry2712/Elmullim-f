@@ -3,8 +3,12 @@ import axios from "axios";
 import { store } from "@/store/store";
 import { toast } from "react-toastify";
 
+const apiBaseUrl =
+  import.meta.env.VITE_API ||
+  (import.meta.env.DEV ? "http://elmullim-b.test" : "https://api.elmullim.com");
+
 const axiosAPI = axios.create({
-  baseURL: `${import.meta.env.VITE_API}/api`,
+  baseURL: `${apiBaseUrl}/api`,
   headers: {
     Accept: "application/json",
   },

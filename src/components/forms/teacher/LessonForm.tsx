@@ -149,7 +149,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
               : "Update Lesson"
             : language === "ar"
               ? "إنشاء درس جديد"
-              : "Create New lesson"}
+              : "Create New Lesson"}
           {(isCreating || isUpdating) && (
             <Loader2 className="animate-spin" size={24} />
           )}

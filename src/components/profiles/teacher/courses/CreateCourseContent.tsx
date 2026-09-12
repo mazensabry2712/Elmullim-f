@@ -23,19 +23,23 @@ import {
   useGetTeacherCourses,
 } from "@/lib/react-query/teacher/courses";
 import { courseContentSchema } from "@/validations/teacher/courseSchema";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   children: ReactNode;
 }
+
 const CreateCourseContent = ({ children }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
+  const { language } = useI18n();
 
   const { data: courses } = useGetTeacherCourses(token);
   const coursesOptions = courses?.data.map((course) => ({
     label: course.title,
     value: course.id.toString(),
   }));
+
   const form = useForm<z.infer<typeof courseContentSchema>>({
     resolver: zodResolver(courseContentSchema),
     defaultValues: {
@@ -62,16 +66,17 @@ const CreateCourseContent = ({ children }: IProps) => {
           description,
         },
       });
+
       if (!status)
         return Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: language === "ar" ? "حدث خطأ" : "Oops...",
           text: message,
         });
 
       Swal.fire({
         icon: "success",
-        title: "Success",
+        title: language === "ar" ? "تم بنجاح" : "Success",
         text: message,
       });
     } catch (error) {
@@ -95,9 +100,12 @@ const CreateCourseContent = ({ children }: IProps) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
-        title="Create Course Content"
+        title={language === "ar" ? "إنشاء محتوى للكورس" : "Create Course Content"}
         description={{
-          text: "Create new course content",
+          text:
+            language === "ar"
+              ? "إنشاء محتوى جديد للكورس"
+              : "Create new course content",
         }}
         showFooter={false}
       >
@@ -148,14 +156,14 @@ const CreateCourseContent = ({ children }: IProps) => {
                 onClick={handleCloseModal}
                 className="text-black py-2.5 h-auto"
               >
-                Cancel
+                {language === "ar" ? "إلغاء" : "Cancel"}
               </AlertDialogCancel>
               <Button
                 type="submit"
                 disabled={isPending}
                 className="py-2.5 h-auto bg-main hover:bg-main/90"
               >
-                Create
+                {language === "ar" ? "إنشاء" : "Create"}
                 {isPending && <Loader2 className="animate-spin ml-2" />}
               </Button>
             </AlertDialogFooter>

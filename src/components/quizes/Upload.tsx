@@ -9,9 +9,33 @@ import {
 } from "../../interfaces/quizzes/quiz";
 import { useUploadQuiz } from "@/lib/react-query/teacher/quizzes";
 import { toast } from "react-toastify";
+import { useI18n } from "@/i18n";
 
 const Upload: React.FC = () => {
   const token = cookieService.getToken();
+  const { language } = useI18n();
+
+  const copy = language === "ar"
+    ? {
+        success: "تم رفع الاختبار بنجاح",
+        unexpected: "حدث خطأ غير متوقع.",
+        uploadFailed: "فشل رفع الاختبار",
+        loginRequired: "يجب تسجيل الدخول لرفع اختبار.",
+        noQuestions: "لم تتم إضافة أي سؤال بعد.",
+        addQuestion: "إضافة سؤال",
+        uploading: "جاري الرفع...",
+        uploadQuiz: "رفع الاختبار",
+      }
+    : {
+        success: "Quiz uploaded successfully",
+        unexpected: "An unexpected error occurred.",
+        uploadFailed: "Failed to upload quiz",
+        loginRequired: "You must be logged in to upload a quiz.",
+        noQuestions: "No question added yet.",
+        addQuestion: "Add Question",
+        uploading: "Uploading...",
+        uploadQuiz: "Upload Quiz",
+      };
 
   const [quizDetails, setQuizDetails] = useState<QuizDetails>({
     title: "",
@@ -30,14 +54,13 @@ const Upload: React.FC = () => {
 
   const { mutate: uploadQuiz, isPending: isSubmitting } = useUploadQuiz({
     onSuccess: () => {
-      toast.success("Quiz uploaded successfully");
-      
+      toast.success(copy.success);
     },
     onError: (error: any) => {
       console.error("Failed to submit quiz:", error);
       const errorMessage =
-        error.response?.data?.message || "An unexpected error occurred.";
-      toast.error(`Failed to upload quiz: ${errorMessage}`);
+        error.response?.data?.message || copy.unexpected;
+      toast.error(`${copy.uploadFailed}: ${errorMessage}`);
     },
   });
 
@@ -95,7 +118,7 @@ const Upload: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!token) {
-      alert("You must be logged in to upload a quiz.");
+      alert(copy.loginRequired);
       return;
     }
 
@@ -110,8 +133,8 @@ const Upload: React.FC = () => {
       />
       <div className="bg-white px-6">
         {questions.length === 0 && (
-          <p className="text-[#194D80] text-xl text-center my-4  font-bold font-sora">
-            No question added yet.
+          <p className="text-[#194D80] text-xl text-center my-4 font-bold font-sora">
+            {copy.noQuestions}
           </p>
         )}
         {questions.map((question, index) => (
@@ -129,7 +152,7 @@ const Upload: React.FC = () => {
           className="px-2 py-1 text-sm bg-[#DCEBF9] text-[#194D80] rounded-md flex items-center space-x-2 mt-4"
         >
           <Plus className="bg-[#194D80] rounded-full text-white" size={15} />
-          <span>Add Question</span>
+          <span>{copy.addQuestion}</span>
         </button>
         <div className="text-center mt-6">
           <button
@@ -137,7 +160,7 @@ const Upload: React.FC = () => {
             disabled={isSubmitting}
             className="px-4 py-2 bg-[#194D80] text-white rounded-md text-base font-semibold hover:bg-blue-700 disabled:bg-gray-400"
           >
-            {isSubmitting ? "Uploading..." : "Upload Quiz"}
+            {isSubmitting ? copy.uploading : copy.uploadQuiz}
           </button>
         </div>
       </div>

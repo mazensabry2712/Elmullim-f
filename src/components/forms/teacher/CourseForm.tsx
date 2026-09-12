@@ -20,6 +20,7 @@ import {
 import cookieService from "@/utils/cookieService";
 import Swal from "sweetalert2";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   action: "create" | "update";
@@ -32,6 +33,7 @@ const CourseForm = ({ action, course }: IProps) => {
   );
   const navigate = useNavigate();
   const token = cookieService.getToken()!;
+  const { language } = useI18n();
   const { data: categories } = useGetCategories();
   const categoriesOptions = categories?.data.map((cate) => ({
     label: cate.name,
@@ -78,14 +80,13 @@ const CourseForm = ({ action, course }: IProps) => {
         if (!status)
           return Swal.fire({
             icon: "error",
-            title: "Oops...",
+            title: language === "ar" ? "حدث خطأ" : "Oops...",
             text: message,
           });
 
-        // update success
         Swal.fire({
           icon: "success",
-          title: "Done",
+          title: language === "ar" ? "تم بنجاح" : "Done",
           text: message,
         });
         navigate("/profile", {
@@ -97,7 +98,10 @@ const CourseForm = ({ action, course }: IProps) => {
         return;
       }
       if (action === "create") {
-        if (!file) return toast.error("Course picture is required");
+        if (!file)
+          return toast.error(
+            language === "ar" ? "صورة الكورس مطلوبة" : "Course picture is required"
+          );
         const { message, status } = await createCourse({
           token,
           course: {
@@ -112,14 +116,13 @@ const CourseForm = ({ action, course }: IProps) => {
         if (!status)
           return Swal.fire({
             icon: "error",
-            title: "Oops...",
+            title: language === "ar" ? "حدث خطأ" : "Oops...",
             text: message,
           });
 
-        // create success
         Swal.fire({
           icon: "success",
-          title: "Done",
+          title: language === "ar" ? "تم بنجاح" : "Done",
           text: message,
         });
         form.reset();
@@ -158,7 +161,11 @@ const CourseForm = ({ action, course }: IProps) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              title="Click to upload course picture"
+              title={
+                language === "ar"
+                  ? "اضغط لرفع صورة الكورس"
+                  : "Click to upload course picture"
+              }
             />
           </div>
           <div className="max-w-full w-full lg:max-w-[60%]">
@@ -182,7 +189,13 @@ const CourseForm = ({ action, course }: IProps) => {
           className="bg-main hover:bg-main/90 h-auto py-3 w-full sm:w-fit px-4"
           disabled={isCreating || isUpdating}
         >
-          {action === "update" ? "Update Course" : "Create New course"}
+          {action === "update"
+            ? language === "ar"
+              ? "تحديث الكورس"
+              : "Update Course"
+            : language === "ar"
+              ? "إنشاء كورس جديد"
+              : "Create New course"}
           {(isCreating || isUpdating) && (
             <Loader2 className="animate-spin" size={24} />
           )}

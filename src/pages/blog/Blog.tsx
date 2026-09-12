@@ -1,7 +1,12 @@
 import Newsletter from "@/components/Newsletter";
 import BlogList from "@/components/blog/BlogList";
 import { motion } from "framer-motion";
+import { useI18n } from "@/i18n";
+
 const Blog = () => {
+  const { language, t } = useI18n();
+  const title = language === "ar" ? "المدونة" : "Blog";
+
   return (
     <main>
       <motion.div
@@ -12,10 +17,10 @@ const Blog = () => {
         className="container text-center text-white space-y-4 md:space-y-6 pt-20 md:pt-32 pb-16 md:pb-24"
       >
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
-          blog
+          {title}
         </h1>
         <p className="font-sora font-light capitalize leading-[30px]">
-          home <span className="text-main">//</span> blog
+          {t("nav.home")} <span className="text-main">//</span> {title}
         </p>
       </motion.div>
       {/* blog cards */}

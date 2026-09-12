@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 import { VideoIcon, XCircleIcon } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import Dropzone from "react-dropzone";
+import { useI18n } from "@/i18n";
 
 const VideoPreview = ({
   file,
@@ -12,21 +13,28 @@ const VideoPreview = ({
 }: {
   file: File;
   onRemove: () => void;
-}) => (
-  <div className="relative aspect-video md:max-h-[600px] h-full">
-    <button
-      className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2"
-      onClick={onRemove}
-    >
-      <XCircleIcon className="h-5 w-5 fill-primary text-primary-foreground" />
-    </button>
-    <video
-      src={URL.createObjectURL(file)}
-      controls
-      className="border border-border h-full w-full rounded-md object-cover"
-    />
-  </div>
-);
+}) => {
+  const { language } = useI18n();
+
+  return (
+    <div className="relative aspect-video md:max-h-[600px] h-full">
+      <button
+        type="button"
+        aria-label={language === "ar" ? "حذف الفيديو" : "Remove video"}
+        title={language === "ar" ? "حذف الفيديو" : "Remove video"}
+        className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2"
+        onClick={onRemove}
+      >
+        <XCircleIcon className="h-5 w-5 fill-primary text-primary-foreground" />
+      </button>
+      <video
+        src={URL.createObjectURL(file)}
+        controls
+        className="border border-border h-full w-full rounded-md object-cover"
+      />
+    </div>
+  );
+};
 
 interface IProps {
   file: File | null;
@@ -35,6 +43,8 @@ interface IProps {
 }
 
 const VideoUpload = ({ title, file, setFile }: IProps) => {
+  const { language } = useI18n();
+
   return (
     <div className="w-full max-w-full">
       <Label htmlFor="video" className="cursor-pointer">
@@ -77,7 +87,7 @@ const VideoUpload = ({ title, file, setFile }: IProps) => {
                 <input {...getInputProps()} id="video" />
                 <div className="flex flex-col gap-2 justify-center items-center">
                   <VideoIcon className="h-16 w-16" strokeWidth={1.25} />
-                  <p>Darg and Drop</p>
+                  <p>{language === "ar" ? "اسحب وأفلت" : "Drag and Drop"}</p>
                 </div>
               </div>
             )}

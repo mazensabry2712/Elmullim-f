@@ -7,11 +7,13 @@ import handleResError from "@/utils/handleResponseError";
 import { logout } from "@/store/features/auth/authSlice";
 import { useUserLogout } from "@/lib/react-query/auth";
 import { useAppDispatch } from "@/store/store";
+import { useI18n } from "@/i18n";
 
 type TProps = HTMLAttributes<HTMLButtonElement>;
 
 const LogoutAuthButton = ({ ...rest }: TProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { language, t } = useI18n();
 
   const token = cookieService.getToken()!;
   const role = cookieService.getRole()!;
@@ -29,6 +31,20 @@ const LogoutAuthButton = ({ ...rest }: TProps) => {
       handleResError(error);
     }
   };
+
+  const copy = {
+    en: {
+      logout: "Logout",
+      confirmation: "Logout Confirmation",
+      confirmMessage: "Are you sure you want to log out?",
+    },
+    ar: {
+      logout: "تسجيل الخروج",
+      confirmation: "تأكيد تسجيل الخروج",
+      confirmMessage: "هل أنت متأكد أنك تريد تسجيل الخروج؟",
+    },
+  }[language];
+
   return (
     <>
       <button
@@ -47,22 +63,22 @@ const LogoutAuthButton = ({ ...rest }: TProps) => {
           </span>
         )}
         <span className="flex justify-center items-center gap-2">
-          Logout
+          {copy.logout}
           <LogOut size={18} />
         </span>
       </button>
 
       <Modal
         description={{
-          text: "Are you sure you want to do logout?",
+          text: copy.confirmMessage,
           color: "text-destructive",
         }}
         isOpen={isOpen}
         onCancel={() => setIsOpen(false)}
         onConfirm={handleLogout}
-        confirmText="Logout"
+        confirmText={copy.logout}
         isLoading={isPending}
-        title="Logout Confirmation"
+        title={copy.confirmation}
         onOpenChange={() => setIsOpen(!isOpen)}
         variant="destructive"
       />

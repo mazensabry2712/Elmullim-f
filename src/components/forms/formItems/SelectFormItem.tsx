@@ -23,6 +23,8 @@ import {
 } from "@/components/ui/form";
 import { IFormInput } from "@/interfaces";
 import { useMemo, useState } from "react";
+import { useI18n } from "@/i18n";
+import { translateFormText } from "@/i18n/formCopy";
 
 interface IProps {
   field: ControllerRenderProps<any>;
@@ -34,6 +36,8 @@ interface IProps {
 const SelectFormItem = ({ field, options, input, label }: IProps) => {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const { language } = useI18n();
+  const translatedLabel = translateFormText(language, input.label) ?? input.label ?? "";
 
   const filteredOptions = useMemo(() => {
     if (!searchValue) return options;
@@ -46,7 +50,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
     <FormItem>
       {label && (
         <FormLabel className="text-black-blue font-sora font-medium">
-          {input.label}
+          {translatedLabel}
         </FormLabel>
       )}
       <FormControl>
@@ -62,7 +66,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
               id={input.name}
               role="combobox"
               aria-expanded={open}
-              className="border border-input inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 ] outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] px-4 py-2 has-[>svg]:px-3 w-full !h-12 text-black-blue justify-between overflow-hidden bg-white hover:bg-white font-sora capitalize"
+              className="border border-input inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] px-4 py-2 has-[>svg]:px-3 w-full !h-12 text-black-blue justify-between overflow-hidden bg-white hover:bg-white font-sora capitalize"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
@@ -70,9 +74,8 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
               }}
             >
               {field.value
-                ? options.find((option) => option.value === field.value)
-                    ?.label || `Choose ${input.label}...`
-                : `Choose ${input.label}...`}
+                ? options.find((option) => option.value === field.value)?.label || `${translateFormText(language, "Choose")} ${translatedLabel}...`
+                : `${translateFormText(language, "Choose")} ${translatedLabel}...`}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </button>
           </PopoverTrigger>
@@ -82,20 +85,16 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
           >
             <Command className="text-black-blue">
               <CommandInput
-                placeholder="choose..."
+                placeholder={translateFormText(language, "choose")}
                 value={searchValue}
                 onValueChange={setSearchValue}
               />
               <CommandList
                 className="max-h-[300px] overflow-y-auto"
-                onWheel={(e) => {
-                  e.stopPropagation();
-                }}
-                onTouchMove={(e) => {
-                  e.stopPropagation();
-                }}
+                onWheel={(e) => e.stopPropagation()}
+                onTouchMove={(e) => e.stopPropagation()}
               >
-                <CommandEmpty>Not found</CommandEmpty>
+                <CommandEmpty>{translateFormText(language, "Not found")}</CommandEmpty>
                 <CommandGroup>
                   {filteredOptions?.map((option, idx) => (
                     <CommandItem
@@ -112,9 +111,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
                       <Check
                         className={cn(
                           "mr-2 h-4 w-4",
-                          field.value === option.value
-                            ? "opacity-100"
-                            : "opacity-0"
+                          field.value === option.value ? "opacity-100" : "opacity-0"
                         )}
                       />
                       {option.label}

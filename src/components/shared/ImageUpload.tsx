@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { ImageIcon, XCircleIcon } from "lucide-react";
 import { Dispatch, SetStateAction } from "react";
 import Dropzone from "react-dropzone";
+import { useI18n } from "@/i18n";
 
 const ImagePreview = ({
   url,
@@ -13,8 +14,11 @@ const ImagePreview = ({
 }) => (
   <div className="relative aspect-video md:max-h-[600px] h-full">
     <button
+      type="button"
       className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2"
       onClick={onRemove}
+      aria-label="Remove image"
+      title="Remove image"
     >
       <XCircleIcon className="h-5 w-5 fill-primary text-primary-foreground" />
     </button>
@@ -34,6 +38,10 @@ interface IProps {
   title: string;
 }
 const ImageUpload = ({ title, file, setFile }: IProps) => {
+  const { language } = useI18n();
+  const removeImageLabel = language === "ar" ? "حذف الصورة" : "Remove image";
+  const dragDropLabel = language === "ar" ? "اسحب الصورة وأفلتها" : "Drag and Drop";
+
   return (
     <div className="w-full max-w-full">
       <Label htmlFor="img" className="cursor-pointer">
@@ -79,7 +87,7 @@ const ImageUpload = ({ title, file, setFile }: IProps) => {
                 <input {...getInputProps()} id="img" />
                 <div className="flex flex-col gap-2 justify-center items-center">
                   <ImageIcon className="h-16 w-16" strokeWidth={1.25} />
-                  <p>Darg and Drop</p>
+                  <p>{dragDropLabel}</p>
                 </div>
               </div>
             )}

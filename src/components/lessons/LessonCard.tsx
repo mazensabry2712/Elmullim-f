@@ -5,6 +5,8 @@ import cookieService from "@/utils/cookieService";
 import truncateTxt from "@/utils/truncateTxt";
 import { ILesson } from "@/interfaces/courses/lessons";
 import type { LessonsCopy } from "@/pages/lessons/lessonCopy";
+import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
+import { useI18n } from "@/i18n";
 import EnrollFreeLesson from "./EnrollFreeLesson";
 
 interface IProps {
@@ -15,21 +17,14 @@ interface IProps {
 const LessonCard = ({ lesson, copy }: IProps) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const role = cookieService.getRole() || "";
-  const fallbackCopy = {
-    by: "By",
-    free: "Free",
-    enroll: "Enroll now",
-    watch: "Watch now",
-    imageAlt: "Lesson image",
-    teacherImageAlt: "Teacher profile",
-  };
-  const text = copy ?? fallbackCopy;
+  const { language } = useI18n();
+  const text = copy ?? getLessonsCopy(language);
 
   return (
     <article className="h-full p-3 sm:p-5 shadow-[0px_0px_40px_0px_#0E2A4614] transition-all duration-300 hover:shadow-lg rounded-[5px] space-y-5 sm:max-w-[80%] md:max-w-full mx-auto bg-white">
       <div className="rounded-[5px] overflow-hidden relative max-h-80 sm:max-h-72 md:max-h-52">
         <span className="absolute top-4 left-4 bg-main text-white font-sora text-sm rounded-[5px] px-2 py-0.5">
-          {copy?.details === "عرض تفاصيل الدرس" ? "درس" : "Lesson"}
+          {language === "ar" ? "درس" : "Lesson"}
         </span>
         <img
           src={lesson.logo || "/images/placeholder-img.webp"}
@@ -65,7 +60,7 @@ const LessonCard = ({ lesson, copy }: IProps) => {
         </div>
 
         <div className="flex justify-between items-center gap-4">
-          <div className="flex items-center gap-2" aria-label={Number(lesson.price) === 0 ? text.free : `${lesson.price}` }>
+          <div className="flex items-center gap-2" aria-label={Number(lesson.price) === 0 ? text.free : `${lesson.price}`}>
             {Number(lesson.price) === 0 ? (
               <span className="text-xl">{text.free}</span>
             ) : (

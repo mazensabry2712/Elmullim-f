@@ -2,6 +2,8 @@ import { containerVariants, itemVariants } from "@/animations";
 import { motion } from "framer-motion";
 import { ILesson } from "@/interfaces/courses/lessons";
 import type { LessonsCopy } from "@/pages/lessons/lessonCopy";
+import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
+import { useI18n } from "@/i18n";
 import LessonCard from "./LessonCard";
 
 interface IProps {
@@ -10,11 +12,14 @@ interface IProps {
   customGridClass?: string;
 }
 
-const LessonsList = ({ lessons, copy, customGridClass }: IProps) => {
+const LessonsList = ({ lessons, copy: providedCopy, customGridClass }: IProps) => {
+  const { language } = useI18n();
+  const copy = providedCopy ?? getLessonsCopy(language);
+
   if (!lessons.length) {
     return (
       <p className="font-medium font-sora text-lg text-center text-[#4D5756] pt-5" role="status">
-        {copy?.empty ?? "No lessons found"}
+        {copy.empty}
       </p>
     );
   }

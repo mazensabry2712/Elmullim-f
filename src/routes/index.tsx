@@ -7,11 +7,11 @@ import {
 import authRoutes from "./authRoutes";
 import ViewQuiz from "@/components/profiles/student/quizes/ViewQuiz";
 
-
 const RootLayout = lazy(() => import("@/layout/RootLayout"));
 const NotFound = lazy(() => import("@/pages/NotFound"));
 const Unauthorized = lazy(() => import("@/pages/Unauthorized"));
 const ProtectedRoute = lazy(() => import("@/components/auth/ProtectedRoute"));
+const Chat = lazy(() => import("@/components/chat/Chat"));
 
 // Public
 const Home = lazy(() => import("@/pages/Home"));
@@ -46,31 +46,18 @@ const UpdateProfile = lazy(() => import("@/pages/profile/UpdateProfile"));
 
 export const routes = createRoutesFromElements(
   <>
-    {/* Root */}
-    <Route
-      element={<RootLayout />}
-      // errorElement={<Error />}
-      id="root-layout"
-    >
+    <Route element={<RootLayout />} id="root-layout">
       <Route path="/" element={<Home />} id="home" />
       <Route path="/about" element={<About />} id="about" />
       <Route path="/contact-us" element={<ContactUs />} id="contact-us" />
       <Route path="/events" element={<Events />} id="events" />
-      <Route
-        path="/events/:eventId"
-        element={<EventDetails />}
-        id="event-details"
-      />
+      <Route path="/events/:eventId" element={<EventDetails />} id="event-details" />
       <Route path="/courses" element={<Courses />} id="courses" />
-      <Route
-        path="/courses/:courseId"
-        element={<CourseDetails />}
-        id="course-details"
-      />
+      <Route path="/courses/:courseId" element={<CourseDetails />} id="course-details" />
       <Route
         path="/courses/:courseId/view"
         element={
-          <ProtectedRoute requiredRole={"student"}>
+          <ProtectedRoute requiredRole="student">
             <ViewCourse />
           </ProtectedRoute>
         }
@@ -78,54 +65,50 @@ export const routes = createRoutesFromElements(
       />
       <Route path="/course/:courseId/enroll" element={<CourseEnroll />} id="courseId" />
       <Route path="/lessons" element={<Lessons />} id="lessons" />
-      <Route
-        path="/lessons/:lessonId"
-        element={<LessonDetails />}
-        id="lesson-details"
-      />
+      <Route path="/lessons/:lessonId" element={<LessonDetails />} id="lesson-details" />
       <Route
         path="/lessons/:lessonId/view"
         element={
-          <ProtectedRoute requiredRole={"student"}>
+          <ProtectedRoute requiredRole="student">
             <ViewLesson />
           </ProtectedRoute>
         }
       />
-      <Route path="/view-quiz" element={
-        <ProtectedRoute  requiredRole={
-          "student"
-        }>
-          <ViewQuiz/>
-        </ProtectedRoute>
-      }>
-      </Route>
+      <Route
+        path="/view-quiz"
+        element={
+          <ProtectedRoute requiredRole="student">
+            <ViewQuiz />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        }
+        id="chat"
+      />
 
       <Route path="/services" element={<Services />} id="services" />
-      <Route
-        path="/services/:serviceId"
-        element={<ServiceDetails />}
-        id="services-details"
-      />
+      <Route path="/services/:serviceId" element={<ServiceDetails />} id="services-details" />
       <Route path="/faqs" element={<Faqs />} id="faqs" />
-      <Route
-        path="/testimonials"
-        element={<Testimonials />}
-        id="testimonials"
-      />
+      <Route path="/testimonials" element={<Testimonials />} id="testimonials" />
 
       <Route
         path="/profile/teacher/courses/upload"
         element={
-          <ProtectedRoute requiredRole={"teacher"}>
+          <ProtectedRoute requiredRole="teacher">
             <UploadCourse />
           </ProtectedRoute>
         }
       />
-
       <Route
         path="/profile/my-courses/:courseId/update"
         element={
-          <ProtectedRoute requiredRole={"teacher"}>
+          <ProtectedRoute requiredRole="teacher">
             <UpdateCourse />
           </ProtectedRoute>
         }
@@ -133,7 +116,7 @@ export const routes = createRoutesFromElements(
       <Route
         path="/profile/teacher/lessons/upload"
         element={
-          <ProtectedRoute requiredRole={"teacher"}>
+          <ProtectedRoute requiredRole="teacher">
             <UploadLesson />
           </ProtectedRoute>
         }
@@ -141,7 +124,7 @@ export const routes = createRoutesFromElements(
       <Route
         path="/profile/my-lessons/:lessonId/update"
         element={
-          <ProtectedRoute requiredRole={"teacher"}>
+          <ProtectedRoute requiredRole="teacher">
             <UpdateLesson />
           </ProtectedRoute>
         }
@@ -149,7 +132,7 @@ export const routes = createRoutesFromElements(
       <Route
         path="/profile/my-courses/:courseId/view"
         element={
-          <ProtectedRoute requiredRole={"teacher"}>
+          <ProtectedRoute requiredRole="teacher">
             <TeacherViewCourse />
           </ProtectedRoute>
         }
@@ -157,12 +140,11 @@ export const routes = createRoutesFromElements(
       <Route
         path="/profile/my-lessons/:lessonId/view"
         element={
-          <ProtectedRoute requiredRole={"teacher"}>
+          <ProtectedRoute requiredRole="teacher">
             <TeacherViewLesson />
           </ProtectedRoute>
         }
       />
-      {/* Profile */}
       <Route
         path="/profile"
         element={
@@ -184,8 +166,6 @@ export const routes = createRoutesFromElements(
     </Route>
 
     <Route path="/unauthorized" element={<Unauthorized />} id="unauthorized" />
-
-    {/* NotFound */}
     <Route path="*" element={<NotFound />} id="not-found" />
   </>
 );

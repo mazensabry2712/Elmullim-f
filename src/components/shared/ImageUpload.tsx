@@ -8,17 +8,19 @@ import { useI18n } from "@/i18n";
 const ImagePreview = ({
   url,
   onRemove,
+  removeImageLabel,
 }: {
   url: string;
   onRemove: () => void;
+  removeImageLabel: string;
 }) => (
   <div className="relative aspect-video md:max-h-[600px] h-full">
     <button
       type="button"
       className="absolute top-0 right-0 translate-x-1/2 -translate-y-1/2"
       onClick={onRemove}
-      aria-label="Remove image"
-      title="Remove image"
+      aria-label={removeImageLabel}
+      title={removeImageLabel}
     >
       <XCircleIcon className="h-5 w-5 fill-primary text-primary-foreground" />
     </button>
@@ -52,6 +54,7 @@ const ImageUpload = ({ title, file, setFile }: IProps) => {
           <ImagePreview
             url={URL.createObjectURL(file)}
             onRemove={() => setFile(null)}
+            removeImageLabel={removeImageLabel}
           />
         ) : (
           <Dropzone

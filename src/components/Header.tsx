@@ -2,9 +2,18 @@ import { navItemsVariants } from "@/animations";
 import Navbar from "./Navbar";
 import { motion } from "framer-motion";
 import { useLocation } from "react-router-dom";
+import { useI18n } from "@/i18n";
 
 const Header = () => {
   const path = useLocation().pathname;
+  const { language } = useI18n();
+
+  const text = {
+    phone: language === "ar" ? "هاتف" : "Phone",
+    email: language === "ar" ? "البريد الإلكتروني" : "Email",
+    address: language === "ar" ? "العنوان" : "Address",
+  };
+
   return (
     <div
       className={`relative z-50 ${
@@ -32,7 +41,7 @@ const Header = () => {
             >
               <img
                 src="/icons/phone-icon.svg"
-                alt="phone"
+                alt={text.phone}
                 className="h-5 w-5"
               />
               <p className="text-[15px]">(966) 55-675-4697</p>
@@ -43,7 +52,7 @@ const Header = () => {
             >
               <img
                 src="/icons/email-icon.svg"
-                alt="email"
+                alt={text.email}
                 className="h-5 w-5"
               />
               <p className="text-[15px]">test@gmail.com</p>
@@ -54,7 +63,7 @@ const Header = () => {
             >
               <img
                 src="/icons/address-icon.svg"
-                alt="address"
+                alt={text.address}
                 className="h-5 w-5"
               />
               <p className="text-[15px]">Hudson, Wisconsin(WI), 54016</p>

@@ -6,6 +6,7 @@ import { useDeleteTeacherCourseContent } from "@/lib/react-query/teacher/courses
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   id: string;
@@ -14,21 +15,29 @@ interface IProps {
 const DeleteCourseContent = ({ id, courseId }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
-  const { mutateAsync: deleteCourseContent, isPending } =
-    useDeleteTeacherCourseContent();
+  const { language } = useI18n();
+  const { mutateAsync: deleteCourseContent, isPending } = useDeleteTeacherCourseContent();
+
+  const text = language === "ar"
+    ? {
+        success: "تم حذف المحتوى بنجاح",
+        title: "حذف المحتوى",
+        description: "هل أنت متأكد أنك تريد حذف هذا المحتوى؟",
+        confirm: "حذف",
+      }
+    : {
+        success: "Content deleted successfully",
+        title: "Delete Content",
+        description: "Are you sure you want to delete this content?",
+        confirm: "Delete",
+      };
 
   const handleDelete = async () => {
     try {
-      const { message, status } = await deleteCourseContent({
-        id,
-        token,
-        courseId,
-      });
-      if (!status)
-        return toast.error(message || "Content deleted successfully");
+      const { message, status } = await deleteCourseContent({ id, token, courseId });
+      if (!status) return toast.error(message || text.success);
 
-      // delete success
-      toast.success(message || "Content deleted successfully");
+      toast.success(message || text.success);
       setIsOpen(false);
     } catch (error) {
       handleResError(error);
@@ -36,6 +45,7 @@ const DeleteCourseContent = ({ id, courseId }: IProps) => {
       setIsOpen(false);
     }
   };
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)} variant="destructive" size="icon">
@@ -45,13 +55,10 @@ const DeleteCourseContent = ({ id, courseId }: IProps) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={() => setIsOpen(false)}
-        title="Delete Content"
-        description={{
-          text: "Are you sure you want to delete this content?",
-          color: "text-destructive",
-        }}
+        title={text.title}
+        description={{ text: text.description, color: "text-destructive" }}
         isLoading={isPending}
-        confirmText="delete"
+        confirmText={text.confirm}
         onConfirm={handleDelete}
         showFooter
         variant="destructive"

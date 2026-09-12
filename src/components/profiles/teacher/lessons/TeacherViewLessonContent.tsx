@@ -18,12 +18,14 @@ import UpdateLessonContent from "./UpdateLessonContent";
 import UpdateLessonLecture from "./UpdateLessonLecture";
 import DeleteLessonLecture from "./DeleteLessonLecture";
 import DeleteLessonContent from "./DeleteLessonContent";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   lessonId: number;
 }
 
 const TeacherViewLessonContent = ({ lessonId }: IProps) => {
+  const { language } = useI18n();
   const token = cookieService.getToken()!;
   const [contentId, setContentId] = useState<number>();
   const { data: contents, isLoading: isLoadingContents } =
@@ -34,6 +36,8 @@ const TeacherViewLessonContent = ({ lessonId }: IProps) => {
       contentId: contentId?.toString() || "",
       lessonId: lessonId.toString(),
     });
+
+  const noContentsText = language === "ar" ? "لم يتم العثور على محتوى" : "No contents found";
 
   return (
     <>
@@ -51,7 +55,7 @@ const TeacherViewLessonContent = ({ lessonId }: IProps) => {
           >
             {!contents?.data.length ? (
               <p className="font-medium fon-sora text-lg text-center text-[#4D5756] pt-5">
-                No contents found
+                {noContentsText}
               </p>
             ) : (
               contents?.data.map((content, index) => (

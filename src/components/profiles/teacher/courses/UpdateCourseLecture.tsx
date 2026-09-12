@@ -25,12 +25,14 @@ import {
 import { courseLectureSchema } from "@/validations/teacher/courseSchema";
 import { COURSE_LECTURE_INPUTS } from "@/constant";
 import { ILecture } from "@/interfaces/courses/lectures";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   lecture: ILecture;
   courseLectureId: number;
   contentId: number;
 }
+
 const UpdateCourseLecture = ({
   lecture,
   courseLectureId,
@@ -39,6 +41,7 @@ const UpdateCourseLecture = ({
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
   const [courseId, setCourseId] = useState(courseLectureId.toString() || "");
+  const { language } = useI18n();
 
   const { data: courses } = useGetTeacherCourses(token);
   const coursesOptions = courses?.data.map((course) => ({
@@ -85,13 +88,13 @@ const UpdateCourseLecture = ({
       if (!status)
         return Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: language === "ar" ? "حدث خطأ" : "Oops...",
           text: message,
         });
 
       Swal.fire({
         icon: "success",
-        title: "Success",
+        title: language === "ar" ? "تم بنجاح" : "Success",
         text: message,
       });
     } catch (error) {
@@ -122,7 +125,9 @@ const UpdateCourseLecture = ({
       <Button
         onClick={() => setIsOpen(true)}
         className="bg-blue-600 hover:bg-blue-600/90"
-        size={"icon"}
+        size="icon"
+        aria-label={language === "ar" ? "تحديث المحاضرة" : "Update lecture"}
+        title={language === "ar" ? "تحديث المحاضرة" : "Update lecture"}
       >
         <Pen className="w-4 h-4" />
       </Button>
@@ -130,9 +135,12 @@ const UpdateCourseLecture = ({
       <Modal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
-        title="Update Course Lecture"
+        title={language === "ar" ? "تحديث محاضرة الكورس" : "Update Course Lecture"}
         description={{
-          text: "You can update course lecture here.",
+          text:
+            language === "ar"
+              ? "يمكنك تحديث محاضرة الكورس من هنا"
+              : "You can update course lecture here.",
         }}
         showFooter={false}
       >
@@ -190,14 +198,14 @@ const UpdateCourseLecture = ({
                 onClick={handleCloseModal}
                 className="text-black py-2.5 h-auto"
               >
-                Cancel
+                {language === "ar" ? "إلغاء" : "Cancel"}
               </AlertDialogCancel>
               <Button
                 type="submit"
                 disabled={isPending}
                 className="py-2.5 h-auto bg-main hover:bg-main/90"
               >
-                Update
+                {language === "ar" ? "تحديث" : "Update"}
                 {isPending && <Loader2 className="animate-spin ml-2" />}
               </Button>
             </AlertDialogFooter>

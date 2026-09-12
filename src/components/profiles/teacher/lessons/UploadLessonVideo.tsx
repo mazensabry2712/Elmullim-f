@@ -8,7 +8,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Form, FormField } from "@/components/ui/form";
-
 import cookieService from "@/utils/cookieService";
 import handleResError from "@/utils/handleResponseError";
 import { Loader2 } from "lucide-react";
@@ -23,13 +22,20 @@ import { lessonVideoSchema } from "@/validations/teacher/lessonSchema";
 import SelectFormItem from "@/components/forms/formItems/SelectFormItem";
 import Swal from "sweetalert2";
 import { Progress } from "@/components/ui/progress";
-import { useGetTeacherLessonContents, useGetTeacherLessonLectures, useGetTeacherLessons, useUploadLessonVideo } from "@/lib/react-query/teacher/lessons";
+import {
+  useGetTeacherLessonContents,
+  useGetTeacherLessonLectures,
+  useGetTeacherLessons,
+  useUploadLessonVideo,
+} from "@/lib/react-query/teacher/lessons";
+import { useI18n } from "@/i18n";
 
 const UploadLessonVideo = () => {
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File | null>(null);
   const [lessonId, setLessonId] = useState("");
   const [contentId, setContentId] = useState("");
+  const { language } = useI18n();
 
   const token = cookieService.getToken()!;
   const { data: lessons } = useGetTeacherLessons(token);
@@ -63,7 +69,10 @@ const UploadLessonVideo = () => {
     lectureId,
   }: z.infer<typeof lessonVideoSchema>) => {
     try {
-      if (!file) return toast.error("Video is required");
+      if (!file)
+        return toast.error(
+          language === "ar" ? "الفيديو مطلوب" : "Video is required"
+        );
       const { message, status } = await uploadVideo({
         token,
         video: {
@@ -77,14 +86,13 @@ const UploadLessonVideo = () => {
       if (!status)
         return Swal.fire({
           icon: "error",
-          title: "Oops..",
+          title: language === "ar" ? "حدث خطأ" : "Oops..",
           text: message,
         });
 
-      // Upload success
       Swal.fire({
         icon: "success",
-        title: "Done",
+        title: language === "ar" ? "تم بنجاح" : "Done",
         text: message,
       });
       form.reset();
@@ -117,8 +125,12 @@ const UploadLessonVideo = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Upload Video</CardTitle>
-        <CardDescription>Upload video to lecture</CardDescription>
+        <CardTitle>
+          {language === "ar" ? "رفع فيديو" : "Upload Video"}
+        </CardTitle>
+        <CardDescription>
+          {language === "ar" ? "رفع فيديو للمحاضرة" : "Upload video to lecture"}
+        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <Form {...form}>
@@ -126,7 +138,11 @@ const UploadLessonVideo = () => {
             <div className="flex flex-col gap-6 xl:flex-row">
               <div className="max-w-4xl w-full xl:w-[70%] space-y-4">
                 <VideoUpload
-                  title="Click to upload video"
+                  title={
+                    language === "ar"
+                      ? "اضغط لرفع الفيديو"
+                      : "Click to upload video"
+                  }
                   file={file}
                   setFile={setFile}
                 />
@@ -192,7 +208,7 @@ const UploadLessonVideo = () => {
               className="bg-main hover:bg-main/90 h-auto py-3 w-full sm:w-fit px-4"
               disabled={isPending}
             >
-              Upload Video
+              {language === "ar" ? "رفع الفيديو" : "Upload Video"}
               {isPending && <Loader2 className="animate-spin" size={24} />}
             </Button>
           </form>

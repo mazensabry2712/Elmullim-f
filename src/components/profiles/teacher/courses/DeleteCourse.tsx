@@ -7,6 +7,7 @@ import { useDeleteTeacherCourse } from "@/lib/react-query/teacher/courses";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   id: string;
@@ -15,15 +16,29 @@ const DeleteCourse = ({ id }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
   const navigate = useNavigate();
+  const { language } = useI18n();
   const { mutateAsync: deleteCourse, isPending } = useDeleteTeacherCourse();
+
+  const text = language === "ar"
+    ? {
+        success: "تم حذف الكورس بنجاح",
+        title: "حذف الكورس",
+        description: "هل أنت متأكد أنك تريد حذف هذا الكورس؟",
+        confirm: "حذف",
+      }
+    : {
+        success: "Course deleted successfully",
+        title: "Delete Course",
+        description: "Are you sure you want to delete this course?",
+        confirm: "Delete",
+      };
 
   const handleDelete = async () => {
     try {
       const { message, status } = await deleteCourse({ id, token });
-      if (!status) return toast.error(message || "Course deleted successfully");
+      if (!status) return toast.error(message || text.success);
 
-      // delete success
-      toast.success(message || "Course deleted successfully");
+      toast.success(message || text.success);
       setIsOpen(false);
       navigate("/login");
     } catch (error) {
@@ -32,6 +47,7 @@ const DeleteCourse = ({ id }: IProps) => {
       setIsOpen(false);
     }
   };
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)} variant="destructive" size="icon">
@@ -41,13 +57,13 @@ const DeleteCourse = ({ id }: IProps) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={() => setIsOpen(false)}
-        title="Delete Course"
+        title={text.title}
         description={{
-          text: "Are you sure you want to delete this course?",
+          text: text.description,
           color: "text-destructive",
         }}
         isLoading={isPending}
-        confirmText="delete"
+        confirmText={text.confirm}
         onConfirm={handleDelete}
         showFooter
         variant="destructive"

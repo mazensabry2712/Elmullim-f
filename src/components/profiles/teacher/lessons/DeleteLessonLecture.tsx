@@ -6,6 +6,7 @@ import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 import { useDeleteTeacherLessonLecture } from "@/lib/react-query/teacher/lessons";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   id: string;
@@ -15,22 +16,29 @@ interface IProps {
 const DeleteLessonLecture = ({ id, lessonId, contentId }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
-  const { mutateAsync: deleteLessonLecture, isPending } =
-    useDeleteTeacherLessonLecture();
+  const { language } = useI18n();
+  const { mutateAsync: deleteLessonLecture, isPending } = useDeleteTeacherLessonLecture();
+
+  const text = language === "ar"
+    ? {
+        success: "تم حذف المحاضرة بنجاح",
+        title: "حذف المحاضرة",
+        description: "هل أنت متأكد أنك تريد حذف هذه المحاضرة؟",
+        confirm: "حذف",
+      }
+    : {
+        success: "Lecture deleted successfully",
+        title: "Delete Lecture",
+        description: "Are you sure you want to delete this lecture?",
+        confirm: "Delete",
+      };
 
   const handleDelete = async () => {
     try {
-      const { message, status } = await deleteLessonLecture({
-        id,
-        token,
-        lessonId,
-        contentId,
-      });
-      if (!status)
-        return toast.error(message || "Lecture deleted successfully");
+      const { message, status } = await deleteLessonLecture({ id, token, lessonId, contentId });
+      if (!status) return toast.error(message || text.success);
 
-      // delete success
-      toast.success(message || "Lecture deleted successfully");
+      toast.success(message || text.success);
       setIsOpen(false);
     } catch (error) {
       handleResError(error);
@@ -38,6 +46,7 @@ const DeleteLessonLecture = ({ id, lessonId, contentId }: IProps) => {
       setIsOpen(false);
     }
   };
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)} variant="destructive" size="icon">
@@ -47,13 +56,10 @@ const DeleteLessonLecture = ({ id, lessonId, contentId }: IProps) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={() => setIsOpen(false)}
-        title="Delete Lecture"
-        description={{
-          text: "Are you sure you want to delete this lecture?",
-          color: "text-destructive",
-        }}
+        title={text.title}
+        description={{ text: text.description, color: "text-destructive" }}
         isLoading={isPending}
-        confirmText="delete"
+        confirmText={text.confirm}
         onConfirm={handleDelete}
         showFooter
         variant="destructive"

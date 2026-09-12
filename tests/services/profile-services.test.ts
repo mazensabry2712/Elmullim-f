@@ -1,19 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import axiosAPI from "@/config/axios.config";
 import { getStudentProfile } from "@/services/student/studentProfile";
-import { teacherLogin } from "@/services/auth/teachers";
-import { parentLogin } from "@/services/auth/parents";
+import { getTeacherProfile } from "@/services/teacher/teacherProfile";
+import { getParentProfile } from "@/services/parent/parentProfile";
 
 vi.mock("@/config/axios.config", () => ({
   default: {
     get: vi.fn(),
-    post: vi.fn(),
   },
 }));
 
-describe("profile/auth service requests", () => {
+describe("profile service requests", () => {
   const getMock = vi.mocked(axiosAPI.get);
-  const postMock = vi.mocked(axiosAPI.post);
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -43,35 +41,51 @@ describe("profile/auth service requests", () => {
     });
   });
 
-  it("posts teacher credentials to the teacher login endpoint", async () => {
-    postMock.mockResolvedValueOnce({
-      data: { status: true, message: "success login", data: { token: "teacher-token" } },
+  it("requests the teacher profile with the bearer token", async () => {
+    getMock.mockResolvedValueOnce({
+      data: {
+        status: true,
+        data: {
+          name: "Demo Teacher",
+          email: "teacher@elmullim.test",
+        },
+      },
     });
 
-    await teacherLogin({
-      email: "teacher@elmullim.test",
-      password: "Teacher@12345",
+    await expect(getTeacherProfile("teacher-token")).resolves.toEqual({
+      status: true,
+      data: {
+        name: "Demo Teacher",
+        email: "teacher@elmullim.test",
+      },
     });
 
-    expect(postMock).toHaveBeenCalledWith("/teacher/login", {
-      email: "teacher@elmullim.test",
-      password: "Teacher@12345",
+    expect(getMock).toHaveBeenCalledWith("/teacher/me", {
+      headers: { Authorization: "Bearer teacher-token" },
     });
   });
 
-  it("posts parent credentials to the parent login endpoint", async () => {
-    postMock.mockResolvedValueOnce({
-      data: { status: true, message: "success login", data: { token: "parent-token" } },
+  it("requests the parent profile with the bearer token", async () => {
+    getMock.mockResolvedValueOnce({
+      data: {
+        status: true,
+        data: {
+          name: "Demo Parent",
+          email: "parent@elmullim.test",
+        },
+      },
     });
 
-    await parentLogin({
-      email: "parent@elmullim.test",
-      password: "Parent@12345",
+    await expect(getParentProfile("parent-token")).resolves.toEqual({
+      status: true,
+      data: {
+        name: "Demo Parent",
+        email: "parent@elmullim.test",
+      },
     });
 
-    expect(postMock).toHaveBeenCalledWith("/parent/login", {
-      email: "parent@elmullim.test",
-      password: "Parent@12345",
+    expect(getMock).toHaveBeenCalledWith("/parent/me", {
+      headers: { Authorization: "Bearer parent-token" },
     });
   });
 });

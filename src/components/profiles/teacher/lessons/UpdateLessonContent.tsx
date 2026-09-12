@@ -24,6 +24,7 @@ import {
   useGetTeacherLessons,
   useUpdateTeacherLessonContent,
 } from "@/lib/react-query/teacher/lessons";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   lessonContent: IContent;
@@ -33,11 +34,12 @@ interface IProps {
 const UpdateLessonContent = ({ lessonContent, lessonId }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
+  const { language } = useI18n();
 
   const { data: lessons } = useGetTeacherLessons(token);
-  const lessonsOptions = lessons?.data.map((course) => ({
-    label: course.title,
-    value: course.id.toString(),
+  const lessonsOptions = lessons?.data.map((lesson) => ({
+    label: lesson.title,
+    value: lesson.id.toString(),
   }));
   const form = useForm<z.infer<typeof lessonContentSchema>>({
     resolver: zodResolver(lessonContentSchema),
@@ -69,13 +71,13 @@ const UpdateLessonContent = ({ lessonContent, lessonId }: IProps) => {
       if (!status)
         return Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: language === "ar" ? "حدث خطأ" : "Oops...",
           text: message,
         });
 
       Swal.fire({
         icon: "success",
-        title: "Success",
+        title: language === "ar" ? "تم بنجاح" : "Success",
         text: message,
       });
     } catch (error) {
@@ -96,6 +98,8 @@ const UpdateLessonContent = ({ lessonContent, lessonId }: IProps) => {
         onClick={() => setIsOpen(true)}
         className="bg-blue-600 hover:bg-blue-500/90"
         size="icon"
+        aria-label={language === "ar" ? "تحديث المحتوى" : "Update content"}
+        title={language === "ar" ? "تحديث المحتوى" : "Update content"}
       >
         <Pen className="w-4 h-4" />
       </Button>
@@ -103,9 +107,12 @@ const UpdateLessonContent = ({ lessonContent, lessonId }: IProps) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
-        title="Update Lesson Content"
+        title={language === "ar" ? "تحديث محتوى الدرس" : "Update Lesson Content"}
         description={{
-          text: "You can update lesson content here",
+          text:
+            language === "ar"
+              ? "يمكنك تحديث محتوى الدرس من هنا"
+              : "You can update lesson content here",
         }}
         showFooter={false}
       >
@@ -156,14 +163,14 @@ const UpdateLessonContent = ({ lessonContent, lessonId }: IProps) => {
                 onClick={handleCloseModal}
                 className="text-black py-2.5 h-auto"
               >
-                Cancel
+                {language === "ar" ? "إلغاء" : "Cancel"}
               </AlertDialogCancel>
               <Button
                 type="submit"
                 disabled={isPending}
                 className="py-2.5 h-auto bg-main hover:bg-main/90"
               >
-                Update
+                {language === "ar" ? "تحديث" : "Update"}
                 {isPending && <Loader2 className="animate-spin ml-2" />}
               </Button>
             </AlertDialogFooter>

@@ -24,10 +24,14 @@ import {
   useUpdateParentProfile,
 } from "@/lib/react-query/parent/parentProfile";
 import Swal from "sweetalert2";
+import { useI18n } from "@/i18n";
+import { getAuthCopy } from "@/i18n/authCopy";
 
 const UpdateParentProfileForm = () => {
   const token = cookieService.getToken()!;
   const navigate = useNavigate();
+  const { language } = useI18n();
+  const copy = getAuthCopy(language);
 
   const { data, isLoading } = useGetParentProfile(token);
   const parent = data?.data;
@@ -101,13 +105,17 @@ const UpdateParentProfileForm = () => {
       });
       if (!status)
         return Swal.fire({
-          title: "Error",
+          title: copy.error,
           text: message!,
           icon: "error",
         });
       Swal.fire({
-        title: "Success",
-        text: message || "Profile info has been updated successfully",
+        title: copy.success,
+        text:
+          message ||
+          (language === "ar"
+            ? "تم تحديث بيانات الملف الشخصي بنجاح"
+            : "Profile info has been updated successfully"),
         icon: "success",
       });
 
@@ -193,7 +201,7 @@ const UpdateParentProfileForm = () => {
                 <LoaderCircle className="animate-spin !w-6 !h-6" />
               </span>
             )}
-            Update info
+            {copy.updateInfo}
           </Button>
         </motion.div>
       </motion.form>

@@ -3,10 +3,11 @@ import cookieService from "@/utils/cookieService";
 import handleResError from "@/utils/handleResponseError";
 import { useNavigate } from "react-router-dom";
 import Modal from "@/components/shared/Modal";
+import { useDeleteTeacherLesson } from "@/lib/react-query/teacher/lessons";
 import { toast } from "react-toastify";
 import { Button } from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
-import { useDeleteTeacherLesson } from "@/lib/react-query/teacher/lessons";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   id: string;
@@ -15,15 +16,29 @@ const DeleteLesson = ({ id }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
   const navigate = useNavigate();
+  const { language } = useI18n();
   const { mutateAsync: deleteLesson, isPending } = useDeleteTeacherLesson();
+
+  const text = language === "ar"
+    ? {
+        success: "تم حذف الدرس بنجاح",
+        title: "حذف الدرس",
+        description: "هل أنت متأكد أنك تريد حذف هذا الدرس؟",
+        confirm: "حذف",
+      }
+    : {
+        success: "Lesson deleted successfully",
+        title: "Delete Lesson",
+        description: "Are you sure you want to delete this lesson?",
+        confirm: "Delete",
+      };
 
   const handleDelete = async () => {
     try {
       const { message, status } = await deleteLesson({ id, token });
-      if (!status) return toast.error(message || "Lesson deleted successfully");
+      if (!status) return toast.error(message || text.success);
 
-      // delete success
-      toast.success(message || "Lesson deleted successfully");
+      toast.success(message || text.success);
       setIsOpen(false);
       navigate("/login");
     } catch (error) {
@@ -32,6 +47,7 @@ const DeleteLesson = ({ id }: IProps) => {
       setIsOpen(false);
     }
   };
+
   return (
     <>
       <Button onClick={() => setIsOpen(true)} variant="destructive" size="icon">
@@ -41,13 +57,10 @@ const DeleteLesson = ({ id }: IProps) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={() => setIsOpen(false)}
-        title="Delete Course"
-        description={{
-          text: "Are you sure you want to delete this course?",
-          color: "text-destructive",
-        }}
+        title={text.title}
+        description={{ text: text.description, color: "text-destructive" }}
         isLoading={isPending}
-        confirmText="delete"
+        confirmText={text.confirm}
         onConfirm={handleDelete}
         showFooter
         variant="destructive"

@@ -1,4 +1,3 @@
-
 import LessonForm from "@/components/forms/teacher/LessonForm";
 import {
   Card,
@@ -12,8 +11,8 @@ const CreateLesson = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Create Lesson</CardTitle>
-        <CardDescription>Create a new lesson from here</CardDescription>
+        <CardTitle>إنشاء درس</CardTitle>
+        <CardDescription>أنشئ درسًا جديدًا من هنا</CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
         <LessonForm action="create" />

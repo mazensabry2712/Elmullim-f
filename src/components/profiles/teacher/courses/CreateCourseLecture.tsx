@@ -27,14 +27,17 @@ import {
   courseLectureSchema,
 } from "@/validations/teacher/courseSchema";
 import { COURSE_LECTURE_INPUTS } from "@/constant";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   children: ReactNode;
 }
+
 const CreateCourseLecture = ({ children }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
   const [courseId, setCourseId] = useState("");
+  const { language } = useI18n();
 
   const { data: courses } = useGetTeacherCourses(token);
   const coursesOptions = courses?.data.map((course) => ({
@@ -77,16 +80,17 @@ const CreateCourseLecture = ({ children }: IProps) => {
           description,
         },
       });
+
       if (!status)
         return Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: language === "ar" ? "حدث خطأ" : "Oops...",
           text: message,
         });
 
       Swal.fire({
         icon: "success",
-        title: "Success",
+        title: language === "ar" ? "تم بنجاح" : "Success",
         text: message,
       });
     } catch (error) {
@@ -121,9 +125,12 @@ const CreateCourseLecture = ({ children }: IProps) => {
       <Modal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
-        title="Create Course Lecture"
+        title={language === "ar" ? "إنشاء محاضرة للكورس" : "Create Course Lecture"}
         description={{
-          text: "Create new course lecture",
+          text:
+            language === "ar"
+              ? "إنشاء محاضرة جديدة للكورس"
+              : "Create new course lecture",
         }}
         showFooter={false}
       >
@@ -181,14 +188,14 @@ const CreateCourseLecture = ({ children }: IProps) => {
                 onClick={handleCloseModal}
                 className="text-black py-2.5 h-auto"
               >
-                Cancel
+                {language === "ar" ? "إلغاء" : "Cancel"}
               </AlertDialogCancel>
               <Button
                 type="submit"
                 disabled={isPending}
                 className="py-2.5 h-auto bg-main hover:bg-main/90"
               >
-                Create
+                {language === "ar" ? "إنشاء" : "Create"}
                 {isPending && <Loader2 className="animate-spin ml-2" />}
               </Button>
             </AlertDialogFooter>

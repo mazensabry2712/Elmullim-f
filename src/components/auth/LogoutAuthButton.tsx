@@ -13,7 +13,7 @@ type TProps = HTMLAttributes<HTMLButtonElement>;
 
 const LogoutAuthButton = ({ ...rest }: TProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { language, t } = useI18n();
+  const { language } = useI18n();
 
   const token = cookieService.getToken()!;
   const role = cookieService.getRole()!;

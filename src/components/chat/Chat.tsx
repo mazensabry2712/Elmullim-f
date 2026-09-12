@@ -10,6 +10,8 @@ const chatTranslations: Record<string, string> = {
   "جاري التحميل...": "Loading...",
   "Search Here...": "ابحث هنا...",
   "ابحث هنا...": "Search Here...",
+  "🔍 Search Here...": "🔍 ابحث هنا...",
+  "🔍 ابحث هنا...": "🔍 Search Here...",
   "Search For The Name....": "ابحث عن الاسم....",
   "ابحث عن الاسم....": "Search For The Name....",
   "Search for a person...": "ابحث عن شخص...",

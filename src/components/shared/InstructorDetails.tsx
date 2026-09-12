@@ -2,12 +2,16 @@ import { containerVariants } from "@/animations";
 import { ITeacher } from "@/interfaces/teachers/teacherProfile";
 import { motion } from "framer-motion";
 import { StarIcon } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   instructor: ITeacher;
 }
 
 const InstructorDetails = ({ instructor }: IProps) => {
+  const { language } = useI18n();
+  const isArabic = language === "ar";
+
   return (
     <motion.div variants={containerVariants} className="my-10">
       <div className="flex flex-col lg:flex-row gap-x-8 gap-y-5 items-center">
@@ -22,7 +26,7 @@ const InstructorDetails = ({ instructor }: IProps) => {
             <div className="bg-slate-100 flex items-center justify-center rounded-lg">
               <img
                 src={instructor?.profile_image || "/images/profile-avatar.webp"}
-                alt="course"
+                alt={isArabic ? "صورة المعلم" : "Instructor"}
                 className="rounded-lg max-w-full object-cover max-h-[400px] lg:max-h-[600px] w-full h-full object-top"
               />
             </div>
@@ -37,7 +41,7 @@ const InstructorDetails = ({ instructor }: IProps) => {
         >
           <div className="space-y-1">
             <h3 className="font-bold text-4xl text-black-blue text-center">
-              Instructor Details
+              {isArabic ? "تفاصيل المعلم" : "Instructor Details"}
             </h3>
             <hr className="w-[20%] mx-auto h-2 bg-main rounded-lg" />
           </div>
@@ -54,7 +58,7 @@ const InstructorDetails = ({ instructor }: IProps) => {
                   <StarIcon className="text-main fill-current" />
                   {instructor?.rating}
                 </span>
-                (Ratings)
+                ({isArabic ? "التقييمات" : "Ratings"})
               </h6>
             </div>
             <p className="leading-relaxed text-[#4D5756] font-sora !mt-6 text-center lg:text-start">
@@ -67,7 +71,7 @@ const InstructorDetails = ({ instructor }: IProps) => {
                 {instructor?.courses_count}
               </h3>
               <h4 className="font-extrabold text-black-blue text-xl capitalize">
-                Courses
+                {isArabic ? "الدورات" : "Courses"}
               </h4>
             </div>
             <div className="py-4 px-5 shadow-[0px_4px_4px_0px_#00000040] space-y-2 rounded-lg flex flex-col items-center justify-center">
@@ -75,7 +79,7 @@ const InstructorDetails = ({ instructor }: IProps) => {
                 {instructor?.lessons_count}
               </h3>
               <h4 className="font-extrabold text-black-blue text-xl capitalize">
-                Lessons
+                {isArabic ? "الدروس" : "Lessons"}
               </h4>
             </div>
             <div className="py-4 px-5 shadow-[0px_4px_4px_0px_#00000040] space-y-2 rounded-lg flex flex-col items-center justify-center">
@@ -83,7 +87,7 @@ const InstructorDetails = ({ instructor }: IProps) => {
                 {instructor?.experince || "0"}+
               </h3>
               <h4 className="font-extrabold text-black-blue text-xl capitalize">
-                experience
+                {isArabic ? "سنوات الخبرة" : "experience"}
               </h4>
             </div>
           </div>

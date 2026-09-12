@@ -19,6 +19,7 @@ import {
 import { lessonSchema } from "@/validations/teacher/lessonSchema";
 import RenderLessonFormItems from "./RenderLessonFormItems";
 import { useNavigate } from "react-router-dom";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   action: "create" | "update";
@@ -28,6 +29,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
   const [file, setFile] = useState<File | null>(null);
   const token = cookieService.getToken()!;
   const navigate = useNavigate();
+  const { language } = useI18n();
   const { mutateAsync: CreateLesson, isPending: isCreating } =
     useCreateTeacherLesson();
   const { mutateAsync: UpdateLesson, isPending: isUpdating } =
@@ -57,21 +59,23 @@ const LessonForm = ({ action, lesson }: IProps) => {
         if (!status)
           return Swal.fire({
             icon: "error",
-            title: "Oops...",
+            title: language === "ar" ? "حدث خطأ" : "Oops...",
             text: message,
           });
 
-        // update success
         Swal.fire({
           icon: "success",
-          title: "Done",
+          title: language === "ar" ? "تم بنجاح" : "Done",
           text: message,
         });
         form.reset();
         navigate("/profile", { state: { myLessons: true } });
       }
       if (action === "create") {
-        if (!file) return toast.error("Lesson picture is required");
+        if (!file)
+          return toast.error(
+            language === "ar" ? "صورة الدرس مطلوبة" : "Lesson picture is required"
+          );
         const { message, status } = await CreateLesson({
           token,
           lesson: {
@@ -84,14 +88,13 @@ const LessonForm = ({ action, lesson }: IProps) => {
         if (!status)
           return Swal.fire({
             icon: "error",
-            title: "Oops...",
+            title: language === "ar" ? "حدث خطأ" : "Oops...",
             text: message,
           });
 
-        // create success
         Swal.fire({
           icon: "success",
-          title: "Done",
+          title: language === "ar" ? "تم بنجاح" : "Done",
           text: message,
         });
         form.reset();
@@ -116,7 +119,11 @@ const LessonForm = ({ action, lesson }: IProps) => {
             <ImageUpload
               file={file}
               setFile={setFile}
-              title="Click to upload lesson picture"
+              title={
+                language === "ar"
+                  ? "اضغط لرفع صورة الدرس"
+                  : "Click to upload lesson picture"
+              }
             />
           </div>
           <div className="max-w-full w-full lg:max-w-[60%]">
@@ -136,7 +143,13 @@ const LessonForm = ({ action, lesson }: IProps) => {
           className="bg-main hover:bg-main/90 h-auto py-3 w-full sm:w-fit px-4"
           disabled={isCreating || isUpdating}
         >
-          {action === "update" ? "Update Lesson" : "Create New lesson"}
+          {action === "update"
+            ? language === "ar"
+              ? "تحديث الدرس"
+              : "Update Lesson"
+            : language === "ar"
+              ? "إنشاء درس جديد"
+              : "Create New lesson"}
           {(isCreating || isUpdating) && (
             <Loader2 className="animate-spin" size={24} />
           )}

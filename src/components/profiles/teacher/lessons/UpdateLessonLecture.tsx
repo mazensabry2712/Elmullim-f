@@ -11,10 +11,7 @@ import Swal from "sweetalert2";
 import Modal from "@/components/shared/Modal";
 import { Form, FormField } from "@/components/ui/form";
 import InputFormItem from "@/components/forms/formItems/InputFormItem";
-import {
-  AlertDialogCancel,
-  AlertDialogFooter,
-} from "@/components/ui/alert-dialog";
+import { AlertDialogCancel, AlertDialogFooter } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import SelectFormItem from "@/components/forms/formItems/SelectFormItem";
 import { LESSON_LECTURE_INPUTS } from "@/constant";
@@ -25,20 +22,19 @@ import {
   useGetTeacherLessons,
   useUpdateTeacherLessonLecture,
 } from "@/lib/react-query/teacher/lessons";
+import { useI18n } from "@/i18n";
 
 interface IProps {
   lecture: ILecture;
   lessonLectureId: string;
   contentId: string;
 }
-const UpdateLessonLecture = ({
-  lecture,
-  lessonLectureId,
-  contentId,
-}: IProps) => {
+
+const UpdateLessonLecture = ({ lecture, lessonLectureId, contentId }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
   const [lessonId, setLessonId] = useState(lessonLectureId.toString() || "");
+  const { language } = useI18n();
 
   const { data: lessons } = useGetTeacherLessons(token);
   const lessonsOptions = lessons?.data.map((lesson) => ({
@@ -46,14 +42,12 @@ const UpdateLessonLecture = ({
     value: lesson.id.toString(),
   }));
 
-  const { data: contents } = useGetTeacherLessonContents({
-    token,
-    lessonId: lessonId,
-  });
+  const { data: contents } = useGetTeacherLessonContents({ token, lessonId });
   const contentsOptions = contents?.data.map((content) => ({
     label: content.title,
     value: content.id.toString(),
   }));
+
   const form = useForm<z.infer<typeof lessonLectureSchema>>({
     resolver: zodResolver(lessonLectureSchema),
     defaultValues: {
@@ -64,21 +58,15 @@ const UpdateLessonLecture = ({
     },
   });
 
-  const { mutateAsync: updateLecture, isPending } =
-    useUpdateTeacherLessonLecture();
+  const { mutateAsync: updateLecture, isPending } = useUpdateTeacherLessonLecture();
 
-  const onSubmit = async ({
-    lessonId,
-    contentId,
-    title,
-    description,
-  }: z.infer<typeof lessonLectureSchema>) => {
+  const onSubmit = async ({ lessonId, contentId, title, description }: z.infer<typeof lessonLectureSchema>) => {
     try {
       const { message, status } = await updateLecture({
         token,
         lecture: {
           id: lecture.id.toString(),
-          lessonId: lessonId,
+          lessonId,
           contentId,
           title,
           description,
@@ -87,13 +75,13 @@ const UpdateLessonLecture = ({
       if (!status)
         return Swal.fire({
           icon: "error",
-          title: "Oops...",
+          title: language === "ar" ? "حدث خطأ" : "Oops...",
           text: message,
         });
 
       Swal.fire({
         icon: "success",
-        title: "Success",
+        title: language === "ar" ? "تم بنجاح" : "Success",
         text: message,
       });
     } catch (error) {
@@ -125,6 +113,8 @@ const UpdateLessonLecture = ({
         onClick={() => setIsOpen(true)}
         className="bg-blue-600 hover:bg-blue-600/90"
         size={"icon"}
+        aria-label={language === "ar" ? "تحديث المحاضرة" : "Update lecture"}
+        title={language === "ar" ? "تحديث المحاضرة" : "Update lecture"}
       >
         <Pen className="w-4 h-4" />
       </Button>
@@ -132,9 +122,12 @@ const UpdateLessonLecture = ({
       <Modal
         isOpen={isOpen}
         onOpenChange={handleCloseModal}
-        title="Update Lesson Lecture"
+        title={language === "ar" ? "تحديث محاضرة الدرس" : "Update Lesson Lecture"}
         description={{
-          text: "You can update lesson lecture here.",
+          text:
+            language === "ar"
+              ? "يمكنك تحديث محاضرة الدرس من هنا"
+              : "You can update lesson lecture here.",
         }}
         showFooter={false}
       >
@@ -147,37 +140,18 @@ const UpdateLessonLecture = ({
             className="space-y-3 text-black-blue"
           >
             {LESSON_LECTURE_INPUTS.map((input) => (
-              <motion.div
-                variants={itemVariants}
-                key={input.name}
-                custom={input.name}
-              >
+              <motion.div variants={itemVariants} key={input.name} custom={input.name}>
                 <FormField
                   control={form.control}
                   name={input.name as keyof z.infer<typeof lessonLectureSchema>}
                   render={({ field }) =>
                     input.name === "lessonId" ? (
-                      <SelectFormItem
-                        label
-                        field={field}
-                        input={input}
-                        options={lessonsOptions || []}
-                      />
+                      <SelectFormItem label field={field} input={input} options={lessonsOptions || []} />
                     ) : input.name === "contentId" ? (
-                      <SelectFormItem
-                        label
-                        field={field}
-                        input={input}
-                        options={contentsOptions || []}
-                      />
+                      <SelectFormItem label field={field} input={input} options={contentsOptions || []} />
                     ) : (
                       <InputFormItem
-                        field={
-                          field as unknown as ControllerRenderProps<
-                            FieldValues,
-                            string
-                          >
-                        }
+                        field={field as unknown as ControllerRenderProps<FieldValues, string>}
                         input={input}
                         label
                       />
@@ -188,18 +162,11 @@ const UpdateLessonLecture = ({
             ))}
 
             <AlertDialogFooter className="text-start gap-2">
-              <AlertDialogCancel
-                onClick={handleCloseModal}
-                className="text-black py-2.5 h-auto"
-              >
-                Cancel
+              <AlertDialogCancel onClick={handleCloseModal} className="text-black py-2.5 h-auto">
+                {language === "ar" ? "إلغاء" : "Cancel"}
               </AlertDialogCancel>
-              <Button
-                type="submit"
-                disabled={isPending}
-                className="py-2.5 h-auto bg-main hover:bg-main/90"
-              >
-                Update
+              <Button type="submit" disabled={isPending} className="py-2.5 h-auto bg-main hover:bg-main/90">
+                {language === "ar" ? "تحديث" : "Update"}
                 {isPending && <Loader2 className="animate-spin ml-2" />}
               </Button>
             </AlertDialogFooter>

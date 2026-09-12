@@ -36,7 +36,7 @@ const RelatedLessons = ({ lessonId, teacherId, copy: providedCopy }: IProps) => 
           <h4 id="related-lessons-title" className="mb-8 mt-10 text-3xl text-black-blue font-bold text-center capitalize">
             {copy.relatedLessons}
           </h4>
-          <LessonList lessons={lessons?.data?.slice(0, 10) || []} />
+          <LessonList lessons={lessons?.data?.slice(0, 10) || []} copy={copy} />
         </>
       )}
     </section>

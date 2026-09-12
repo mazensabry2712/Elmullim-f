@@ -83,7 +83,7 @@ const ViewQuiz = () => {
 
   if (isLoading) return <main><div className="container py-24" role="status" aria-live="polite"><Loader className="mx-auto animate-spin" size={40} aria-hidden="true" /><span className="sr-only">{pageCopy.loading}</span></div></main>;
 
-  if (isError || !data?.data?.quiz) return <main><div className="container py-24 text-center" role="alert"><AlertCircle className="mx-auto mb-3 text-main" size={40} aria-hidden="true" /><p className="text-[#4D5756]">{pageCopy.unavailable}</p><div className="mt-5 flex justify-center gap-3"><button type="button" onClick={() => void refetch()} className="bg-main text-white rounded-[5px] px-6 py-2">{pageCopy.retry}</button><Link to="/profile" className="border border-main text-main rounded-[5px] px-6 py-2">{pageCopy.back}</Link></div></div></main>;
+  if (isError || !quiz) return <main><div className="container py-24 text-center" role="alert"><AlertCircle className="mx-auto mb-3 text-main" size={40} aria-hidden="true" /><p className="text-[#4D5756]">{pageCopy.unavailable}</p><div className="mt-5 flex justify-center gap-3"><button type="button" onClick={() => void refetch()} className="bg-main text-white rounded-[5px] px-6 py-2">{pageCopy.retry}</button><Link to="/profile" className="border border-main text-main rounded-[5px] px-6 py-2">{pageCopy.back}</Link></div></div></main>;
 
   if (isStartPending || (!hasStartedRef.current && !startError)) return <main><div className="container py-24" role="status" aria-live="polite"><Loader className="mx-auto animate-spin" size={40} aria-hidden="true" /><p className="mt-4 text-center text-[#4D5756]">{pageCopy.starting}</p></div></main>;
 

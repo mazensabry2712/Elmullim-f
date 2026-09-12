@@ -3,12 +3,16 @@ import { motion } from "framer-motion";
 import { Button } from "../ui/button";
 import { ArrowRight } from "lucide-react";
 import { containerVariants, itemVariants } from "@/animations";
+import { useI18n } from "@/i18n";
 
 const PopularPosts = () => {
+  const { language } = useI18n();
+  const isArabic = language === "ar";
+
   return (
     <section className="bg-background py-24 relative z-10">
       <div className="absolute top-0 right-0 -z-10">
-        <img src="/images/posts-line-bg.svg" alt="bg" />
+        <img src="/images/posts-line-bg.svg" alt={isArabic ? "خلفية" : "bg"} />
       </div>
       <div className="container">
         <motion.div
@@ -25,9 +29,9 @@ const PopularPosts = () => {
             transition={{ duration: 0.5 }}
             className="flex flex-col gap-2 items-center md:items-start"
           >
-            <BadgeTitle title="BLOG POST" />
+            <BadgeTitle title={isArabic ? "منشورات المدونة" : "BLOG POST"} />
             <h4 className="capitalize text-black-blue font-bold text-[45px] text-center md:text-left">
-              Post Popular Post
+              {isArabic ? "أشهر المنشورات" : "Post Popular Post"}
             </h4>
           </motion.div>
           <motion.div
@@ -38,7 +42,7 @@ const PopularPosts = () => {
             transition={{ duration: 0.5 }}
           >
             <Button className="font-epilogue w-fit rounded-[5px] !px-7 !py-4 h-auto bg-main hover:bg-main/90 text-[15px] font-bold flex items-center justify-center gap-[10px]">
-              All blog post <ArrowRight className="text-white" />
+              {isArabic ? "كل المنشورات" : "All blog post"} <ArrowRight className="text-white" />
             </Button>
           </motion.div>
         </motion.div>
@@ -50,7 +54,7 @@ const PopularPosts = () => {
           transition={{ duration: 0.5 }}
         >
           <Button className="font-epilogue w-fit rounded-[5px] !px-16 !py-4 h-auto bg-black-blue hover:bg-black-blue/90 text-[15px] font-bold flex items-center justify-center gap-[10px]">
-            Post a Topic
+            {isArabic ? "نشر موضوع" : "Post a Topic"}
           </Button>
         </motion.div>
 
@@ -71,21 +75,21 @@ const PopularPosts = () => {
                 <img
                   className="bg-white scale-[4.5] translate-y-5"
                   src="/images/image.jpeg"
-                  alt="post"
+                  alt={isArabic ? "منشور" : "post"}
                   loading="lazy"
                 />
               </div>
               <div className="bg-background px-2">
                 <div className="font-sora flex text-[#4D5756] text-[15px] items-center justify-between my-4">
-                  <p>14 June 2023</p>
-                  <p>Comment (06)</p>
+                  <p>{isArabic ? "14 يونيو 2023" : "14 June 2023"}</p>
+                  <p>{isArabic ? "تعليق (06)" : "Comment (06)"}</p>
                 </div>
                 <h2 className="text-black-blue font-semibold text-[19px] mb-6">
                   velit esse cillum dolore eu fugiat nulla pariatur. Excepteur
                   sint occaecat cupidatat
                 </h2>
                 <Button className="h-auto w-auto font-sora text-white text-[15px] capitalize flex gap-x-5 items-center bg-main rounded-[5px] !py-4 !px-7 hover:bg-black-blue duration-300">
-                  read more
+                  {isArabic ? "اقرأ المزيد" : "read more"}
                   <ArrowRight className="text-white" />
                 </Button>
               </div>

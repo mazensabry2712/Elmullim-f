@@ -7,6 +7,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { IFormInput } from "@/interfaces";
 import { ControllerRenderProps } from "react-hook-form";
+import { useI18n } from "@/i18n";
+import { translateFormText } from "@/i18n/formCopy";
 
 interface IProps {
   field: ControllerRenderProps<any, any>;
@@ -15,18 +17,20 @@ interface IProps {
 }
 
 const InputFormItem = ({ input, field, label = false }: IProps) => {
+  const { language } = useI18n();
+
   return (
     <FormItem>
       {label && (
         <FormLabel className="text-black-blue font-medium font-sora">
-          {input.label}
+          {translateFormText(language, input.label)}
         </FormLabel>
       )}
 
       <FormControl>
         <Input
           type={input.type}
-          placeholder={input.placeholder}
+          placeholder={translateFormText(language, input.placeholder)}
           autoComplete={"on"}
           {...field}
           min={0}

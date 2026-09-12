@@ -4,8 +4,28 @@ import CreateLesson from "@/components/profiles/teacher/lessons/CreateLesson";
 import CreateLessonContent from "@/components/profiles/teacher/lessons/CreateLessonContent";
 import CreateLessonLecture from "@/components/profiles/teacher/lessons/CreateLessonLecture";
 import UploadLessonVideo from "@/components/profiles/teacher/lessons/UploadLessonVideo";
+import { useI18n } from "@/i18n";
 
 const UploadLesson = () => {
+  const { language } = useI18n();
+  const copy = language === "ar"
+    ? {
+        title: "رفع درس",
+        home: "الرئيسية",
+        details: "تفاصيل الدرس",
+        content: "المحتوى",
+        lecture: "المحاضرة",
+        uploadVideo: "رفع الفيديو",
+      }
+    : {
+        title: "Upload lesson",
+        home: "Home",
+        details: "Lesson Details",
+        content: "Content",
+        lecture: "Lecture",
+        uploadVideo: "Upload Video",
+      };
+
   return (
     <main>
       <motion.div
@@ -16,10 +36,10 @@ const UploadLesson = () => {
         className="container text-center text-white space-y-4 md:space-y-6 pt-20 md:pt-32 pb-16 md:pb-24"
       >
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
-          Upload lesson
+          {copy.title}
         </h1>
         <p className="font-sora font-light leading-[30px]">
-          Home <span className="text-main">//</span> Upload lesson
+          {copy.home} <span className="text-main">//</span> {copy.title}
         </p>
       </motion.div>
       <motion.section
@@ -36,19 +56,19 @@ const UploadLesson = () => {
                 value="lesson"
                 className="bg-white hover:!bg-main data-[state=active]:bg-main text-primary data-[state=active]:text-white hover:!text-white py-3"
               >
-                Lesson Details
+                {copy.details}
               </TabsTrigger>
               <TabsTrigger
                 value="lesson"
                 className="bg-white hover:!bg-main data-[state=active]:bg-white text-primary hover:!text-white py-0 px-0"
               >
-                <CreateLessonContent>Content</CreateLessonContent>
+                <CreateLessonContent>{copy.content}</CreateLessonContent>
               </TabsTrigger>
               <TabsTrigger
                 value="lesson"
                 className="bg-white hover:!bg-main data-[state=active]:bg-white text-primary hover:!text-white py-0 px-0"
               >
-                <CreateLessonLecture>Lecture</CreateLessonLecture>
+                <CreateLessonLecture>{copy.lecture}</CreateLessonLecture>
               </TabsTrigger>
               <TabsTrigger
                 value="upload"
@@ -57,7 +77,7 @@ const UploadLesson = () => {
                   e.preventDefault();
                 }}
               >
-                Upload Video
+                {copy.uploadVideo}
               </TabsTrigger>
             </TabsList>
             <TabsContent value="lesson">

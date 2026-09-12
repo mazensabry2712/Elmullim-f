@@ -1,52 +1,39 @@
 import { z } from "zod";
 
+const validationMessage = (english: string, arabic: string) => {
+  return typeof document !== "undefined" && document.documentElement.lang === "ar"
+    ? arabic
+    : english;
+};
+
+const requiredText = (english: string, arabic: string) =>
+  z.string({ message: validationMessage(english, arabic) }).nonempty({
+    message: validationMessage(english, arabic),
+  });
+
 export const lessonSchema = z.object({
-  title: z
-    .string({ message: "title is required" })
-    .nonempty({ message: "title is required" }),
-  description: z
-    .string({ message: "title is required" })
-    .nonempty({ message: "title is required" }),
+  title: requiredText("title is required", "العنوان مطلوب"),
+  description: requiredText("title is required", "الوصف مطلوب"),
   price: z.coerce
-    .number({ message: "enter a valid price" })
-    .min(0, { message: "enter a valid price" }),
+    .number({ message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") })
+    .min(0, { message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") }),
 });
 
 export const lessonContentSchema = z.object({
-  title: z
-    .string({ message: "title is required" })
-    .nonempty({ message: "title is required" }),
-  description: z
-    .string({ message: "title is required" })
-    .nonempty({ message: "title is required" }),
-  lessonId: z
-    .string({ message: "lesson is required" })
-    .nonempty({ message: "lesson is required" }),
+  title: requiredText("title is required", "العنوان مطلوب"),
+  description: requiredText("title is required", "الوصف مطلوب"),
+  lessonId: requiredText("lesson is required", "الدرس مطلوب"),
 });
 
 export const lessonLectureSchema = z.object({
-  title: z
-    .string({ message: "title is required" })
-    .nonempty({ message: "title is required" }),
-  description: z
-    .string({ message: "title is required" })
-    .nonempty({ message: "title is required" }),
-  lessonId: z
-    .string({ message: "lesson is required" })
-    .nonempty({ message: "lesson is required" }),
-  contentId: z
-    .string({ message: "content is required" })
-    .nonempty({ message: "content is required" }),
+  title: requiredText("title is required", "العنوان مطلوب"),
+  description: requiredText("title is required", "الوصف مطلوب"),
+  lessonId: requiredText("lesson is required", "الدرس مطلوب"),
+  contentId: requiredText("content is required", "المحتوى مطلوب"),
 });
 
 export const lessonVideoSchema = z.object({
-  lessonId: z
-    .string({ message: "course is required" })
-    .nonempty({ message: "course is required" }),
-  contentId: z
-    .string({ message: "content is required" })
-    .nonempty({ message: "content is required" }),
-  lectureId: z
-    .string({ message: "lecture is required" })
-    .nonempty({ message: "lecture is required" }),
+  lessonId: requiredText("course is required", "الكورس مطلوب"),
+  contentId: requiredText("content is required", "المحتوى مطلوب"),
+  lectureId: requiredText("lecture is required", "المحاضرة مطلوبة"),
 });

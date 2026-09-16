@@ -14,6 +14,7 @@ import { useGetLessonById } from "@/lib/react-query/lessons/lessons";
 import LessonContent from "@/components/lessons/LessonContent";
 import RelatedLessons from "@/components/lessons/RelatedLessons";
 import EnrollFreeLesson from "@/components/lessons/EnrollFreeLesson";
+import BookLessonDialog from "@/components/lessons/BookLessonDialog";
 import { useI18n } from "@/i18n";
 import { getLessonsCopy } from "./lessonCopy";
 
@@ -51,6 +52,10 @@ const LessonDetails = () => {
   }, [copy.detailTitle, copy.detailsError, navigate, lessonFailure, isError, lessonId]);
 
   const lessonData = lesson?.data;
+  const bookingEnabled =
+    !!lessonData &&
+    (lessonData.booking_type === "private" || lessonData.booking_type === "group") &&
+    lessonData.publishing_status === "published";
 
   return (
     <main>
@@ -111,9 +116,18 @@ const LessonDetails = () => {
                       </h3>
                     </div>
 
-                    <div>
+                    <div className="flex flex-wrap items-center gap-2 justify-center md:justify-end">
                       {isAuthenticated && role === "student" && !lessonData.hasEnrolled && Number(lessonData.price) === 0 && (
                         <EnrollFreeLesson lessonId={lessonData.id} copy={copy} />
+                      )}
+
+                      {isAuthenticated && role === "student" && bookingEnabled && (
+                        <BookLessonDialog
+                          lessonId={lessonData.id}
+                          bookingType={lessonData.booking_type!}
+                          price={lessonData.price}
+                          language={language}
+                        />
                       )}
 
                       {isAuthenticated && role === "student" && lessonData.hasEnrolled && (
@@ -123,6 +137,16 @@ const LessonDetails = () => {
                         >
                           {copy.watch}
                         </Link>
+                      )}
+
+                      {isAuthenticated && role === "parent" && bookingEnabled && (
+                        <button
+                          type="button"
+                          onClick={() => toast.info(language === "ar" ? "اختيار الطالب سيتم تفعيله مع واجهة الأبناء." : "Child selection will be enabled with the linked-students UI.")}
+                          className="block w-fit bg-main hover:bg-main/90 rounded-[5px] text-white font-sora text-sm px-6 py-2"
+                        >
+                          {language === "ar" ? "حجز للابن" : "Book for child"}
+                        </button>
                       )}
 
                       {!isAuthenticated && (
@@ -135,6 +159,31 @@ const LessonDetails = () => {
                       )}
                     </div>
                   </div>
+
+                  {lessonData.booking_type && (
+                    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 text-sm font-sora">
+                      <div className="rounded-lg bg-white p-4 shadow-sm border">
+                        <span className="font-semibold">{language === "ar" ? "نوع الحجز" : "Booking type"}</span>
+                        <div className="mt-1">{lessonData.booking_type === "private" ? (language === "ar" ? "خاص" : "Private") : (language === "ar" ? "جماعي" : "Group")}</div>
+                      </div>
+                      <div className="rounded-lg bg-white p-4 shadow-sm border">
+                        <span className="font-semibold">{language === "ar" ? "طريقة الدرس" : "Delivery"}</span>
+                        <div className="mt-1">{lessonData.delivery_mode === "offline" ? (language === "ar" ? "حضوري" : "Offline") : (language === "ar" ? "أونلاين" : "Online")}</div>
+                      </div>
+                      {lessonData.duration_minutes && (
+                        <div className="rounded-lg bg-white p-4 shadow-sm border">
+                          <span className="font-semibold">{language === "ar" ? "المدة" : "Duration"}</span>
+                          <div className="mt-1">{lessonData.duration_minutes} {language === "ar" ? "دقيقة" : "minutes"}</div>
+                        </div>
+                      )}
+                      {lessonData.max_students && lessonData.booking_type === "group" && (
+                        <div className="rounded-lg bg-white p-4 shadow-sm border">
+                          <span className="font-semibold">{language === "ar" ? "الحد الأقصى للطلاب" : "Maximum students"}</span>
+                          <div className="mt-1">{lessonData.max_students}</div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="order-1 lg:order-2 col-span-12 lg:col-span-5">

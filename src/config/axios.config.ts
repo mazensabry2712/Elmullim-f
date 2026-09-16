@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 
 const apiBaseUrl =
   import.meta.env.VITE_API ||
-  (import.meta.env.DEV ? "http://elmoluiem-main.test" : "https://api.elmullim.com");
+  (import.meta.env.DEV ? "http://127.0.0.1:8000" : "https://api.elmullim.com");
 
 const axiosAPI = axios.create({
   baseURL: `${apiBaseUrl}/api`,

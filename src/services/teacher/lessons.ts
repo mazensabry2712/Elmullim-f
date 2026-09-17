@@ -23,6 +23,18 @@ import {
   IUpdateLecture,
 } from "@/interfaces/teachers/teacherLectures";
 
+const appendAvailability = (
+  formData: FormData,
+  availability: ICreateLesson["availability"]
+) => {
+  availability.forEach((slot, index) => {
+    formData.append(`availability[${index}][day_of_week]`, slot.day_of_week.toString());
+    formData.append(`availability[${index}][start_time]`, slot.start_time.length === 5 ? `${slot.start_time}:00` : slot.start_time);
+    formData.append(`availability[${index}][end_time]`, slot.end_time.length === 5 ? `${slot.end_time}:00` : slot.end_time);
+    formData.append(`availability[${index}][timezone]`, slot.timezone);
+  });
+};
+
 // Lessons
 export const getTeacherLessons = async (
   token: string
@@ -66,19 +78,12 @@ export const createTeacherLesson = async ({
   formData.append("price", lesson.price.toString());
   formData.append("sessions_count", lesson.sessions_count.toString());
   formData.append("logo", lesson.logo);
+  appendAvailability(formData, lesson.availability);
 
-  if (lesson.meeting_url?.trim()) {
-    formData.append("meeting_url", lesson.meeting_url.trim());
-  }
-  if (lesson.location?.trim()) {
-    formData.append("location", lesson.location.trim());
-  }
-  if (lesson.offline_visit_type?.trim()) {
-    formData.append("offline_visit_type", lesson.offline_visit_type.trim());
-  }
-  if (lesson.max_students !== undefined) {
-    formData.append("max_students", lesson.max_students.toString());
-  }
+  if (lesson.meeting_url?.trim()) formData.append("meeting_url", lesson.meeting_url.trim());
+  if (lesson.location?.trim()) formData.append("location", lesson.location.trim());
+  if (lesson.offline_visit_type?.trim()) formData.append("offline_visit_type", lesson.offline_visit_type.trim());
+  if (lesson.max_students !== undefined) formData.append("max_students", lesson.max_students.toString());
 
   const { data } = await axiosAPI.post("/teacher/lessons", formData, {
     headers: { Authorization: `Bearer ${token}` },
@@ -105,25 +110,18 @@ export const updateTeacherLesson = async ({
   formData.append("duration_minutes", lesson.duration_minutes.toString());
   formData.append("price", lesson.price.toString());
   formData.append("sessions_count", lesson.sessions_count.toString());
+  appendAvailability(formData, lesson.availability);
 
   if (lesson.logo) formData.append("logo", lesson.logo);
   if (lesson.meeting_url?.trim()) formData.append("meeting_url", lesson.meeting_url.trim());
   if (lesson.location?.trim()) formData.append("location", lesson.location.trim());
-  if (lesson.offline_visit_type?.trim()) {
-    formData.append("offline_visit_type", lesson.offline_visit_type.trim());
-  }
-  if (lesson.max_students !== undefined) {
-    formData.append("max_students", lesson.max_students.toString());
-  }
+  if (lesson.offline_visit_type?.trim()) formData.append("offline_visit_type", lesson.offline_visit_type.trim());
+  if (lesson.max_students !== undefined) formData.append("max_students", lesson.max_students.toString());
 
   formData.append("_method", "put");
-  const { data } = await axiosAPI.post(
-    `/teacher/lessons/${lesson.id}`,
-    formData,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+  const { data } = await axiosAPI.post(`/teacher/lessons/${lesson.id}`, formData, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 
   return data;
 };
@@ -164,10 +162,9 @@ export const getTeacherLessonContentById = async ({
   id: string;
   lessonId: string;
 }): Promise<ILessonContentRes> => {
-  const { data } = await axiosAPI.get(
-    `/teacher/lessons/${lessonId}/contents/${id}`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const { data } = await axiosAPI.get(`/teacher/lessons/${lessonId}/contents/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return data;
 };
 
@@ -180,10 +177,7 @@ export const createTeacherLessonContent = async ({
 }): Promise<IStatusMsg> => {
   const { data } = await axiosAPI.post(
     `/teacher/lessons/${content.lessonId}/contents`,
-    {
-      title: content.title,
-      description: content.description,
-    },
+    { title: content.title, description: content.description },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return data;
@@ -198,11 +192,7 @@ export const updateTeacherLessonContent = async ({
 }): Promise<IStatusMsg> => {
   const { data } = await axiosAPI.post(
     `/teacher/lessons/${content.lessonId}/contents/${content.id}`,
-    {
-      title: content.title,
-      description: content.description,
-      _method: "put",
-    },
+    { title: content.title, description: content.description, _method: "put" },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return data;
@@ -217,12 +207,9 @@ export const deleteTeacherLessonContent = async ({
   id: string;
   lessonId: string;
 }): Promise<IStatusMsg> => {
-  const { data } = await axiosAPI.delete(
-    `/teacher/lessons/${lessonId}/contents/${id}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+  const { data } = await axiosAPI.delete(`/teacher/lessons/${lessonId}/contents/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return data;
 };
 
@@ -232,10 +219,9 @@ export const getTeacherLessonLectures = async ({
   contentId,
   lessonId,
 }: IGetLessonLecture): Promise<ILessonLecturesRes> => {
-  const { data } = await axiosAPI.get(
-    `/teacher/lessons/${lessonId}/contents/${contentId}/lectures`,
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+  const { data } = await axiosAPI.get(`/teacher/lessons/${lessonId}/contents/${contentId}/lectures`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return data;
 };
 
@@ -245,12 +231,9 @@ export const getTeacherLessonLectureById = async ({
   lessonId,
   contentId,
 }: IGetLessonLecture): Promise<ILessonLectureRes> => {
-  const { data } = await axiosAPI.get(
-    `/teacher/lessons/${lessonId}/contents/${contentId}/lectures/${id}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
+  const { data } = await axiosAPI.get(`/teacher/lessons/${lessonId}/contents/${contentId}/lectures/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return data;
 };
 
@@ -316,8 +299,7 @@ export const uploadLessonVideo = async ({
       headers: { Authorization: `Bearer ${token}` },
       onUploadProgress: (event) => {
         if (onUploadProgress && event.total) {
-          const percent = Math.round((event.loaded * 100) / event.total);
-          onUploadProgress(percent);
+          onUploadProgress(Math.round((event.loaded * 100) / event.total));
         }
       },
     }

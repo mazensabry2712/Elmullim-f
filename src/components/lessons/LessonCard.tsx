@@ -1,13 +1,9 @@
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
-import cookieService from "@/utils/cookieService";
 import truncateTxt from "@/utils/truncateTxt";
-import { ILesson } from "@/interfaces/courses/lessons";
+import { ILesson } from "@/interfaces/lessons/lesson";
 import type { LessonsCopy } from "@/pages/lessons/lessonCopy";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 import { useI18n } from "@/i18n";
-import EnrollFreeLesson from "./EnrollFreeLesson";
 
 interface IProps {
   lesson: ILesson;
@@ -15,36 +11,54 @@ interface IProps {
 }
 
 const LessonCard = ({ lesson, copy }: IProps) => {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const role = cookieService.getRole() || "";
   const { language } = useI18n();
   const text = copy ?? getLessonsCopy(language);
 
   return (
     <article className="h-full p-3 sm:p-5 shadow-[0px_0px_40px_0px_#0E2A4614] transition-all duration-300 hover:shadow-lg rounded-[5px] space-y-5 sm:max-w-[80%] md:max-w-full mx-auto bg-white">
-      <div className="rounded-[5px] overflow-hidden relative max-h-80 sm:max-h-72 md:max-h-52">
-        <span className="absolute top-4 left-4 bg-main text-white font-sora text-sm rounded-[5px] px-2 py-0.5">
-          {language === "ar" ? "درس" : "Lesson"}
-        </span>
-        <img
-          src={lesson.logo || "/images/placeholder-img.webp"}
-          alt={text.imageAlt}
-          className="object-cover object-center"
-          loading="lazy"
-        />
-      </div>
+      <Link
+        to={`/lessons/${lesson.id}`}
+        aria-label={`${text.details}: ${lesson.title}`}
+        className="block rounded-[5px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+      >
+        <div className="rounded-[5px] overflow-hidden relative max-h-80 sm:max-h-72 md:max-h-52">
+          <span className="absolute top-4 left-4 bg-main text-white font-sora text-sm rounded-[5px] px-2 py-0.5">
+            {language === "ar" ? "درس" : "Lesson"}
+          </span>
+          <img
+            src={lesson.logo || "/images/placeholder-img.webp"}
+            alt={text.imageAlt}
+            className="object-cover object-center"
+            loading="lazy"
+          />
+        </div>
+      </Link>
 
       <div className="space-y-4">
         <div>
-          <Link to={`/lessons/${lesson.id}`} className="space-y-2 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 rounded-sm">
+          <Link
+            to={`/lessons/${lesson.id}`}
+            className="space-y-2 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 rounded-sm"
+          >
             <h3 className="text-black-blue capitalize font-semibold text-[21px] leading-[30px]">
               {lesson.title}
             </h3>
             <p className="text-[#4D5756] font-sora">
-              {truncateTxt(lesson.description, 50)}
+              {truncateTxt(lesson.description, 80)}
             </p>
           </Link>
-          <div className="my-3 flex justify-between items-center flex-wrap gap-1 pb-4 border-b-2 border-dashed border-[#4D5756]" />
+          <div className="my-3 flex justify-between items-center flex-wrap gap-2 pb-4 border-b-2 border-dashed border-[#4D5756]">
+            <span className="rounded-full bg-[#F0F1F1] px-3 py-1 text-xs font-sora">
+              {lesson.delivery_mode === "offline"
+                ? language === "ar" ? "حضوري" : "Offline"
+                : language === "ar" ? "أونلاين" : "Online"}
+            </span>
+            <span className="rounded-full bg-[#F0F1F1] px-3 py-1 text-xs font-sora">
+              {lesson.booking_type === "group"
+                ? language === "ar" ? "جماعي" : "Group"
+                : language === "ar" ? "خاص" : "Private"}
+            </span>
+          </div>
         </div>
 
         <div className="flex items-center gap-2">
@@ -60,35 +74,23 @@ const LessonCard = ({ lesson, copy }: IProps) => {
         </div>
 
         <div className="flex justify-between items-center gap-4">
-          <div className="flex items-center gap-2" aria-label={Number(lesson.price) === 0 ? text.free : `${lesson.price}`}>
+          <div
+            className="flex items-center gap-2"
+            aria-label={Number(lesson.price) === 0 ? text.free : `${lesson.price} EGP`}
+          >
             {Number(lesson.price) === 0 ? (
               <span className="text-xl">{text.free}</span>
             ) : (
-              <span className="text-main font-exo text-xl">${lesson.price}</span>
+              <span className="text-main font-exo text-xl">{lesson.price} EGP</span>
             )}
           </div>
 
-          {isAuthenticated && role === "student" && !lesson.hasEnrolled && Number(lesson.price) === 0 && (
-            <EnrollFreeLesson lessonId={lesson.id} copy={copy} />
-          )}
-
-          {isAuthenticated && role === "student" && lesson.hasEnrolled && (
-            <Link
-              to={`/lessons/${lesson.id}/view`}
-              className="block w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
-            >
-              {text.watch}
-            </Link>
-          )}
-
-          {!isAuthenticated && (
-            <Link
-              to="/sign-in"
-              className="block w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
-            >
-              {text.enroll}
-            </Link>
-          )}
+          <Link
+            to={`/lessons/${lesson.id}`}
+            className="block w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+          >
+            {text.details}
+          </Link>
         </div>
       </div>
     </article>

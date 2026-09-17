@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, MapPin, Search } from "lucide-react";
 import { useRef, useState } from "react";
+import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 
 type LocationResult = {
@@ -33,6 +34,7 @@ const LocationPicker = ({
   const isArabic = language === "ar";
   const [query, setQuery] = useState(value || "");
   const [results, setResults] = useState<LocationResult[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
   const [isSearching, setIsSearching] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const lastLookupAt = useRef(0);
@@ -82,6 +84,7 @@ const LocationPicker = ({
 
     setQuery(result.display_name);
     setResults([]);
+    setHasSearched(false);
     onChange({
       address: result.display_name,
       latitude: nextLatitude,
@@ -94,6 +97,7 @@ const LocationPicker = ({
     if (!normalizedQuery || isSearching || disabled) return;
 
     setIsSearching(true);
+    setHasSearched(true);
     try {
       await waitForRateLimit();
       const url = new URL(`${NOMINATIM_URL}/search`);
@@ -110,12 +114,9 @@ const LocationPicker = ({
       if (!response.ok) throw new Error("Location search failed");
       const data = (await response.json()) as LocationResult[];
       setResults(data);
-      if (data.length === 0) {
-        setResults([]);
-      }
     } catch {
       setResults([]);
-      window.dispatchEvent(new CustomEvent("toast-location-search-error"));
+      toast.error(text.searchError);
     } finally {
       setIsSearching(false);
     }
@@ -144,7 +145,7 @@ const LocationPicker = ({
 
   const useCurrentLocation = () => {
     if (!navigator.geolocation || isLocating || disabled) {
-      window.dispatchEvent(new CustomEvent("toast-location-error"));
+      toast.error(text.locationError);
       return;
     }
 
@@ -156,6 +157,8 @@ const LocationPicker = ({
         const address = await reverseGeocode(nextLatitude, nextLongitude);
         const nextAddress = address || query || (isArabic ? "موقعي الحالي" : "Current location");
         setQuery(nextAddress);
+        setResults([]);
+        setHasSearched(false);
         onChange({
           address: nextAddress,
           latitude: nextLatitude,
@@ -165,7 +168,7 @@ const LocationPicker = ({
       },
       () => {
         setIsLocating(false);
-        window.dispatchEvent(new CustomEvent("toast-location-error"));
+        toast.error(text.locationError);
       },
       { enableHighAccuracy: true, timeout: 10000 },
     );
@@ -180,6 +183,7 @@ const LocationPicker = ({
           onChange={(event) => {
             setQuery(event.target.value);
             setResults([]);
+            setHasSearched(false);
           }}
           disabled={disabled || isSearching || isLocating}
           placeholder={placeholder || text.placeholder}
@@ -195,7 +199,7 @@ const LocationPicker = ({
         </Button>
       </div>
 
-      {latitude != null && longitude != null && query.trim() && results.length === 0 && (
+      {latitude != null && longitude != null && query.trim() && results.length === 0 && !hasSearched && (
         <p className="text-xs text-muted-foreground">{text.selected}</p>
       )}
 
@@ -216,7 +220,7 @@ const LocationPicker = ({
         </div>
       )}
 
-      {isSearching === false && query.trim() && results.length === 0 && latitude == null && longitude == null && (
+      {hasSearched && !isSearching && results.length === 0 && (
         <p className="text-xs text-muted-foreground">{text.noResults}</p>
       )}
 

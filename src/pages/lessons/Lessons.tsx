@@ -14,17 +14,47 @@ import { getLessonsCopy } from "./lessonCopy";
 const Lessons = () => {
   const { language } = useI18n();
   const copy = getLessonsCopy(language);
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const search = useDebounce(searchParams.get("q"), 500) ?? undefined;
   const token = cookieService.getToken() || undefined;
+
+  const deliveryMode = searchParams.get("delivery_mode") as "online" | "offline" | null;
+  const bookingType = searchParams.get("booking_type") as "private" | "group" | null;
+  const grade = searchParams.get("grade") || undefined;
+  const location = searchParams.get("location") || undefined;
+  const minPriceValue = searchParams.get("min_price");
+  const maxPriceValue = searchParams.get("max_price");
+  const minPrice = minPriceValue !== null && minPriceValue !== "" ? Number(minPriceValue) : undefined;
+  const maxPrice = maxPriceValue !== null && maxPriceValue !== "" ? Number(maxPriceValue) : undefined;
+
   const { data: lessons, isLoading, isError, refetch } = useGetLessons({
     q: search,
-    ...(token && { token }),
+    token,
+    ...(deliveryMode && { delivery_mode: deliveryMode }),
+    ...(bookingType && { booking_type: bookingType }),
+    ...(grade && { grade }),
+    ...(location && { location }),
+    ...(Number.isFinite(minPrice) && { min_price: minPrice }),
+    ...(Number.isFinite(maxPrice) && { max_price: maxPrice }),
   });
 
   useEffect(() => {
     document.title = `${copy.title} | Elmullim`;
   }, [copy.title]);
+
+  const updateFilter = (key: string, value: string) => {
+    const next = new URLSearchParams(searchParams);
+    if (value) next.set(key, value);
+    else next.delete(key);
+    setSearchParams(next);
+  };
+
+  const clearFilters = () => {
+    const next = new URLSearchParams();
+    const currentQuery = searchParams.get("q");
+    if (currentQuery) next.set("q", currentQuery);
+    setSearchParams(next);
+  };
 
   return (
     <main>
@@ -53,8 +83,99 @@ const Lessons = () => {
       >
         <div className="container py-12 md:py-24">
           <h2 id="lessons-title" className="sr-only">{copy.title}</h2>
+
           <div className="mb-5">
             <SearchInput placeholder={copy.searchPlaceholder} ariaLabel={copy.searchLabel} />
+          </div>
+
+          <div className="mb-8 rounded-xl border border-gray-200 bg-[#F0F1F1] p-4 font-sora">
+            <div className="mb-4 flex items-center justify-between gap-4">
+              <h3 className="text-lg font-semibold text-black-blue">{copy.filters}</h3>
+              <button
+                type="button"
+                onClick={clearFilters}
+                className="text-sm text-main hover:underline"
+              >
+                {copy.clearFilters}
+              </button>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              <label className="text-sm">
+                <span className="block mb-2 text-black-blue">{copy.delivery}</span>
+                <select
+                  aria-label={copy.delivery}
+                  value={deliveryMode ?? ""}
+                  onChange={(event) => updateFilter("delivery_mode", event.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                >
+                  <option value="">{copy.allTypes}</option>
+                  <option value="online">{copy.online}</option>
+                  <option value="offline">{copy.offline}</option>
+                </select>
+              </label>
+
+              <label className="text-sm">
+                <span className="block mb-2 text-black-blue">{copy.bookingType}</span>
+                <select
+                  aria-label={copy.bookingType}
+                  value={bookingType ?? ""}
+                  onChange={(event) => updateFilter("booking_type", event.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                >
+                  <option value="">{copy.allTypes}</option>
+                  <option value="private">{copy.private}</option>
+                  <option value="group">{copy.group}</option>
+                </select>
+              </label>
+
+              <label className="text-sm">
+                <span className="block mb-2 text-black-blue">{copy.grade}</span>
+                <input
+                  aria-label={copy.grade}
+                  value={grade ?? ""}
+                  onChange={(event) => updateFilter("grade", event.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                  placeholder={copy.grade}
+                />
+              </label>
+
+              <label className="text-sm">
+                <span className="block mb-2 text-black-blue">{copy.location}</span>
+                <input
+                  aria-label={copy.location}
+                  value={location ?? ""}
+                  onChange={(event) => updateFilter("location", event.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                  placeholder={copy.location}
+                  disabled={deliveryMode === "online"}
+                />
+              </label>
+
+              <label className="text-sm">
+                <span className="block mb-2 text-black-blue">{copy.minPrice}</span>
+                <input
+                  type="number"
+                  min="0"
+                  aria-label={copy.minPrice}
+                  value={minPriceValue ?? ""}
+                  onChange={(event) => updateFilter("min_price", event.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                />
+              </label>
+
+              <label className="text-sm">
+                <span className="block mb-2 text-black-blue">{copy.maxPrice}</span>
+                <input
+                  type="number"
+                  min="0"
+                  aria-label={copy.maxPrice}
+                  value={maxPriceValue ?? ""}
+                  onChange={(event) => updateFilter("max_price", event.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                />
+              </label>
+            </div>
           </div>
 
           {isLoading ? (

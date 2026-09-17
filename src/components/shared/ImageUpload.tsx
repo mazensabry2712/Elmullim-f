@@ -37,17 +37,18 @@ const ImagePreview = ({
 interface IProps {
   file: File | null;
   setFile: Dispatch<SetStateAction<File | null>>;
-  title: string;
+  title?: string;
 }
 const ImageUpload = ({ title, file, setFile }: IProps) => {
   const { language } = useI18n();
   const removeImageLabel = language === "ar" ? "حذف الصورة" : "Remove image";
   const dragDropLabel = language === "ar" ? "اسحب الصورة وأفلتها" : "Drag and Drop";
+  const imageTitle = title ?? (language === "ar" ? "الصورة" : "Image");
 
   return (
     <div className="w-full max-w-full">
       <Label htmlFor="img" className="cursor-pointer">
-        {title}
+        {imageTitle}
       </Label>
       <div className="mt-1 w-full">
         {file ? (

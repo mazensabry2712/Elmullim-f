@@ -2,8 +2,8 @@ import QueryKeys from "@/enums";
 import {
   ICreateLessonContent,
   IUpdateLessonContent,
-} from "@/interfaces/courses/contents";
-import { IGetLessonLecture } from "@/interfaces/courses/lessons";
+} from "@/interfaces/lessons/content";
+import { IGetLessonLecture } from "@/interfaces/lessons/lecture";
 import {
   ICreateLecture,
   IUpdateLecture,
@@ -131,7 +131,6 @@ export const useCreateTeacherLessonContent = () => {
       token: string;
       content: ICreateLessonContent;
     }) => createTeacherLessonContent({ token, content }),
-
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_LESSON_CONTENTS],
@@ -150,7 +149,6 @@ export const useUpdateTeacherLessonContent = () => {
       token: string;
       content: IUpdateLessonContent;
     }) => updateTeacherLessonContent({ token, content }),
-
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_LESSON_CONTENTS],
@@ -171,7 +169,6 @@ export const useDeleteTeacherLessonContent = () => {
       id: string;
       lessonId: string;
     }) => deleteTeacherLessonContent({ token, id, lessonId }),
-
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_LESSON_CONTENTS],

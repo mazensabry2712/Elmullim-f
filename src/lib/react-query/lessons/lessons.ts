@@ -1,17 +1,19 @@
 import QueryKeys from "@/enums";
 import {
   getAllLessons,
+  getLessonAvailability,
   getLessonById,
   getLessonContents,
   getLessonLectures,
   getRelatedLesson,
+  ILessonFilters,
 } from "@/services/lessons/lessons";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetLessons = ({ q, token }: { token?: string; q?: string }) =>
+export const useGetLessons = (filters: ILessonFilters & { token?: string }) =>
   useQuery({
-    queryKey: [QueryKeys.LESSONS, q],
-    queryFn: () => getAllLessons({ q, token }),
+    queryKey: [QueryKeys.LESSONS, filters],
+    queryFn: () => getAllLessons(filters),
   });
 
 export const useGetLessonById = ({
@@ -24,6 +26,13 @@ export const useGetLessonById = ({
   useQuery({
     queryKey: [QueryKeys.LESSON, lessonId],
     queryFn: () => getLessonById({ token, lessonId }),
+    enabled: !!lessonId,
+  });
+
+export const useGetLessonAvailability = (lessonId: number) =>
+  useQuery({
+    queryKey: [QueryKeys.LESSON_AVAILABILITY, lessonId],
+    queryFn: () => getLessonAvailability(lessonId),
     enabled: !!lessonId,
   });
 
@@ -55,8 +64,8 @@ export const useGetRelatedLesson = ({
   lessonId,
 }: {
   teacherId: number;
-  token?: string;
   lessonId: number;
+  token?: string;
 }) =>
   useQuery({
     queryKey: [QueryKeys.RELATED_LESSON, teacherId, lessonId],

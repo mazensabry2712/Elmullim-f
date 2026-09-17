@@ -2,7 +2,7 @@ import RelatedLessons from "@/components/lessons/RelatedLessons";
 import ViewLessonContent from "@/components/lessons/ViewLessonContent";
 import InstructorDetails from "@/components/shared/InstructorDetails";
 import VideoPlayer from "@/components/shared/VideoPlayer";
-import { ILecture } from "@/interfaces/courses/lectures";
+import { ILessonLecture } from "@/interfaces/lessons/lecture";
 import { ITeacher } from "@/interfaces/teachers/teacherProfile";
 import {
   useGetLessonById,
@@ -38,7 +38,7 @@ const ViewLesson = () => {
   const { data: contents, isLoading: isLoadingContent } = useGetLessonContents(
     numericLessonId
   );
-  const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
+  const selectedLecture = (location.state as { lecture?: ILessonLecture } | null)?.lecture;
   const firstContentId = contents?.data?.[0]?.id;
   const { data: lectures, isLoading: isLoadingLectures } = useGetLessonLectures({
     token,
@@ -66,13 +66,8 @@ const ViewLesson = () => {
     if (!isLoading && isError) {
       toast.error(copy.detailsError);
       navigate("/lessons", { replace: true });
-      return;
     }
-
-    if (!isLoading && lesson?.data && !lesson.data.hasEnrolled) {
-      navigate(`/lessons/${numericLessonId}`, { replace: true });
-    }
-  }, [validLessonId, navigate, lessonFailure, isError, isLoading, lesson, numericLessonId, copy.detailsError]);
+  }, [validLessonId, navigate, lessonFailure, isError, isLoading, numericLessonId, copy.detailsError]);
 
   if (!validLessonId) return null;
 
@@ -87,7 +82,7 @@ const ViewLesson = () => {
     );
   }
 
-  if (isError || !lesson?.data || !lesson.data.hasEnrolled) {
+  if (isError || !lesson?.data) {
     return (
       <main>
         <div className="container py-24 text-center" role="alert">

@@ -17,6 +17,7 @@ enum QueryKeys {
   COURSE_LECTURES = "courseLectures",
   LESSONS = "lessons",
   LESSON = "lesson",
+  LESSON_AVAILABILITY = "lessonAvailability",
   LESSON_CONTENT = "lessonContent",
   LESSON_LECTURES = "lessonLectures",
   RELATED_LESSON = "relatedLesson",

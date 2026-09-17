@@ -1,6 +1,6 @@
 import { containerVariants, itemVariants } from "@/animations";
 import { motion } from "framer-motion";
-import { ILesson } from "@/interfaces/courses/lessons";
+import { ILesson } from "@/interfaces/lessons/lesson";
 import type { LessonsCopy } from "@/pages/lessons/lessonCopy";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 import { useI18n } from "@/i18n";

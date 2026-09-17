@@ -80,14 +80,14 @@ The booking dialog loads `/api/parent/me` and uses the linked `students` data fo
 
 ## Environment
 
-For local Laravel Herd development:
+For local development using the Laravel server started with `php artisan serve --host=127.0.0.1 --port=8000`:
 
 ```env
-VITE_API=http://Elmullim-b.test
+VITE_API=http://127.0.0.1:8000
 VITE_ENV=local
 ```
 
-`axios.config.ts` also uses the Herd URL as the development fallback and the production API URL only outside development.
+The checked-in `.env.development` uses this same API target, so the frontend does not depend on a Herd hostname that may not resolve on every machine. Production continues to use the configured production API URL.
 
 ## Testing
 
@@ -99,13 +99,13 @@ npm run build
 npm run lint
 ```
 
-Booking dialog tests cover student and parent flows. `e2e/booking.spec.ts` covers the real browser request against the Herd backend API.
+Booking dialog tests cover student and parent flows. `e2e/booking.spec.ts` covers the real browser request against the local Laravel API.
 
 The E2E runner can target an existing local Vite instance with:
 
 ```powershell
 $env:E2E_BASE_URL='http://localhost:5174'
-$env:E2E_API_BASE_URL='http://Elmullim-b.test'
+$env:E2E_API_BASE_URL='http://127.0.0.1:8000'
 npx playwright test
 ```
 

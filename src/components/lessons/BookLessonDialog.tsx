@@ -13,8 +13,16 @@ interface IProps {
   language: "ar" | "en";
 }
 
+interface IStudentOption {
+  id: number;
+  name: string;
+}
+
 interface IProfileResponse {
-  data?: { id?: number };
+  data?: {
+    id?: number;
+    students?: IStudentOption[];
+  };
 }
 
 const statusCopy: Record<BookingStatus, { ar: string; en: string }> = {
@@ -37,58 +45,77 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
   const role = cookieService.getRole();
   const [open, setOpen] = useState(false);
   const [studentId, setStudentId] = useState<number | null>(null);
+  const [students, setStudents] = useState<IStudentOption[]>([]);
+  const [loadingStudents, setLoadingStudents] = useState(false);
   const [requestedStartAt, setRequestedStartAt] = useState("");
   const [customerNote, setCustomerNote] = useState("");
   const { mutateAsync, isPending } = useCreateBooking();
 
   useEffect(() => {
-    if (!open || role !== "student" || !token) return;
+    if (!open || !token || (role !== "student" && role !== "parent")) return;
+
+    setLoadingStudents(true);
+    const endpoint = role === "student" ? "/student/me" : "/parent/me";
 
     axiosAPI
-      .get<IProfileResponse>("/student/me", {
+      .get<IProfileResponse>(endpoint, {
         headers: { Authorization: `Bearer ${token}` },
       })
       .then(({ data }) => {
-        if (data.data?.id) setStudentId(data.data.id);
+        if (role === "student") {
+          if (data.data?.id) setStudentId(data.data.id);
+          return;
+        }
+
+        const linkedStudents = data.data?.students ?? [];
+        setStudents(linkedStudents);
+        setStudentId(linkedStudents[0]?.id ?? null);
       })
       .catch(() => {
-        toast.error(language === "ar" ? "تعذر تحميل بيانات الطالب" : "Could not load student profile");
-      });
+        toast.error(language === "ar" ? "تعذر تحميل بيانات الحجز" : "Could not load booking data");
+      })
+      .finally(() => setLoadingStudents(false));
   }, [open, role, token, language]);
 
   const copy = language === "ar"
     ? {
         book: "احجز الآن",
         title: "حجز الدرس",
+        student: "الطالب",
+        chooseStudent: "اختر الطالب",
+        noStudents: "لا يوجد أبناء مرتبطون بهذا الحساب.",
         date: "التاريخ والوقت المطلوب",
         note: "ملاحظة (اختياري)",
         confirm: "تأكيد طلب الحجز",
         cancel: "إلغاء",
-        login: "يجب تسجيل الدخول كطالب للحجز.",
-        parentLater: "حجز ولي الأمر لطفل سيتم تفعيله مع واجهة اختيار الأبناء.",
+        login: "يجب تسجيل الدخول كطالب أو ولي أمر للحجز.",
         success: "تم إنشاء الحجز بنجاح",
         failed: "تعذر إنشاء الحجز",
+        loading: "جاري تحميل بيانات الحجز...",
       }
     : {
         book: "Book now",
         title: "Book lesson",
+        student: "Student",
+        chooseStudent: "Choose student",
+        noStudents: "No linked students were found for this parent account.",
         date: "Requested date & time",
         note: "Note (optional)",
         confirm: "Submit booking",
         cancel: "Cancel",
-        login: "You must be signed in as a student to book.",
-        parentLater: "Parent booking will use the child selector when the linked-students endpoint is available.",
+        login: "You must be signed in as a student or parent to book.",
         success: "Booking created successfully",
         failed: "Could not create booking",
+        loading: "Loading booking data...",
       };
 
   const submit = async () => {
-    if (role !== "student") {
-      toast.info(role === "parent" ? copy.parentLater : copy.login);
+    if (role !== "student" && role !== "parent") {
+      toast.info(copy.login);
       return;
     }
     if (!studentId || !requestedStartAt) {
-      toast.error(language === "ar" ? "اختر موعد الحجز" : "Select a booking date and time");
+      toast.error(language === "ar" ? "اختر الطالب والموعد" : "Select a student and booking time");
       return;
     }
 
@@ -156,6 +183,34 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
                 </div>
               </div>
 
+              {role === "parent" && (
+                <label className="block text-sm font-medium">
+                  {copy.student}
+                  {loadingStudents ? (
+                    <div className="mt-2 rounded-md bg-gray-100 px-3 py-2 text-gray-600" role="status">
+                      {copy.loading}
+                    </div>
+                  ) : students.length === 0 ? (
+                    <div className="mt-2 rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">
+                      {copy.noStudents}
+                    </div>
+                  ) : (
+                    <select
+                      aria-label={copy.chooseStudent}
+                      value={studentId ?? ""}
+                      onChange={(event) => setStudentId(Number(event.target.value))}
+                      className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main"
+                    >
+                      {students.map((student) => (
+                        <option key={student.id} value={student.id}>
+                          {student.name}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </label>
+              )}
+
               <label className="block text-sm font-medium">
                 {copy.date}
                 <input
@@ -189,7 +244,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
                 <button
                   type="button"
                   onClick={submit}
-                  disabled={isPending}
+                  disabled={isPending || loadingStudents || (role === "parent" && students.length === 0)}
                   className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-2 text-white disabled:opacity-60"
                 >
                   {isPending && <Loader2 className="animate-spin" size={18} />}

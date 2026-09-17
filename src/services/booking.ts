@@ -1,5 +1,5 @@
 import axiosAPI from "@/config/axios.config";
-import { IBookingResponse, ICreateBooking } from "@/interfaces/bookings/booking";
+import { IBooking, IBookingResponse, ICreateBooking } from "@/interfaces/bookings/booking";
 
 const authHeaders = (token: string) => ({
   Authorization: `Bearer ${token}`,

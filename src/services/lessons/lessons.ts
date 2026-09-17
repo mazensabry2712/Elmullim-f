@@ -1,12 +1,13 @@
 import axiosAPI from "@/config/axios.config";
-import { IContentsRes } from "@/interfaces/courses/contents";
-import { ILecturesRes } from "@/interfaces/courses/lectures";
-import { ILessonRes, ILessonsRes } from "@/interfaces/lessons/lesson";
+import { ILessonContentRes } from "@/interfaces/lessons/content";
+import { ILessonLecturesRes } from "@/interfaces/lessons/lecture";
+import { ILessonRes, ILessonsRes, LessonBookingType, LessonDeliveryMode } from "@/interfaces/lessons/lesson";
 
 export interface ILessonFilters {
   q?: string;
-  delivery_mode?: "online" | "offline";
-  booking_type?: "private" | "group";
+  delivery_mode?: LessonDeliveryMode;
+  booking_type?: LessonBookingType;
+  education_level_id?: number;
   subject_id?: number;
   grade?: string;
   min_price?: number;
@@ -24,6 +25,7 @@ export const getAllLessons = async ({
   if (q?.trim()) params.set("q", q.trim());
   if (filters.delivery_mode) params.set("delivery_mode", filters.delivery_mode);
   if (filters.booking_type) params.set("booking_type", filters.booking_type);
+  if (filters.education_level_id) params.set("education_level_id", String(filters.education_level_id));
   if (filters.subject_id) params.set("subject_id", String(filters.subject_id));
   if (filters.grade?.trim()) params.set("grade", filters.grade.trim());
   if (typeof filters.min_price === "number") params.set("min_price", String(filters.min_price));
@@ -56,7 +58,7 @@ export const getLessonById = async ({
 
 export const getLessonContents = async (
   lessonId: number
-): Promise<IContentsRes> => {
+): Promise<ILessonContentRes> => {
   const { data } = await axiosAPI.get(`/lessons/${lessonId}/contents`);
   return data;
 };
@@ -69,7 +71,7 @@ export const getLessonLectures = async ({
   token: string;
   lessonId: number;
   contentId: number;
-}): Promise<ILecturesRes> => {
+}): Promise<ILessonLecturesRes> => {
   const { data } = await axiosAPI.get(
     `/lessons/${lessonId}/${contentId}/lectures`,
     {

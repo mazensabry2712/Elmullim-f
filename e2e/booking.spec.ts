@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-const apiBaseURL = process.env.E2E_API_BASE_URL || "http://Elmullim-b.test";
+const apiBaseURL = process.env.E2E_API_BASE_URL || "http://127.0.0.1:8000";
 const studentEmail = process.env.E2E_STUDENT_EMAIL || "student@elmullim.test";
 const studentPassword = process.env.E2E_STUDENT_PASSWORD || "Student@12345";
 
@@ -24,7 +24,8 @@ test("student can create and cancel a booking through the real API", async ({ pa
   expect(lessonsResponse.ok()).toBeTruthy();
 
   const lessonsBody = await lessonsResponse.json();
-  const lesson = lessonsBody.data.find(
+  const lessons = Array.isArray(lessonsBody.data) ? lessonsBody.data : [];
+  const lesson = lessons.find(
     (item: { id: number; booking_type?: string; publishing_status?: string }) =>
       (item.booking_type === "private" || item.booking_type === "group") &&
       item.publishing_status === "published"
@@ -80,19 +81,19 @@ test("student can create and cancel a booking through the real API", async ({ pa
 
   await page.goto(`/lessons/${lesson.id}`);
 
-  const bookButton = page.getByRole("button", { name: "Book now" });
+  const bookButton = page.getByRole("button", { name: /Book now/i });
   await expect(bookButton).toBeVisible();
   await bookButton.click();
 
   const requestedTime = "2099-01-10T20:00";
-  await page.getByLabel("Requested date & time").fill(requestedTime);
+  await page.getByLabel(/Requested date & time/i).fill(requestedTime);
 
   const bookingResponsePromise = page.waitForResponse((response) =>
     response.url().includes(`/api/lessons/${lesson.id}/bookings`) &&
     response.request().method() === "POST"
   );
 
-  await page.getByRole("button", { name: "Submit booking" }).click();
+  await page.getByRole("button", { name: /Submit booking/i }).click();
 
   const bookingResponse = await bookingResponsePromise;
   expect(bookingResponse.ok()).toBeTruthy();

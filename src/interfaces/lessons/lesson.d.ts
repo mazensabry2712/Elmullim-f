@@ -1,4 +1,5 @@
 import { ITeacher } from "../teachers/teacherProfile";
+import { ILessonAvailabilitySlot } from "./availability";
 
 export type LessonDeliveryMode = "online" | "offline";
 export type LessonBookingType = "private" | "group";
@@ -35,6 +36,7 @@ export interface ILesson {
   offline_visit_type?: string | null;
   max_students?: number | null;
   publishing_status?: LessonPublishingStatus;
+  availability?: ILessonAvailabilitySlot[];
   created_at: string;
   updated_at: string;
 }

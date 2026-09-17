@@ -2,21 +2,38 @@
 
 ## Scope
 
-This document records the frontend implementation corresponding to the Booking Domain Backend feature.
+This document records the frontend implementation corresponding to the Booking, Payment, and Session backend slices.
 
-## Backend Contract Used
+## API Contract Used
+
+### Booking
 
 - `POST /api/lessons/{lesson_id}/bookings`
+- `GET /api/bookings`
 - `GET /api/bookings/{booking_id}`
-- Student and Parent authentication are supported by the backend contract.
-- Booking creation requires:
-  - `student_id`
-  - `requested_start_at`
-  - optional `customer_note`
+- `POST /api/bookings/{booking_id}/respond`
+- `POST /api/bookings/{booking_id}/cancel`
+- `GET /api/teacher/bookings`
+- `POST /api/teacher/bookings/{booking_id}/accept`
+- `POST /api/teacher/bookings/{booking_id}/reject`
+- `POST /api/teacher/bookings/{booking_id}/propose`
 
-## Current Frontend Scope
+### Payment
 
-### Student
+- `POST /api/student/payment/booking/initiate`
+- `POST /api/parent/payment/booking/initiate`
+- Paymob redirect URL is opened when returned by the backend.
+- Booking confirmation remains backend/webhook driven.
+
+### Sessions
+
+- `GET /api/schedule`
+- `GET /api/teacher/schedule`
+- `GET /api/sessions/{session_id}`
+- `POST /api/bookings/{booking_id}/join`
+- `POST /api/teacher/sessions/{session_id}/status`
+
+## Student
 
 Implemented on Lesson Details:
 
@@ -24,26 +41,57 @@ Implemented on Lesson Details:
 2. Frontend loads the authenticated student's id from `/api/student/me`.
 3. Student selects requested date/time.
 4. Student may add a note.
-5. Frontend sends the real booking request to the backend.
-6. The returned backend status is shown to the user.
+5. Frontend sends the real booking request.
+6. Backend status is shown to the user.
 
-Private lessons are presented as requiring teacher approval. Group lessons are presented as starting with a booking request.
+Private lessons remain pending teacher approval. Group lessons follow the backend group flow.
 
-### Parent
+## Parent
 
-The backend supports Parent booking with `student_id`, but the current frontend does not yet guess or fabricate the linked-student list. The Parent button remains a documented integration point until a dedicated linked-students endpoint/data contract is available in the frontend.
+The booking dialog loads `/api/parent/me` and uses the linked `students` data for child selection. Parent booking/payment requests preserve the child as the booking beneficiary and the parent as the actor.
 
-## Important Rules
+## Booking Management
 
-- Frontend does not invent booking status transitions.
-- Backend remains the source of truth for authorization and booking status.
-- Student beneficiary and booking actor remain separate backend concepts.
-- Payment confirmation is intentionally not implemented here; it belongs to the payment phase.
-- Teacher accept/reject UI belongs to the teacher booking-management frontend step and consumes the existing backend endpoints.
+`/bookings` provides:
 
-## Verification
+- Current status.
+- Requested/proposed/confirmed time.
+- Student information for parents.
+- Cancellation for eligible states.
+- Accept/reject of teacher reschedule proposals.
+- Booking payment action when the backend says the booking is payable.
+- Link to the schedule.
 
-Expected local checks:
+`/profile/teacher/bookings` provides:
+
+- Teacher booking list.
+- Accept.
+- Reject with optional note.
+- Propose a new time with optional note.
+
+## Schedule / Sessions
+
+`/schedule` is role-aware:
+
+- Student/Parent see their scheduled sessions.
+- Teacher sees teaching schedule.
+- Student/Parent can join an available session.
+- Teacher can start, complete, or cancel a session.
+
+## Environment
+
+For local Laravel Herd development:
+
+```env
+VITE_API=http://Elmullim-b.test
+VITE_ENV=local
+```
+
+`axios.config.ts` also uses the Herd URL as the development fallback and the production API URL only outside development.
+
+## Testing
+
+Automated frontend checks:
 
 ```powershell
 npm run test:run
@@ -51,12 +99,23 @@ npm run build
 npm run lint
 ```
 
-Manual verification must be performed against the real backend booking endpoints. For local integration, run the compatible backend branch `feat/booking-domain-v1` until its changes are merged to backend `main`.
+Booking dialog tests cover student and parent flows. `e2e/booking.spec.ts` covers the real browser request against the Herd backend API.
 
-## Next Frontend Work
+The E2E runner can target an existing local Vite instance with:
 
-- Parent child selector backed by a linked-students API.
-- Student/Parent booking history and detail page.
-- Teacher pending-bookings screen with Accept/Reject.
-- Booking status refresh.
-- Payment flow connected to booking after the backend payment phase.
+```powershell
+$env:E2E_BASE_URL='http://localhost:5174'
+$env:E2E_API_BASE_URL='http://Elmullim-b.test'
+npx playwright test
+```
+
+## Integration Rules
+
+- Frontend does not invent booking status transitions.
+- Backend is the source of truth for authorization, capacity, payment confirmation, and session lifecycle.
+- Customer redirect is not treated as payment confirmation; the server callback is authoritative.
+- Do not use the old free `Enroll` flow for lessons that are booking-enabled.
+
+## Remaining Extension
+
+The current session model creates one scheduled session per confirmed booking and allows group bookings for the same lesson/start time to share a session. Automatic recurring session generation from `sessions_count`, richer calendar UX, notifications, and attendance workflows remain later extensions rather than unfinished booking basics.

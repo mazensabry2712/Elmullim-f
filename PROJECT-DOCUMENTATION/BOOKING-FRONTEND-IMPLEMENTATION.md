@@ -80,14 +80,14 @@ The booking dialog loads `/api/parent/me` and uses the linked `students` data fo
 
 ## Environment
 
-For local development using the Laravel server started with `php artisan serve --host=127.0.0.1 --port=8000`:
+Local development uses the Laravel API URL provided by your local environment. With the current Elmullim Herd setup, use:
 
 ```env
-VITE_API=http://127.0.0.1:8000
+VITE_API=http://Elmullim-b.test
 VITE_ENV=local
 ```
 
-The checked-in `.env.development` uses this same API target, so the frontend does not depend on a Herd hostname that may not resolve on every machine. Production continues to use the configured production API URL.
+The value can be overridden per machine without changing application code. Production deployment should set `VITE_API` to the production API URL and use `VITE_ENV=production`.
 
 ## Testing
 
@@ -97,15 +97,16 @@ Automated frontend checks:
 npm run test:run
 npm run build
 npm run lint
+npm run test:e2e
 ```
 
 Booking dialog tests cover student and parent flows. `e2e/booking.spec.ts` covers the real browser request against the local Laravel API.
 
-The E2E runner can target an existing local Vite instance with:
+The E2E runner can target the current local setup with:
 
 ```powershell
-$env:E2E_BASE_URL='http://localhost:5174'
-$env:E2E_API_BASE_URL='http://127.0.0.1:8000'
+$env:E2E_BASE_URL="http://localhost:5173"
+$env:E2E_API_BASE_URL="http://Elmullim-b.test"
 npx playwright test
 ```
 
@@ -115,6 +116,18 @@ npx playwright test
 - Backend is the source of truth for authorization, capacity, payment confirmation, and session lifecycle.
 - Customer redirect is not treated as payment confirmation; the server callback is authoritative.
 - Do not use the old free `Enroll` flow for lessons that are booking-enabled.
+
+## Current Verification
+
+At the current Booking frontend integration checkpoint:
+
+- `npm run test:run` → 36 test files / 83 tests passed.
+- `npm run build` → passed.
+- `npm run lint` → 0 errors / 2 existing warnings.
+- `npm run test:e2e` → 2 tests passed.
+- Real Booking E2E → student login, lesson lookup, browser booking submission, backend status validation, and cleanup all passed.
+
+The non-blocking test output still includes existing React/JSDOM warnings and the stale Browserslist `caniuse-lite` notice; these do not currently fail the suite.
 
 ## Remaining Extension
 

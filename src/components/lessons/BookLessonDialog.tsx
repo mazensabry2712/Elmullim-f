@@ -1,10 +1,12 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { toast } from "react-toastify";
 import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import { useCreateBooking } from "@/lib/react-query/booking";
 import { BookingStatus } from "@/interfaces/bookings/booking";
+import { useGetLessonAvailability } from "@/lib/react-query/lessons/lessons";
+import { ILessonAvailabilitySlot } from "@/interfaces/lessons/availability";
 
 interface IProps {
   lessonId: number;
@@ -40,6 +42,55 @@ const statusCopy: Record<BookingStatus, { ar: string; en: string }> = {
   disputed: { ar: "الحجز محل نزاع", en: "Disputed" },
 };
 
+const isoWeekdayFromDate = (date: string) => {
+  const [year, month, day] = date.split("-").map(Number);
+  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
+  return weekday === 0 ? 7 : weekday;
+};
+
+const getTimeZoneOffsetMs = (date: Date, timeZone: string) => {
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+
+  const values = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
+  const asUtc = Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day), Number(values.hour), Number(values.minute), Number(values.second));
+  return asUtc - date.getTime();
+};
+
+const zonedTimeToIso = (date: string, time: string, timeZone: string) => {
+  const [year, month, day] = date.split("-").map(Number);
+  const [hour, minute] = time.split(":").map(Number);
+  const naiveUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
+  const offset = getTimeZoneOffsetMs(naiveUtc, timeZone);
+  return new Date(naiveUtc.getTime() - offset).toISOString();
+};
+
+const addMinutes = (time: string, minutes: number) => {
+  const [hours, mins] = time.split(":").map(Number);
+  const total = hours * 60 + mins + minutes;
+  const hh = Math.floor(total / 60);
+  const mm = total % 60;
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+};
+
+const timeToMinutes = (time: string) => {
+  const [hours, minutes] = time.split(":").map(Number);
+  return hours * 60 + minutes;
+};
+
+const getTodayInputValue = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+};
+
 const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) => {
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
@@ -47,8 +98,10 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
   const [studentId, setStudentId] = useState<number | null>(null);
   const [students, setStudents] = useState<IStudentOption[]>([]);
   const [loadingStudents, setLoadingStudents] = useState(false);
-  const [requestedStartAt, setRequestedStartAt] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
   const [customerNote, setCustomerNote] = useState("");
+  const { data: availability, isLoading: loadingAvailability, isError: availabilityError } = useGetLessonAvailability(lessonId);
   const { mutateAsync, isPending } = useCreateBooking();
 
   useEffect(() => {
@@ -58,9 +111,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
     const endpoint = role === "student" ? "/student/me" : "/parent/me";
 
     axiosAPI
-      .get<IProfileResponse>(endpoint, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+      .get<IProfileResponse>(endpoint, { headers: { Authorization: `Bearer ${token}` } })
       .then(({ data }) => {
         if (role === "student") {
           if (data.data?.id) setStudentId(data.data.id);
@@ -71,9 +122,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
         setStudents(linkedStudents);
         setStudentId(linkedStudents[0]?.id ?? null);
       })
-      .catch(() => {
-        toast.error(language === "ar" ? "تعذر تحميل بيانات الحجز" : "Could not load booking data");
-      })
+      .catch(() => toast.error(language === "ar" ? "تعذر تحميل بيانات الحجز" : "Could not load booking data"))
       .finally(() => setLoadingStudents(false));
   }, [open, role, token, language]);
 
@@ -84,7 +133,9 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
         student: "الطالب",
         chooseStudent: "اختر الطالب",
         noStudents: "لا يوجد أبناء مرتبطون بهذا الحساب.",
-        date: "التاريخ والوقت المطلوب",
+        date: "اختر التاريخ",
+        time: "اختر الموعد المتاح",
+        noTimes: "لا توجد مواعيد متاحة في هذا اليوم.",
         note: "ملاحظة (اختياري)",
         confirm: "تأكيد طلب الحجز",
         cancel: "إلغاء",
@@ -92,6 +143,8 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
         success: "تم إنشاء الحجز بنجاح",
         failed: "تعذر إنشاء الحجز",
         loading: "جاري تحميل بيانات الحجز...",
+        availabilityLoading: "جاري تحميل المواعيد...",
+        availabilityError: "تعذر تحميل المواعيد المتاحة.",
       }
     : {
         book: "Book now",
@@ -99,7 +152,9 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
         student: "Student",
         chooseStudent: "Choose student",
         noStudents: "No linked students were found for this parent account.",
-        date: "Requested date & time",
+        date: "Choose date",
+        time: "Choose available time",
+        noTimes: "No available times for this date.",
         note: "Note (optional)",
         confirm: "Submit booking",
         cancel: "Cancel",
@@ -107,17 +162,52 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
         success: "Booking created successfully",
         failed: "Could not create booking",
         loading: "Loading booking data...",
+        availabilityLoading: "Loading available times...",
+        availabilityError: "Could not load available times.",
       };
+
+  const availableSlots = availability?.data ?? [];
+  const firstTimezone = availableSlots[0]?.timezone || "Africa/Cairo";
+  const minimumDate = getTodayInputValue();
+
+  const timesForDate = useMemo(() => {
+    if (!selectedDate) return [];
+    const weekday = isoWeekdayFromDate(selectedDate);
+    const lessonDuration = 60;
+    const candidates: Array<{ value: string; label: string; timezone: string }> = [];
+
+    availableSlots
+      .filter((slot: ILessonAvailabilitySlot) => slot.is_active && slot.day_of_week === weekday)
+      .forEach((slot) => {
+        const start = timeToMinutes(slot.start_time.slice(0, 5));
+        const end = timeToMinutes(slot.end_time.slice(0, 5));
+        const starts = new Set<number>();
+        for (let cursor = start; cursor + lessonDuration <= end; cursor += lessonDuration) starts.add(cursor);
+
+        starts.forEach((minutes) => {
+          const time = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
+          candidates.push({ value: `${time}|${slot.timezone}`, label: `${time} (${slot.timezone})`, timezone: slot.timezone });
+        });
+      });
+
+    return Array.from(new Map(candidates.map((item) => [item.value, item])).values()).sort((a, b) => a.value.localeCompare(b.value));
+  }, [availableSlots, selectedDate]);
+
+  useEffect(() => {
+    if (!timesForDate.some((item) => item.value === selectedTime)) setSelectedTime("");
+  }, [timesForDate, selectedTime]);
 
   const submit = async () => {
     if (role !== "student" && role !== "parent") {
       toast.info(copy.login);
       return;
     }
-    if (!studentId || !requestedStartAt) {
-      toast.error(language === "ar" ? "اختر الطالب والموعد" : "Select a student and booking time");
+    if (!studentId || !selectedDate || !selectedTime) {
+      toast.error(language === "ar" ? "اختر الطالب والتاريخ والموعد" : "Select a student, date, and available time");
       return;
     }
+
+    const [time, timezone] = selectedTime.split("|");
 
     try {
       const response = await mutateAsync({
@@ -125,7 +215,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
         lessonId,
         booking: {
           student_id: studentId,
-          requested_start_at: new Date(requestedStartAt).toISOString(),
+          requested_start_at: zonedTimeToIso(selectedDate, time, timezone),
           ...(customerNote.trim() ? { customer_note: customerNote.trim() } : {}),
         },
       });
@@ -139,38 +229,28 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
       const statusText = statusCopy[status]?.[language] || status;
       toast.success(`${copy.success}: ${statusText}`);
       setOpen(false);
-      setRequestedStartAt("");
+      setSelectedDate("");
+      setSelectedTime("");
       setCustomerNote("");
     } catch {
       toast.error(copy.failed);
     }
   };
 
+  const dateIsValid = selectedDate >= minimumDate;
+
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="block w-fit lg:w-full xl:w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
-      >
+      <button type="button" onClick={() => setOpen(true)} className="block w-fit lg:w-full xl:w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2">
         {copy.book}
       </button>
 
       {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="book-lesson-title"
-        >
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" role="dialog" aria-modal="true" aria-labelledby="book-lesson-title">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between gap-4">
-              <h2 id="book-lesson-title" className="text-2xl font-bold text-black-blue">
-                {copy.title}
-              </h2>
-              <button type="button" onClick={() => setOpen(false)} aria-label={copy.cancel}>
-                <X />
-              </button>
+              <h2 id="book-lesson-title" className="text-2xl font-bold text-black-blue">{copy.title}</h2>
+              <button type="button" onClick={() => setOpen(false)} aria-label={copy.cancel}><X /></button>
             </div>
 
             <div className="mt-6 space-y-4 font-sora">
@@ -178,75 +258,48 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
                 {bookingType === "private"
                   ? language === "ar" ? "هذا درس خاص وسيحتاج موافقة المدرس." : "This private lesson requires teacher approval."
                   : language === "ar" ? "هذا درس جماعي وسيبدأ بطلب حجز." : "This group lesson starts with a booking request."}
-                <div className="mt-2 font-semibold">
-                  {language === "ar" ? "السعر" : "Price"}: {price}
-                </div>
+                <div className="mt-2 font-semibold">{language === "ar" ? "السعر" : "Price"}: {price}</div>
               </div>
 
               {role === "parent" && (
                 <label className="block text-sm font-medium">
                   {copy.student}
-                  {loadingStudents ? (
-                    <div className="mt-2 rounded-md bg-gray-100 px-3 py-2 text-gray-600" role="status">
-                      {copy.loading}
-                    </div>
-                  ) : students.length === 0 ? (
-                    <div className="mt-2 rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">
-                      {copy.noStudents}
-                    </div>
-                  ) : (
-                    <select
-                      aria-label={copy.chooseStudent}
-                      value={studentId ?? ""}
-                      onChange={(event) => setStudentId(Number(event.target.value))}
-                      className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main"
-                    >
-                      {students.map((student) => (
-                        <option key={student.id} value={student.id}>
-                          {student.name}
-                        </option>
-                      ))}
-                    </select>
-                  )}
+                  {loadingStudents ? <div className="mt-2 rounded-md bg-gray-100 px-3 py-2 text-gray-600" role="status">{copy.loading}</div> : students.length === 0 ? <div className="mt-2 rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">{copy.noStudents}</div> : <select aria-label={copy.chooseStudent} value={studentId ?? ""} onChange={(event) => setStudentId(Number(event.target.value))} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">{students.map((student) => <option key={student.id} value={student.id}>{student.name}</option>)}</select>}
                 </label>
               )}
 
-              <label className="block text-sm font-medium">
-                {copy.date}
-                <input
-                  type="datetime-local"
-                  value={requestedStartAt}
-                  min={new Date().toISOString().slice(0, 16)}
-                  onChange={(event) => setRequestedStartAt(event.target.value)}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main"
-                />
-              </label>
+              {loadingAvailability ? (
+                <div className="rounded-md bg-gray-100 px-3 py-3 text-gray-600" role="status">{copy.availabilityLoading}</div>
+              ) : availabilityError ? (
+                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-3 text-red-700" role="alert">{copy.availabilityError}</div>
+              ) : availableSlots.length === 0 ? (
+                <div className="rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">{copy.noTimes}</div>
+              ) : (
+                <>
+                  <label className="block text-sm font-medium">
+                    {copy.date}
+                    <input type="date" min={minimumDate} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main" />
+                  </label>
+
+                  <label className="block text-sm font-medium">
+                    {copy.time}
+                    <select aria-label={copy.time} disabled={!dateIsValid || timesForDate.length === 0} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
+                      <option value="">{dateIsValid ? copy.time : copy.noTimes}</option>
+                      {timesForDate.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                    </select>
+                    {selectedDate && timesForDate.length === 0 && <p className="mt-1 text-sm text-gray-600">{copy.noTimes}</p>}
+                  </label>
+                </>
+              )}
 
               <label className="block text-sm font-medium">
                 {copy.note}
-                <textarea
-                  value={customerNote}
-                  onChange={(event) => setCustomerNote(event.target.value)}
-                  rows={4}
-                  maxLength={5000}
-                  className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main"
-                />
+                <textarea value={customerNote} onChange={(event) => setCustomerNote(event.target.value)} rows={4} maxLength={5000} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main" />
               </label>
 
               <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button
-                  type="button"
-                  onClick={() => setOpen(false)}
-                  className="rounded-md border border-gray-300 px-5 py-2"
-                >
-                  {copy.cancel}
-                </button>
-                <button
-                  type="button"
-                  onClick={submit}
-                  disabled={isPending || loadingStudents || (role === "parent" && students.length === 0)}
-                  className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-2 text-white disabled:opacity-60"
-                >
+                <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-5 py-2">{copy.cancel}</button>
+                <button type="button" onClick={submit} disabled={isPending || loadingStudents || loadingAvailability || availableSlots.length === 0 || (role === "parent" && students.length === 0) || !selectedDate || !selectedTime} className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-2 text-white disabled:opacity-60">
                   {isPending && <Loader2 className="animate-spin" size={18} />}
                   {copy.confirm}
                 </button>

@@ -7,13 +7,9 @@ import { useEffect } from "react";
 import { toast } from "react-toastify";
 import { AxiosResErr } from "@/types";
 import { ITeacher } from "@/interfaces/teachers/teacherProfile";
-import { useSelector } from "react-redux";
-import { RootState } from "@/store/store";
 import cookieService from "@/utils/cookieService";
 import { useGetLessonById } from "@/lib/react-query/lessons/lessons";
-import LessonContent from "@/components/lessons/LessonContent";
 import RelatedLessons from "@/components/lessons/RelatedLessons";
-import EnrollFreeLesson from "@/components/lessons/EnrollFreeLesson";
 import BookLessonDialog from "@/components/lessons/BookLessonDialog";
 import { useI18n } from "@/i18n";
 import { getLessonsCopy } from "./lessonCopy";
@@ -21,7 +17,6 @@ import { getLessonsCopy } from "./lessonCopy";
 const LessonDetails = () => {
   const { language } = useI18n();
   const copy = getLessonsCopy(language);
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const role = cookieService.getRole() || "";
   const token = cookieService.getToken() || "";
   const { lessonId } = useParams();
@@ -56,6 +51,43 @@ const LessonDetails = () => {
     !!lessonData &&
     (lessonData.booking_type === "private" || lessonData.booking_type === "group") &&
     lessonData.publishing_status === "published";
+  const canBook = role === "student" || role === "parent";
+
+  const infoItems = [
+    lessonData?.booking_type && {
+      label: copy.bookingType,
+      value: lessonData.booking_type === "private"
+        ? language === "ar" ? "خاص" : "Private"
+        : language === "ar" ? "جماعي" : "Group",
+    },
+    lessonData?.delivery_mode && {
+      label: copy.delivery,
+      value: lessonData.delivery_mode === "offline"
+        ? language === "ar" ? "حضوري" : "Offline"
+        : language === "ar" ? "أونلاين" : "Online",
+    },
+    lessonData?.grade && { label: copy.grade, value: lessonData.grade },
+    lessonData?.duration_minutes && {
+      label: copy.duration,
+      value: `${lessonData.duration_minutes} ${language === "ar" ? "دقيقة" : "minutes"}`,
+    },
+    lessonData?.sessions_count && {
+      label: copy.sessions,
+      value: String(lessonData.sessions_count),
+    },
+    lessonData?.booking_type === "group" && lessonData.max_students && {
+      label: copy.maximumStudents,
+      value: String(lessonData.max_students),
+    },
+    lessonData?.delivery_mode === "offline" && lessonData.location && {
+      label: copy.location,
+      value: lessonData.location,
+    },
+    lessonData?.delivery_mode === "offline" && lessonData.offline_visit_type && {
+      label: copy.visitType,
+      value: lessonData.offline_visit_type,
+    },
+  ].filter(Boolean) as Array<{ label: string; value: string }>;
 
   return (
     <main>
@@ -99,12 +131,12 @@ const LessonDetails = () => {
             ) : (
               <div className="grid grid-cols-12 gap-4">
                 <div className="col-span-12 lg:col-span-7 order-2 h-fit">
-                  <div className="space-y-2 text-center lg:text-start mt-8 lg:mt-0">
+                  <div className="space-y-3 text-center lg:text-start mt-8 lg:mt-0">
                     <h2 className="text-black-blue font-bold text-3xl lg:text-5xl">{lessonData.title}</h2>
                     <p className="font-sora text-[15px] text-[#4D5756] leading-relaxed px-4">{lessonData.description}</p>
                   </div>
 
-                  <div className="mt-4 flex flex-col md:flex-row items-center justify-between gap-4 px-4">
+                  <div className="mt-5 flex flex-col sm:flex-row items-center justify-between gap-4 px-4">
                     <div className="font-sora text-lg font-medium flex items-center gap-2">
                       <img
                         src={lessonData.teacher.profile_image || "/images/profile-avatar.webp"}
@@ -116,12 +148,8 @@ const LessonDetails = () => {
                       </h3>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-2 justify-center md:justify-end">
-                      {isAuthenticated && role === "student" && !lessonData.hasEnrolled && !bookingEnabled && Number(lessonData.price) === 0 && (
-                        <EnrollFreeLesson lessonId={lessonData.id} copy={copy} />
-                      )}
-
-                      {isAuthenticated && (role === "student" || role === "parent") && bookingEnabled && !lessonData.hasEnrolled && (
+                    <div className="flex flex-wrap items-center gap-2 justify-center sm:justify-end">
+                      {bookingEnabled && canBook && (
                         <BookLessonDialog
                           lessonId={lessonData.id}
                           bookingType={lessonData.booking_type!}
@@ -130,50 +158,31 @@ const LessonDetails = () => {
                         />
                       )}
 
-                      {isAuthenticated && role === "student" && lessonData.hasEnrolled && (
+                      {bookingEnabled && !canBook && role !== "teacher" && (
                         <Link
-                          to={`/lessons/${lessonData.id}/view`}
-                          className="block w-fit lg:w-full xl:w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+                          to="/login"
+                          className="block w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
                         >
-                          {copy.watch}
-                        </Link>
-                      )}
-
-                      {!isAuthenticated && (
-                        <Link
-                          to="/sign-in"
-                          className="block w-fit lg:w-full xl:w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
-                        >
-                          {copy.enroll}
+                          {copy.loginToBook}
                         </Link>
                       )}
                     </div>
                   </div>
 
-                  {lessonData.booking_type && (
-                    <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-3 px-4 text-sm font-sora">
-                      <div className="rounded-lg bg-white p-4 shadow-sm border">
-                        <span className="font-semibold">{language === "ar" ? "نوع الحجز" : "Booking type"}</span>
-                        <div className="mt-1">{lessonData.booking_type === "private" ? (language === "ar" ? "خاص" : "Private") : (language === "ar" ? "جماعي" : "Group")}</div>
+                  <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 px-4">
+                    {infoItems.map((item) => (
+                      <div key={item.label} className="rounded-lg bg-white p-4 shadow-sm border border-gray-100">
+                        <span className="block text-sm font-semibold font-sora text-black-blue">{item.label}</span>
+                        <div className="mt-1 font-sora text-[#4D5756]">{item.value}</div>
                       </div>
-                      <div className="rounded-lg bg-white p-4 shadow-sm border">
-                        <span className="font-semibold">{language === "ar" ? "طريقة الدرس" : "Delivery"}</span>
-                        <div className="mt-1">{lessonData.delivery_mode === "offline" ? (language === "ar" ? "حضوري" : "Offline") : (language === "ar" ? "أونلاين" : "Online")}</div>
+                    ))}
+                    <div className="rounded-lg bg-white p-4 shadow-sm border border-gray-100">
+                      <span className="block text-sm font-semibold font-sora text-black-blue">{language === "ar" ? "السعر" : "Price"}</span>
+                      <div className="mt-1 font-sora text-main font-semibold">
+                        {Number(lessonData.price) === 0 ? copy.free : `${lessonData.price} EGP`}
                       </div>
-                      {lessonData.duration_minutes && (
-                        <div className="rounded-lg bg-white p-4 shadow-sm border">
-                          <span className="font-semibold">{language === "ar" ? "المدة" : "Duration"}</span>
-                          <div className="mt-1">{lessonData.duration_minutes} {language === "ar" ? "دقيقة" : "minutes"}</div>
-                        </div>
-                      )}
-                      {lessonData.max_students && lessonData.booking_type === "group" && (
-                        <div className="rounded-lg bg-white p-4 shadow-sm border">
-                          <span className="font-semibold">{language === "ar" ? "الحد الأقصى للطلاب" : "Maximum students"}</span>
-                          <div className="mt-1">{lessonData.max_students}</div>
-                        </div>
-                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
 
                 <div className="order-1 lg:order-2 col-span-12 lg:col-span-5">
@@ -195,11 +204,8 @@ const LessonDetails = () => {
         <div className="container py-5">
           {lessonData && (
             <>
-              <div className="w-full lg:w-4/5 mx-auto py-10">
-                <LessonContent lessonId={lessonData.id} hasEnrolled={lessonData.hasEnrolled || false} />
-              </div>
               <InstructorDetails instructor={lessonData.teacher as ITeacher} />
-              <RelatedLessons lessonId={Number(lessonId)} teacherId={lessonData.teacher.id} />
+              <RelatedLessons lessonId={Number(lessonId)} teacherId={lessonData.teacher.id} copy={copy} />
             </>
           )}
         </div>

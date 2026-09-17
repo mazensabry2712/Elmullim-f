@@ -1,6 +1,6 @@
 import axiosAPI from "@/config/axios.config";
 import { ILessonContentRes } from "@/interfaces/lessons/content";
-import { ILessonLectureRes, ILessonLecturesRes } from "@/interfaces/lessons/lecture";
+import { ILessonLecturesRes } from "@/interfaces/lessons/lecture";
 import { ILessonAvailabilityRes } from "@/interfaces/lessons/availability";
 import { ILessonRes, ILessonsRes, LessonBookingType, LessonDeliveryMode } from "@/interfaces/lessons/lesson";
 

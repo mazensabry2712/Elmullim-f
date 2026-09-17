@@ -1,3 +1,4 @@
+import { ICreateLessonAvailabilitySlot } from "@/interfaces/lessons/availability";
 import { LessonBookingType, LessonDeliveryMode } from "@/interfaces/lessons/lesson";
 
 export interface ICreateLesson {
@@ -15,6 +16,7 @@ export interface ICreateLesson {
   location?: string;
   offline_visit_type?: string;
   max_students?: number;
+  availability: ICreateLessonAvailabilitySlot[];
   logo: File;
 }
 

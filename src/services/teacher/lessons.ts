@@ -35,6 +35,10 @@ const appendAvailability = (
   });
 };
 
+const appendServiceAreas = (formData: FormData, serviceAreaIds?: number[]) => {
+  serviceAreaIds?.forEach((id) => formData.append("service_area_ids[]", id.toString()));
+};
+
 // Lessons
 export const getTeacherLessons = async (
   token: string
@@ -79,6 +83,7 @@ export const createTeacherLesson = async ({
   formData.append("sessions_count", lesson.sessions_count.toString());
   formData.append("logo", lesson.logo);
   appendAvailability(formData, lesson.availability);
+  appendServiceAreas(formData, lesson.service_area_ids);
 
   if (lesson.meeting_url?.trim()) formData.append("meeting_url", lesson.meeting_url.trim());
   if (lesson.location?.trim()) formData.append("location", lesson.location.trim());
@@ -111,6 +116,7 @@ export const updateTeacherLesson = async ({
   formData.append("price", lesson.price.toString());
   formData.append("sessions_count", lesson.sessions_count.toString());
   appendAvailability(formData, lesson.availability);
+  appendServiceAreas(formData, lesson.service_area_ids);
 
   if (lesson.logo) formData.append("logo", lesson.logo);
   if (lesson.meeting_url?.trim()) formData.append("meeting_url", lesson.meeting_url.trim());

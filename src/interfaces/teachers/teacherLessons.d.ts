@@ -31,7 +31,6 @@ export interface IDeleteLessonLecture {
 }
 
 export interface IUploadLessonVideo {
-  token: string;
   video: File;
   lessonId: string;
   contentId: string;

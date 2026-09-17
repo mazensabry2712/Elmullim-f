@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { useInitiateBookingPayment } from "@/lib/react-query/booking";
+import cookieService from "@/utils/cookieService";
 
 interface Props {
   bookingId: number;
@@ -13,6 +14,7 @@ const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => 
   const [open, setOpen] = useState(false);
   const [walletNumber, setWalletNumber] = useState("");
   const paymentMutation = useInitiateBookingPayment();
+  const token = cookieService.getToken() || "";
 
   const submit = async () => {
     if (!/^01[0125][0-9]{8}$/.test(walletNumber)) {
@@ -22,7 +24,7 @@ const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => 
 
     try {
       const response = await paymentMutation.mutateAsync({
-        token: "",
+        token,
         bookingId,
         walletNumber,
         isParent,
@@ -48,11 +50,7 @@ const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => 
 
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        className="rounded-md bg-main px-4 py-2 text-sm text-white"
-      >
+      <button type="button" onClick={() => setOpen(true)} className="rounded-md bg-main px-4 py-2 text-sm text-white">
         Pay {price}
       </button>
 

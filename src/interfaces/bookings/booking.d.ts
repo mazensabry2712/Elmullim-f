@@ -12,6 +12,14 @@ export type BookingStatus =
   | "no_show"
   | "disputed";
 
+export interface IBookingRelation {
+  id: number;
+  name?: string;
+  title?: string;
+  email?: string;
+  price?: string | number;
+}
+
 export interface IBooking {
   id: number;
   lesson_id: number;
@@ -27,12 +35,21 @@ export interface IBooking {
   price: string;
   customer_note?: string | null;
   teacher_note?: string | null;
+  lesson?: IBookingRelation;
+  student?: IBookingRelation;
+  booked_by?: IBookingRelation;
 }
 
 export interface IBookingResponse {
   status: boolean;
   message: string | null;
   data: IBooking;
+}
+
+export interface IBookingListResponse {
+  status: boolean;
+  message: string | null;
+  data: IBooking[];
 }
 
 export interface ICreateBooking {

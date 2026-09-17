@@ -6,10 +6,15 @@ const mocks = vi.hoisted(() => ({
   role: "student" as "student" | "parent",
   mutateAsync: vi.fn(),
   get: vi.fn(),
+  availability: vi.fn(),
 }));
 
 vi.mock("@/lib/react-query/booking", () => ({
   useCreateBooking: () => ({ mutateAsync: mocks.mutateAsync, isPending: false }),
+}));
+
+vi.mock("@/lib/react-query/lessons/lessons", () => ({
+  useGetLessonAvailability: () => mocks.availability(),
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -36,24 +41,58 @@ describe("BookLessonDialog", () => {
     });
     mocks.get.mockReset();
     mocks.get.mockResolvedValue({ data: { data: { id: 42 } } });
+    mocks.availability.mockReset();
+    mocks.availability.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        status: true,
+        message: null,
+        data: [
+          {
+            id: 1,
+            lesson_id: 7,
+            day_of_week: 6,
+            start_time: "18:00:00",
+            end_time: "20:00:00",
+            timezone: "Africa/Cairo",
+            is_active: true,
+          },
+          {
+            id: 2,
+            lesson_id: 8,
+            day_of_week: 7,
+            start_time: "18:00:00",
+            end_time: "20:00:00",
+            timezone: "Africa/Cairo",
+            is_active: true,
+          },
+        ],
+      },
+    });
   });
 
-  it("opens, accepts a requested time, and submits a booking for the student", async () => {
+  it("opens, shows available times for a date, and submits the selected slot", async () => {
     render(
       <BookLessonDialog
         lessonId={7}
         bookingType="private"
         price="250.00"
+        durationMinutes={60}
         language="en"
       />
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
-
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
 
-    fireEvent.change(screen.getByLabelText("Requested date & time"), {
-      target: { value: "2099-01-10T20:00" },
+    fireEvent.change(screen.getByLabelText("Choose date"), {
+      target: { value: "2099-01-10" },
+    });
+
+    await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
+    fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), {
+      target: { value: "18:00|Africa/Cairo" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
@@ -63,7 +102,7 @@ describe("BookLessonDialog", () => {
         lessonId: 7,
         booking: {
           student_id: 42,
-          requested_start_at: new Date("2099-01-10T20:00").toISOString(),
+          requested_start_at: expect.stringMatching(/^2099-01-10T16:00:00\.000Z$/),
         },
       })
     );
@@ -87,6 +126,7 @@ describe("BookLessonDialog", () => {
         lessonId={8}
         bookingType="group"
         price="500.00"
+        durationMinutes={60}
         language="en"
       />
     );
@@ -94,12 +134,10 @@ describe("BookLessonDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
     await waitFor(() => expect(screen.getByRole("combobox", { name: "Choose student" })).toBeInTheDocument());
 
-    fireEvent.change(screen.getByRole("combobox", { name: "Choose student" }), {
-      target: { value: "43" },
-    });
-    fireEvent.change(screen.getByLabelText("Requested date & time"), {
-      target: { value: "2099-01-11T20:00" },
-    });
+    fireEvent.change(screen.getByRole("combobox", { name: "Choose student" }), { target: { value: "43" } });
+    fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-11" } });
+    await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
+    fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), { target: { value: "18:00|Africa/Cairo" } });
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
     await waitFor(() =>
@@ -108,9 +146,27 @@ describe("BookLessonDialog", () => {
         lessonId: 8,
         booking: {
           student_id: 43,
-          requested_start_at: new Date("2099-01-11T20:00").toISOString(),
+          requested_start_at: expect.stringMatching(/^2099-01-11T16:00:00\.000Z$/),
         },
       })
     );
+  });
+
+  it("does not offer times on days without matching availability", async () => {
+    render(
+      <BookLessonDialog
+        lessonId={7}
+        bookingType="group"
+        price="0"
+        durationMinutes={60}
+        language="en"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Book now" }));
+    fireEvent.change(await screen.findByLabelText("Choose date"), { target: { value: "2099-01-11" } });
+
+    await waitFor(() => expect(screen.getByText("No available times for this date.")).toBeInTheDocument());
+    expect(screen.getByRole("button", { name: "Submit booking" })).toBeDisabled();
   });
 });

@@ -1,6 +1,7 @@
 import QueryKeys from "@/enums";
 import {
   getAllLessons,
+  getLessonAvailability,
   getLessonById,
   getLessonContents,
   getLessonLectures,
@@ -25,6 +26,13 @@ export const useGetLessonById = ({
   useQuery({
     queryKey: [QueryKeys.LESSON, lessonId],
     queryFn: () => getLessonById({ token, lessonId }),
+    enabled: !!lessonId,
+  });
+
+export const useGetLessonAvailability = (lessonId: number) =>
+  useQuery({
+    queryKey: [QueryKeys.LESSON_AVAILABILITY, lessonId],
+    queryFn: () => getLessonAvailability(lessonId),
     enabled: !!lessonId,
   });
 
@@ -56,8 +64,8 @@ export const useGetRelatedLesson = ({
   lessonId,
 }: {
   teacherId: number;
-  token?: string;
   lessonId: number;
+  token?: string;
 }) =>
   useQuery({
     queryKey: [QueryKeys.RELATED_LESSON, teacherId, lessonId],

@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import LocationPicker from "@/components/shared/LocationPicker";
 import {
   useCreateTeacherServiceArea,
   useDeleteTeacherServiceArea,
@@ -15,27 +16,21 @@ import { useI18n } from "@/i18n";
 
 interface IServiceAreaForm {
   name: string;
-  latitude: string;
-  longitude: string;
+  location: string;
+  latitude: number | null;
+  longitude: number | null;
   radius_km: string;
   is_active: boolean;
 }
 
 const emptyForm: IServiceAreaForm = {
   name: "",
-  latitude: "",
-  longitude: "",
+  location: "",
+  latitude: null,
+  longitude: null,
   radius_km: "10",
   is_active: true,
 };
-
-const toForm = (area: IServiceArea): IServiceAreaForm => ({
-  name: area.name,
-  latitude: String(area.latitude),
-  longitude: String(area.longitude),
-  radius_km: String(area.radius_km),
-  is_active: area.is_active,
-});
 
 const TeacherServiceAreas = () => {
   const token = cookieService.getToken() || "";
@@ -56,9 +51,7 @@ const TeacherServiceAreas = () => {
     ? {
         title: "مناطق الخدمة",
         subtitle: "حدد المناطق التي يمكن للمعلم الوصول إليها في الدروس الحضورية.",
-        name: "اسم المنطقة",
-        latitude: "خط العرض",
-        longitude: "خط الطول",
+        name: "اسم المنطقة / الموقع",
         radius: "نطاق الخدمة بالكيلومتر",
         active: "منطقة نشطة",
         create: "إضافة منطقة",
@@ -66,23 +59,20 @@ const TeacherServiceAreas = () => {
         cancel: "إلغاء",
         edit: "تعديل",
         delete: "حذف",
-        useLocation: "استخدام موقعي الحالي",
         noAreas: "لا توجد مناطق خدمة بعد.",
         confirmDelete: "هل تريد حذف منطقة الخدمة؟",
-        invalid: "أدخل اسمًا وإحداثيات صحيحة ونطاقًا أكبر من صفر.",
-        locationError: "تعذر الحصول على موقعك الحالي.",
+        invalid: "اختر موقعًا صحيحًا وأدخل نطاقًا أكبر من صفر.",
         saved: "تم حفظ منطقة الخدمة.",
         updated: "تم تحديث منطقة الخدمة.",
         deleted: "تم حذف منطقة الخدمة.",
         activeLabel: "نشطة",
         inactiveLabel: "غير نشطة",
+        locationRequired: "اختر الموقع من البحث أو استخدم موقعك الحالي.",
       }
     : {
         title: "Service Areas",
         subtitle: "Define the areas where the teacher can travel for offline lessons.",
-        name: "Area name",
-        latitude: "Latitude",
-        longitude: "Longitude",
+        name: "Area name / location",
         radius: "Service radius (km)",
         active: "Active area",
         create: "Add area",
@@ -90,16 +80,15 @@ const TeacherServiceAreas = () => {
         cancel: "Cancel",
         edit: "Edit",
         delete: "Delete",
-        useLocation: "Use my current location",
         noAreas: "No service areas yet.",
         confirmDelete: "Delete this service area?",
-        invalid: "Enter a name, valid coordinates, and a radius greater than zero.",
-        locationError: "Could not get your current location.",
+        invalid: "Select a valid location and enter a radius greater than zero.",
         saved: "Service area created.",
         updated: "Service area updated.",
         deleted: "Service area deleted.",
         activeLabel: "Active",
         inactiveLabel: "Inactive",
+        locationRequired: "Search for a location or use your current location.",
       };
 
   const reset = () => {
@@ -107,31 +96,10 @@ const TeacherServiceAreas = () => {
     setEditingId(null);
   };
 
-  const useCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error(text.locationError);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setForm((current) => ({
-          ...current,
-          latitude: position.coords.latitude.toFixed(7),
-          longitude: position.coords.longitude.toFixed(7),
-        }));
-      },
-      () => toast.error(text.locationError),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
   const save = async () => {
-    const latitude = Number(form.latitude);
-    const longitude = Number(form.longitude);
     const radius = Number(form.radius_km);
 
-    if (!form.name.trim() || !Number.isFinite(latitude) || latitude < -90 || latitude > 90 ||
-        !Number.isFinite(longitude) || longitude < -180 || longitude > 180 ||
+    if (!form.name.trim() || form.latitude == null || form.longitude == null ||
         !Number.isFinite(radius) || radius <= 0) {
       toast.error(text.invalid);
       return;
@@ -139,8 +107,8 @@ const TeacherServiceAreas = () => {
 
     const payload: IServiceAreaInput = {
       name: form.name.trim(),
-      latitude,
-      longitude,
+      latitude: form.latitude,
+      longitude: form.longitude,
       radius_km: radius,
       is_active: form.is_active,
     };
@@ -161,7 +129,14 @@ const TeacherServiceAreas = () => {
 
   const startEdit = (area: IServiceArea) => {
     setEditingId(area.id);
-    setForm(toForm(area));
+    setForm({
+      name: area.name,
+      location: area.name,
+      latitude: Number(area.latitude),
+      longitude: Number(area.longitude),
+      radius_km: String(area.radius_km),
+      is_active: area.is_active,
+    });
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -188,31 +163,51 @@ const TeacherServiceAreas = () => {
 
       <div className="rounded-lg border border-dashed border-main/40 bg-main/5 p-4">
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="text-sm font-medium text-black-blue">
-            {text.name}
-            <Input value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} className="mt-2" placeholder={isArabic ? "مثال: دمنهور" : "e.g. Damanhur"} />
-          </label>
+          <div className="md:col-span-2">
+            <LocationPicker
+              value={form.location}
+              latitude={form.latitude}
+              longitude={form.longitude}
+              disabled={isSaving}
+              onChange={({ address, latitude, longitude }) =>
+                setForm((current) => ({
+                  ...current,
+                  name: address,
+                  location: address,
+                  latitude,
+                  longitude,
+                }))
+              }
+              placeholder={text.name}
+            />
+            {form.latitude == null || form.longitude == null ? (
+              <p className="mt-1 text-xs text-amber-600">{text.locationRequired}</p>
+            ) : null}
+          </div>
+
           <label className="text-sm font-medium text-black-blue">
             {text.radius}
-            <Input type="number" min="0.1" step="0.1" value={form.radius_km} onChange={(event) => setForm({ ...form, radius_km: event.target.value })} className="mt-2" />
-          </label>
-          <label className="text-sm font-medium text-black-blue">
-            {text.latitude}
-            <Input type="number" min="-90" max="90" step="0.0000001" value={form.latitude} onChange={(event) => setForm({ ...form, latitude: event.target.value })} className="mt-2" />
-          </label>
-          <label className="text-sm font-medium text-black-blue">
-            {text.longitude}
-            <Input type="number" min="-180" max="180" step="0.0000001" value={form.longitude} onChange={(event) => setForm({ ...form, longitude: event.target.value })} className="mt-2" />
+            <Input
+              type="number"
+              min="0.1"
+              step="0.1"
+              value={form.radius_km}
+              onChange={(event) => setForm({ ...form, radius_km: event.target.value })}
+              className="mt-2"
+              disabled={isSaving}
+            />
           </label>
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-3">
-          <Button type="button" variant="outline" onClick={useCurrentLocation}>
-            <MapPin className="me-2 h-4 w-4" />
-            {text.useLocation}
-          </Button>
           <label className="inline-flex items-center gap-2 text-sm font-medium text-black-blue">
-            <input type="checkbox" checked={form.is_active} onChange={(event) => setForm({ ...form, is_active: event.target.checked })} className="h-4 w-4 accent-main" />
+            <input
+              type="checkbox"
+              checked={form.is_active}
+              onChange={(event) => setForm({ ...form, is_active: event.target.checked })}
+              className="h-4 w-4 accent-main"
+              disabled={isSaving}
+            />
             {text.active}
           </label>
         </div>
@@ -246,9 +241,7 @@ const TeacherServiceAreas = () => {
                     {area.is_active ? text.activeLabel : text.inactiveLabel}
                   </span>
                 </div>
-                <p className="mt-2 text-sm text-muted-foreground">
-                  {Number(area.latitude).toFixed(5)}, {Number(area.longitude).toFixed(5)} · {area.radius_km} km
-                </p>
+                <p className="mt-2 text-sm text-muted-foreground">{area.radius_km} km</p>
               </div>
               <div className="flex items-center gap-2">
                 <Button type="button" variant="outline" size="sm" onClick={() => startEdit(area)} disabled={isSaving || deleteMutation.isPending}>

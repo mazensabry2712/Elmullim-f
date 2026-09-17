@@ -65,9 +65,10 @@ export const lessonSchema = z
     location: z.string().trim().max(2000, {
       message: validationMessage("location is too long", "المكان طويل جدًا"),
     }),
-    offline_visit_type: z.string().trim().max(100, {
-      message: validationMessage("visit type is too long", "نوع الزيارة طويل جدًا"),
+    offline_visit_type: z.enum(["teacher_to_student", "student_to_teacher", ""], {
+      message: validationMessage("select a valid visit type", "اختر طريقة زيارة صحيحة"),
     }),
+    service_area_ids: z.array(z.coerce.number().int().positive()).default([]),
     max_students: z.union([
       z.coerce.number().int().min(1, {
         message: validationMessage("capacity must be at least 1", "الحد الأقصى يجب أن يكون 1 على الأقل"),
@@ -95,6 +96,25 @@ export const lessonSchema = z
           message: validationMessage("visit type is required for offline lessons", "طريقة الزيارة مطلوبة للدروس الحضورية"),
         });
       }
+
+      if (data.offline_visit_type === "teacher_to_student" && data.service_area_ids.length === 0) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["service_area_ids"],
+          message: validationMessage(
+            "select at least one active service area when the teacher visits the student",
+            "اختر منطقة خدمة نشطة واحدة على الأقل عندما يذهب المعلم إلى الطالب"
+          ),
+        });
+      }
+    }
+
+    if (data.delivery_mode !== "offline" && data.service_area_ids.length > 0) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["service_area_ids"],
+        message: validationMessage("service areas are only for offline lessons", "مناطق الخدمة مخصصة للدروس الحضورية فقط"),
+      });
     }
 
     if (data.booking_type === "group" && data.max_students === "") {

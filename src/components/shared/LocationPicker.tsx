@@ -90,6 +90,7 @@ const LocationPicker = ({
       latitude: nextLatitude,
       longitude: nextLongitude,
     });
+    toast.success(text.selected);
   };
 
   const searchLocation = async () => {
@@ -98,6 +99,7 @@ const LocationPicker = ({
 
     setIsSearching(true);
     setHasSearched(true);
+    setResults([]);
     try {
       await waitForRateLimit();
       const url = new URL(`${NOMINATIM_URL}/search`);
@@ -114,6 +116,9 @@ const LocationPicker = ({
       if (!response.ok) throw new Error("Location search failed");
       const data = (await response.json()) as LocationResult[];
       setResults(data);
+      if (data.length === 0) {
+        toast.info(text.noResults);
+      }
     } catch {
       setResults([]);
       toast.error(text.searchError);
@@ -164,6 +169,7 @@ const LocationPicker = ({
           latitude: nextLatitude,
           longitude: nextLongitude,
         });
+        toast.success(text.selected);
         setIsLocating(false);
       },
       () => {
@@ -218,10 +224,6 @@ const LocationPicker = ({
             </button>
           ))}
         </div>
-      )}
-
-      {hasSearched && !isSearching && results.length === 0 && (
-        <p className="text-xs text-muted-foreground">{text.noResults}</p>
       )}
 
       <p className="text-[11px] text-muted-foreground">{text.attribution}</p>

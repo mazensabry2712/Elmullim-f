@@ -1,10 +1,11 @@
 import { expect, request as playwrightRequest, test } from "@playwright/test";
 
 const apiBaseURL = process.env.E2E_API_BASE_URL || "http://127.0.0.1:8000";
+const browserBaseURL = process.env.E2E_BASE_URL || "http://127.0.0.1:5173";
 const studentEmail = process.env.E2E_STUDENT_EMAIL || "student@elmullim.test";
 const studentPassword = process.env.E2E_STUDENT_PASSWORD || "Student@12345";
 
-test("student can create and cancel a booking through the real API", async ({ page, baseURL }) => {
+test("student can create and cancel a booking through the real API", async ({ page }) => {
   const api = await playwrightRequest.newContext({ baseURL: apiBaseURL });
 
   try {
@@ -65,7 +66,7 @@ test("student can create and cancel a booking through the real API", async ({ pa
       {
         name: "t_n",
         value: token,
-        url: baseURL,
+        url: browserBaseURL,
         path: "/",
         sameSite: "Strict",
         secure: false,
@@ -73,14 +74,14 @@ test("student can create and cancel a booking through the real API", async ({ pa
       {
         name: "r_l",
         value: "student",
-        url: baseURL,
+        url: browserBaseURL,
         path: "/",
         sameSite: "Strict",
         secure: false,
       },
     ]);
 
-    await page.goto(`/lessons/${lesson.id}`);
+    await page.goto(new URL(`/lessons/${lesson.id}`, browserBaseURL).toString());
 
     const bookButton = page.getByRole("button", { name: /Book now/i });
     await expect(bookButton).toBeVisible();

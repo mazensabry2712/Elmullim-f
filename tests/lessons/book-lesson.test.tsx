@@ -152,7 +152,7 @@ describe("BookLessonDialog", () => {
     );
   });
 
-  it("does not offer times on days without matching availability", async () => {
+  it("does not offer times on a day without matching availability", async () => {
     render(
       <BookLessonDialog
         lessonId={7}
@@ -164,7 +164,7 @@ describe("BookLessonDialog", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
-    fireEvent.change(await screen.findByLabelText("Choose date"), { target: { value: "2099-01-11" } });
+    fireEvent.change(await screen.findByLabelText("Choose date"), { target: { value: "2099-01-12" } });
 
     await waitFor(() => expect(screen.getByText("No available times for this date.")).toBeInTheDocument());
     expect(screen.getByRole("button", { name: "Submit booking" })).toBeDisabled();

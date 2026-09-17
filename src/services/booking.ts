@@ -6,18 +6,12 @@ const authHeaders = (token: string) => ({
   Authorization: `Bearer ${token}`,
 });
 
-export const createBooking = async ({
-  token,
-  lessonId,
-  booking,
-}: {
+export const createBooking = async ({ token, lessonId, booking }: {
   token: string;
   lessonId: number;
   booking: ICreateBooking;
 }): Promise<IBookingResponse> => {
-  const { data } = await axiosAPI.post(`/lessons/${lessonId}/bookings`, booking, {
-    headers: authHeaders(token),
-  });
+  const { data } = await axiosAPI.post(`/lessons/${lessonId}/bookings`, booking, { headers: authHeaders(token) });
   return data;
 };
 
@@ -88,16 +82,14 @@ export const proposeBookingTime = async ({ token, bookingId, proposedStartAt, te
   return data;
 };
 
-export const initiateBookingPayment = async ({ token, bookingId, walletNumber }: {
+export const initiateBookingPayment = async ({ token, bookingId, walletNumber, isParent = false }: {
   token: string;
   bookingId: number;
   walletNumber: string;
+  isParent?: boolean;
 }) => {
-  const { data } = await axiosAPI.post(
-    "/student/payment/booking/initiate",
-    { booking_id: bookingId, wallet_number: walletNumber },
-    { headers: authHeaders(token) }
-  );
+  const endpoint = isParent ? "/parent/payment/booking/initiate" : "/student/payment/booking/initiate";
+  const { data } = await axiosAPI.post(endpoint, { booking_id: bookingId, wallet_number: walletNumber }, { headers: authHeaders(token) });
   return data as { status: boolean; message: string | null; data?: { redirect_url?: string | null } };
 };
 
@@ -112,8 +104,12 @@ export const getTeacherSchedule = async ({ token }: { token: string }): Promise<
 };
 
 export const joinBookingSession = async ({ token, bookingId }: { token: string; bookingId: number }) => {
-  const { data } = await axiosAPI.get(`/bookings/${bookingId}/join`, { headers: authHeaders(token) });
-  return data as { status: boolean; message: string | null; data?: { session_id: number; meeting_url?: string | null; location?: string | null; start_at: string; end_at: string } };
+  const { data } = await axiosAPI.post(`/bookings/${bookingId}/join`, {}, { headers: authHeaders(token) });
+  return data as {
+    status: boolean;
+    message: string | null;
+    data?: { session_id: number; meeting_url?: string | null; location?: string | null; start_at: string; end_at: string };
+  };
 };
 
 export const updateSessionStatus = async ({ token, sessionId, status }: {

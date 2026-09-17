@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import LocationPicker from "@/components/shared/LocationPicker";
 import { useUpdateStudentLocation } from "@/lib/react-query/student/location";
 import { IStudentProfile } from "@/interfaces/students/studentProfile";
 import cookieService from "@/utils/cookieService";
@@ -18,67 +18,43 @@ const StudentLocation = ({ student }: IProps) => {
   const { language } = useI18n();
   const isArabic = language === "ar";
   const [address, setAddress] = useState(student.address || "");
-  const [latitude, setLatitude] = useState(student.latitude != null ? String(student.latitude) : "");
-  const [longitude, setLongitude] = useState(student.longitude != null ? String(student.longitude) : "");
+  const [latitude, setLatitude] = useState<number | null>(student.latitude != null ? Number(student.latitude) : null);
+  const [longitude, setLongitude] = useState<number | null>(student.longitude != null ? Number(student.longitude) : null);
   const mutation = useUpdateStudentLocation();
 
   useEffect(() => {
     setAddress(student.address || "");
-    setLatitude(student.latitude != null ? String(student.latitude) : "");
-    setLongitude(student.longitude != null ? String(student.longitude) : "");
+    setLatitude(student.latitude != null ? Number(student.latitude) : null);
+    setLongitude(student.longitude != null ? Number(student.longitude) : null);
   }, [student.address, student.latitude, student.longitude]);
 
   const text = isArabic
     ? {
         title: "موقعي للدروس الحضورية",
-        hint: "يستخدم هذا الموقع للتحقق من إمكانية وصول المعلم إلى عنوانك في الدروس الحضورية.",
-        address: "العنوان",
-        latitude: "خط العرض",
-        longitude: "خط الطول",
-        useLocation: "استخدام موقعي الحالي",
+        hint: "اختر مكانك من البحث أو استخدم موقعك الحالي. لن تحتاج لإدخال إحداثيات يدويًا.",
         save: "حفظ الموقع",
         saved: "تم تحديث موقعك.",
-        locationError: "تعذر الحصول على موقعك الحالي.",
-        invalid: "أدخل العنوان وخط العرض وخط الطول بشكل صحيح.",
+        invalid: "اختر موقعًا صحيحًا قبل الحفظ.",
       }
     : {
         title: "My offline lesson location",
-        hint: "This location is used to check whether a teacher can travel to you for offline lessons.",
-        address: "Address",
-        latitude: "Latitude",
-        longitude: "Longitude",
-        useLocation: "Use my current location",
+        hint: "Search for your place or use your current location. You do not need to enter coordinates manually.",
         save: "Save location",
         saved: "Your location was updated.",
-        locationError: "Could not get your current location.",
-        invalid: "Enter an address and valid latitude/longitude.",
+        invalid: "Choose a valid location before saving.",
       };
 
-  const useCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      toast.error(text.locationError);
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLatitude(position.coords.latitude.toFixed(7));
-        setLongitude(position.coords.longitude.toFixed(7));
-      },
-      () => toast.error(text.locationError),
-      { enableHighAccuracy: true, timeout: 10000 }
-    );
-  };
-
   const save = async () => {
-    const lat = Number(latitude);
-    const lng = Number(longitude);
-    if (!address.trim() || !Number.isFinite(lat) || lat < -90 || lat > 90 || !Number.isFinite(lng) || lng < -180 || lng > 180) {
+    if (!address.trim() || latitude == null || longitude == null) {
       toast.error(text.invalid);
       return;
     }
 
     try {
-      await mutation.mutateAsync({ token, payload: { address: address.trim(), latitude: lat, longitude: lng } });
+      await mutation.mutateAsync({
+        token,
+        payload: { address: address.trim(), latitude, longitude },
+      });
       toast.success(text.saved);
     } catch (error) {
       handleResError(error);
@@ -95,25 +71,18 @@ const StudentLocation = ({ student }: IProps) => {
         </div>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-3">
-        <label className="text-sm font-medium text-black-blue md:col-span-3">
-          {text.address}
-          <Input value={address} onChange={(event) => setAddress(event.target.value)} className="mt-2" />
-        </label>
-        <label className="text-sm font-medium text-black-blue">
-          {text.latitude}
-          <Input type="number" min="-90" max="90" step="0.0000001" value={latitude} onChange={(event) => setLatitude(event.target.value)} className="mt-2" />
-        </label>
-        <label className="text-sm font-medium text-black-blue">
-          {text.longitude}
-          <Input type="number" min="-180" max="180" step="0.0000001" value={longitude} onChange={(event) => setLongitude(event.target.value)} className="mt-2" />
-        </label>
-        <div className="flex items-end">
-          <Button type="button" variant="outline" className="w-full" onClick={useCurrentLocation} disabled={mutation.isPending}>
-            <MapPin className="me-2 h-4 w-4" />
-            {text.useLocation}
-          </Button>
-        </div>
+      <div className="mt-5">
+        <LocationPicker
+          value={address}
+          latitude={latitude}
+          longitude={longitude}
+          disabled={mutation.isPending}
+          onChange={({ address: nextAddress, latitude: nextLatitude, longitude: nextLongitude }) => {
+            setAddress(nextAddress);
+            setLatitude(nextLatitude);
+            setLongitude(nextLongitude);
+          }}
+        />
       </div>
 
       <div className="mt-4">

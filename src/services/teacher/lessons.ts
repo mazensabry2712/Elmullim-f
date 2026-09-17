@@ -1,11 +1,17 @@
 import axiosAPI from "@/config/axios.config";
 import { IStatusMsg } from "@/interfaces";
 import {
-  IContentRes,
-  IContentsRes,
   ICreateLessonContent,
+  ILessonContentRes,
+  ILessonContentsRes,
   IUpdateLessonContent,
-} from "@/interfaces/courses/contents";
+} from "@/interfaces/lessons/content";
+import {
+  IGetLessonLecture,
+  ILessonLectureRes,
+  ILessonLecturesRes,
+} from "@/interfaces/lessons/lecture";
+import { ILessonRes, ILessonsRes } from "@/interfaces/lessons/lesson";
 import {
   ICreateLesson,
   IDeleteLessonLecture,
@@ -16,12 +22,6 @@ import {
   ICreateLecture,
   IUpdateLecture,
 } from "@/interfaces/teachers/teacherLectures";
-import {
-  IGetLessonLecture,
-  ILessonRes,
-  ILessonsRes,
-} from "@/interfaces/courses/lessons";
-import { ILectureRes, ILecturesRes } from "@/interfaces/courses/lectures";
 
 // Lessons
 export const getTeacherLessons = async (
@@ -55,10 +55,30 @@ export const createTeacherLesson = async ({
   lesson: ICreateLesson;
 }): Promise<IStatusMsg> => {
   const formData = new FormData();
+  formData.append("education_level_id", lesson.education_level_id.toString());
+  formData.append("subject_id", lesson.subject_id.toString());
+  formData.append("grade", lesson.grade);
+  formData.append("delivery_mode", lesson.delivery_mode);
+  formData.append("booking_type", lesson.booking_type);
   formData.append("title", lesson.title);
   formData.append("description", lesson.description);
+  formData.append("duration_minutes", lesson.duration_minutes.toString());
   formData.append("price", lesson.price.toString());
+  formData.append("sessions_count", lesson.sessions_count.toString());
   formData.append("logo", lesson.logo);
+
+  if (lesson.meeting_url?.trim()) {
+    formData.append("meeting_url", lesson.meeting_url.trim());
+  }
+  if (lesson.location?.trim()) {
+    formData.append("location", lesson.location.trim());
+  }
+  if (lesson.offline_visit_type?.trim()) {
+    formData.append("offline_visit_type", lesson.offline_visit_type.trim());
+  }
+  if (lesson.max_students !== undefined) {
+    formData.append("max_students", lesson.max_students.toString());
+  }
 
   const { data } = await axiosAPI.post("/teacher/lessons", formData, {
     headers: { Authorization: `Bearer ${token}` },
@@ -75,10 +95,26 @@ export const updateTeacherLesson = async ({
   lesson: IUpdateLesson;
 }): Promise<IStatusMsg> => {
   const formData = new FormData();
+  formData.append("education_level_id", lesson.education_level_id.toString());
+  formData.append("subject_id", lesson.subject_id.toString());
+  formData.append("grade", lesson.grade);
+  formData.append("delivery_mode", lesson.delivery_mode);
+  formData.append("booking_type", lesson.booking_type);
   formData.append("title", lesson.title);
   formData.append("description", lesson.description);
+  formData.append("duration_minutes", lesson.duration_minutes.toString());
   formData.append("price", lesson.price.toString());
+  formData.append("sessions_count", lesson.sessions_count.toString());
+
   if (lesson.logo) formData.append("logo", lesson.logo);
+  if (lesson.meeting_url?.trim()) formData.append("meeting_url", lesson.meeting_url.trim());
+  if (lesson.location?.trim()) formData.append("location", lesson.location.trim());
+  if (lesson.offline_visit_type?.trim()) {
+    formData.append("offline_visit_type", lesson.offline_visit_type.trim());
+  }
+  if (lesson.max_students !== undefined) {
+    formData.append("max_students", lesson.max_students.toString());
+  }
 
   formData.append("_method", "put");
   const { data } = await axiosAPI.post(
@@ -112,7 +148,7 @@ export const getTeacherLessonContents = async ({
 }: {
   token: string;
   lessonId: string;
-}): Promise<IContentsRes> => {
+}): Promise<ILessonContentsRes> => {
   const { data } = await axiosAPI.get(`/teacher/lessons/${lessonId}/contents`, {
     headers: { Authorization: `Bearer ${token}` },
   });
@@ -127,7 +163,7 @@ export const getTeacherLessonContentById = async ({
   token: string;
   id: string;
   lessonId: string;
-}): Promise<IContentRes> => {
+}): Promise<ILessonContentRes> => {
   const { data } = await axiosAPI.get(
     `/teacher/lessons/${lessonId}/contents/${id}`,
     { headers: { Authorization: `Bearer ${token}` } }
@@ -195,7 +231,7 @@ export const getTeacherLessonLectures = async ({
   token,
   contentId,
   lessonId,
-}: IGetLessonLecture): Promise<ILecturesRes> => {
+}: IGetLessonLecture): Promise<ILessonLecturesRes> => {
   const { data } = await axiosAPI.get(
     `/teacher/lessons/${lessonId}/contents/${contentId}/lectures`,
     { headers: { Authorization: `Bearer ${token}` } }
@@ -208,7 +244,7 @@ export const getTeacherLessonLectureById = async ({
   id,
   lessonId,
   contentId,
-}: IGetLessonLecture): Promise<ILectureRes> => {
+}: IGetLessonLecture): Promise<ILessonLectureRes> => {
   const { data } = await axiosAPI.get(
     `/teacher/lessons/${lessonId}/contents/${contentId}/lectures/${id}`,
     {

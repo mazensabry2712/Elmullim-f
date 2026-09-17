@@ -34,12 +34,10 @@ const UploadCourse = lazy(() => import("@/pages/profile/teacher/UploadCourse"));
 const UpdateCourse = lazy(() => import("@/pages/profile/teacher/UpdateCourse"));
 const UploadLesson = lazy(() => import("@/pages/profile/teacher/UploadLesson"));
 const UpdateLesson = lazy(() => import("@/pages/profile/teacher/UpdateLesson"));
-const TeacherViewLesson = lazy(
-  () => import("@/pages/profile/teacher/TeacherViewLesson")
-);
-const TeacherViewCourse = lazy(
-  () => import("@/pages/profile/teacher/TeacherViewCourse")
-);
+const TeacherViewLesson = lazy(() => import("@/pages/profile/teacher/TeacherViewLesson"));
+const TeacherViewCourse = lazy(() => import("@/pages/profile/teacher/TeacherViewCourse"));
+const Bookings = lazy(() => import("@/pages/bookings/Bookings"));
+const TeacherBookings = lazy(() => import("@/pages/profile/teacher/TeacherBookings"));
 // Profile
 const Profile = lazy(() => import("@/pages/profile/Profile"));
 const UpdateProfile = lazy(() => import("@/pages/profile/UpdateProfile"));
@@ -54,115 +52,29 @@ export const routes = createRoutesFromElements(
       <Route path="/events/:eventId" element={<EventDetails />} id="event-details" />
       <Route path="/courses" element={<Courses />} id="courses" />
       <Route path="/courses/:courseId" element={<CourseDetails />} id="course-details" />
-      <Route
-        path="/courses/:courseId/view"
-        element={
-          <ProtectedRoute requiredRole="student">
-            <ViewCourse />
-          </ProtectedRoute>
-        }
-        id="view-course"
-      />
+      <Route path="/courses/:courseId/view" element={<ProtectedRoute requiredRole="student"><ViewCourse /></ProtectedRoute>} id="view-course" />
       <Route path="/course/:courseId/enroll" element={<CourseEnroll />} id="courseId" />
       <Route path="/lessons" element={<Lessons />} id="lessons" />
       <Route path="/lessons/:lessonId" element={<LessonDetails />} id="lesson-details" />
-      <Route
-        path="/lessons/:lessonId/view"
-        element={
-          <ProtectedRoute requiredRole="student">
-            <ViewLesson />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/view-quiz"
-        element={
-          <ProtectedRoute requiredRole="student">
-            <ViewQuiz />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/chat"
-        element={
-          <ProtectedRoute>
-            <Chat />
-          </ProtectedRoute>
-        }
-        id="chat"
-      />
+      <Route path="/lessons/:lessonId/view" element={<ProtectedRoute requiredRole="student"><ViewLesson /></ProtectedRoute>} />
+      <Route path="/view-quiz" element={<ProtectedRoute requiredRole="student"><ViewQuiz /></ProtectedRoute>} />
+      <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} id="chat" />
+      <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} id="bookings" />
+      <Route path="/profile/teacher/bookings" element={<ProtectedRoute requiredRole="teacher"><TeacherBookings /></ProtectedRoute>} id="teacher-bookings" />
 
       <Route path="/services" element={<Services />} id="services" />
       <Route path="/services/:serviceId" element={<ServiceDetails />} id="services-details" />
       <Route path="/faqs" element={<Faqs />} id="faqs" />
       <Route path="/testimonials" element={<Testimonials />} id="testimonials" />
 
-      <Route
-        path="/profile/teacher/courses/upload"
-        element={
-          <ProtectedRoute requiredRole="teacher">
-            <UploadCourse />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile/my-courses/:courseId/update"
-        element={
-          <ProtectedRoute requiredRole="teacher">
-            <UpdateCourse />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile/teacher/lessons/upload"
-        element={
-          <ProtectedRoute requiredRole="teacher">
-            <UploadLesson />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile/my-lessons/:lessonId/update"
-        element={
-          <ProtectedRoute requiredRole="teacher">
-            <UpdateLesson />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile/my-courses/:courseId/view"
-        element={
-          <ProtectedRoute requiredRole="teacher">
-            <TeacherViewCourse />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile/my-lessons/:lessonId/view"
-        element={
-          <ProtectedRoute requiredRole="teacher">
-            <TeacherViewLesson />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        }
-        id="profile"
-      />
-      <Route
-        path="/profile/update"
-        element={
-          <ProtectedRoute>
-            <UpdateProfile />
-          </ProtectedRoute>
-        }
-        id="update-profile"
-      />
+      <Route path="/profile/teacher/courses/upload" element={<ProtectedRoute requiredRole="teacher"><UploadCourse /></ProtectedRoute>} />
+      <Route path="/profile/my-courses/:courseId/update" element={<ProtectedRoute requiredRole="teacher"><UpdateCourse /></ProtectedRoute>} />
+      <Route path="/profile/teacher/lessons/upload" element={<ProtectedRoute requiredRole="teacher"><UploadLesson /></ProtectedRoute>} />
+      <Route path="/profile/my-lessons/:lessonId/update" element={<ProtectedRoute requiredRole="teacher"><UpdateLesson /></ProtectedRoute>} />
+      <Route path="/profile/my-courses/:courseId/view" element={<ProtectedRoute requiredRole="teacher"><TeacherViewCourse /></ProtectedRoute>} />
+      <Route path="/profile/my-lessons/:lessonId/view" element={<ProtectedRoute requiredRole="teacher"><TeacherViewLesson /></ProtectedRoute>} />
+      <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} id="profile" />
+      <Route path="/profile/update" element={<ProtectedRoute><UpdateProfile /></ProtectedRoute>} id="update-profile" />
     </Route>
 
     <Route path="/unauthorized" element={<Unauthorized />} id="unauthorized" />

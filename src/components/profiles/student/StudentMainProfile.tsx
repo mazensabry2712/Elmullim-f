@@ -4,6 +4,7 @@ import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import ProfileHeader from "../ProfileHeader";
 import StudentRating from "./StudentRating";
+import StudentLocation from "./StudentLocation";
 import { useI18n } from "@/i18n";
 
 const StudentMainProfile = () => {
@@ -41,7 +42,7 @@ const StudentMainProfile = () => {
             </div>
           </motion.div>
         </div>
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }}>
+        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
           <h2 className="text-xl md:text-2xl mt-10 mb-3 font-sora text-black-blue capitalize">{text.teacherRatings}:</h2>
           <div className="grid lg:grid-cols-[70%__minmax(0,1fr)] gap-3">
             <div className="space-y-3 overflow-y-auto h-[480px] shadow-xl">
@@ -53,6 +54,8 @@ const StudentMainProfile = () => {
             </div>
           </div>
         </motion.div>
+
+        {student?.data && <StudentLocation student={student.data} />}
       </motion.div>
     </div>
   );

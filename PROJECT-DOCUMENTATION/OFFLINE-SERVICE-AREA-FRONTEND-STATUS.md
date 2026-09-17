@@ -1,7 +1,7 @@
 # Elmullim — Offline Service Area Frontend Status
 
 **Feature branch:** `feat/offline-service-area-v1`
-**Status:** Implementation complete; local regression, real API, and browser verification pending.
+**Status:** Implementation complete; real API and browser verification pending.
 
 ## Implemented
 
@@ -40,9 +40,10 @@ Precise student coordinates are not rendered as public lesson metadata. Backend 
 ```text
 Frontend baseline before Phase 4 ✅ 83/83 tests + build
 Frontend implementation ✅
-Frontend tests ⏳ re-run after Phase 4 changes
+Frontend tests ✅ 86/86
+Frontend production build ✅
 Backend implementation ✅
-Backend tests ⏳ re-run after final StudentResource privacy adjustment
+Backend tests ✅ 113/113 — 378 assertions
 Real API integration ⏳
 Browser verification ⏳
 Documentation finalization ⏳

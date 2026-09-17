@@ -68,7 +68,7 @@ export const lessonSchema = z
     offline_visit_type: z.enum(["teacher_to_student", "student_to_teacher", ""], {
       message: validationMessage("select a valid visit type", "اختر طريقة زيارة صحيحة"),
     }),
-    service_area_ids: z.array(z.coerce.number().int().positive()).default([]),
+    service_area_ids: z.array(z.coerce.number().int().positive()),
     max_students: z.union([
       z.coerce.number().int().min(1, {
         message: validationMessage("capacity must be at least 1", "الحد الأقصى يجب أن يكون 1 على الأقل"),

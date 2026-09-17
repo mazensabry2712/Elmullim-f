@@ -5,10 +5,10 @@ import { toast } from "react-toastify";
 
 const apiBaseUrl =
   import.meta.env.VITE_API ||
-  (import.meta.env.DEV ? "http://127.0.0.1:8000" : "https://api.elmullim.com");
+  (import.meta.env.DEV ? "http://Elmullim-b.test" : "https://api.elmullim.com");
 
 const axiosAPI = axios.create({
-  baseURL: `${apiBaseUrl}/api`,
+  baseURL: `${apiBaseUrl.replace(/\/$/, "")}/api`,
   headers: {
     Accept: "application/json",
   },

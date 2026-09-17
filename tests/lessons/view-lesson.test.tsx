@@ -81,13 +81,12 @@ describe("ViewLesson", () => {
       </MemoryRouter>
     );
 
-  it("renders the enrolled lesson viewer", () => {
+  it("renders the lesson viewer without legacy course-enrollment state", () => {
     mockUseGetLessonById.mockReturnValue({
       data: {
         data: {
           id: 7,
           title: "Algebra Basics",
-          hasEnrolled: true,
           teacher: { id: 3, name: "Teacher One" },
         },
       },
@@ -102,6 +101,7 @@ describe("ViewLesson", () => {
     expect(screen.getByRole("heading", { name: /algebra basics/i, level: 2 })).toBeInTheDocument();
     expect(screen.getByText("Lesson Lecture 1")).toBeInTheDocument();
     expect(screen.getByTestId("view-lesson-content")).toBeInTheDocument();
+    expect(mockNavigate).not.toHaveBeenCalledWith("/lessons/7", { replace: true });
   });
 
   it("renders a loading state", () => {
@@ -115,25 +115,5 @@ describe("ViewLesson", () => {
     renderPage();
 
     expect(screen.getByRole("status")).toBeInTheDocument();
-  });
-
-  it("redirects to lesson details when the lesson is not enrolled", () => {
-    mockUseGetLessonById.mockReturnValue({
-      data: {
-        data: {
-          id: 7,
-          title: "Algebra Basics",
-          hasEnrolled: false,
-          teacher: { id: 3, name: "Teacher One" },
-        },
-      },
-      isLoading: false,
-      isError: false,
-      failureReason: undefined,
-    });
-
-    renderPage();
-
-    expect(mockNavigate).toHaveBeenCalledWith("/lessons/7", { replace: true });
   });
 });

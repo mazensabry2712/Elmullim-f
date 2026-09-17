@@ -1,9 +1,5 @@
 import { lazy } from "react";
-import {
-  createBrowserRouter,
-  createRoutesFromElements,
-  Route,
-} from "react-router-dom";
+import { createBrowserRouter, createRoutesFromElements, Route } from "react-router-dom";
 import authRoutes from "./authRoutes";
 import ViewQuiz from "@/components/profiles/student/quizes/ViewQuiz";
 
@@ -37,6 +33,7 @@ const UpdateLesson = lazy(() => import("@/pages/profile/teacher/UpdateLesson"));
 const TeacherViewLesson = lazy(() => import("@/pages/profile/teacher/TeacherViewLesson"));
 const TeacherViewCourse = lazy(() => import("@/pages/profile/teacher/TeacherViewCourse"));
 const Bookings = lazy(() => import("@/pages/bookings/Bookings"));
+const Schedule = lazy(() => import("@/pages/bookings/Schedule"));
 const TeacherBookings = lazy(() => import("@/pages/profile/teacher/TeacherBookings"));
 // Profile
 const Profile = lazy(() => import("@/pages/profile/Profile"));
@@ -60,7 +57,9 @@ export const routes = createRoutesFromElements(
       <Route path="/view-quiz" element={<ProtectedRoute requiredRole="student"><ViewQuiz /></ProtectedRoute>} />
       <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} id="chat" />
       <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} id="bookings" />
+      <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} id="schedule" />
       <Route path="/profile/teacher/bookings" element={<ProtectedRoute requiredRole="teacher"><TeacherBookings /></ProtectedRoute>} id="teacher-bookings" />
+      <Route path="/profile/teacher/schedule" element={<ProtectedRoute requiredRole="teacher"><Schedule /></ProtectedRoute>} id="teacher-schedule" />
 
       <Route path="/services" element={<Services />} id="services" />
       <Route path="/services/:serviceId" element={<ServiceDetails />} id="services-details" />
@@ -82,8 +81,6 @@ export const routes = createRoutesFromElements(
   </>
 );
 
-export const router = createBrowserRouter([...routes, ...authRoutes], {
-  basename: "/",
-});
+export const router = createBrowserRouter([...routes, ...authRoutes], { basename: "/" });
 
 export default router;

@@ -16,7 +16,7 @@ export interface ILesson {
   sessions_count?: number;
   meeting_url?: string | null;
   location?: string | null;
-  offline_visit_type?: string | null;
+  offline_visit_type?: "teacher_to_student" | "student_to_teacher" | null;
   max_students?: number | null;
   publishing_status?: "draft" | "pending_approval" | "published" | "rejected" | "unpublished";
   created_at: string;

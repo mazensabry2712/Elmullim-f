@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import truncateTxt from "@/utils/truncateTxt";
-import { ILesson } from "@/interfaces/courses/lessons";
+import { ILesson } from "@/interfaces/lessons/lesson";
 import DeleteLesson from "./DeleteLesson";
 import { Pen } from "lucide-react";
 import { useI18n } from "@/i18n";
@@ -50,7 +50,7 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
             className="w-9 h-9 rounded-full object-top object-cover"
           />
           <h5 className="font-sora text-black-blue text-base">
-            {language === "ar" ? "بواسطة" : "By"} {" "}
+            {language === "ar" ? "بواسطة" : "By"}{" "}
             <span className="text-main text-xl">{lesson.teacher.name}</span>
           </h5>
         </div>

@@ -66,13 +66,8 @@ const ViewLesson = () => {
     if (!isLoading && isError) {
       toast.error(copy.detailsError);
       navigate("/lessons", { replace: true });
-      return;
     }
-
-    if (!isLoading && lesson?.data && !lesson.data.hasEnrolled) {
-      navigate(`/lessons/${numericLessonId}`, { replace: true });
-    }
-  }, [validLessonId, navigate, lessonFailure, isError, isLoading, lesson, numericLessonId, copy.detailsError]);
+  }, [validLessonId, navigate, lessonFailure, isError, isLoading, numericLessonId, copy.detailsError]);
 
   if (!validLessonId) return null;
 
@@ -87,7 +82,7 @@ const ViewLesson = () => {
     );
   }
 
-  if (isError || !lesson?.data || !lesson.data.hasEnrolled) {
+  if (isError || !lesson?.data) {
     return (
       <main>
         <div className="container py-24 text-center" role="alert">

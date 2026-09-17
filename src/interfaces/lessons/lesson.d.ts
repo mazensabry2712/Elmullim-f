@@ -19,6 +19,7 @@ export type LessonPublishingStatus =
 export interface ILesson {
   id: number;
   teacher: ITeacher;
+  education_level_id?: number | null;
   subject_id?: number | null;
   grade?: string | null;
   title: string;

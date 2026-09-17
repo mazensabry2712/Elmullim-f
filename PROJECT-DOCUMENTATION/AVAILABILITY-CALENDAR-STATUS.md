@@ -1,58 +1,67 @@
 # Elmullim — Availability & Calendar Frontend Status
 
 **Feature branch:** `feat/availability-calendar-v1`  
-**Status:** Documentation complete; implementation not started.
+**Status:** Frontend implementation is in place; local test/build and real browser verification are still required before merge.
 
-## Scope
-
-This feature converts lesson booking from arbitrary date/time entry into availability-driven scheduling.
+## Implemented
 
 ### Teacher
 
-- Add recurring weekly availability to a Lesson.
-- Edit and replace the Lesson availability set.
-- Use explicit IANA timezone.
-- Consume backend validation errors.
+- Weekly availability editor inside Lesson creation/update Step 4.
+- Day selection using ISO `1=Monday ... 7=Sunday`.
+- Start/end time inputs.
+- Explicit `Africa/Cairo` default timezone for the current Egyptian setup.
+- Add/remove recurring availability rows.
+- Availability is submitted as a nested collection with the Lesson create/update request.
+- Teacher unavailable-period manager for adding/removing blocked periods.
 
 ### Student / Parent
 
-- Load Lesson availability.
-- Choose a date.
-- Choose an available time.
-- Submit the existing Booking API with the selected datetime.
+- Booking dialog loads the public Lesson availability API.
+- Booking uses Date → Available Time instead of arbitrary datetime entry.
+- Available start times are generated according to the Lesson duration and active recurring slots.
+- Selected local schedule time is converted to an ISO timestamp using the slot timezone.
+- Parent continues to select a linked child before booking.
+- Existing Booking API remains the submission endpoint.
 
-## Backend dependencies
-
-Target endpoints:
+### API integration
 
 ```text
-GET /api/teacher/lessons/{lesson_id}/availability
-PUT /api/teacher/lessons/{lesson_id}/availability
 GET /api/lessons/{lesson_id}/availability
-```
-
-Booking remains:
-
-```text
 POST /api/lessons/{lesson_id}/bookings
+GET/PUT /api/teacher/lessons/{lesson_id}/availability
+GET/POST/PUT/DELETE /api/teacher/availability-blocks...
 ```
 
-The frontend does not own booking availability truth; the backend remains authoritative.
+## Verification status
 
-## Definition of Done
+Backend GitHub Actions CI is green on the current Availability branch commit before the documentation-only status update.
 
-- Teacher availability editor works.
-- Lesson create/update persists availability through the real API.
-- Public Lesson details/booking can load available slots.
-- Student booking uses selected availability.
-- Parent booking uses linked child + selected availability.
-- Empty/loading/error states are covered.
-- Frontend tests pass.
-- Backend regression tests pass.
-- Production build passes.
-- Real API verification passes.
-- Browser verification passes.
-- Documentation and roadmap are synchronized.
+Frontend local verification is pending after pulling the latest Availability branch:
+
+```powershell
+git checkout feat/availability-calendar-v1
+git pull origin feat/availability-calendar-v1
+npm run test:run
+npm run build
+```
+
+Real API/browser verification remains mandatory.
+
+## Required final browser checks
+
+1. Teacher opens Lesson create/update.
+2. Teacher adds two weekly availability slots.
+3. Lesson saves through the real API.
+4. Student opens the published Lesson.
+5. Student opens Book now.
+6. Student chooses a matching date.
+7. Only valid start times for that Lesson duration appear.
+8. Booking succeeds for an available time.
+9. Booking outside availability is rejected by the backend.
+10. Teacher adds a blocked period.
+11. A booking inside the blocked period is rejected by the backend.
+12. Parent repeats booking for a linked child.
 
 ## Known future scope
 

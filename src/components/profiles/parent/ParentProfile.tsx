@@ -3,6 +3,7 @@ import { useGetParentProfile } from "@/lib/react-query/parent/parentProfile";
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import ProfileHeader from "../ProfileHeader";
+import ParentStudentLocation from "./ParentStudentLocation";
 import { useI18n } from "@/i18n";
 
 const ParentProfiles = () => {
@@ -31,11 +32,14 @@ const ParentProfiles = () => {
           </div>
           <div>
             <h2 className="text-2xl md:text-[36px] font-sora text-black-blue capitalize my-4">{text.following}:</h2>
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }} className="flex flex-col items-center gap-4 md:flex-row md:flex-wrap">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }} className="flex flex-col gap-4">
               {students?.map((student, index) => (
-                <div key={index} className="flex flex-col items-center justify-center py-5 rounded-[3px] w-[187px] bg-main">
-                  <img src={student.profile_image || "/images/profile-avatar.webp"} alt={student.name} className="w-[120px] h-[120px] rounded-full border-1 border-white object-cover mb-10" />
-                  <p className="text-[20px] font-sora text-white text-center capitalize">{student.name}</p>
+                <div key={student.id ?? index} className="rounded-lg border bg-white p-4 shadow-sm">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <img src={student.profile_image || "/images/profile-avatar.webp"} alt={student.name} className="h-20 w-20 rounded-full border object-cover" />
+                    <p className="text-xl font-semibold text-black-blue">{student.name}</p>
+                  </div>
+                  <ParentStudentLocation student={student} />
                 </div>
               ))}
             </motion.div>

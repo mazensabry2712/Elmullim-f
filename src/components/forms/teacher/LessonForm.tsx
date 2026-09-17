@@ -138,7 +138,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
       subjects?.data &&
       !subjects.data.some((subject) => subject.id === Number(currentSubject))
     ) {
-      form.setValue("subject_id", undefined, { shouldValidate: true });
+      form.setValue("subject_id", 0, { shouldValidate: true });
     }
   }, [form, subjects]);
 
@@ -157,63 +157,59 @@ const LessonForm = ({ action, lesson }: IProps) => {
   const goBack = () => setStep((current) => Math.max(current - 1, 0));
 
   const submit = async (values: LessonFormValues) => {
-    if (step < steps.length - 1) {
-      await goNext();
-      return;
-    }
-
-    const valid = await form.trigger();
-    if (!valid) return;
-
-    if (action === "create" && !file) {
-      toast.error(label("Lesson picture is required", "صورة الدرس مطلوبة"));
-      return;
-    }
-
-    const lessonPayload = {
-      education_level_id: Number(values.education_level_id),
-      subject_id: Number(values.subject_id),
-      grade: values.grade.trim(),
-      delivery_mode: values.delivery_mode,
-      booking_type: values.booking_type,
-      title: values.title.trim(),
-      description: values.description.trim(),
-      duration_minutes: Number(values.duration_minutes),
-      price: Number(values.price),
-      sessions_count: Number(values.sessions_count),
-      meeting_url: values.delivery_mode === "online" ? values.meeting_url.trim() : undefined,
-      location: values.delivery_mode === "offline" ? values.location.trim() : undefined,
-      offline_visit_type:
-        values.delivery_mode === "offline" ? values.offline_visit_type.trim() : undefined,
-      max_students:
-        values.booking_type === "group" && values.max_students !== ""
-          ? Number(values.max_students)
-          : undefined,
-    };
-
     try {
+      if (!file && action === "create") {
+        return toast.error(label("Lesson image is required", "صورة الدرس مطلوبة"));
+      }
+
+      const commonValues = {
+        education_level_id: Number(values.education_level_id),
+        subject_id: Number(values.subject_id),
+        grade: values.grade,
+        delivery_mode: values.delivery_mode,
+        booking_type: values.booking_type,
+        title: values.title,
+        description: values.description,
+        duration_minutes: Number(values.duration_minutes),
+        price: Number(values.price),
+        sessions_count: Number(values.sessions_count),
+        ...(values.delivery_mode === "online"
+          ? values.meeting_url
+            ? { meeting_url: values.meeting_url }
+            : {}
+          : {
+              location: values.location,
+              offline_visit_type: values.offline_visit_type,
+            }),
+        ...(values.booking_type === "group" && values.max_students !== ""
+          ? { max_students: Number(values.max_students) }
+          : {}),
+      };
+
       const response =
         action === "create"
           ? await createMutation.mutateAsync({
               token,
-              lesson: { ...lessonPayload, logo: file as File },
+              lesson: {
+                ...commonValues,
+                logo: file as File,
+              },
             })
           : await updateMutation.mutateAsync({
               token,
               lesson: {
-                ...lessonPayload,
                 id: lesson?.id as number,
-                logo: file || undefined,
+                ...commonValues,
+                ...(file ? { logo: file } : {}),
               },
             });
 
       if (!response.status) {
-        await Swal.fire({
+        return Swal.fire({
           icon: "error",
-          title: label("Oops...", "حدث خطأ"),
+          title: label("Error", "حدث خطأ"),
           text: response.message,
         });
-        return;
       }
 
       await Swal.fire({
@@ -345,12 +341,12 @@ const LessonForm = ({ action, lesson }: IProps) => {
               >
                 <input type="radio" value={type} {...form.register("booking_type")} className="sr-only" />
                 <span className="font-semibold text-black-blue">
-                  {type === "private" ? label("Private", "خصوصي") : label("Group", "جماعي")}
+                  {type === "private" ? label("Private", "خاص") : label("Group", "جماعي")}
                 </span>
                 <span className="mt-2 block text-sm text-muted-foreground">
                   {type === "private"
-                    ? label("One teacher + one student.", "مدرس + طالب واحد.")
-                    : label("Multiple students can book available seats.", "عدة طلاب يمكنهم حجز المقاعد المتاحة.")}
+                    ? label("One student per booking.", "طالب واحد لكل حجز.")
+                    : label("Multiple students can join the lesson.", "يمكن لعدة طلاب الانضمام إلى الدرس.")}
                 </span>
               </label>
             ))}
@@ -363,18 +359,13 @@ const LessonForm = ({ action, lesson }: IProps) => {
         <section className="space-y-5 rounded-lg border bg-white p-5">
           <h2 className="text-xl font-bold text-black-blue">{label("Lesson Details", "تفاصيل الدرس")}</h2>
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="text-sm font-medium text-black-blue md:col-span-2">
+            <label className="text-sm font-medium text-black-blue">
               {label("Title", "العنوان")}
               <Input {...form.register("title")} className={inputClassName} />
               {error("title")}
             </label>
-            <label className="text-sm font-medium text-black-blue md:col-span-2">
-              {label("Description", "الوصف")}
-              <Textarea {...form.register("description")} className="mt-2 min-h-32" />
-              {error("description")}
-            </label>
             <label className="text-sm font-medium text-black-blue">
-              {label("Duration (minutes)", "مدة الحصة بالدقائق")}
+              {label("Duration (minutes)", "المدة بالدقائق")}
               <Input type="number" min={1} {...form.register("duration_minutes", { valueAsNumber: true })} className={inputClassName} />
               {error("duration_minutes")}
             </label>
@@ -384,29 +375,29 @@ const LessonForm = ({ action, lesson }: IProps) => {
               {error("price")}
             </label>
             <label className="text-sm font-medium text-black-blue">
-              {label("Sessions Count", "عدد الحصص")}
+              {label("Sessions count", "عدد الحصص")}
               <Input type="number" min={1} {...form.register("sessions_count", { valueAsNumber: true })} className={inputClassName} />
               {error("sessions_count")}
             </label>
           </div>
-          <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
-            {label(
-              "Days and available times need the separate availability/calendar domain; they are not stored as fake Lesson fields.",
-              "الأيام والمواعيد المتاحة تحتاج Availability/Calendar domain مستقل، ولن يتم تخزينها كحقول وهمية داخل Lesson."
-            )}
-          </div>
+          <label className="block text-sm font-medium text-black-blue">
+            {label("Description", "الوصف")}
+            <Textarea {...form.register("description")} rows={5} className={inputClassName} />
+            {error("description")}
+          </label>
+          <ImageUpload file={file} setFile={setFile} />
         </section>
       )}
 
       {step === 4 && (
         <section className="space-y-5 rounded-lg border bg-white p-5">
-          <h2 className="text-xl font-bold text-black-blue">{label("Online Meeting", "الرابط الإلكتروني")}</h2>
+          <h2 className="text-xl font-bold text-black-blue">Online</h2>
           <p className="text-sm text-muted-foreground">
-            {label("Add the meeting link, or leave it empty when the platform will provide it later.", "أضف رابط الاجتماع، أو اتركه فارغًا إذا كانت المنصة ستوفره لاحقًا.")}
+            {label("Provide the live meeting URL. Scheduling days/times will be added through the Availability/Calendar domain.", "أدخل رابط الاجتماع المباشر. سيتم إضافة الأيام والأوقات من خلال نظام التوفر/التقويم.")}
           </p>
-          <label className="text-sm font-medium text-black-blue">
-            {label("Meeting URL", "رابط الاجتماع")}
-            <Input type="url" {...form.register("meeting_url")} disabled={deliveryMode !== "online"} placeholder="https://..." className={inputClassName} />
+          <label className="block text-sm font-medium text-black-blue">
+            Meeting URL
+            <Input {...form.register("meeting_url")} placeholder="https://..." className={inputClassName} />
             {error("meeting_url")}
           </label>
         </section>
@@ -414,26 +405,25 @@ const LessonForm = ({ action, lesson }: IProps) => {
 
       {step === 5 && (
         <section className="space-y-5 rounded-lg border bg-white p-5">
-          <h2 className="text-xl font-bold text-black-blue">{label("Offline Details", "تفاصيل الدرس الحضوري")}</h2>
-          <label className="text-sm font-medium text-black-blue">
-            {label("Location", "مكان الدرس")}
-            <Input {...form.register("location")} disabled={deliveryMode !== "offline"} className={inputClassName} />
-            {error("location")}
-          </label>
-          <label className="text-sm font-medium text-black-blue">
-            {label("Visit Direction", "طريقة الحضور")}
-            <select {...form.register("offline_visit_type")} disabled={deliveryMode !== "offline"} className={`${inputClassName} block h-11 w-full rounded-md px-3`}>
-              <option value="">{label("Select option", "اختر طريقة الحضور")}</option>
-              <option value="teacher_goes_to_student">{label("Teacher goes to student", "المدرس يذهب للطالب")}</option>
-              <option value="student_goes_to_teacher">{label("Student goes to teacher", "الطالب يذهب للمدرس")}</option>
-            </select>
-            {error("offline_visit_type")}
-          </label>
-          <div className="rounded-md bg-amber-50 p-3 text-sm text-amber-900">
-            {label(
-              "Service areas require a dedicated location/availability contract; this form does not send unsupported fields.",
-              "مناطق الخدمة تحتاج Location/Availability contract مستقل؛ لذلك لن نرسل حقولًا غير مدعومة حاليًا."
-            )}
+          <h2 className="text-xl font-bold text-black-blue">Offline</h2>
+          <p className="text-sm text-muted-foreground">
+            {label("The current backend stores the lesson location and visit type. Service areas will be added through the Service Areas domain.", "الباك إند الحالي يخزن مكان الدرس ونوع الزيارة. سيتم إضافة مناطق الخدمة من خلال نطاق مناطق الخدمة.")}
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="text-sm font-medium text-black-blue">
+              {label("Location", "المكان")}
+              <Textarea {...form.register("location")} rows={4} className={inputClassName} />
+              {error("location")}
+            </label>
+            <label className="text-sm font-medium text-black-blue">
+              {label("Visit type", "نوع الزيارة")}
+              <Input
+                {...form.register("offline_visit_type")}
+                placeholder={label("teacher_goes_to_student / student_goes_to_teacher", "المعلم يذهب للطالب / الطالب يذهب للمعلم")}
+                className={inputClassName}
+              />
+              {error("offline_visit_type")}
+            </label>
           </div>
         </section>
       )}
@@ -442,40 +432,32 @@ const LessonForm = ({ action, lesson }: IProps) => {
         <section className="space-y-5 rounded-lg border bg-white p-5">
           <h2 className="text-xl font-bold text-black-blue">{label("Capacity & Publish", "السعة والنشر")}</h2>
           {bookingType === "group" ? (
-            <label className="text-sm font-medium text-black-blue">
-              {label("Maximum Students", "الحد الأقصى للطلاب")}
+            <label className="block text-sm font-medium text-black-blue">
+              {label("Maximum students", "الحد الأقصى للطلاب")}
               <Input type="number" min={1} {...form.register("max_students")} className={inputClassName} />
               {error("max_students")}
-              <span className="mt-1 block text-xs text-muted-foreground">
-                {label("Available seats are calculated from capacity minus active bookings.", "المقاعد المتاحة تُحسب من السعة ناقص الحجوزات الفعالة.")}
-              </span>
             </label>
           ) : (
-            <div className="rounded-md bg-muted/40 p-4 text-sm text-muted-foreground">
-              {label("Private lessons have one student per booking, so group capacity is not required.", "الدرس الخصوصي يكون لطالب واحد لكل حجز، لذلك لا يحتاج سعة مجموعة.")}
-            </div>
+            <p className="rounded-md bg-muted/40 p-4 text-sm text-muted-foreground">
+              {label("Private lessons do not need group capacity.", "الدروس الخاصة لا تحتاج إلى سعة جماعية.")}
+            </p>
           )}
-
-          <ImageUpload
-            file={file}
-            setFile={setFile}
-            title={label("Lesson picture", "صورة الدرس")}
-          />
         </section>
       )}
 
-      <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-3">
         <Button type="button" variant="outline" onClick={goBack} disabled={step === 0 || isSubmitting}>
           {label("Back", "رجوع")}
         </Button>
+
         {step < steps.length - 1 ? (
-          <Button type="button" onClick={goNext} disabled={isSubmitting} className="bg-main hover:bg-main/90">
+          <Button type="button" onClick={goNext} disabled={isSubmitting}>
             {label("Next", "التالي")}
           </Button>
         ) : (
-          <Button type="submit" disabled={isSubmitting} className="bg-main hover:bg-main/90">
-            {action === "update" ? label("Update Lesson", "تحديث الدرس") : label("Publish Lesson", "نشر الدرس")}
-            {isSubmitting && <Loader2 className="ml-2 animate-spin" size={18} />}
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {action === "create" ? label("Create Lesson", "إنشاء الدرس") : label("Update Lesson", "تحديث الدرس")}
           </Button>
         )}
       </div>

@@ -117,11 +117,11 @@ const LessonDetails = () => {
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2 justify-center md:justify-end">
-                      {isAuthenticated && role === "student" && !lessonData.hasEnrolled && Number(lessonData.price) === 0 && (
+                      {isAuthenticated && role === "student" && !lessonData.hasEnrolled && !bookingEnabled && Number(lessonData.price) === 0 && (
                         <EnrollFreeLesson lessonId={lessonData.id} copy={copy} />
                       )}
 
-                      {isAuthenticated && role === "student" && bookingEnabled && (
+                      {isAuthenticated && (role === "student" || role === "parent") && bookingEnabled && !lessonData.hasEnrolled && (
                         <BookLessonDialog
                           lessonId={lessonData.id}
                           bookingType={lessonData.booking_type!}
@@ -137,16 +137,6 @@ const LessonDetails = () => {
                         >
                           {copy.watch}
                         </Link>
-                      )}
-
-                      {isAuthenticated && role === "parent" && bookingEnabled && (
-                        <button
-                          type="button"
-                          onClick={() => toast.info(language === "ar" ? "اختيار الطالب سيتم تفعيله مع واجهة الأبناء." : "Child selection will be enabled with the linked-students UI.")}
-                          className="block w-fit bg-main hover:bg-main/90 rounded-[5px] text-white font-sora text-sm px-6 py-2"
-                        >
-                          {language === "ar" ? "حجز للابن" : "Book for child"}
-                        </button>
                       )}
 
                       {!isAuthenticated && (

@@ -1,6 +1,7 @@
 import axiosAPI from "@/config/axios.config";
 import { ILessonContentRes } from "@/interfaces/lessons/content";
-import { ILessonLecturesRes } from "@/interfaces/lessons/lecture";
+import { ILessonLectureRes, ILessonLecturesRes } from "@/interfaces/lessons/lecture";
+import { ILessonAvailabilityRes } from "@/interfaces/lessons/availability";
 import { ILessonRes, ILessonsRes, LessonBookingType, LessonDeliveryMode } from "@/interfaces/lessons/lesson";
 
 export interface ILessonFilters {
@@ -53,6 +54,13 @@ export const getLessonById = async ({
       Authorization: token ? `Bearer ${token}` : undefined,
     },
   });
+  return data;
+};
+
+export const getLessonAvailability = async (
+  lessonId: number
+): Promise<ILessonAvailabilityRes> => {
+  const { data } = await axiosAPI.get(`/lessons/${lessonId}/availability`);
   return data;
 };
 

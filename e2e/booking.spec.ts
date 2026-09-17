@@ -5,6 +5,12 @@ const browserBaseURL = process.env.E2E_BASE_URL || "http://127.0.0.1:5173";
 const studentEmail = process.env.E2E_STUDENT_EMAIL || "student@elmullim.test";
 const studentPassword = process.env.E2E_STUDENT_PASSWORD || "Student@12345";
 
+const browserUrl = new URL(browserBaseURL);
+
+if (browserUrl.protocol !== "http:" && browserUrl.protocol !== "https:") {
+  throw new Error(`Unsupported E2E_BASE_URL protocol: ${browserUrl.protocol}`);
+}
+
 test("student can create and cancel a booking through the real API", async ({ page }) => {
   const api = await playwrightRequest.newContext({ baseURL: apiBaseURL });
 
@@ -66,18 +72,18 @@ test("student can create and cancel a booking through the real API", async ({ pa
       {
         name: "t_n",
         value: token,
-        url: browserBaseURL,
+        domain: browserUrl.hostname,
         path: "/",
         sameSite: "Strict",
-        secure: false,
+        secure: browserUrl.protocol === "https:",
       },
       {
         name: "r_l",
         value: "student",
-        url: browserBaseURL,
+        domain: browserUrl.hostname,
         path: "/",
         sameSite: "Strict",
-        secure: false,
+        secure: browserUrl.protocol === "https:",
       },
     ]);
 

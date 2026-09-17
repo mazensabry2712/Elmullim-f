@@ -12,6 +12,7 @@ interface IProps {
   lessonId: number;
   bookingType: "private" | "group";
   price: string | number;
+  durationMinutes: number;
   language: "ar" | "en";
 }
 
@@ -58,10 +59,20 @@ const getTimeZoneOffsetMs = (date: Date, timeZone: string) => {
     minute: "2-digit",
     second: "2-digit",
     hour12: false,
+    hourCycle: "h23",
   }).formatToParts(date);
 
-  const values = Object.fromEntries(parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value]));
-  const asUtc = Date.UTC(Number(values.year), Number(values.month) - 1, Number(values.day), Number(values.hour), Number(values.minute), Number(values.second));
+  const values = Object.fromEntries(
+    parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value])
+  );
+  const asUtc = Date.UTC(
+    Number(values.year),
+    Number(values.month) - 1,
+    Number(values.day),
+    Number(values.hour),
+    Number(values.minute),
+    Number(values.second)
+  );
   return asUtc - date.getTime();
 };
 
@@ -71,14 +82,6 @@ const zonedTimeToIso = (date: string, time: string, timeZone: string) => {
   const naiveUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
   const offset = getTimeZoneOffsetMs(naiveUtc, timeZone);
   return new Date(naiveUtc.getTime() - offset).toISOString();
-};
-
-const addMinutes = (time: string, minutes: number) => {
-  const [hours, mins] = time.split(":").map(Number);
-  const total = hours * 60 + mins + minutes;
-  const hh = Math.floor(total / 60);
-  const mm = total % 60;
-  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
 };
 
 const timeToMinutes = (time: string) => {
@@ -91,7 +94,7 @@ const getTodayInputValue = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 };
 
-const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) => {
+const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, language }: IProps) => {
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
   const [open, setOpen] = useState(false);
@@ -109,7 +112,6 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
 
     setLoadingStudents(true);
     const endpoint = role === "student" ? "/student/me" : "/parent/me";
-
     axiosAPI
       .get<IProfileResponse>(endpoint, { headers: { Authorization: `Bearer ${token}` } })
       .then(({ data }) => {
@@ -117,7 +119,6 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
           if (data.data?.id) setStudentId(data.data.id);
           return;
         }
-
         const linkedStudents = data.data?.students ?? [];
         setStudents(linkedStudents);
         setStudentId(linkedStudents[0]?.id ?? null);
@@ -128,70 +129,43 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
 
   const copy = language === "ar"
     ? {
-        book: "احجز الآن",
-        title: "حجز الدرس",
-        student: "الطالب",
-        chooseStudent: "اختر الطالب",
-        noStudents: "لا يوجد أبناء مرتبطون بهذا الحساب.",
-        date: "اختر التاريخ",
-        time: "اختر الموعد المتاح",
-        noTimes: "لا توجد مواعيد متاحة في هذا اليوم.",
-        note: "ملاحظة (اختياري)",
-        confirm: "تأكيد طلب الحجز",
-        cancel: "إلغاء",
-        login: "يجب تسجيل الدخول كطالب أو ولي أمر للحجز.",
-        success: "تم إنشاء الحجز بنجاح",
-        failed: "تعذر إنشاء الحجز",
-        loading: "جاري تحميل بيانات الحجز...",
-        availabilityLoading: "جاري تحميل المواعيد...",
+        book: "احجز الآن", title: "حجز الدرس", student: "الطالب", chooseStudent: "اختر الطالب",
+        noStudents: "لا يوجد أبناء مرتبطون بهذا الحساب.", date: "اختر التاريخ", time: "اختر الموعد المتاح",
+        noTimes: "لا توجد مواعيد متاحة في هذا اليوم.", note: "ملاحظة (اختياري)", confirm: "تأكيد طلب الحجز",
+        cancel: "إلغاء", login: "يجب تسجيل الدخول كطالب أو ولي أمر للحجز.", success: "تم إنشاء الحجز بنجاح",
+        failed: "تعذر إنشاء الحجز", loading: "جاري تحميل بيانات الحجز...", availabilityLoading: "جاري تحميل المواعيد...",
         availabilityError: "تعذر تحميل المواعيد المتاحة.",
       }
     : {
-        book: "Book now",
-        title: "Book lesson",
-        student: "Student",
-        chooseStudent: "Choose student",
-        noStudents: "No linked students were found for this parent account.",
-        date: "Choose date",
-        time: "Choose available time",
-        noTimes: "No available times for this date.",
-        note: "Note (optional)",
-        confirm: "Submit booking",
-        cancel: "Cancel",
-        login: "You must be signed in as a student or parent to book.",
-        success: "Booking created successfully",
-        failed: "Could not create booking",
-        loading: "Loading booking data...",
-        availabilityLoading: "Loading available times...",
+        book: "Book now", title: "Book lesson", student: "Student", chooseStudent: "Choose student",
+        noStudents: "No linked students were found for this parent account.", date: "Choose date", time: "Choose available time",
+        noTimes: "No available times for this date.", note: "Note (optional)", confirm: "Submit booking",
+        cancel: "Cancel", login: "You must be signed in as a student or parent to book.", success: "Booking created successfully",
+        failed: "Could not create booking", loading: "Loading booking data...", availabilityLoading: "Loading available times...",
         availabilityError: "Could not load available times.",
       };
 
   const availableSlots = availability?.data ?? [];
-  const firstTimezone = availableSlots[0]?.timezone || "Africa/Cairo";
   const minimumDate = getTodayInputValue();
 
   const timesForDate = useMemo(() => {
-    if (!selectedDate) return [];
+    if (!selectedDate || durationMinutes <= 0) return [];
     const weekday = isoWeekdayFromDate(selectedDate);
-    const lessonDuration = 60;
-    const candidates: Array<{ value: string; label: string; timezone: string }> = [];
+    const candidates: Array<{ value: string; label: string }> = [];
 
     availableSlots
       .filter((slot: ILessonAvailabilitySlot) => slot.is_active && slot.day_of_week === weekday)
       .forEach((slot) => {
         const start = timeToMinutes(slot.start_time.slice(0, 5));
         const end = timeToMinutes(slot.end_time.slice(0, 5));
-        const starts = new Set<number>();
-        for (let cursor = start; cursor + lessonDuration <= end; cursor += lessonDuration) starts.add(cursor);
-
-        starts.forEach((minutes) => {
-          const time = `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
-          candidates.push({ value: `${time}|${slot.timezone}`, label: `${time} (${slot.timezone})`, timezone: slot.timezone });
-        });
+        for (let cursor = start; cursor + durationMinutes <= end; cursor += durationMinutes) {
+          const time = `${String(Math.floor(cursor / 60)).padStart(2, "0")}:${String(cursor % 60).padStart(2, "0")}`;
+          candidates.push({ value: `${time}|${slot.timezone}`, label: `${time} (${slot.timezone})` });
+        }
       });
 
     return Array.from(new Map(candidates.map((item) => [item.value, item])).values()).sort((a, b) => a.value.localeCompare(b.value));
-  }, [availableSlots, selectedDate]);
+  }, [availableSlots, selectedDate, durationMinutes]);
 
   useEffect(() => {
     if (!timesForDate.some((item) => item.value === selectedTime)) setSelectedTime("");
@@ -208,7 +182,6 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
     }
 
     const [time, timezone] = selectedTime.split("|");
-
     try {
       const response = await mutateAsync({
         token,
@@ -237,8 +210,6 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
     }
   };
 
-  const dateIsValid = selectedDate >= minimumDate;
-
   return (
     <>
       <button type="button" onClick={() => setOpen(true)} className="block w-fit lg:w-full xl:w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2">
@@ -259,6 +230,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
                   ? language === "ar" ? "هذا درس خاص وسيحتاج موافقة المدرس." : "This private lesson requires teacher approval."
                   : language === "ar" ? "هذا درس جماعي وسيبدأ بطلب حجز." : "This group lesson starts with a booking request."}
                 <div className="mt-2 font-semibold">{language === "ar" ? "السعر" : "Price"}: {price}</div>
+                <div className="mt-1 text-xs text-gray-600">{language === "ar" ? `مدة الحصة: ${durationMinutes} دقيقة` : `Lesson duration: ${durationMinutes} minutes`}</div>
               </div>
 
               {role === "parent" && (
@@ -280,11 +252,10 @@ const BookLessonDialog = ({ lessonId, bookingType, price, language }: IProps) =>
                     {copy.date}
                     <input type="date" min={minimumDate} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main" />
                   </label>
-
                   <label className="block text-sm font-medium">
                     {copy.time}
-                    <select aria-label={copy.time} disabled={!dateIsValid || timesForDate.length === 0} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
-                      <option value="">{dateIsValid ? copy.time : copy.noTimes}</option>
+                    <select aria-label={copy.time} disabled={!selectedDate || timesForDate.length === 0} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
+                      <option value="">{copy.time}</option>
                       {timesForDate.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
                     </select>
                     {selectedDate && timesForDate.length === 0 && <p className="mt-1 text-sm text-gray-600">{copy.noTimes}</p>}

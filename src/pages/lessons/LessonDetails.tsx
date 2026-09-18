@@ -82,6 +82,8 @@ const LessonDetails = () => {
                         <BookLessonDialog
                           lessonId={lessonData.id}
                           bookingType={lessonData.booking_type!}
+                          deliveryMode={lessonData.delivery_mode}
+                          offlineVisitType={lessonData.offline_visit_type}
                           price={lessonData.price}
                           durationMinutes={lessonData.duration_minutes ?? 60}
                           language={language}

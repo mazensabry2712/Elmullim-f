@@ -1,4 +1,4 @@
-import { TRole, TUserSearchType } from "@/types";
+import { TUserSearchType } from "@/types";
 
 interface ISender {
   id: number;

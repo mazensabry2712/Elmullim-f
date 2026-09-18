@@ -23,7 +23,7 @@ const LessonCard = ({ lesson, copy }: IProps) => {
       >
         <div className="rounded-[5px] overflow-hidden relative max-h-80 sm:max-h-72 md:max-h-52">
           <span className="absolute top-4 left-4 bg-main text-white font-sora text-sm rounded-[5px] px-2 py-0.5">
-            {language === "ar" ? "درس" : "Lesson"}
+            {text.lessonLabel}
           </span>
           <img
             src={lesson.logo || "/images/placeholder-img.webp"}
@@ -49,14 +49,10 @@ const LessonCard = ({ lesson, copy }: IProps) => {
           </Link>
           <div className="my-3 flex justify-between items-center flex-wrap gap-2 pb-4 border-b-2 border-dashed border-[#4D5756]">
             <span className="rounded-full bg-[#F0F1F1] px-3 py-1 text-xs font-sora">
-              {lesson.delivery_mode === "offline"
-                ? language === "ar" ? "حضوري" : "Offline"
-                : language === "ar" ? "أونلاين" : "Online"}
+              {lesson.delivery_mode === "offline" ? text.offline : text.online}
             </span>
             <span className="rounded-full bg-[#F0F1F1] px-3 py-1 text-xs font-sora">
-              {lesson.booking_type === "group"
-                ? language === "ar" ? "جماعي" : "Group"
-                : language === "ar" ? "خاص" : "Private"}
+              {lesson.booking_type === "group" ? text.group : text.private}
             </span>
           </div>
         </div>
@@ -76,12 +72,12 @@ const LessonCard = ({ lesson, copy }: IProps) => {
         <div className="flex justify-between items-center gap-4">
           <div
             className="flex items-center gap-2"
-            aria-label={Number(lesson.price) === 0 ? text.free : `${lesson.price} EGP`}
+            aria-label={Number(lesson.price) === 0 ? text.free : `${lesson.price} ${text.currency}`}
           >
             {Number(lesson.price) === 0 ? (
               <span className="text-xl">{text.free}</span>
             ) : (
-              <span className="text-main font-exo text-xl">{lesson.price} EGP</span>
+              <span className="text-main font-exo text-xl">{lesson.price} {text.currency}</span>
             )}
           </div>
 

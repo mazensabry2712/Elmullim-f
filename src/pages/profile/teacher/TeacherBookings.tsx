@@ -66,7 +66,7 @@ const TeacherBookings = () => {
               <article key={booking.id} className="rounded-xl border border-gray-200 bg-[#F0F1F1] p-5 shadow-sm">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-black-blue">{booking.lesson?.title ?? `${copy.title} #${booking.lesson_id}`}</h2>
+                    <h2 className="text-xl font-bold text-black-blue">{booking.lesson?.title ?? `${getBookingCopy(language).bookings.lesson} #${booking.lesson_id}`}</h2>
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.student}: {booking.student?.name ?? `#${booking.student_id}`}</p>
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.requested}: {new Date(booking.requested_start_at).toLocaleString()}</p>
                   </div>

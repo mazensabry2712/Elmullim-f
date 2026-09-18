@@ -33,6 +33,7 @@ const TeacherViewCourse = lazy(() => import("@/pages/profile/teacher/TeacherView
 const Bookings = lazy(() => import("@/pages/bookings/Bookings"));
 const Schedule = lazy(() => import("@/pages/bookings/Schedule"));
 const TeacherBookings = lazy(() => import("@/pages/profile/teacher/TeacherBookings"));
+const Notifications = lazy(() => import("@/pages/Notifications"));
 // Profile
 const Profile = lazy(() => import("@/pages/profile/Profile"));
 const UpdateProfile = lazy(() => import("@/pages/profile/UpdateProfile"));
@@ -55,6 +56,7 @@ export const routes = createRoutesFromElements(
       <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} id="chat" />
       <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} id="bookings" />
       <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} id="schedule" />
+      <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} id="notifications" />
       <Route path="/profile/teacher/bookings" element={<ProtectedRoute requiredRole="teacher"><TeacherBookings /></ProtectedRoute>} id="teacher-bookings" />
       <Route path="/profile/teacher/schedule" element={<ProtectedRoute requiredRole="teacher"><Schedule /></ProtectedRoute>} id="teacher-schedule" />
 

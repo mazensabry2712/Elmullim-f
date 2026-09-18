@@ -12,6 +12,8 @@ import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 interface IProps {
   lessonId: number;
   bookingType: "private" | "group";
+  deliveryMode?: "online" | "offline";
+  offlineVisitType?: string | null;
   price: string | number;
   durationMinutes: number;
   language: "ar" | "en";
@@ -92,6 +94,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [customerNote, setCustomerNote] = useState("");
+  const [studentLocation, setStudentLocation] = useState("");
   const { data: availability, isLoading: loadingAvailability, isError: availabilityError } = useGetLessonAvailability(lessonId);
   const { mutateAsync, isPending } = useCreateBooking();
 
@@ -151,6 +154,14 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
       return;
     }
 
+    const needsStudentLocation =
+      deliveryMode === "offline" && offlineVisitType === "teacher_goes_to_student";
+
+    if (needsStudentLocation && !studentLocation.trim()) {
+      toast.error(bookingCopy.studentLocationRequired);
+      return;
+    }
+
     const [time, timezone] = selectedTime.split("|");
     try {
       const response = await mutateAsync({
@@ -160,6 +171,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
           student_id: studentId,
           requested_start_at: zonedTimeToIso(selectedDate, time, timezone),
           ...(customerNote.trim() ? { customer_note: customerNote.trim() } : {}),
+          ...(needsStudentLocation ? { student_location: studentLocation.trim() } : {}),
         },
       });
 
@@ -175,6 +187,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
       setSelectedDate("");
       setSelectedTime("");
       setCustomerNote("");
+      setStudentLocation("");
     } catch {
       toast.error(bookingCopy.failed);
     }
@@ -231,6 +244,20 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
                 </>
               )}
 
+              {deliveryMode === "offline" && offlineVisitType === "teacher_goes_to_student" && (
+                <label className="block text-sm font-medium">
+                  {bookingCopy.studentLocation}
+                  <input
+                    type="text"
+                    value={studentLocation}
+                    onChange={(event) => setStudentLocation(event.target.value)}
+                    placeholder={bookingCopy.studentLocationPlaceholder}
+                    maxLength={255}
+                    className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main"
+                  />
+                </label>
+              )}
+
               <label className="block text-sm font-medium">
                 {bookingCopy.note}
                 <textarea value={customerNote} onChange={(event) => setCustomerNote(event.target.value)} rows={4} maxLength={5000} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main" />
@@ -238,7 +265,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
 
               <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-5 py-2">{bookingCopy.cancel}</button>
-                <button type="button" onClick={submit} disabled={isPending || loadingStudents || loadingAvailability || availableSlots.length === 0 || (role === "parent" && students.length === 0) || !selectedDate || !selectedTime} className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-2 text-white disabled:opacity-60">
+                <button type="button" onClick={submit} disabled={isPending || loadingStudents || loadingAvailability || availableSlots.length === 0 || (role === "parent" && students.length === 0) || !selectedDate || !selectedTime || (deliveryMode === "offline" && offlineVisitType === "teacher_goes_to_student" && !studentLocation.trim())} className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-2 text-white disabled:opacity-60">
                   {isPending && <Loader2 className="animate-spin" size={18} />}
                   {bookingCopy.confirm}
                 </button>

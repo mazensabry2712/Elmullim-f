@@ -1,32 +1,37 @@
 # Elmullim — Project Documentation
 
-هذا المجلد هو المرجع الأساسي لتشغيل وفهم مشروع **Elmullim** من جهة الـFrontend.
+هذا المجلد هو المرجع الأساسي لفهم وتشغيل حالة **Elmullim** من جهة الـFrontend.
 
-## محتويات التوثيق
+## أهم الوثائق الحالية
 
-- `SYSTEM-OVERVIEW.md` — فكرة النظام ومكوناته الحالية.
-- `RUNNING.md` — خطوات تشغيل المشروع محليًا وبناء نسخة Production.
-- `AUTH-AND-ROLES.md` — المستخدمون، تسجيل الدخول، الصلاحيات، ومسارات الحسابات.
-- `FRONTEND-STRUCTURE.md` — تنظيم مشروع React والطبقات الرئيسية.
+- `SYSTEM-OVERVIEW.md` — نظرة عامة على النظام ومكوناته.
+- `RUNNING.md` — خطوات التشغيل والبناء.
+- `AUTH-AND-ROLES.md` — المستخدمون والمصادقة والصلاحيات الحالية.
+- `FRONTEND-STRUCTURE.md` — تنظيم مشروع الواجهة.
+- `IMPLEMENTATION-ROADMAP-STATUS.md` — الحالة التنفيذية الحالية وما تم وما تبقى.
+- `CLIENT.md` — تقرير حالة وتسليم موجه للعميل.
+- `BOOKING-FRONTEND-API-MATRIX.md` — حالة التكامل بين واجهة الحجز والـBackend.
+- `BOOKING-FRONTEND-IMPLEMENTATION.md` — تفاصيل تنفيذ الحجز والدفع والجلسات والحضور والإشعارات.
+- `AVAILABILITY-CALENDAR-STATUS.md` — حالة Availability/Calendar الحالية.
+- `client_abbreviation.md` — أسماء المراحل المختصرة للاستخدام في متابعة العمل.
 
-## المستودعات
+## مبدأ التوثيق
 
-- Frontend: `https://github.com/mazensabry2712/Elmullim-f`
-- Backend: `https://github.com/mazensabry2712/Elmullim-b`
+- وثائق الـRequirements تصف السلوك المطلوب.
+- وثائق الـStatus تصف ما تم تنفيذه فعليًا وما هو متبقٍ.
+- وثيقة `CLIENT.md` هي الملخص المناسب للمراجعة والتسليم للعميل.
+- أي Feature لا يتم اعتبارها مكتملة لمجرد وجود كود أو Tests؛ يجب أن تتوافق Backend + Frontend + Real API + Browser Verification + Tests + Documentation.
+- وثائق الـPhase القديمة تحتفظ بسجل نقاط التحقق التاريخية، بينما يتم الاعتماد على وثائق الـStatus الحالية لمعرفة الحالة الفعلية.
 
 ## التقنية الحالية
 
-- React 19
+- React
 - TypeScript
 - Vite
 - React Router
 - Redux Toolkit
 - TanStack React Query
 - Axios
-- Laravel Echo / Pusher
+- Laravel Echo / Broadcasting
 - Vitest
 - Playwright
-
-## مبدأ التوثيق
-
-هذا التوثيق يشرح **النظام الموجود حاليًا وطريقة تشغيله واستخدامه** فقط. لا يحتوي على خطة تطوير مستقبلية أو قائمة مهام غير منفذة.

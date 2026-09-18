@@ -27,6 +27,7 @@ const renderEventDetails = (initialEntries = ["/events/123"]) =>
       <I18nProvider>
         <Routes>
           <Route path="/events/:eventId" element={<EventDetails />} />
+          <Route path="/events" element={<Events />} />
         </Routes>
       </I18nProvider>
     </MemoryRouter>

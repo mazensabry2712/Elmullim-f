@@ -3,8 +3,6 @@ import {
   getAllLessons,
   getLessonAvailability,
   getLessonById,
-  getLessonContents,
-  getLessonLectures,
   getRelatedLesson,
   ILessonFilters,
 } from "@/services/lessons/lessons";
@@ -34,28 +32,6 @@ export const useGetLessonAvailability = (lessonId: number) =>
     queryKey: [QueryKeys.LESSON_AVAILABILITY, lessonId],
     queryFn: () => getLessonAvailability(lessonId),
     enabled: !!lessonId,
-  });
-
-export const useGetLessonContents = (lessonId: number) =>
-  useQuery({
-    queryKey: [QueryKeys.LESSON_CONTENT, lessonId],
-    queryFn: () => getLessonContents(lessonId),
-    enabled: !!lessonId,
-  });
-
-export const useGetLessonLectures = ({
-  token,
-  lessonId,
-  contentId,
-}: {
-  token: string;
-  lessonId: number;
-  contentId: number;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.LESSON_LECTURES, lessonId, contentId],
-    queryFn: () => getLessonLectures({ token, lessonId, contentId }),
-    enabled: !!lessonId && !!contentId,
   });
 
 export const useGetRelatedLesson = ({

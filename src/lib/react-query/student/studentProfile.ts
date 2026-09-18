@@ -2,7 +2,6 @@ import QueryKeys from "@/enums";
 import { IUpdateStudentProfile } from "@/interfaces/students/studentProfile";
 import {
   getStudentCourses,
-  getStudentLessons,
   getStudentProfile,
   getStudentRatings,
   updateStudentProfile,
@@ -21,9 +20,7 @@ export const useUpdateStudentProfile = () => {
     mutationFn: ({ token, dataForm }: IUpdateStudentProfile) =>
       updateStudentProfile({ token, dataForm }),
     onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.PROFILE],
-      });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.PROFILE] });
     },
   });
 };
@@ -38,10 +35,4 @@ export const useGetStudentCourses = (token: string) =>
   useQuery({
     queryKey: [QueryKeys.COURSES],
     queryFn: () => getStudentCourses(token),
-  });
-
-export const useGetStudentLessons = (token: string) =>
-  useQuery({
-    queryKey: [QueryKeys.LESSONS],
-    queryFn: () => getStudentLessons(token),
   });

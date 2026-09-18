@@ -128,21 +128,3 @@ export const lessonSchema = z
     });
   });
 
-export const lessonContentSchema = z.object({
-  title: requiredText("title is required", "العنوان مطلوب"),
-  description: requiredText("description is required", "الوصف مطلوب"),
-  lessonId: requiredText("lesson is required", "الدرس مطلوب"),
-});
-
-export const lessonLectureSchema = z.object({
-  title: requiredText("title is required", "العنوان مطلوب"),
-  description: requiredText("description is required", "الوصف مطلوب"),
-  lessonId: requiredText("lesson is required", "الدرس مطلوب"),
-  contentId: requiredText("content is required", "المحتوى مطلوب"),
-});
-
-export const lessonVideoSchema = z.object({
-  lessonId: requiredText("lesson is required", "الدرس مطلوب"),
-  contentId: requiredText("content is required", "المحتوى مطلوب"),
-  lectureId: requiredText("lecture is required", "المحاضرة مطلوبة"),
-});

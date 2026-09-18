@@ -866,50 +866,11 @@ export const COURSE_INPUTS: IFormInput[] = [
     type: "select",
   },
 ];
-export const LESSON_INPUTS: IFormInput[] = [
-  {
-    label: "Title",
-    name: "title",
-    type: "text",
-    placeholder: "title",
-  },
-  {
-    label: "Description",
-    name: "description",
-    type: "text",
-    placeholder: "description",
-  },
-  {
-    label: "Price",
-    name: "price",
-    type: "number",
-    placeholder: "price",
-  },
-];
 
 export const COURSE_CONTENT_INPUTS: IFormInput[] = [
   {
     name: "courseId",
     label: "Course",
-    type: "select",
-  },
-  {
-    name: "title",
-    label: "Conent Title",
-    placeholder: "content title",
-    type: "text",
-  },
-  {
-    name: "description",
-    label: "Conent Description",
-    placeholder: "content description",
-    type: "text",
-  },
-];
-export const LESSON_CONTENT_INPUTS: IFormInput[] = [
-  {
-    name: "lessonId",
-    label: "Lesson",
     type: "select",
   },
   {
@@ -950,52 +911,11 @@ export const COURSE_LECTURE_INPUTS: IFormInput[] = [
     type: "text",
   },
 ];
-export const LESSON_LECTURE_INPUTS: IFormInput[] = [
-  {
-    name: "lessonId",
-    label: "Lesson",
-    type: "select",
-  },
-  {
-    name: "contentId",
-    label: "Content",
-    type: "select",
-  },
-  {
-    name: "title",
-    label: "Lecture Title",
-    placeholder: "lecture title",
-    type: "text",
-  },
-  {
-    name: "description",
-    label: "Lecture Description",
-    placeholder: "lecture description",
-    type: "text",
-  },
-];
 
 export const VIDEO_INPUTS: IFormInput[] = [
   {
     name: "courseId",
     label: "Course",
-    type: "select",
-  },
-  {
-    name: "contentId",
-    label: "Content",
-    type: "select",
-  },
-  {
-    name: "lectureId",
-    label: "Lecture",
-    type: "select",
-  },
-];
-export const LESSON_VIDEO_INPUTS: IFormInput[] = [
-  {
-    name: "lessonId",
-    label: "Lesson",
     type: "select",
   },
   {

@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { BookOpen, MessageCircleMore, Upload, User, UserPen } from "lucide-react";
+import { BookOpen, MapPin, MessageCircleMore, Upload, User, UserPen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { useState } from "react";
@@ -22,6 +22,7 @@ const ProfileDropdownMenu = () => {
     lessons: ar ? "دروسي" : "My Lessons",
     uploadCourses: ar ? "رفع الكورسات" : "Upload Courses",
     uploadLessons: ar ? "رفع الدروس" : "Upload Lessons",
+    serviceAreas: ar ? "مناطق الخدمة" : "Service Areas",
     chat: ar ? "الدردشة" : "Chat",
   };
 
@@ -60,6 +61,11 @@ const ProfileDropdownMenu = () => {
             {role === "teacher" && (
               <button className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out" onClick={() => { navigate("/profile/teacher/lessons/upload"); setIsOpen(false); }}>
                 <Upload className="h-4 w-4" /> {text.uploadLessons}
+              </button>
+            )}
+            {role === "teacher" && (
+              <button className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out" onClick={() => { navigate("/profile/teacher/service-areas"); setIsOpen(false); }}>
+                <MapPin className="h-4 w-4" /> {text.serviceAreas}
               </button>
             )}
             <button className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out" onClick={() => { navigate("/profile", { state: { chat: true } }); setIsOpen(false); }}>

@@ -1,5 +1,5 @@
-import { TGender, TRole, TUserSearchType } from "@/types";
-import { ICategory } from "./main.d";
+import { TGender, TUserSearchType } from "@/types";
+
 export interface ICountry {
   id: number;
   name: string;
@@ -87,21 +87,23 @@ export interface ISubCategoryCourse {
   created_at: string;
   updated_at: string;
 }
-export interface UserDetails{
-  address:string;
-  conversation:string | null;
-  description:string | null;
-  education_level:IEducationLevel;
-  email:string;
-  favourite_subjects:IFavoriteSubject[];
-  gender:TGender;
-  id:string;
-  name:string;
-  phone:string;
-  profile_image:string;
+
+export interface UserDetails {
+  address: string;
+  conversation: string | null;
+  description: string | null;
+  education_level: IEducationLevel;
+  email: string;
+  favourite_subjects: IFavoriteSubject[];
+  gender: TGender;
+  id: string;
+  name: string;
+  phone: string;
+  profile_image: string;
 }
-export interface IUserSearch{
-  id:string;
-  type:TUserSearchType;
-  details:UserDetails;
+
+export interface IUserSearch {
+  id: string;
+  type: TUserSearchType;
+  details: UserDetails;
 }

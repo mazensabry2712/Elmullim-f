@@ -29,6 +29,7 @@ const UploadCourse = lazy(() => import("@/pages/profile/teacher/UploadCourse"));
 const UpdateCourse = lazy(() => import("@/pages/profile/teacher/UpdateCourse"));
 const UploadLesson = lazy(() => import("@/pages/profile/teacher/UploadLesson"));
 const UpdateLesson = lazy(() => import("@/pages/profile/teacher/UpdateLesson"));
+const ServiceAreas = lazy(() => import("@/pages/profile/teacher/ServiceAreas"));
 const TeacherViewCourse = lazy(() => import("@/pages/profile/teacher/TeacherViewCourse"));
 const Bookings = lazy(() => import("@/pages/bookings/Bookings"));
 const Schedule = lazy(() => import("@/pages/bookings/Schedule"));
@@ -68,6 +69,7 @@ export const routes = createRoutesFromElements(
       <Route path="/profile/teacher/courses/upload" element={<ProtectedRoute requiredRole="teacher"><UploadCourse /></ProtectedRoute>} />
       <Route path="/profile/my-courses/:courseId/update" element={<ProtectedRoute requiredRole="teacher"><UpdateCourse /></ProtectedRoute>} />
       <Route path="/profile/teacher/lessons/upload" element={<ProtectedRoute requiredRole="teacher"><UploadLesson /></ProtectedRoute>} />
+      <Route path="/profile/teacher/service-areas" element={<ProtectedRoute requiredRole="teacher"><ServiceAreas /></ProtectedRoute>} />
       <Route path="/profile/my-lessons/:lessonId/update" element={<ProtectedRoute requiredRole="teacher"><UpdateLesson /></ProtectedRoute>} />
       <Route path="/profile/my-courses/:courseId/view" element={<ProtectedRoute requiredRole="teacher"><TeacherViewCourse /></ProtectedRoute>} />
       <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} id="profile" />

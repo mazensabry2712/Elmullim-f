@@ -7,6 +7,7 @@ import { useCreateBooking } from "@/lib/react-query/booking";
 import { BookingStatus } from "@/interfaces/bookings/booking";
 import { useGetLessonAvailability } from "@/lib/react-query/lessons/lessons";
 import { ILessonAvailabilitySlot } from "@/interfaces/lessons/availability";
+import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 
 interface IProps {
   lessonId: number;
@@ -27,21 +28,6 @@ interface IProfileResponse {
     students?: IStudentOption[];
   };
 }
-
-const statusCopy: Record<BookingStatus, { ar: string; en: string }> = {
-  booking_requested: { ar: "تم إرسال طلب الحجز", en: "Booking requested" },
-  pending_teacher_approval: { ar: "في انتظار موافقة المدرس", en: "Pending teacher approval" },
-  accepted: { ar: "تم قبول الحجز", en: "Booking accepted" },
-  confirmed: { ar: "تم تأكيد الحجز", en: "Booking confirmed" },
-  upcoming: { ar: "الحجز قادم", en: "Upcoming" },
-  in_progress: { ar: "الحصة جارية", en: "In progress" },
-  completed: { ar: "اكتملت الحصة", en: "Completed" },
-  cancelled: { ar: "تم إلغاء الحجز", en: "Cancelled" },
-  rejected: { ar: "تم رفض الحجز", en: "Rejected" },
-  rescheduled: { ar: "تمت إعادة جدولة الحجز", en: "Rescheduled" },
-  no_show: { ar: "لم يحضر الطالب", en: "No show" },
-  disputed: { ar: "الحجز محل نزاع", en: "Disputed" },
-};
 
 const isoWeekdayFromDate = (date: string) => {
   const [year, month, day] = date.split("-").map(Number);
@@ -97,6 +83,8 @@ const getTodayInputValue = () => {
 const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, language }: IProps) => {
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
+  const copy = getLessonsCopy(language);
+  const bookingCopy = copy.booking;
   const [open, setOpen] = useState(false);
   const [studentId, setStudentId] = useState<number | null>(null);
   const [students, setStudents] = useState<IStudentOption[]>([]);
@@ -123,27 +111,9 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
         setStudents(linkedStudents);
         setStudentId(linkedStudents[0]?.id ?? null);
       })
-      .catch(() => toast.error(language === "ar" ? "تعذر تحميل بيانات الحجز" : "Could not load booking data"))
+      .catch(() => toast.error(bookingCopy.failed))
       .finally(() => setLoadingStudents(false));
-  }, [open, role, token, language]);
-
-  const copy = language === "ar"
-    ? {
-        book: "احجز الآن", title: "حجز الدرس", student: "الطالب", chooseStudent: "اختر الطالب",
-        noStudents: "لا يوجد أبناء مرتبطون بهذا الحساب.", date: "اختر التاريخ", time: "اختر الموعد المتاح",
-        noTimes: "لا توجد مواعيد متاحة في هذا اليوم.", note: "ملاحظة (اختياري)", confirm: "تأكيد طلب الحجز",
-        cancel: "إلغاء", login: "يجب تسجيل الدخول كطالب أو ولي أمر للحجز.", success: "تم إنشاء الحجز بنجاح",
-        failed: "تعذر إنشاء الحجز", loading: "جاري تحميل بيانات الحجز...", availabilityLoading: "جاري تحميل المواعيد...",
-        availabilityError: "تعذر تحميل المواعيد المتاحة.",
-      }
-    : {
-        book: "Book now", title: "Book lesson", student: "Student", chooseStudent: "Choose student",
-        noStudents: "No linked students were found for this parent account.", date: "Choose date", time: "Choose available time",
-        noTimes: "No available times for this date.", note: "Note (optional)", confirm: "Submit booking",
-        cancel: "Cancel", login: "You must be signed in as a student or parent to book.", success: "Booking created successfully",
-        failed: "Could not create booking", loading: "Loading booking data...", availabilityLoading: "Loading available times...",
-        availabilityError: "Could not load available times.",
-      };
+  }, [open, role, token, language, bookingCopy.failed]);
 
   const availableSlots = availability?.data ?? [];
   const minimumDate = getTodayInputValue();
@@ -173,11 +143,11 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
 
   const submit = async () => {
     if (role !== "student" && role !== "parent") {
-      toast.info(copy.login);
+      toast.info(bookingCopy.login);
       return;
     }
     if (!studentId || !selectedDate || !selectedTime) {
-      toast.error(language === "ar" ? "اختر الطالب والتاريخ والموعد" : "Select a student, date, and available time");
+      toast.error(bookingCopy.selectStudentDateTime);
       return;
     }
 
@@ -194,19 +164,19 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
       });
 
       if (!response.status) {
-        toast.error(response.message || copy.failed);
+        toast.error(response.message || bookingCopy.failed);
         return;
       }
 
-      const status = response.data.status;
-      const statusText = statusCopy[status]?.[language] || status;
-      toast.success(`${copy.success}: ${statusText}`);
+      const status = response.data.status as BookingStatus;
+      const statusText = bookingCopy.statuses[status] ?? status;
+      toast.success(`${bookingCopy.success}: ${statusText}`);
       setOpen(false);
       setSelectedDate("");
       setSelectedTime("");
       setCustomerNote("");
     } catch {
-      toast.error(copy.failed);
+      toast.error(bookingCopy.failed);
     }
   };
 
@@ -220,59 +190,57 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 px-4" role="dialog" aria-modal="true" aria-labelledby="book-lesson-title">
           <div className="w-full max-w-lg rounded-xl bg-white p-6 shadow-2xl">
             <div className="flex items-center justify-between gap-4">
-              <h2 id="book-lesson-title" className="text-2xl font-bold text-black-blue">{copy.title}</h2>
-              <button type="button" onClick={() => setOpen(false)} aria-label={copy.cancel}><X /></button>
+              <h2 id="book-lesson-title" className="text-2xl font-bold text-black-blue">{bookingCopy.title}</h2>
+              <button type="button" onClick={() => setOpen(false)} aria-label={bookingCopy.cancel}><X /></button>
             </div>
 
             <div className="mt-6 space-y-4 font-sora">
               <div className="rounded-lg bg-[#F0F1F1] p-4 text-sm">
-                {bookingType === "private"
-                  ? language === "ar" ? "هذا درس خاص وسيحتاج موافقة المدرس." : "This private lesson requires teacher approval."
-                  : language === "ar" ? "هذا درس جماعي وسيبدأ بطلب حجز." : "This group lesson starts with a booking request."}
-                <div className="mt-2 font-semibold">{language === "ar" ? "السعر" : "Price"}: {price}</div>
-                <div className="mt-1 text-xs text-gray-600">{language === "ar" ? `مدة الحصة: ${durationMinutes} دقيقة` : `Lesson duration: ${durationMinutes} minutes`}</div>
+                {bookingType === "private" ? bookingCopy.privateRequiresApproval : bookingCopy.groupBookingRequest}
+                <div className="mt-2 font-semibold">{copy.price}: {price} {copy.currency}</div>
+                <div className="mt-1 text-xs text-gray-600">{bookingCopy.lessonDuration}: {durationMinutes} {copy.durationUnit}</div>
               </div>
 
               {role === "parent" && (
                 <label className="block text-sm font-medium">
-                  {copy.student}
-                  {loadingStudents ? <div className="mt-2 rounded-md bg-gray-100 px-3 py-2 text-gray-600" role="status">{copy.loading}</div> : students.length === 0 ? <div className="mt-2 rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">{copy.noStudents}</div> : <select aria-label={copy.chooseStudent} value={studentId ?? ""} onChange={(event) => setStudentId(Number(event.target.value))} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">{students.map((student) => <option key={student.id} value={student.id}>{student.name}</option>)}</select>}
+                  {bookingCopy.student}
+                  {loadingStudents ? <div className="mt-2 rounded-md bg-gray-100 px-3 py-2 text-gray-600" role="status">{bookingCopy.loading}</div> : students.length === 0 ? <div className="mt-2 rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">{bookingCopy.noStudents}</div> : <select aria-label={bookingCopy.chooseStudent} value={studentId ?? ""} onChange={(event) => setStudentId(Number(event.target.value))} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">{students.map((student) => <option key={student.id} value={student.id}>{student.name}</option>)}</select>}
                 </label>
               )}
 
               {loadingAvailability ? (
-                <div className="rounded-md bg-gray-100 px-3 py-3 text-gray-600" role="status">{copy.availabilityLoading}</div>
+                <div className="rounded-md bg-gray-100 px-3 py-3 text-gray-600" role="status">{bookingCopy.availabilityLoading}</div>
               ) : availabilityError ? (
-                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-3 text-red-700" role="alert">{copy.availabilityError}</div>
+                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-3 text-red-700" role="alert">{bookingCopy.availabilityError}</div>
               ) : availableSlots.length === 0 ? (
-                <div className="rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">{copy.noTimes}</div>
+                <div className="rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">{bookingCopy.noTimes}</div>
               ) : (
                 <>
                   <label className="block text-sm font-medium">
-                    {copy.date}
+                    {bookingCopy.date}
                     <input type="date" min={minimumDate} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main" />
                   </label>
                   <label className="block text-sm font-medium">
-                    {copy.time}
-                    <select aria-label={copy.time} disabled={!selectedDate || timesForDate.length === 0} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
-                      <option value="">{copy.time}</option>
+                    {bookingCopy.time}
+                    <select aria-label={bookingCopy.time} disabled={!selectedDate || timesForDate.length === 0} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
+                      <option value="">{bookingCopy.time}</option>
                       {timesForDate.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
                     </select>
-                    {selectedDate && timesForDate.length === 0 && <p className="mt-1 text-sm text-gray-600">{copy.noTimes}</p>}
+                    {selectedDate && timesForDate.length === 0 && <p className="mt-1 text-sm text-gray-600">{bookingCopy.noTimes}</p>}
                   </label>
                 </>
               )}
 
               <label className="block text-sm font-medium">
-                {copy.note}
+                {bookingCopy.note}
                 <textarea value={customerNote} onChange={(event) => setCustomerNote(event.target.value)} rows={4} maxLength={5000} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main" />
               </label>
 
               <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-5 py-2">{copy.cancel}</button>
+                <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-5 py-2">{bookingCopy.cancel}</button>
                 <button type="button" onClick={submit} disabled={isPending || loadingStudents || loadingAvailability || availableSlots.length === 0 || (role === "parent" && students.length === 0) || !selectedDate || !selectedTime} className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-2 text-white disabled:opacity-60">
                   {isPending && <Loader2 className="animate-spin" size={18} />}
-                  {copy.confirm}
+                  {bookingCopy.confirm}
                 </button>
               </div>
             </div>

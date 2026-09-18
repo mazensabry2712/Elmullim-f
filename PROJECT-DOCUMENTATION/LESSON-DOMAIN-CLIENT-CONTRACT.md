@@ -22,6 +22,11 @@ Phase 1 establishes the Lesson domain fields. The Frontend should consume these 
 
 ## Rules
 
+- Lesson is booking-oriented and is not a Course content hierarchy.
+- Do not create or consume Lesson Content/Lecture/Video endpoints.
+- Do not use legacy Lesson Enrollment for participation; Lesson participation is represented by Booking.
+- Course Content/Lecture/Video and Course Enrollment remain Course-only concerns.
+
 - Do not implement a fake booking flow using the old enrollment endpoint.
 - Do not infer availability, capacity, confirmation, or payment status from local UI state.
 - Booking UI starts only after the Backend exposes the Booking contract.

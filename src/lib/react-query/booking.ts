@@ -13,6 +13,7 @@ import {
   rejectBooking,
   respondToBookingProposal,
   updateSessionStatus,
+  markSessionAttendance,
 } from "@/services/booking";
 
 export const bookingKeys = {
@@ -99,6 +100,17 @@ export const useProposeBookingTime = () => {
 };
 
 export const useInitiateBookingPayment = () => useMutation({ mutationFn: initiateBookingPayment });
+
+export const useMarkSessionAttendance = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: markSessionAttendance,
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule(variables.token) });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.schedule(variables.token) });
+    },
+  });
+};
 
 export const useUpdateSessionStatus = () => {
   const queryClient = useQueryClient();

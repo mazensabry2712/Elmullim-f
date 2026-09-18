@@ -1,306 +1,371 @@
-# Elmullim — Client Delivery & Fixes Plan
+# Elmullim — Client Delivery & Current Status
 
 **Project:** Elmullim Educational Platform  
-**Document type:** Client-facing delivery document  
-**Scope:** Frontend + Backend + Admin Panel  
-**Purpose:** توضيح أعمال الإصلاح والتجهيز اللازمة للوصول إلى نسخة مستقرة وقابلة للتسليم من المنصة الحالية.
+**Document type:** Client-facing delivery and status document  
+**Scope:** Frontend + Backend + Admin Panel + Integration  
+**Last reviewed:** 2026-09-18
 
----
+## 1. Purpose
 
-## 1. نطاق العمل
+This document summarizes the implementation, repair, integration and verification work completed on the current Elmullim platform version, and identifies the remaining work required before final product acceptance.
 
-تم تقسيم أعمال الإصلاح والتجهيز إلى **4 مراحل متتابعة** لتكون مرجعًا واضحًا أثناء المراجعة والتسليم.
+The work has focused on making the existing platform operate as one connected educational system across Student, Parent, Teacher and Admin roles.
 
-الهدف هو تشغيل المنصة الحالية بصورة صحيحة ومتكاملة، مع معالجة مشاكل الـFrontend والـBackend والتكامل مع لوحة الإدارة والخدمات المرتبطة بها.
+## 2. Main implemented product flow
 
-لا يتضمن هذا المستند خطة تطوير مستقبلية أو إضافات غير مرتبطة بتشغيل النسخة محل التسليم.
+The core Lesson flow is now:
 
-### المراحل الأربع
+**Teacher → Lesson → Availability → Booking → Approval/Payment → Session → Schedule → Attendance → Notification**
 
-1. **تثبيت الأساس والتشغيل**
-2. **المصادقة والصلاحيات والحماية**
-3. **الوظائف الأساسية والتكامل والدفع والمحادثات ولوحة الإدارة**
-4. **الاختبار النهائي والمراجعة والتسليم**
+The Lesson domain is intentionally separate from the Course domain.
 
----
+**Course:** Contents → Lectures → Videos → Quizzes → Course Enrollment.
 
-# 2. المرحلة الأولى — تثبيت الأساس والتشغيل
+**Lesson:** Availability → Booking → Session → Attendance and related operational flows.
 
-## الهدف
+## 3. Phase 1 — Foundation and Stabilization
 
-تثبيت بيئة المشروع والتأكد من أن Frontend وBackend يعملان على أساس تقني سليم ومتوافقين مع بعضهما.
+Implemented:
+- Frontend dependency and TypeScript/build stabilization.
+- Backend Laravel project stabilization.
+- Routing and layout review.
+- Centralized API communication.
+- Environment configuration structure.
+- Authentication and protected-route review.
+- Error handling improvements.
+- Removal of obsolete Lesson/Course coupling.
+- Removal of legacy Lesson content, lecture, video and enrollment flows that conflicted with the current Lesson booking model.
 
-## Frontend
+## 4. Phase 2 — Authentication, Roles and Core User Flows
 
-- تثبيت وتنظيم dependencies الخاصة بالمشروع.
-- معالجة تعارضات React / TypeScript / packages المؤثرة على التشغيل.
-- التأكد من سلامة TypeScript compilation.
-- التأكد من سلامة Vite production build.
-- مراجعة الـrouting والـlayouts الأساسية.
-- توحيد إعداد Axios والاتصال المركزي بالـAPI.
-- تنظيم environment variables.
-- التأكد من عدم وجود أسرار أو بيانات حساسة ضمن ملفات المشروع العامة.
-- استخدام environment template واضح للإعدادات المطلوبة.
+Implemented:
+- Student authentication.
+- Teacher authentication.
+- Parent/Family authentication.
+- Admin panel authentication.
+- Login/logout.
+- Email verification.
+- Password reset.
+- Password update.
+- Password confirmation.
+- Protected routes and role-aware behavior.
+- Backend authorization for protected operations.
+- Parent access limited to linked students where applicable.
 
-## Backend
+## 5. Phase 3 — Core Platform Features
 
-- تثبيت Laravel dependencies المطلوبة.
-- التأكد من توافق PHP وLaravel مع النسخة الحالية.
-- مراجعة إعدادات قاعدة البيانات والتخزين والبريد والخدمات الخارجية.
-- مراجعة تحميل routes وcontrollers وmodels والخدمات الأساسية.
-- ضبط الخدمات المطلوبة للتشغيل مثل queues والتخزين والـRealtime حسب البيئة.
-- مراجعة إعدادات الفيديو والدفع والبريد والـbroadcasting.
+### Lessons
 
-## نتيجة المرحلة
+Implemented:
+- Online / Offline.
+- Private / Group.
+- Subject.
+- Education Stage.
+- Grade.
+- Title and Description.
+- Duration.
+- Price.
+- Sessions Count.
+- Meeting URL.
+- Offline location.
+- Offline visit type.
+- Group maximum capacity.
+- Publishing status.
+- Teacher lesson creation/update.
+- Public lesson discovery.
+- Public lesson details.
 
-يصبح المشروع قابلًا للتشغيل بصورة واضحة من بيئة نظيفة، ويكون الـFrontend قادرًا على الاتصال بالـBackend باستخدام إعدادات API صحيحة.
+### Availability and Scheduling
 
----
+Implemented:
+- Weekly recurring availability.
+- Day and time selection.
+- Timezone-aware scheduling.
+- Overlap validation.
+- Teacher blocked periods.
+- Public Lesson availability.
+- Booking based on available times.
+- Server-side availability validation.
 
-# 3. المرحلة الثانية — المصادقة والصلاحيات والحماية
+### Booking
 
-## الهدف
+Implemented:
+- Student booking.
+- Parent booking for linked students.
+- Private teacher approval.
+- Group booking.
+- Accept / Reject.
+- Propose alternative time.
+- Student/Parent response to proposed time.
+- Cancellation.
+- Duplicate booking protection.
+- Group capacity protection.
+- Booking and schedule synchronization.
 
-تثبيت دورة الحسابات وتسجيل الدخول والتحقق والصلاحيات وحماية العمليات الحساسة على مستوى الخادم والواجهة.
+### Payment
 
-## الأدوار الأساسية
+Implemented:
+- Booking payment initiation.
+- Student payment.
+- Parent payment.
+- Payment callback/webhook processing.
+- Server-side payment verification.
+- HMAC verification.
+- Amount verification.
+- Idempotent confirmation.
+- Payment-to-booking synchronization.
+- Payment failure recovery and retry.
+- Financial transaction linkage.
 
-- **Student** — الطالب.
-- **Teacher** — المعلم.
-- **Parent / Family** — ولي الأمر.
-- **Admin** — إدارة لوحة التحكم.
+### Sessions
 
-## Frontend
+Implemented:
+- Session creation for confirmed bookings.
+- Student schedule.
+- Parent schedule.
+- Teacher schedule.
+- Online join authorization.
+- Offline session location display.
+- Session lifecycle.
+- Session conflict detection.
 
-- تنظيم حالة تسجيل الدخول والخروج.
-- حماية الصفحات الخاصة بالمستخدمين المسجلين.
-- فصل الواجهات حسب الدور.
-- توحيد التعامل مع انتهاء الجلسة.
-- تنظيم Login / Register / Forgot Password / Reset Password.
-- تنظيم Email Verification.
-- التعامل الواضح مع حالات `401` و`403`.
-- عدم اعتبار بيانات الـFrontend وحدها مصدرًا حقيقيًا للصلاحيات.
+### Attendance
 
-## Backend
+Implemented:
+- Present.
+- Absent.
+- No Show.
+- Excused.
+- Teacher attendance management.
+- Student/Parent attendance viewing.
+- Attendance protection and validation.
+- No Show synchronization with Booking.
 
-- تأمين authentication لكل نوع مستخدم.
-- تطبيق guards وmiddleware المناسبة.
-- حماية الموارد والمسارات التي تتطلب مستخدمًا موثقًا.
-- حماية العمليات التي تتطلب بريدًا موثقًا.
-- تطبيق rate limiting على العمليات الحساسة مثل التحقق واستعادة كلمة المرور.
-- مراجعة Password Reset وEmail Verification.
-- فرض الصلاحيات فعليًا من الـBackend.
-- منع إنشاء حسابات لوحة الإدارة من خلال التسجيل العام.
+### Notifications
 
-## نتيجة المرحلة
+Implemented:
+- In-app notification storage.
+- Notification center.
+- Unread count.
+- Mark one notification as read.
+- Mark all as read.
+- Booking notifications.
+- Payment confirmation notifications.
+- Student/Parent/Teacher notifications.
+- Arabic and English notification content.
 
-تكون المصادقة والصلاحيات والحماية متماسكة بين الـFrontend والـBackend، ويصل كل مستخدم فقط إلى الوظائف المسموح له بها.
+### Offline Service Areas
 
----
+Implemented:
+- Teacher service-area management.
+- Add/Edit/Delete service areas.
+- Active/Inactive areas.
+- Student location capture when the teacher visits the student.
+- Server-side matching against active teacher service areas.
+- Offline booking validation.
 
-# 4. المرحلة الثالثة — الوظائف الأساسية والتكامل
+### Chat
 
-## الهدف
+Implemented:
+- Existing user chat functionality.
+- Conversation handling.
+- Message handling.
+- Message deletion/management according to the existing permissions.
+- Flagging/reporting support within the existing chat domain.
+- Realtime/Broadcasting support when the required service configuration is enabled.
 
-تشغيل الوظائف الرئيسية للمنصة وربط Frontend وBackend وقاعدة البيانات والخدمات الخارجية بصورة متكاملة.
+### Admin Chat Monitoring
 
-## أولًا — المحتوى التعليمي
+Implemented:
+- Conversation monitoring from the Admin Panel.
+- Participant visibility.
+- Message count and last-message visibility.
+- Message review.
+- Flagged/deleted/attachment visibility.
+- Read-only administrative monitoring.
 
-يشمل التكامل والمراجعة:
+## 6. Phase 4 — Admin Panel
 
-- Courses: Contents, Lectures, Video uploads, Quizzes.
-- Lessons: Lesson details, Availability, Booking, Sessions and the booking workflow.
-- Questions.
-- Question options.
-- Categories / Sub-categories.
-- Subjects.
-- تقييمات المحتوى عند استخدامها.
-
-## ثانيًا — المستخدمون والملفات الشخصية
-
-- Student management.
-- Teacher management.
-- Parent / Family management.
-- Profiles.
-- Ratings.
-- بيانات الحسابات والملفات المرتبطة بها.
-
-## ثالثًا — التسجيل في المحتوى
-
-- Course enrollment.
-- Lesson / learning access حسب التدفق الحالي.
-- ربط حالة التسجيل بحالة المستخدم والمعاملة المالية عند وجود دفع.
-- التأكد من عدم إنشاء تسجيلات مكررة بسبب إعادة الإرسال أو التكرار في الطلب.
-
-## رابعًا — الدفع والمعاملات
-
-### واجهة المستخدم
-
-- بدء عملية الدفع.
-- الانتقال إلى نتيجة الدفع.
-- التعامل مع حالة نجاح أو فشل العملية.
-- عدم اعتبار Redirect من العميل مصدرًا نهائيًا لتأكيد الدفع.
-
-### Backend
-
-- Payment initiation.
-- Payment callback / webhook.
-- التحقق من إشعار الدفع القادم من بوابة الدفع.
-- تسجيل المعاملات.
-- ربط المعاملة بمصدر العملية عند توفره.
-- منع التكرار في تسجيل المعاملات أو تنفيذ أثر الدفع أكثر من مرة.
-- تحديث حالة التسجيل/العملية وفق التدفق المعتمد للدفع.
-- عند فشل مزود الدفع بعد إنشاء Order، يتم تحويل الـOrder إلى حالة `FAILED` بدل بقائه `PENDING`، مما يسمح بمحاولة دفع جديدة.
-
-### Admin Panel — Payment Management
-
-تتضمن لوحة الإدارة الحالية أجزاء إدارة الدفع والمعاملات من خلال:
-
-- **Orders** لمراجعة الطلبات.
-- **Payouts** لمتابعة مستحقات أصحاب الحسابات ومعالجة حالتها حسب الصلاحيات الموجودة.
-- **Transactions** لمراجعة المعاملات المالية المسجلة.
-
-**مهم:** تأكيد نجاح دفع العميل لا يعتمد على قيام مسؤول الإدارة بتغيير الدفع يدويًا، وإنما على نتيجة بوابة الدفع والـwebhook الخاص بها، بينما تستخدم لوحة الإدارة لمراجعة ومتابعة السجلات المالية وإدارتها وفق الوظائف المتاحة.
-
-## خامسًا — User Chat & Realtime
-
-نظام المحادثات الخاص بالمستخدمين موجود ضمن الـBackend ويشمل:
-
-- إنشاء المحادثات.
-- عرض قائمة المحادثات.
-- فتح المحادثة.
-- إرسال الرسائل.
-- حذف الرسائل.
-- إخفاء المحادثة.
-- مسح المحادثة.
-- الإبلاغ عن الرسائل ومراجعة الرسائل المعلّمة.
-- Realtime / Broadcasting عند تفعيل الإعدادات المطلوبة.
-- حماية قنوات الاتصال الخاصة بالمستخدمين.
-
-## سادسًا — Admin Panel Chat
-
-تم استكمال الجزء الإداري الخاص بالمحادثات ضمن نفس نظام الـChat الموجود، دون إنشاء نظام محادثات منفصل أو إضافة الـAdmin كطرف داخل محادثات المستخدمين.
-
-**الحالة الحالية في الـBackend:** توجد وحدة **Admin Chat Monitoring** داخل لوحة الإدارة على المسار `/admin-panel/chat` مع route باسم `chat.index`.
-
-وتتضمن الوحدة الحالية:
-
-- عرض المحادثات المباشرة الموجودة بين المستخدمين.
-- عرض أسماء المشاركين وعدد الرسائل وآخر رسالة.
-- فتح محادثة محددة وعرض الرسائل الخاصة بها.
-- عرض آخر 200 رسالة للمحادثة المحددة.
-- إظهار حالة الرسائل المعلّمة (Flagged) والمحذوفة والمرفقات.
-- استخدام جداول ونظام الـChat الحاليين بدل إنشاء storage أو conversation model منفصل للأدمن.
-- الواجهة الإدارية الحالية **Read-only**، بينما إجراءات الإرسال والحذف والإبلاغ تظل ضمن نظام المستخدمين وصلاحياته الحالية.
-
-## سابعًا — Admin Panel Core
-
-مراجعة وتشغيل الوحدات الإدارية الحالية المرتبطة بالمنصة، ومنها:
+The current Admin Panel includes management/review areas for:
 
 - Dashboard.
-- Countries.
-- Education systems.
-- Education levels.
-- Subjects.
-- Teachers.
-- Students.
-- Families.
 - Users.
+- Students.
+- Teachers.
+- Families.
+- Countries.
+- Education Systems.
+- Education Levels.
+- Subjects.
 - Courses.
+- Contents.
 - Lectures.
 - Quizzes.
 - Questions.
-- Question options.
-- Categories / Sub-categories.
+- Question Options.
+- Categories.
+- Sub-Categories.
 - Orders.
 - Payouts.
 - Transactions.
-- Contents.
 - Coupons.
+- Chat Monitoring.
 
-## نتيجة المرحلة
+## 7. Frontend Experience and Localization
 
-تعمل المنصة كمنظومة واحدة من الواجهة إلى الـAPI وقاعدة البيانات، مع ربط وظائف المحتوى والمستخدمين والتسجيل والدفع والمحادثات ولوحة الإدارة ضمن التدفق التشغيلي المطلوب.
+Implemented:
+- Booking-focused Lesson experience.
+- Student/Parent/Teacher role-aware screens.
+- Arabic / English localization across the main updated flows.
+- RTL / LTR support.
+- Localized Booking and Payment interfaces.
+- Localized Schedule and Attendance interfaces.
+- Localized Notifications.
+- Centralized API error handling.
+- Frontend cleanup and removal of legacy Lesson UI.
 
----
+## 8. Testing and Quality Verification
 
-# 5. المرحلة الرابعة — الاختبار النهائي والمراجعة والتسليم
+Automated tests were added and maintained for the main product domains.
 
-## الهدف
+### Backend coverage
 
-التأكد من أن النسخة النهائية مستقرة وقابلة للمراجعة والتشغيل والتسليم.
+Includes:
+- Authentication.
+- Email verification.
+- Password reset/update.
+- Profile access.
+- Lesson domain.
+- Lesson availability.
+- Teacher blocked periods.
+- Booking lifecycle.
+- Parent booking authorization.
+- Group capacity.
+- Session scheduling and conflicts.
+- Payment and callback handling.
+- Payment failure/retry behavior.
+- Attendance.
+- Notifications.
+- Service areas.
+- Offline location validation.
+- User chat.
+- Admin Chat Monitoring.
+- Student and quiz-related flows.
 
-## Frontend QA
+### Frontend coverage
 
-- تشغيل production build.
-- تشغيل lint عند اعتماده ضمن بيئة المشروع.
-- تشغيل اختبارات Vitest المتاحة.
-- تشغيل اختبارات Playwright المتاحة.
-- مراجعة الـrouting.
-- مراجعة authentication / authorization.
-- مراجعة نماذج الدخول والتسجيل.
-- مراجعة الملفات الشخصية.
-- مراجعة صفحات courses / lessons والوظائف التعليمية الأساسية.
-- مراجعة تدفقات الدفع.
-- مراجعة تدفقات الشات والـRealtime.
-- مراجعة أخطاء الشبكة والاستجابات غير الناجحة.
+Includes:
+- Authentication and protected routes.
+- Home page components.
+- Courses and course details.
+- Lessons and lesson booking.
+- Booking payment.
+- Schedule.
+- Notifications.
+- Chat routing.
+- Unauthorized routing.
+- Profile services.
+- Login/logout services.
+- Localization.
+- Responsive UI behavior.
+- Core service/type behavior.
 
-## Backend QA
+### Current frontend verification
 
-- تشغيل اختبارات Pest المتاحة.
-- اختبار authentication لكل دور أساسي.
-- اختبار Email Verification.
-- اختبار Password Reset / Password Update.
-- اختبار Profile operations.
-- مراجعة guards وmiddleware والصلاحيات.
-- اختبار Payment webhook / callback.
-- مراجعة Transactions وOrders وEnrollments.
-- مراجعة Chat وBroadcasting authorization.
-- مراجعة Courses / Lessons / Quizzes والمسارات المرتبطة بها.
-- مراجعة Admin Panel routes والوحدات الأساسية.
+- **36 test files passed.**
+- **88 tests passed.**
+- **Lint passed.**
+- **Production build passed.**
 
-## مراجعة ما قبل التسليم
+The current production build completes successfully. The remaining Browserslist/caniuse-lite message is a non-blocking maintenance warning.
 
-قبل اعتماد النسخة للتسليم يتم التأكد من:
+## 9. Current Implementation Status
 
-- عدم وجود ملفات environment حساسة داخل المستودع.
-- وجود environment templates المطلوبة.
-- وجود خطوات تشغيل واضحة.
-- ضبط عنوان الـAPI الصحيح للـFrontend.
-- ضبط إعدادات الخدمات الخارجية المطلوبة.
-- مراجعة إعدادات البريد.
-- مراجعة إعدادات الدفع.
-- مراجعة إعدادات الفيديو والتخزين عند الحاجة.
-- مراجعة إعدادات Realtime / Broadcasting.
-- تجهيز بيانات الدخول الخاصة ببيئة التسليم خارج المستودع عند الحاجة.
-- اعتماد production build النهائي.
+### Completed Core
 
-## نتيجة المرحلة
+- Student.
+- Parent/Family.
+- Teacher.
+- Admin Panel.
+- Lesson.
+- Availability.
+- Booking.
+- Private approval.
+- Group capacity.
+- Payment.
+- Sessions.
+- Schedule.
+- Attendance.
+- Notifications.
+- Offline Service Areas.
+- Student Location.
+- User Chat.
+- Admin Chat Monitoring.
+- Arabic / English main-flow localization.
+- Frontend/Backend integration.
+- Automated test coverage.
 
-نسخة مستقرة وقابلة للتسليم التشغيلي، مع توثيق واضح لطريقة التشغيل ونطاق الوظائف التي تم تجهيزها ومراجعتها.
+### Main Remaining Work
 
----
+#### Super Admin
 
-# 6. ملخص المراحل
+- Super Admin authentication.
+- Separation between Admin and Super Admin.
+- Role and permission management.
+- Sensitive administrative authorization.
+- Administrative user management.
+- Platform-level settings and controls.
+- Super Admin automated tests.
+- Super Admin browser verification.
 
-| المرحلة | النطاق | النتيجة |
-|---|---|---|
-| 1 | تثبيت الأساس والتشغيل | بيئة تشغيل مستقرة واتصال صحيح بين Frontend وBackend |
-| 2 | Authentication & Security | حسابات وصلاحيات وحماية أساسية متماسكة |
-| 3 | Core Features + Payment + Chat + Admin | تشغيل الوظائف الرئيسية وربطها في منظومة واحدة |
-| 4 | QA + Final Review + Delivery | نسخة نهائية قابلة للمراجعة والتسليم |
+#### Final QA
 
----
+- Full real browser verification for Student, Parent and Teacher.
+- Real API end-to-end verification.
+- Real payment-provider verification in the target environment.
+- Final regression fixes based on actual browser usage.
+- Final production acceptance checks.
 
-# 7. ملاحظات مهمة للعميل
+#### Remaining Lesson refinements
 
-هذا المستند يصف **أعمال الإصلاح والتجهيز الخاصة بالنسخة الحالية من منصة Elmullim** بغرض الوصول إلى نسخة تشغيلية قابلة للتسليم.
+- Final public Subject/Stage filter controls.
+- Dynamic available-seat display based on the selected Group time slot.
 
-للدقة في التقييم:
+#### Later academic scope
 
-- **Payment Management** موجود ضمن لوحة الإدارة الحالية من خلال Orders وPayouts وTransactions، بينما تأكيد الدفع نفسه يعتمد على تدفق بوابة الدفع والـwebhook.
-- **User Chat** موجود ضمن API الخاصة بالمستخدمين.
-- **Admin Panel Chat** أصبح متاحًا كـ **Read-only monitoring module** على المسار `/admin-panel/chat`، مع الاعتماد على نظام الـChat الحالي.
-- أي وظيفة غير مذكورة هنا لا تعتبر ضمن نطاق الإصلاحات والتجهيزات الموضحة في هذا المستند إلا إذا كانت موجودة بالفعل في النسخة محل التسليم.
+- Completion-linked Ratings.
+- Homework.
+- Exams.
+- Grades.
+- Broader academic reports.
+- Advanced Push/FCM delivery where required.
+- Advanced disputes/reports where required.
+- Automatic recurring Session generation where required.
 
-هذا المستند مخصص للتسليم والمتابعة، وليس وثيقة Roadmap أو خطة Features مستقبلية.
+## 10. Delivery Position
+
+The platform has moved beyond initial setup into the final integration and administrative-completion stage.
+
+The main lesson booking ecosystem is implemented across Frontend and Backend, with automated verification in place.
+
+Final product acceptance depends on completing the remaining Super Admin scope and performing the real browser/API/payment verification against the actual deployment environment.
+
+## 11. Client Acceptance Checklist
+
+Before final acceptance, the following should be verified:
+
+- Student can discover and book an Online/Offline Lesson.
+- Parent can book for a linked Student.
+- Teacher can create Lessons and Availability.
+- Private booking approval works.
+- Group capacity is enforced.
+- Payment confirmation works through the configured payment provider.
+- Sessions appear in schedules.
+- Users can join eligible Online sessions.
+- Attendance can be recorded and viewed correctly.
+- Notifications are generated for supported booking/payment events.
+- Offline service-area validation works.
+- Admin can review the required operational data.
+- Admin can monitor user conversations.
+- Super Admin capabilities are completed and verified.
+- Final browser and API regression checks pass.

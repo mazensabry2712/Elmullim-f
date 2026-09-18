@@ -66,11 +66,11 @@ const TeacherBookings = () => {
               <article key={booking.id} className="rounded-xl border border-gray-200 bg-[#F0F1F1] p-5 shadow-sm">
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
-                    <h2 className="text-xl font-bold text-black-blue">{booking.lesson?.title ?? `Lesson #${booking.lesson_id}`}</h2>
+                    <h2 className="text-xl font-bold text-black-blue">{booking.lesson?.title ?? `${copy.title} #${booking.lesson_id}`}</h2>
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.student}: {booking.student?.name ?? `#${booking.student_id}`}</p>
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.requested}: {new Date(booking.requested_start_at).toLocaleString()}</p>
                   </div>
-                  <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{booking.status}</span>
+                  <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{getBookingCopy(language).bookings.status[booking.status]}</span>
                 </div>
 
                 {booking.teacher_note && <p className="mt-4 rounded-md bg-white p-3 font-sora text-sm">{booking.teacher_note}</p>}
@@ -108,7 +108,7 @@ const TeacherBookings = () => {
                       disabled={acceptMutation.isPending}
                       className="rounded-md bg-main px-4 py-2 text-white disabled:opacity-60"
                     >
-                      Accept
+                      {copy.accept}
                     </button>
                   )}
                   {pendingApproval && (
@@ -118,7 +118,7 @@ const TeacherBookings = () => {
                       disabled={rejectMutation.isPending}
                       className="rounded-md border border-red-200 bg-white px-4 py-2 text-red-600 disabled:opacity-60"
                     >
-                      Reject
+                      {copy.reject}
                     </button>
                   )}
                   <button
@@ -139,7 +139,7 @@ const TeacherBookings = () => {
                     disabled={proposeMutation.isPending}
                     className="rounded-md border border-gray-300 bg-white px-4 py-2 disabled:opacity-60"
                   >
-                    Propose new time
+                    {copy.propose}
                   </button>
                 </div>
               </article>

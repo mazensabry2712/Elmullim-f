@@ -38,8 +38,7 @@ function EnrollCourse() {
     const response = await payment.mutateAsync({
       token,
       walletNumber,
-      orderableType: "courses",
-      orderableId: numericCourseId,
+      courseId: numericCourseId,
     });
     if (response.data?.redirect_url) {
       window.location.assign(response.data.redirect_url);

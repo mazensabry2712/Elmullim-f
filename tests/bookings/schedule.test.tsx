@@ -1,5 +1,5 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import Schedule from "@/pages/bookings/Schedule";
 import { I18nProvider } from "@/i18n";
 
@@ -35,6 +35,7 @@ vi.mock("react-toastify", () => ({
 
 describe("Schedule", () => {
   beforeEach(() => {
+    vi.spyOn(window, "open").mockImplementation(() => null);
     localStorage.setItem("elmullim-language", "en");
     mocks.role = "student";
     mocks.getToken.mockReturnValue("token");
@@ -59,6 +60,10 @@ describe("Schedule", () => {
     mocks.join.mockResolvedValue({ status: true, message: null, data: { session_id: 1, meeting_url: "https://meet.example.test/1", start_at: "2099-01-10T20:00:00Z", end_at: "2099-01-10T21:00:00Z" } });
     mocks.updateStatus.mockReset();
     mocks.updateStatus.mockResolvedValue({ status: true, message: null });
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("allows a student to join an upcoming scheduled session", async () => {

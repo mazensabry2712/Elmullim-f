@@ -7,8 +7,8 @@ import { I18nProvider, useI18n } from "@/i18n";
 
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: { children?: React.ReactNode }) => <div {...props}>{children}</div>,
-    section: ({ children, ...props }: { children?: React.ReactNode }) => <section {...props}>{children}</section>,
+    div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+    section: ({ children }: { children?: React.ReactNode }) => <section>{children}</section>,
   },
 }));
 

@@ -85,18 +85,18 @@ const Bookings = () => {
             <article key={booking.id} className="rounded-xl border border-gray-200 bg-[#F0F1F1] p-5 shadow-sm">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <h2 className="text-xl font-bold text-black-blue">{booking.lesson?.title ?? `Lesson #${booking.lesson_id}`}</h2>
+                  <h2 className="text-xl font-bold text-black-blue">{booking.lesson?.title ?? `${copy.lesson} #${booking.lesson_id}`}</h2>
                   {role === "parent" && booking.student?.name && <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.student}: {booking.student.name}</p>}
                 </div>
                 <span className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{copy.status[booking.status]}</span>
               </div>
 
               <div className="mt-5 space-y-2 font-sora text-sm text-[#4D5756]">
-                <p>{copy.type}: {booking.booking_type}</p>
+                <p>{copy.type}: {booking.booking_type === "private" ? copy.private : copy.group}</p>
                 <p>{copy.requested}: {new Date(booking.requested_start_at).toLocaleString()}</p>
                 {booking.proposed_start_at && <p>{copy.proposed}: {new Date(booking.proposed_start_at).toLocaleString()}</p>}
                 {booking.confirmed_start_at && <p>{copy.confirmed}: {new Date(booking.confirmed_start_at).toLocaleString()}</p>}
-                <p>{copy.price}: {booking.price} EGP</p>
+                <p>{copy.price}: {booking.price} {copy.currency}</p>
                 {booking.teacher_note && <p>{copy.teacherNote}: {booking.teacher_note}</p>}
               </div>
 
@@ -115,7 +115,7 @@ const Bookings = () => {
                 {canCancel(booking.status) && (
                   <button type="button" onClick={() => cancel(booking.id)} disabled={cancelMutation.isPending} className="inline-flex items-center gap-2 rounded-md border border-red-200 bg-white px-4 py-2 text-red-600 disabled:opacity-60">
                     <XCircle size={17} />
-                    Cancel
+                    {copy.cancel}
                   </button>
                 )}
               </div>

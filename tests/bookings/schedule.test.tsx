@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import Schedule from "@/pages/bookings/Schedule";
+import { I18nProvider } from "@/i18n";
 
 const mocks = vi.hoisted(() => ({
   role: "student" as "student" | "teacher",
@@ -34,6 +35,7 @@ vi.mock("react-toastify", () => ({
 
 describe("Schedule", () => {
   beforeEach(() => {
+    localStorage.setItem("elmullim-language", "en");
     mocks.role = "student";
     mocks.getToken.mockReturnValue("token");
     mocks.getSchedule.mockReturnValue({
@@ -60,7 +62,7 @@ describe("Schedule", () => {
   });
 
   it("allows a student to join an upcoming scheduled session", async () => {
-    render(<Schedule />);
+    render(<I18nProvider><Schedule /></I18nProvider>);
 
     fireEvent.click(screen.getByRole("button", { name: "Join session" }));
 
@@ -80,4 +82,11 @@ describe("Schedule", () => {
 
     await waitFor(() => expect(mocks.updateStatus).toHaveBeenCalledWith({ token: "token", sessionId: 2, status: "in_progress" }));
   });
+  it("renders the student schedule in Arabic", () => {
+    localStorage.setItem("elmullim-language", "ar");
+    render(<I18nProvider><Schedule /></I18nProvider>);
+    expect(screen.getByRole("heading", { name: "جدولي" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "الانضمام إلى الحصة" })).toBeInTheDocument();
+  });
+
 });

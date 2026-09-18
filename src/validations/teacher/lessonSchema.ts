@@ -79,6 +79,14 @@ export const lessonSchema = z
     }),
   })
   .superRefine((data, ctx) => {
+    if (data.delivery_mode === "online" && !data.meeting_url) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["meeting_url"],
+        message: validationMessage("meeting URL is required for online lessons", "رابط الاجتماع مطلوب للدروس الأونلاين"),
+      });
+    }
+
     if (data.delivery_mode === "offline") {
       if (!data.location) {
         ctx.addIssue({

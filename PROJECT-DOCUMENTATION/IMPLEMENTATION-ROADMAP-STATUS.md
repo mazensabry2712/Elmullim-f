@@ -1,10 +1,8 @@
 # Elmullim — Roadmap Status Snapshot
 
 **Last reviewed:** 2026-09-18
-**Frontend branch:** `main`
-**Backend branch:** `main`
 
-This snapshot reflects the implementation currently merged into the two main branches.
+This snapshot reflects the current implementation status across the platform.
 
 ## Current state
 
@@ -13,122 +11,193 @@ This snapshot reflects the implementation currently merged into the two main bra
 **Core implementation:** complete for the current booking-domain model.
 
 Implemented:
-- Online / Offline
-- Private / Group
-- Subject / Stage / Grade
-- Title / Description
-- Duration / Price / Sessions count
-- Meeting URL
-- Offline location / visit type
-- Group maximum capacity
-- Publishing status
-- Teacher create/update flow
-- Public published lesson discovery and details
-- Weekly lesson availability
-- Teacher availability blocks
-- Server-side availability validation during booking
+- Online / Offline.
+- Private / Group.
+- Subject / Stage / Grade.
+- Title / Description.
+- Duration / Price / Sessions count.
+- Meeting URL.
+- Offline location / visit type.
+- Group maximum capacity.
+- Publishing status.
+- Teacher create/update flow.
+- Public published lesson discovery and details.
+- Booking-focused Lesson screens.
 
-Still required for the full product specification:
-- Offline service areas
-- Student location and service-area matching
-- Public Stage/Subject/Price/Location filter UI refinement
-- Dynamic available-seat display in the public lesson experience
-- Browser verification for all four lesson combinations
+Remaining refinements:
+- Public Subject/Stage filter controls in the final discovery UI.
+- Dynamic available-seat display based on the selected group time slot.
+- Final browser verification for all four Lesson combinations.
+
+### Availability & Calendar
+
+Implemented:
+- Weekly Lesson availability.
+- ISO weekday contract.
+- Explicit timezone handling.
+- Overlap validation.
+- Teacher blocked periods.
+- Teacher availability management.
+- Public Lesson availability.
+- Availability-driven Date → Time booking selection.
+- Backend enforcement of unavailable periods.
+
+Remaining:
+- Final real API/browser verification.
+- Future calendar exceptions/holidays if required.
 
 ### Booking / Session / Payment
 
 Implemented:
-- Student booking
-- Parent booking for linked student
-- Beneficiary vs booking actor distinction
-- Private teacher approval
-- Group booking flow
-- Accept / Reject / Propose time
-- Student/Parent response to proposal
-- Cancellation
-- Duplicate protection
-- Group capacity enforcement
-- Booking payment initiation
-- Paymob callback / HMAC / amount verification
-- Failed provider Order recovery and payment retry
-- Session creation
-- Session access and join authorization
-- Student / Parent / Teacher schedules
-- Session lifecycle and conflict rules
+- Student booking.
+- Parent booking for linked students.
+- Beneficiary vs booking actor distinction.
+- Private teacher approval.
+- Group booking.
+- Accept / Reject / Propose time.
+- Student/Parent proposal response.
+- Cancellation.
+- Duplicate protection.
+- Group capacity and concurrency protection.
+- Booking payment initiation.
+- Paymob callback / HMAC / amount verification.
+- Failed provider Order recovery and payment retry.
+- Session creation.
+- Session access and join authorization.
+- Student / Parent / Teacher schedules.
+- Session lifecycle and conflict rules.
+
+Remaining:
+- Final real API/browser verification.
+- Automatic recurring Session generation from `sessions_count` as a later extension.
 
 ### Offline service areas
 
 Implemented:
-- Teacher service-area CRUD
-- Active/inactive service-area control
-- Teacher profile/menu entry for Service Areas
-- Student location captured during Offline booking when the teacher visits the student
-- Server-side matching between student location and teacher active service areas
+- Teacher service-area CRUD.
+- Active/inactive service-area control.
+- Frontend Service Areas entry.
+- Student location capture for Teacher Goes To Student.
+- Backend service-area matching.
+- Booking validation against active service areas.
+
+Remaining:
+- Final end-to-end browser verification.
 
 ### Attendance
 
 Implemented:
-- Attendance records per Session + Booking
-- Present / Absent / No Show / Excused
-- Teacher-only attendance updates
-- Student / Parent read access
-- Duplicate attendance protection
-- No Show synchronization with Booking status
-- Session completion preserves No Show state
-- Teacher Schedule attendance controls
-- Student Schedule attendance display
+- Attendance per Session + Booking.
+- Present / Absent / No Show / Excused.
+- Teacher-only updates.
+- Student / Parent read access.
+- Duplicate protection.
+- No Show synchronization with Booking.
+- Teacher Schedule controls.
+- Student Schedule display.
+
+Remaining:
+- Final browser verification.
 
 ### Notifications
 
 Implemented:
-- Database/in-app notification storage
-- Notification API
-- Unread count
-- Mark one as read
-- Mark all as read
-- Booking request / acceptance / rejection / reschedule / cancellation notifications
-- Booking confirmation after successful payment
-- Student / Parent / Teacher recipient handling
-- Frontend notification center
-- Notification bell with unread badge
-- Arabic / English notification content
-
-### Admin oversight
-
-Implemented:
-- Admin Chat Monitoring at `/admin-panel/chat`
-- Read-only conversation/message inspection
-- Participant, message count, last-message and moderation-state visibility
-
-Remaining later admin domains:
-- Lesson/booking approval workflows where required
-- Wider reports and dispute workflows
-
-### Later academic domains
+- Database/in-app notifications.
+- Notification API.
+- Unread count.
+- Mark one read.
+- Mark all read.
+- Booking state notifications.
+- Payment confirmation notifications.
+- Student / Parent / Teacher recipients.
+- Frontend Notification Center.
+- Notification bell and unread badge.
+- Arabic / English content.
 
 Remaining:
-- Homework
-- Exams / Grades
-- Completion-linked rating rules
-- Broader attendance/academic reporting
-- Advanced push/FCM notification delivery where required
+- Advanced Push/FCM delivery if required by the final scope.
+
+### Chat
+
+Implemented:
+- Existing user Chat domain.
+- User chat route protection.
+- Admin Chat Monitoring.
+- Conversation/message inspection.
+- Participant and message-count visibility.
+- Flagged/deleted/attachment visibility.
+- Read-only admin monitoring.
+
+Remaining:
+- Additional dispute/reporting workflows if required.
+
+### Admin Panel
+
+Implemented current administration modules include:
+- Dashboard.
+- Users.
+- Students.
+- Teachers.
+- Families.
+- Countries.
+- Education Systems.
+- Education Levels.
+- Subjects.
+- Courses.
+- Contents.
+- Lectures.
+- Quizzes.
+- Questions.
+- Question Options.
+- Categories / Sub-Categories.
+- Orders.
+- Payouts.
+- Transactions.
+- Coupons.
+- Chat Monitoring.
+
+Remaining administrative completion:
+- Super Admin authentication.
+- Admin vs Super Admin role separation.
+- Role / Permission management.
+- Sensitive administrative authorization.
+- Platform-level administrative settings/controls.
+- Additional approval/reporting/dispute workflows where required.
+
+### Reviews & academic domains
+
+Remaining:
+- Completion-linked rating eligibility.
+- Review moderation completion where required.
+- Homework.
+- Exams / Grades.
+- Broader academic reports.
+- Advanced teacher/student academic reporting.
 
 ## Verification
 
-Automated CI is used for every behavior-changing commit.
+Current local frontend verification:
+- **36 test files / 88 tests passed.**
+- **Lint passed.**
+- **Production build passed.**
 
-Current implementation gate:
-- Backend CI must be green on the latest `main` commit.
-- Frontend CI must be green on the latest `main` commit.
-- Manual browser / real-API verification remains a separate final gate.
+Current backend verification:
+- Latest main CI is green.
+- Latest local database migrations for Attendance, Notifications, Teacher Service Areas and Student Location completed successfully.
 
-The repository should not claim full product completion until backend + frontend + real API + browser verification + documentation agree.
+Separate final gate:
+- Real API end-to-end verification.
+- Browser verification for Student, Parent and Teacher.
+- Real payment-provider verification.
+- Super Admin verification.
 
 ## Execution rule
 
 When a business rule changes:
-1. Update the source-of-truth requirements.
-2. Update Backend implementation and tests.
-3. Update Frontend contract and tests.
+1. Update the product requirements.
+2. Update backend implementation and tests.
+3. Update frontend contracts and tests.
 4. Update this status document.
-5. Keep the final browser / real-API verification outstanding until it is actually executed.
+5. Keep browser/real-API verification separate until it has actually been executed.
+
+The platform should not be described as fully complete until backend, frontend, real API, browser verification, tests and documentation agree.

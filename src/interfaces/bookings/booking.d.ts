@@ -34,6 +34,7 @@ export interface IBooking {
   duration_minutes?: number | null;
   price: string;
   customer_note?: string | null;
+  student_location?: string | null;
   teacher_note?: string | null;
   lesson?: IBookingRelation;
   student?: IBookingRelation;
@@ -56,4 +57,5 @@ export interface ICreateBooking {
   student_id: number;
   requested_start_at: string;
   customer_note?: string;
+  student_location?: string;
 }

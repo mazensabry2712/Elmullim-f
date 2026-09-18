@@ -77,7 +77,7 @@ describe("Schedule", () => {
       data: [{ id: 2, lesson_id: 15, start_at: "2099-01-10T20:00:00Z", end_at: "2099-01-10T21:00:00Z", status: "upcoming", bookings: [], lesson: { id: 15, title: "Frontend Development" } }],
     });
 
-    render(<Schedule />);
+    render(<I18nProvider><Schedule /></I18nProvider>);
     fireEvent.click(screen.getByRole("button", { name: "Start session" }));
 
     await waitFor(() => expect(mocks.updateStatus).toHaveBeenCalledWith({ token: "token", sessionId: 2, status: "in_progress" }));

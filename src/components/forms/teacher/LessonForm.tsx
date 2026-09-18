@@ -87,12 +87,16 @@ const LessonForm = ({ action, lesson }: IProps) => {
     educationLevelId ? String(educationLevelId) : ""
   );
 
-  const steps = useMemo(
-    () => (isArabic
-      ? ["المادة والمرحلة", "نوع الدرس", "نوع الحجز", "تفاصيل الدرس والمواعيد", "Online", "Offline", "السعة والنشر"]
-      : ["Subject & Stage", "Delivery Mode", "Booking Type", "Lesson Details & Availability", "Online", "Offline", "Capacity & Publish"]),
-    [isArabic]
-  );
+  const steps = useMemo(() => {
+    const base = isArabic
+      ? ["المادة والمرحلة", "نوع الدرس", "نوع الحجز", "تفاصيل الدرس والمواعيد"]
+      : ["Subject & Stage", "Delivery Mode", "Booking Type", "Lesson Details & Availability"];
+    const mode = deliveryMode === "online"
+      ? (isArabic ? "Online" : "Online")
+      : (isArabic ? "Offline" : "Offline");
+    const capacity = isArabic ? "السعة والنشر" : "Capacity & Publish";
+    return [...base, mode, capacity];
+  }, [deliveryMode, isArabic]);
 
   function label(english: string, arabic: string) {
     return isArabic ? arabic : english;
@@ -153,8 +157,11 @@ const LessonForm = ({ action, lesson }: IProps) => {
       step === 1 ? ["delivery_mode"] :
       step === 2 ? ["booking_type"] :
       step === 3 ? ["title", "description", "duration_minutes", "price", "sessions_count", "availability"] :
-      step === 4 ? ["meeting_url"] :
-      step === 5 ? ["location", "offline_visit_type"] : ["max_students"];
+      step === 4
+        ? deliveryMode === "online"
+          ? ["meeting_url"]
+          : ["location", "offline_visit_type"]
+        : ["max_students"];
 
     const valid = await form.trigger(fields);
     if (valid) setStep((current) => Math.min(current + 1, steps.length - 1));
@@ -327,29 +334,73 @@ const LessonForm = ({ action, lesson }: IProps) => {
         </section>
       )}
 
-      {step === 4 && (
+      {step === 4 && deliveryMode === "online" && (
         <section className="space-y-5 rounded-lg border bg-white p-5">
           <h2 className="text-xl font-bold text-black-blue">Online</h2>
-          <p className="text-sm text-muted-foreground">{label("Provide the live meeting URL. Availability is configured in the previous step.", "أدخل رابط الاجتماع المباشر. المواعيد متاحة ومحددة في الخطوة السابقة.")}</p>
-          <label className="block text-sm font-medium text-black-blue">Meeting URL<Input {...form.register("meeting_url")} placeholder="https://..." className={inputClassName} />{error("meeting_url")}</label>
+          <p className="text-sm text-muted-foreground">
+            {label(
+              "Provide the live meeting URL. Availability is configured in the previous step.",
+              "أدخل رابط الاجتماع المباشر. المواعيد تم تحديدها في الخطوة السابقة."
+            )}
+          </p>
+          <label className="block text-sm font-medium text-black-blue">
+            Meeting URL
+            <Input {...form.register("meeting_url")} placeholder="https://..." className={inputClassName} />
+            {error("meeting_url")}
+          </label>
+        </section>
+      )}
+
+      {step === 4 && deliveryMode === "offline" && (
+        <section className="space-y-5 rounded-lg border bg-white p-5">
+          <h2 className="text-xl font-bold text-black-blue">Offline</h2>
+          <p className="text-sm text-muted-foreground">
+            {label(
+              "Add the lesson location and how the visit works. Service-area matching will be added through the Service Areas domain.",
+              "أدخل مكان الدرس وطريقة الزيارة. سيتم إضافة مطابقة مناطق الخدمة من خلال نطاق مناطق الخدمة."
+            )}
+          </p>
+          <div className="grid gap-4 md:grid-cols-2">
+            <label className="text-sm font-medium text-black-blue">
+              {label("Location", "المكان")}
+              <Textarea {...form.register("location")} rows={4} className={inputClassName} />
+              {error("location")}
+            </label>
+            <label className="text-sm font-medium text-black-blue">
+              {label("Visit type", "نوع الزيارة")}
+              <Input
+                {...form.register("offline_visit_type")}
+                placeholder={label(
+                  "teacher_goes_to_student / student_goes_to_teacher",
+                  "المعلم يذهب للطالب / الطالب يذهب للمعلم"
+                )}
+                className={inputClassName}
+              />
+              {error("offline_visit_type")}
+            </label>
+          </div>
         </section>
       )}
 
       {step === 5 && (
         <section className="space-y-5 rounded-lg border bg-white p-5">
-          <h2 className="text-xl font-bold text-black-blue">Offline</h2>
-          <p className="text-sm text-muted-foreground">{label("The current backend stores the lesson location and visit type. Service areas will be added through the Service Areas domain.", "الباك إند الحالي يخزن مكان الدرس ونوع الزيارة. سيتم إضافة مناطق الخدمة من خلال نطاق مناطق الخدمة.")}</p>
-          <div className="grid gap-4 md:grid-cols-2">
-            <label className="text-sm font-medium text-black-blue">{label("Location", "المكان")}<Textarea {...form.register("location")} rows={4} className={inputClassName} />{error("location")}</label>
-            <label className="text-sm font-medium text-black-blue">{label("Visit type", "نوع الزيارة")}<Input {...form.register("offline_visit_type")} placeholder={label("teacher_goes_to_student / student_goes_to_teacher", "المعلم يذهب للطالب / الطالب يذهب للمعلم")} className={inputClassName} />{error("offline_visit_type")}</label>
-          </div>
-        </section>
-      )}
-
-      {step === 6 && (
-        <section className="space-y-5 rounded-lg border bg-white p-5">
-          <h2 className="text-xl font-bold text-black-blue">{label("Capacity & Publish", "السعة والنشر")}</h2>
-          {bookingType === "group" ? <label className="block text-sm font-medium text-black-blue">{label("Maximum students", "الحد الأقصى للطلاب")}<Input type="number" min={1} {...form.register("max_students")} className={inputClassName} />{error("max_students")}</label> : <p className="rounded-md bg-muted/40 p-4 text-sm text-muted-foreground">{label("Private lessons do not need group capacity.", "الدروس الخاصة لا تحتاج إلى سعة جماعية.")}</p>}
+          <h2 className="text-xl font-bold text-black-blue">
+            {label("Capacity & Publish", "السعة والنشر")}
+          </h2>
+          {bookingType === "group" ? (
+            <label className="block text-sm font-medium text-black-blue">
+              {label("Maximum students", "الحد الأقصى للطلاب")}
+              <Input type="number" min={1} {...form.register("max_students")} className={inputClassName} />
+              {error("max_students")}
+            </label>
+          ) : (
+            <p className="rounded-md bg-muted/40 p-4 text-sm text-muted-foreground">
+              {label(
+                "Private lessons do not need group capacity.",
+                "الدروس الخاصة لا تحتاج إلى سعة جماعية."
+              )}
+            </p>
+          )}
         </section>
       )}
 

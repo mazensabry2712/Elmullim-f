@@ -119,6 +119,11 @@ const Schedule = () => {
                       {copy.students}: {session.bookings.map((item) => item.student?.name ?? `#${item.student_id}`).join(", ")}
                     </p>
                   )}
+                  {!isTeacher && session.attendances?.length && (
+                    <p className="mt-2 font-sora text-sm text-[#4D5756]">
+                      {copy.attendance}: {session.attendances.map((item) => `${item.student?.name ?? `#${item.student_id}`}: ${copy[item.status === "no_show" ? "noShow" : item.status]}`).join(", ")}
+                    </p>
+                  )}
                 </div>
                 <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{copy.status[session.status]}</span>
               </div>

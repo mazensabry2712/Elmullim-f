@@ -6,6 +6,7 @@ import cookieService from "@/utils/cookieService";
 import {
   useGetSchedule,
   useGetTeacherSchedule,
+  useMarkSessionAttendance,
   useUpdateSessionStatus,
 } from "@/lib/react-query/booking";
 import { IBookingSession } from "@/interfaces/bookings/session";
@@ -21,7 +22,9 @@ const Schedule = () => {
   const studentSchedule = useGetSchedule({ token, enabled: !!token && !isTeacher });
   const teacherSchedule = useGetTeacherSchedule({ token, enabled: !!token && isTeacher });
   const updateStatus = useUpdateSessionStatus();
+  const markAttendance = useMarkSessionAttendance();
   const [joinLoading, setJoinLoading] = useState<number | null>(null);
+  const [attendancePending, setAttendancePending] = useState<string | null>(null);
 
   const data = (isTeacher ? teacherSchedule.data?.data : studentSchedule.data?.data) ?? [];
   const loading = isTeacher ? teacherSchedule.isLoading : studentSchedule.isLoading;
@@ -46,6 +49,19 @@ const Schedule = () => {
       toast.error(copy.couldNotOpen);
     } finally {
       setJoinLoading(null);
+    }
+  };
+
+  const mark = async (sessionId: number, bookingId: number, status: "present" | "absent" | "no_show" | "excused") => {
+    const key = `${sessionId}-${bookingId}`;
+    setAttendancePending(key);
+    try {
+      await markAttendance.mutateAsync({ token, sessionId, bookingId, status });
+      toast.success(copy.saved);
+    } catch {
+      toast.error(copy.couldNotSaveAttendance);
+    } finally {
+      setAttendancePending(null);
     }
   };
 
@@ -106,6 +122,44 @@ const Schedule = () => {
                 </div>
                 <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{copy.status[session.status]}</span>
               </div>
+
+              {isTeacher && session.bookings?.length && (
+                <div className="mt-5 rounded-lg border border-gray-200 bg-white p-4">
+                  <h3 className="mb-3 text-sm font-bold text-black-blue">{copy.attendance}</h3>
+                  <div className="space-y-3">
+                    {session.bookings.map((booking) => {
+                      const record = session.attendances?.find((item) => item.booking_id === booking.id);
+                      const studentName = booking.student?.name ?? `#${booking.student_id}`;
+                      return (
+                        <div key={booking.id} className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+                          <span className="font-sora text-sm text-[#4D5756]">{studentName}</span>
+                          <div className="flex flex-wrap gap-2">
+                            {([
+                              ["present", copy.present],
+                              ["absent", copy.absent],
+                              ["no_show", copy.noShow],
+                              ["excused", copy.excused],
+                            ] as const).map(([status, label]) => {
+                              const pending = attendancePending === `${session.id}-${booking.id}`;
+                              return (
+                                <button
+                                  key={status}
+                                  type="button"
+                                  onClick={() => void mark(session.id, booking.id, status)}
+                                  disabled={pending}
+                                  className={`rounded-md px-3 py-1.5 text-xs font-semibold disabled:opacity-50 ${record?.status === status ? "bg-main text-white" : "border border-gray-300 bg-white text-black-blue"}`}
+                                >
+                                  {label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="mt-5 flex flex-wrap gap-2">
                 {!isTeacher && session.bookings?.map((booking) => (

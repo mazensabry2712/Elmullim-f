@@ -52,7 +52,7 @@ const Schedule = () => {
   const update = async (session: IBookingSession, status: "in_progress" | "completed" | "cancelled") => {
     try {
       await updateStatus.mutateAsync({ token, sessionId: session.id, status });
-      toast.success(`${copy.marked} ${status.replace("_", " ")}.`);
+      toast.success(`${copy.marked} ${copy.status[status]}.`);
     } catch {
       toast.error(copy.couldNotUpdate);
     }

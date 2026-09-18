@@ -204,7 +204,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
       }
 
       await Swal.fire({ icon: "success", title: label("Done", "تم بنجاح"), text: response.message });
-      navigate("/profile", { state: { myLessons: true } });
+      navigate("/profile");
     } catch (requestError) {
       handleResError(requestError);
     }

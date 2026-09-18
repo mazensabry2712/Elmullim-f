@@ -44,14 +44,14 @@ const LessonDetails = () => {
   const canBook = role === "student" || role === "parent";
 
   const infoItems = [
-    lessonData?.booking_type && { label: copy.bookingType, value: lessonData.booking_type === "private" ? language === "ar" ? "خاص" : "Private" : language === "ar" ? "جماعي" : "Group" },
-    lessonData?.delivery_mode && { label: copy.delivery, value: lessonData.delivery_mode === "offline" ? language === "ar" ? "حضوري" : "Offline" : language === "ar" ? "أونلاين" : "Online" },
+    lessonData?.booking_type && { label: copy.bookingType, value: lessonData.booking_type === "private" ? copy.private : copy.group },
+    lessonData?.delivery_mode && { label: copy.delivery, value: lessonData.delivery_mode === "offline" ? copy.offline : copy.online },
     lessonData?.grade && { label: copy.grade, value: lessonData.grade },
     lessonData?.duration_minutes && { label: copy.duration, value: `${lessonData.duration_minutes} ${language === "ar" ? "دقيقة" : "minutes"}` },
     lessonData?.sessions_count && { label: copy.sessions, value: String(lessonData.sessions_count) },
     lessonData?.booking_type === "group" && lessonData.max_students && { label: copy.maximumStudents, value: String(lessonData.max_students) },
     lessonData?.delivery_mode === "offline" && lessonData.location && { label: copy.location, value: lessonData.location },
-    lessonData?.delivery_mode === "offline" && lessonData.offline_visit_type && { label: copy.visitType, value: lessonData.offline_visit_type },
+    lessonData?.delivery_mode === "offline" && lessonData.offline_visit_type && { label: copy.visitType, value: lessonData.offline_visit_type === "teacher_goes_to_student" ? copy.visitTeacherToStudent : copy.visitStudentToTeacher },
   ].filter(Boolean) as Array<{ label: string; value: string }>;
 
   return (
@@ -94,7 +94,7 @@ const LessonDetails = () => {
                   </div>
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 px-4">
                     {infoItems.map((item) => <div key={item.label} className="rounded-lg bg-white p-4 shadow-sm border border-gray-100"><span className="block text-sm font-semibold font-sora text-black-blue">{item.label}</span><div className="mt-1 font-sora text-[#4D5756]">{item.value}</div></div>)}
-                    <div className="rounded-lg bg-white p-4 shadow-sm border border-gray-100"><span className="block text-sm font-semibold font-sora text-black-blue">{language === "ar" ? "السعر" : "Price"}</span><div className="mt-1 font-sora text-main font-semibold">{Number(lessonData.price) === 0 ? copy.free : `${lessonData.price} EGP`}</div></div>
+                    <div className="rounded-lg bg-white p-4 shadow-sm border border-gray-100"><span className="block text-sm font-semibold font-sora text-black-blue">{language === "ar" ? "السعر" : "Price"}</span><div className="mt-1 font-sora text-main font-semibold">{Number(lessonData.price) === 0 ? copy.free : `${lessonData.price} {copy.currency}`}</div></div>
                   </div>
                 </div>
                 <div className="order-1 lg:order-2 col-span-12 lg:col-span-5"><div className="max-h-96 overflow-hidden relative z-10 before:absolute before:w-full before:h-full before:top-3 lg:before:top-6 before:left-3 lg:before:left-6 before:bg-black-blue before:-z-10 before:rounded-lg before:shadow-lg"><img src={lessonData.logo || "/images/placeholder-img.webp"} alt={`${copy.imageAlt}: ${lessonData.title}`} height="100%" width="100%" className="rounded-lg shadow-lg max-h-96 object-cover" /></div></div>

@@ -115,7 +115,7 @@ const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, langu
       .finally(() => setLoadingStudents(false));
   }, [open, role, token, language, bookingCopy.failed]);
 
-  const availableSlots = availability?.data ?? [];
+  const availableSlots = useMemo(() => availability?.data ?? [], [availability?.data]);
   const minimumDate = getTodayInputValue();
 
   const timesForDate = useMemo(() => {

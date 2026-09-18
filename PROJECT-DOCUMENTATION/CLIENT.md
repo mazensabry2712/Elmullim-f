@@ -26,6 +26,7 @@ The Lesson domain is intentionally separate from the Course domain.
 ## 3. Phase 1 — Foundation and Stabilization
 
 Implemented:
+
 - Frontend dependency and TypeScript/build stabilization.
 - Backend Laravel project stabilization.
 - Routing and layout review.
@@ -39,6 +40,7 @@ Implemented:
 ## 4. Phase 2 — Authentication, Roles and Core User Flows
 
 Implemented:
+
 - Student authentication.
 - Teacher authentication.
 - Parent/Family authentication.
@@ -52,11 +54,20 @@ Implemented:
 - Backend authorization for protected operations.
 - Parent access limited to linked students where applicable.
 
+Administrative role separation is now implemented on the Backend:
+
+- Admin accounts.
+- Super Admin accounts.
+- Admin Panel access restricted to administrative accounts.
+- Administrator Management restricted to Super Admin.
+- Admin permissions controlled by the Backend permission system.
+
 ## 5. Phase 3 — Core Platform Features
 
 ### Lessons
 
 Implemented:
+
 - Online / Offline.
 - Private / Group.
 - Subject.
@@ -78,6 +89,7 @@ Implemented:
 ### Availability and Scheduling
 
 Implemented:
+
 - Weekly recurring availability.
 - Day and time selection.
 - Timezone-aware scheduling.
@@ -90,6 +102,7 @@ Implemented:
 ### Booking
 
 Implemented:
+
 - Student booking.
 - Parent booking for linked students.
 - Private teacher approval.
@@ -105,6 +118,7 @@ Implemented:
 ### Payment
 
 Implemented:
+
 - Booking payment initiation.
 - Student payment.
 - Parent payment.
@@ -120,6 +134,7 @@ Implemented:
 ### Sessions
 
 Implemented:
+
 - Session creation for confirmed bookings.
 - Student schedule.
 - Parent schedule.
@@ -132,6 +147,7 @@ Implemented:
 ### Attendance
 
 Implemented:
+
 - Present.
 - Absent.
 - No Show.
@@ -144,6 +160,7 @@ Implemented:
 ### Notifications
 
 Implemented:
+
 - In-app notification storage.
 - Notification center.
 - Unread count.
@@ -157,6 +174,7 @@ Implemented:
 ### Offline Service Areas
 
 Implemented:
+
 - Teacher service-area management.
 - Add/Edit/Delete service areas.
 - Active/Inactive areas.
@@ -167,6 +185,7 @@ Implemented:
 ### Chat
 
 Implemented:
+
 - Existing user chat functionality.
 - Conversation handling.
 - Message handling.
@@ -177,6 +196,7 @@ Implemented:
 ### Admin Chat Monitoring
 
 Implemented:
+
 - Conversation monitoring from the Admin Panel.
 - Participant visibility.
 - Message count and last-message visibility.
@@ -189,7 +209,7 @@ Implemented:
 The current Admin Panel includes management/review areas for:
 
 - Dashboard.
-- Users.
+- Administrators.
 - Students.
 - Teachers.
 - Families.
@@ -211,9 +231,26 @@ The current Admin Panel includes management/review areas for:
 - Coupons.
 - Chat Monitoring.
 
+### Administrative permissions
+
+The Backend now provides:
+
+- Admin vs Super Admin roles.
+- Native role-based permissions.
+- View permissions for read access.
+- Manage permissions for create/update/delete access.
+- Manage automatically implies View.
+- Super Admin full-access bypass.
+- Super Admin-only Administrator Management.
+- Super Admin-only Permission Management.
+- Backend authorization on protected routes.
+- Permission-aware Admin navigation.
+- Safety rules preventing removal of the last Super Admin through the normal UI.
+
 ## 7. Frontend Experience and Localization
 
 Implemented:
+
 - Booking-focused Lesson experience.
 - Student/Parent/Teacher role-aware screens.
 - Arabic / English localization across the main updated flows.
@@ -231,6 +268,7 @@ Automated tests were added and maintained for the main product domains.
 ### Backend coverage
 
 Includes:
+
 - Authentication.
 - Email verification.
 - Password reset/update.
@@ -250,11 +288,13 @@ Includes:
 - Offline location validation.
 - User chat.
 - Admin Chat Monitoring.
+- Admin vs Super Admin authorization and permissions.
 - Student and quiz-related flows.
 
 ### Frontend coverage
 
 Includes:
+
 - Authentication and protected routes.
 - Home page components.
 - Courses and course details.
@@ -287,6 +327,8 @@ The current production build completes successfully. The remaining Browserslist/
 - Parent/Family.
 - Teacher.
 - Admin Panel.
+- Admin vs Super Admin role separation.
+- Native Admin permission system.
 - Lesson.
 - Availability.
 - Booking.
@@ -307,16 +349,14 @@ The current production build completes successfully. The remaining Browserslist/
 
 ### Main Remaining Work
 
-#### Super Admin
+#### Administrative verification
 
-- Super Admin authentication.
-- Separation between Admin and Super Admin.
-- Role and permission management.
-- Sensitive administrative authorization.
-- Administrative user management.
-- Platform-level settings and controls.
-- Super Admin automated tests.
-- Super Admin browser verification.
+- Run the backend test suite on the latest permission implementation in the current local checkout.
+- Verify Admin and Super Admin flows in the real browser.
+- Verify changing Admin permissions changes real access.
+- Verify direct unauthorized URLs return 403.
+- Verify production migration and permission seeding behavior.
+- Complete any platform-level settings or sensitive-operation controls required by the final scope.
 
 #### Final QA
 
@@ -344,11 +384,11 @@ The current production build completes successfully. The remaining Browserslist/
 
 ## 10. Delivery Position
 
-The platform has moved beyond initial setup into the final integration and administrative-completion stage.
+The platform has moved into the final integration, administrative authorization and verification stage.
 
-The main lesson booking ecosystem is implemented across Frontend and Backend, with automated verification in place.
+The main Lesson Booking ecosystem is implemented across Frontend and Backend, and the Backend now has a native Admin/Super Admin permission layer.
 
-Final product acceptance depends on completing the remaining Super Admin scope and performing the real browser/API/payment verification against the actual deployment environment.
+Final product acceptance still depends on current-checkout backend verification, real browser/API/payment verification, and any remaining final-scope administrative controls.
 
 ## 11. Client Acceptance Checklist
 
@@ -365,7 +405,8 @@ Before final acceptance, the following should be verified:
 - Attendance can be recorded and viewed correctly.
 - Notifications are generated for supported booking/payment events.
 - Offline service-area validation works.
-- Admin can review the required operational data.
-- Admin can monitor user conversations.
-- Super Admin capabilities are completed and verified.
+- Admin can review the required operational data according to assigned permissions.
+- Admin can monitor user conversations when granted Chat Monitoring access.
+- Super Admin can manage administrators and Admin permissions.
+- Unauthorized Admin routes are rejected by the Backend.
 - Final browser and API regression checks pass.

@@ -201,7 +201,6 @@
 - Users.
 - Courses.
 - Lectures.
-- Lessons.
 - Quizzes.
 - Questions.
 - Question options.

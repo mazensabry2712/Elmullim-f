@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useI18n } from "@/i18n";
 import { Loader } from "lucide-react";
 import cookieService from "@/utils/cookieService";
 import {
@@ -8,8 +9,11 @@ import {
   useRejectBooking,
 } from "@/lib/react-query/booking";
 import { IBooking } from "@/interfaces/bookings/booking";
+import { getBookingCopy } from "@/pages/bookings/bookingCopy";
 
 const TeacherBookings = () => {
+  const { language } = useI18n();
+  const copy = getBookingCopy(language).teacherBookings;
   const token = cookieService.getToken() || "";
   const { data, isLoading, isError, refetch } = useGetTeacherBookings({ token, enabled: !!token });
   const acceptMutation = useAcceptBooking();
@@ -26,7 +30,7 @@ const TeacherBookings = () => {
     try {
       await action();
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Could not update booking.");
+      setError(requestError instanceof Error ? requestError.message : copy.couldNotUpdate);
     }
   };
 
@@ -34,8 +38,8 @@ const TeacherBookings = () => {
     <main className="bg-white min-h-screen py-12">
       <div className="container">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-5xl font-bold text-black-blue">Lesson Bookings</h1>
-          <p className="mt-3 font-sora text-[#4D5756]">Review requests and manage your lesson booking schedule.</p>
+          <h1 className="text-3xl md:text-5xl font-bold text-black-blue">{copy.title}</h1>
+          <p className="mt-3 font-sora text-[#4D5756]">{copy.description}</p>
         </div>
 
         {error && <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">{error}</div>}
@@ -46,13 +50,13 @@ const TeacherBookings = () => {
 
         {isError && !isLoading && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-6" role="alert">
-            <p>Could not load lesson bookings.</p>
-            <button type="button" onClick={() => refetch()} className="mt-3 rounded-md bg-main px-4 py-2 text-white">Retry</button>
+            <p>{copy.couldNotLoad}</p>
+            <button type="button" onClick={() => refetch()} className="mt-3 rounded-md bg-main px-4 py-2 text-white">{copy.retry}</button>
           </div>
         )}
 
         {!isLoading && !isError && bookings.length === 0 && (
-          <div className="rounded-lg border border-dashed border-gray-300 p-10 text-center font-sora text-[#4D5756]">No bookings found.</div>
+          <div className="rounded-lg border border-dashed border-gray-300 p-10 text-center font-sora text-[#4D5756]">{copy.noBookings}</div>
         )}
 
         <div className="grid gap-5">
@@ -63,8 +67,8 @@ const TeacherBookings = () => {
                 <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                   <div>
                     <h2 className="text-xl font-bold text-black-blue">{booking.lesson?.title ?? `Lesson #${booking.lesson_id}`}</h2>
-                    <p className="mt-1 font-sora text-sm text-[#4D5756]">Student: {booking.student?.name ?? `#${booking.student_id}`}</p>
-                    <p className="mt-1 font-sora text-sm text-[#4D5756]">Requested: {new Date(booking.requested_start_at).toLocaleString()}</p>
+                    <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.student}: {booking.student?.name ?? `#${booking.student_id}`}</p>
+                    <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.requested}: {new Date(booking.requested_start_at).toLocaleString()}</p>
                   </div>
                   <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{booking.status}</span>
                 </div>
@@ -73,7 +77,7 @@ const TeacherBookings = () => {
 
                 <div className="mt-5 grid gap-4 md:grid-cols-3">
                   <div>
-                    <label htmlFor={`proposed-${booking.id}`} className="block text-sm font-medium">New time</label>
+                    <label htmlFor={`proposed-${booking.id}`} className="block text-sm font-medium">{copy.newTime}</label>
                     <input
                       id={`proposed-${booking.id}`}
                       type="datetime-local"
@@ -84,7 +88,7 @@ const TeacherBookings = () => {
                     />
                   </div>
                   <div className="md:col-span-2">
-                    <label htmlFor={`note-${booking.id}`} className="block text-sm font-medium">Teacher note</label>
+                    <label htmlFor={`note-${booking.id}`} className="block text-sm font-medium">{copy.note}</label>
                     <textarea
                       id={`note-${booking.id}`}
                       value={note[booking.id] ?? ""}
@@ -122,7 +126,7 @@ const TeacherBookings = () => {
                     onClick={() => {
                       const value = proposedTime[booking.id];
                       if (!value) {
-                        setError("Choose a new date and time first.");
+                        setError(copy.chooseTime);
                         return;
                       }
                       void run(() => proposeMutation.mutateAsync({

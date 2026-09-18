@@ -93,7 +93,7 @@ const Schedule = () => {
                 <div>
                   <div className="flex items-center gap-2">
                     <CalendarClock size={19} className="text-main" />
-                    <h2 className="text-xl font-bold text-black-blue">{session.lesson?.title ?? `Lesson #${session.lesson_id}`}</h2>
+                    <h2 className="text-xl font-bold text-black-blue">{session.lesson?.title ?? `${getBookingCopy(language).bookings.lesson} #${session.lesson_id}`}</h2>
                   </div>
                   <p className="mt-2 font-sora text-sm text-[#4D5756]">
                     {new Date(session.start_at).toLocaleString()} → {new Date(session.end_at).toLocaleTimeString()}
@@ -104,7 +104,7 @@ const Schedule = () => {
                     </p>
                   )}
                 </div>
-                <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{session.status}</span>
+                <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{copy.status[session.status]}</span>
               </div>
 
               <div className="mt-5 flex flex-wrap gap-2">
@@ -123,17 +123,17 @@ const Schedule = () => {
 
                 {isTeacher && session.status === "upcoming" && (
                   <button type="button" onClick={() => void update(session, "in_progress")} disabled={updateStatus.isPending} className="rounded-md bg-main px-4 py-2 text-white disabled:opacity-50">
-                    Start session
+                    {copy.start}
                   </button>
                 )}
                 {isTeacher && session.status === "in_progress" && (
                   <button type="button" onClick={() => void update(session, "completed")} disabled={updateStatus.isPending} className="rounded-md bg-main px-4 py-2 text-white disabled:opacity-50">
-                    Complete session
+                    {copy.complete}
                   </button>
                 )}
                 {isTeacher && ["upcoming", "in_progress"].includes(session.status) && (
                   <button type="button" onClick={() => void update(session, "cancelled")} disabled={updateStatus.isPending} className="rounded-md border border-red-200 bg-white px-4 py-2 text-red-600 disabled:opacity-50">
-                    Cancel session
+                    {copy.cancel}
                   </button>
                 )}
               </div>

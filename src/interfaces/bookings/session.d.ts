@@ -30,4 +30,5 @@ export interface IBookingSession {
     student?: { id: number; name?: string };
     status?: string;
   }>;
+  attendances?: IAttendance[];
 }

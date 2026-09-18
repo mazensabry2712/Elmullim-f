@@ -108,12 +108,8 @@
 
 يشمل التكامل والمراجعة:
 
-- Courses.
-- Lectures.
-- Lessons.
-- Contents.
-- Video uploads.
-- Quizzes.
+- Courses: Contents, Lectures, Video uploads, Quizzes.
+- Lessons: Lesson details, Availability, Booking, Sessions and the booking workflow.
 - Questions.
 - Question options.
 - Categories / Sub-categories.

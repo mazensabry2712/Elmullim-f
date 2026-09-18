@@ -152,6 +152,48 @@ describe("BookLessonDialog", () => {
     );
   });
 
+  it("captures student location for teacher-to-student offline lessons", async () => {
+    render(
+      <BookLessonDialog
+        lessonId={9}
+        bookingType="private"
+        deliveryMode="offline"
+        offlineVisitType="teacher_goes_to_student"
+        price="300.00"
+        durationMinutes={60}
+        language="en"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Book now" }));
+    await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
+
+    fireEvent.change(screen.getByLabelText("Choose date"), {
+      target: { value: "2099-01-10" },
+    });
+    await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
+    fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), {
+      target: { value: "18:00|Africa/Cairo" },
+    });
+
+    const location = screen.getByPlaceholderText("Enter the area/address where the lesson will take place");
+    fireEvent.change(location, { target: { value: "Nasr City, Cairo" } });
+
+    fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
+
+    await waitFor(() =>
+      expect(mocks.mutateAsync).toHaveBeenCalledWith({
+        token: "test-token",
+        lessonId: 9,
+        booking: {
+          student_id: 42,
+          requested_start_at: expect.stringMatching(/^2099-01-10T16:00:00\.000Z$/),
+          student_location: "Nasr City, Cairo",
+        },
+      })
+    );
+  });
+
   it("renders Arabic booking labels consistently", async () => {
     render(
       <BookLessonDialog

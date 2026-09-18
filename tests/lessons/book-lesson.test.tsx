@@ -152,6 +152,27 @@ describe("BookLessonDialog", () => {
     );
   });
 
+  it("renders Arabic booking labels consistently", async () => {
+    render(
+      <BookLessonDialog
+        lessonId={7}
+        bookingType="private"
+        price="0"
+        durationMinutes={60}
+        language="ar"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "احجز الآن" }));
+
+    await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
+    expect(screen.getByRole("heading", { name: "حجز الدرس" })).toBeInTheDocument();
+    expect(screen.getByLabelText("اختر التاريخ")).toBeInTheDocument();
+    expect(screen.getByLabelText("اختر الموعد المتاح")).toBeInTheDocument();
+    expect(screen.getByText("السعر: 0 جنيه")).toBeInTheDocument();
+    expect(screen.getByText("هذا درس خاص ويحتاج إلى موافقة المعلم.")).toBeInTheDocument();
+  });
+
   it("does not offer times on a day without matching availability", async () => {
     render(
       <BookLessonDialog

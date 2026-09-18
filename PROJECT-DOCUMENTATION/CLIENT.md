@@ -412,3 +412,33 @@ Before final acceptance, the following should be verified:
 - Super Admin can manage administrators and Admin permissions.
 - Unauthorized Admin routes are rejected by the Backend.
 - Final browser and API regression checks pass.
+
+
+## 12. Admin Panel staged completion clarification
+
+The existing Admin Panel foundation, Admin/Super Admin authorization and Chat Monitoring are implemented, but the complete operational Admin scope is still being finished in controlled stages.
+
+The remaining Admin completion track is:
+
+```text
+AP0 — Admin Stabilization
+AP1 — Admin Dashboard
+AP2 — Lesson Administration
+AP3 — Booking Administration
+AP4 — Sessions & Calendar
+AP5 — Attendance Administration
+AP6 — Financial Administration
+AP7 — Reviews Administration
+AP8 — Availability & Areas
+AP9 — Communication & Notifications
+AP10 — Reports & Final Controls
+AP11 — Admin QA & Delivery
+```
+
+A phase is not considered complete until implementation, authorization, tests, real API/browser verification where applicable, and documentation agree.
+
+The detailed master roadmap is maintained in the Backend repository:
+`PROJECT-DOCUMENTATION/ADMIN-PANEL-ROADMAP.md`
+
+The Frontend companion contract is maintained in:
+`PROJECT-DOCUMENTATION/ADMIN-PANEL-INTEGRATION-ROADMAP.md`

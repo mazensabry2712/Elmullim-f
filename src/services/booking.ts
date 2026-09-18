@@ -120,3 +120,19 @@ export const updateSessionStatus = async ({ token, sessionId, status }: {
   const { data } = await axiosAPI.post(`/teacher/sessions/${sessionId}/status`, { status }, { headers: authHeaders(token) });
   return data;
 };
+
+
+export const markSessionAttendance = async ({ token, sessionId, bookingId, status, note }: {
+  token: string;
+  sessionId: number;
+  bookingId: number;
+  status: "present" | "absent" | "no_show" | "excused";
+  note?: string;
+}) => {
+  const { data } = await axiosAPI.post(
+    `/teacher/sessions/${sessionId}/attendance`,
+    { booking_id: bookingId, status, ...(note?.trim() ? { note: note.trim() } : {}) },
+    { headers: authHeaders(token) }
+  );
+  return data;
+};

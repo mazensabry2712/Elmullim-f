@@ -81,6 +81,23 @@ Parent Account
 - التقارير والإحصائيات.
 
 # 3. أنواع الدروس
+
+## 3.1 فصل الـLesson عن الـCourse
+
+الـLesson في هذا النظام **ليس Course مصغرًا** ولا يستخدم hierarchy الخاصة بالكورسات:
+
+**Lesson لا يعتمد على: Content → Lecture → Recorded Video → Course Enrollment.**
+
+الـLesson يمثل عرضًا تعليميًا قابلًا للحجز، ويعتمد على:
+
+**Lesson → Availability → Booking → Session**
+
+أما الـCourse فيظل هو المجال المسؤول عن:
+
+**Course → Contents → Lectures → Videos → Quizzes → Course Enrollment**
+
+أي كود أو شاشة تعامل الـLesson على أنه Course Content/Lecture يجب اعتباره Legacy وغير متوافق مع هذا التصميم.
+
 | Delivery | Booking Type | Description |
 |---|---|---|
 | Online | Private | مدرس + طالب واحد |

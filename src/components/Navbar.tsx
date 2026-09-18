@@ -8,11 +8,13 @@ import {
   logoVariants,
   navItemsVariants,
 } from "@/animations";
-import { AlignJustify, ChevronDown, Languages, X } from "lucide-react";
+import { AlignJustify, Bell, ChevronDown, Languages, X } from "lucide-react";
 import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import ProfileDropdownMenu from "./profiles/ProfileMenu";
 import { useI18n } from "@/i18n";
+import cookieService from "@/utils/cookieService";
+import { useGetNotifications } from "@/lib/react-query/notifications";
 
 const links = [
   { key: "home", path: "/" },
@@ -36,6 +38,8 @@ const Navbar = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const path = useLocation().pathname;
   const { language, t, toggleLanguage } = useI18n();
+  const token = cookieService.getToken() || "";
+  const notifications = useGetNotifications({ token, enabled: isAuthenticated && !!token });
 
   useEffect(() => {
     const handleResize = () => {
@@ -121,7 +125,21 @@ const Navbar = () => {
             </motion.button>
 
             {isAuthenticated ? (
-              <motion.div><ProfileDropdownMenu /></motion.div>
+              <>
+                <Link
+                  to="/notifications"
+                  aria-label={language === "ar" ? "الإشعارات" : "Notifications"}
+                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-md text-black-blue transition-colors hover:bg-white-gray hover:text-main"
+                >
+                  <Bell size={19} />
+                  {(notifications.data?.data?.unread_count ?? 0) > 0 && (
+                    <span className="absolute -right-0.5 -top-0.5 min-w-5 rounded-full bg-main px-1 text-center text-[10px] font-bold leading-5 text-white">
+                      {Math.min(notifications.data?.data?.unread_count ?? 0, 99)}
+                    </span>
+                  )}
+                </Link>
+                <motion.div><ProfileDropdownMenu /></motion.div>
+              </>
             ) : (
               <motion.div className="relative">
                 <motion.button

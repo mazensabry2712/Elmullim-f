@@ -82,7 +82,15 @@ const getTodayInputValue = () => {
   return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 };
 
-const BookLessonDialog = ({ lessonId, bookingType, price, durationMinutes, language }: IProps) => {
+const BookLessonDialog = ({
+  lessonId,
+  bookingType,
+  deliveryMode,
+  offlineVisitType,
+  price,
+  durationMinutes,
+  language,
+}: IProps) => {
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
   const copy = getLessonsCopy(language);

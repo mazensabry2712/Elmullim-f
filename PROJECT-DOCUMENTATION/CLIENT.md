@@ -351,7 +351,9 @@ The current production build completes successfully. The remaining Browserslist/
 
 #### Administrative verification
 
-- Run the backend test suite on the latest permission implementation in the current local checkout.
+- Backend current checkout verified locally: 137 tests / 506 assertions passed.
+- Admin authorization suite verified: 12 tests / 78 assertions passed.
+- Admin Chat suite verified: 2 tests / 5 assertions passed.
 - Verify Admin and Super Admin flows in the real browser.
 - Verify changing Admin permissions changes real access.
 - Verify direct unauthorized URLs return 403.
@@ -388,7 +390,7 @@ The platform has moved into the final integration, administrative authorization 
 
 The main Lesson Booking ecosystem is implemented across Frontend and Backend, and the Backend now has a native Admin/Super Admin permission layer.
 
-Final product acceptance still depends on current-checkout backend verification, real browser/API/payment verification, and any remaining final-scope administrative controls.
+Final product acceptance now depends on real browser/API/payment verification and any remaining final-scope administrative controls; the current Backend permission implementation has passed the local automated test gate.
 
 ## 11. Client Acceptance Checklist
 

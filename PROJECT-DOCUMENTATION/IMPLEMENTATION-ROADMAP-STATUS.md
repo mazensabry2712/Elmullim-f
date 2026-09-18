@@ -56,6 +56,15 @@ Implemented:
 - Student / Parent / Teacher schedules
 - Session lifecycle and conflict rules
 
+### Offline service areas
+
+Implemented:
+- Teacher service-area CRUD
+- Active/inactive service-area control
+- Teacher profile/menu entry for Service Areas
+- Student location captured during Offline booking when the teacher visits the student
+- Server-side matching between student location and teacher active service areas
+
 ### Attendance
 
 Implemented:

@@ -1,159 +1,44 @@
-# Elmullim — Lesson & Booking Implementation Status
+# Elmullim — Lesson & Booking Implementation Status (Historical Snapshot)
 
-**Last verified:** 2026-09-17
-**Frontend branch:** `feat/booking-domain-frontend-v1`
-**Backend branch:** `feat/booking-domain-v1`
+**Checkpoint date:** 2026-09-17  
+**Status:** Historical checkpoint — superseded by the current implementation status documents.
 
-## Verified locally
+This file records the state at the 2026-09-17 checkpoint. It must not be used as the current completion status.
 
-### Frontend
+## Current source of truth
 
-```text
-npm run build
-✓ PASS
+For the current implementation, use:
 
-npm run test:run
-✓ 36 test files passed
-✓ 82 tests passed
-```
+- `IMPLEMENTATION-ROADMAP-STATUS.md`
+- `BOOKING-FRONTEND-API-MATRIX.md`
+- `BOOKING-FRONTEND-IMPLEMENTATION.md`
+- `CLIENT.md`
 
-Existing console/test warnings are non-failing and are not counted as failures.
+## Historical scope covered at this checkpoint
 
-### Backend
+The checkpoint covered the Lesson, Booking, Parent Booking, Session and Payment foundations and documented the then-current implementation gaps.
 
-```text
-php artisan test
-✓ 95 tests passed
-✓ 330 assertions passed
-```
+Since this checkpoint, the following domains have been implemented further:
 
-## Implemented and verified domain slices
+- Weekly Availability / Calendar.
+- Teacher blocked periods.
+- Teacher Service Areas.
+- Offline student location handling.
+- Attendance and No Show.
+- Notifications.
+- Admin Chat Monitoring.
+- Additional frontend localization and integration.
+- Additional automated regression coverage.
 
-### Lesson foundation
+## Current remaining areas
 
-- Online / Offline
-- Private / Group
-- Subject
-- Education Stage (`education_level_id`)
-- Grade
-- Title / Description
-- Duration
-- Price
-- Sessions count
-- Meeting URL
-- Offline location
-- Offline visit type
-- Group maximum students
-- Publishing status
-- Public published-lesson discovery
-- Public lesson details
-- Teacher Lesson create/update contract
+Refer to `IMPLEMENTATION-ROADMAP-STATUS.md` for the live status. The main remaining completion areas are:
 
-### Booking
-
-- Student booking
-- Parent/Family booking for linked student
-- Separate beneficiary student and booking actor
-- Private teacher approval flow
-- Group booking without per-student teacher approval
-- Capacity enforcement
-- Duplicate active-booking protection
-- Accept / Reject
-- Proposed time / student response
-- Cancellation
-- Booking authorization rules
-
-### Sessions / Schedule
-
-- Separate `lesson_sessions` domain table
-- Booking/session pivot
-- Student schedule
-- Parent schedule/access
-- Teacher schedule
-- Session join authorization
-- Session status lifecycle
-- Teacher/student conflict detection
-- Shared Group session for same Lesson/start time
-
-### Payment
-
-- Student/Parent booking payment initiation
-- Paymob integration
-- HMAC verification
-- Amount validation
-- Idempotent successful callback
-- Paid booking confirmation
-- Teacher transaction/commission recording
-
-## Known gaps — intentionally not marked complete
-
-### Availability / Calendar
-
-- Teacher weekly availability
-- Available days
-- Available time slots
-- Blocked/unavailable periods
-- Booking against declared availability
-- Recurring session generation from `sessions_count`
-
-These require a dedicated Availability/Calendar domain rather than fake fields on `lessons`.
-
-### Offline Service Areas
-
-- Teacher service-area entities
-- Area coverage rules
-- Teacher travels to student vs student travels to teacher as a normalized rule
-- Student location capture for booking
-- Matching/filtering teachers by service area
-
-### Public discovery UX
-
-Backend supports Stage and Subject filtering, but the current frontend Lessons page still needs visible Stage and Subject controls.
-
-### Group seats
-
-`max_students` is implemented and enforced by backend, but the public Lesson UI does not yet expose a calculated `available_seats` value from the booking/session state.
-
-### Academic operations
-
-- Attendance
-- No Show workflow
-- Homework
-- Exams/tests connected to lesson sessions
-- Grades
-- Parent academic visibility
-- Rating eligibility tied to completed booking/session
-- Earnings/reporting UX
-
-### Notifications / Admin
-
-- Booking notifications
-- Reschedule notifications
-- Payment notifications
-- Upcoming reminders
-- Lesson publish/approval UI
-- Admin booking/payment/lesson oversight
-- Admin chat integration using the existing chat domain
-
-## Domain separation rule
-
-Do not use Course Enrollment as the Lesson Booking mechanism.
-
-```text
-Lesson = teacher-created offering
-aBooking = student-specific registration/request
-Session = actual scheduled occurrence
-Course = separate domain
-Course Enrollment = separate domain
-```
-
-## Required next implementation order
-
-1. Availability / Calendar domain.
-2. Offline Service Areas + student location/matching.
-3. Public Stage + Subject discovery filters.
-4. Dynamic Group available seats.
-5. Re-verify real API + browser flow.
-6. Then move to Attendance / Academic Operations.
-
-Do not merge a feature simply because its TypeScript/PHP tests pass. The relevant real API and browser flow must also be verified.
+- Super Admin and advanced administrative permissions.
+- Final real API/browser verification.
+- Final payment-provider verification.
+- Dynamic Group available-seat presentation.
+- Final Subject/Stage discovery filter refinement.
+- Completion-linked Ratings.
+- Homework / Exams / Grades.
+- Advanced Push/FCM where required.

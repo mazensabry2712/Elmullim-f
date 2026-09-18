@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useI18n } from "@/i18n";
 import { CalendarClock, ExternalLink, Loader } from "lucide-react";
 import { toast } from "react-toastify";
 import cookieService from "@/utils/cookieService";
@@ -9,8 +10,11 @@ import {
 } from "@/lib/react-query/booking";
 import { IBookingSession } from "@/interfaces/bookings/session";
 import { joinBookingSession } from "@/services/booking";
+import { getBookingCopy } from "@/pages/bookings/bookingCopy";
 
 const Schedule = () => {
+  const { language } = useI18n();
+  const copy = getBookingCopy(language).schedule;
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
   const isTeacher = role === "teacher";
@@ -28,7 +32,7 @@ const Schedule = () => {
     try {
       const response = await joinBookingSession({ token, bookingId });
       if (!response.status) {
-        toast.error(response.message || "Session is not available.");
+        toast.error(response.message || copy.sessionUnavailable);
         return;
       }
       if (response.data?.meeting_url) {
@@ -36,10 +40,10 @@ const Schedule = () => {
       } else if (response.data?.location) {
         toast.info(response.data.location);
       } else {
-        toast.info("Session access granted.");
+        toast.info(copy.accessGranted);
       }
     } catch {
-      toast.error("Could not open the session.");
+      toast.error(copy.couldNotOpen);
     } finally {
       setJoinLoading(null);
     }
@@ -48,9 +52,9 @@ const Schedule = () => {
   const update = async (session: IBookingSession, status: "in_progress" | "completed" | "cancelled") => {
     try {
       await updateStatus.mutateAsync({ token, sessionId: session.id, status });
-      toast.success(`Session marked ${status.replace("_", " ")}.`);
+      toast.success(`${copy.marked} ${status.replace("_", " ")}.`);
     } catch {
-      toast.error("Could not update session status.");
+      toast.error(copy.couldNotUpdate);
     }
   };
 
@@ -59,10 +63,10 @@ const Schedule = () => {
       <div className="container">
         <div className="mb-8">
           <h1 className="text-3xl md:text-5xl font-bold text-black-blue">
-            {isTeacher ? "Teaching Schedule" : "My Schedule"}
+            {isTeacher ? copy.teacherTitle : copy.studentTitle}
           </h1>
           <p className="mt-3 font-sora text-[#4D5756]">
-            {isTeacher ? "Manage upcoming lesson sessions and execution status." : "View your confirmed lesson sessions and join when available."}
+            {isTeacher ? copy.teacherDescription : copy.studentDescription}
           </p>
         </div>
 
@@ -72,7 +76,7 @@ const Schedule = () => {
 
         {error && !loading && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-6" role="alert">
-            Could not load the schedule. Please try again.
+            {copy.couldNotLoad}
           </div>
         )}
 
@@ -96,7 +100,7 @@ const Schedule = () => {
                   </p>
                   {session.bookings?.length && (
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">
-                      Students: {session.bookings.map((item) => item.student?.name ?? `#${item.student_id}`).join(", ")}
+                      {copy.students}: {session.bookings.map((item) => item.student?.name ?? `#${item.student_id}`).join(", ")}
                     </p>
                   )}
                 </div>
@@ -113,7 +117,7 @@ const Schedule = () => {
                     className="inline-flex items-center gap-2 rounded-md bg-main px-4 py-2 text-white disabled:opacity-50"
                   >
                     <ExternalLink size={17} />
-                    {joinLoading === booking.id ? "Opening..." : "Join session"}
+                    {joinLoading === booking.id ? copy.opening : copy.join}
                   </button>
                 ))}
 

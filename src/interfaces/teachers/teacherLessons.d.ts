@@ -24,17 +24,3 @@ export interface IUpdateLesson extends Omit<ICreateLesson, "logo"> {
   id: number;
   logo?: File;
 }
-
-export interface IDeleteLessonLecture {
-  token: string;
-  id: string;
-  contentId: string;
-  lessonId: string;
-}
-
-export interface IUploadLessonVideo {
-  video: File;
-  lessonId: string;
-  contentId: string;
-  lectureId: string;
-}

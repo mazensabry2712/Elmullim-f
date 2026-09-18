@@ -7,6 +7,9 @@ const apiBaseUrl =
   import.meta.env.VITE_API ||
   (import.meta.env.DEV ? "http://Elmullim-b.test" : "https://api.elmullim.com");
 
+const getLanguage = (): "en" | "ar" =>
+  localStorage.getItem("elmullim-language") === "ar" ? "ar" : "en";
+
 const axiosAPI = axios.create({
   baseURL: `${apiBaseUrl.replace(/\/$/, "")}/api`,
   headers: {
@@ -17,11 +20,21 @@ const axiosAPI = axios.create({
 axiosAPI.interceptors.response.use(
   (response) => response,
   (error) => {
+    const language = getLanguage();
+
     if (error?.response?.status === 401) {
       store.dispatch(logout());
-      toast.warn("Please login to continue");
+      toast.warn(
+        language === "ar"
+          ? "يرجى تسجيل الدخول للمتابعة"
+          : "Please login to continue"
+      );
     } else if (error?.response?.status === 500) {
-      toast.error("Try again later");
+      toast.error(
+        language === "ar"
+          ? "يرجى المحاولة مرة أخرى لاحقًا"
+          : "Try again later"
+      );
     }
     return Promise.reject(error);
   }

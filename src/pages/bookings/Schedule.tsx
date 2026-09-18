@@ -82,7 +82,7 @@ const Schedule = () => {
 
         {!loading && !error && data.length === 0 && (
           <div className="rounded-lg border border-dashed border-gray-300 p-10 text-center font-sora text-[#4D5756]">
-            No scheduled sessions yet.
+            {copy.noSessions}
           </div>
         )}
 

@@ -1,6 +1,4 @@
 import axiosAPI from "@/config/axios.config";
-import { ILessonContentRes } from "@/interfaces/lessons/content";
-import { ILessonLecturesRes } from "@/interfaces/lessons/lecture";
 import { ILessonAvailabilityRes } from "@/interfaces/lessons/availability";
 import { ILessonRes, ILessonsRes, LessonBookingType, LessonDeliveryMode } from "@/interfaces/lessons/lesson";
 
@@ -34,11 +32,13 @@ export const getAllLessons = async ({
   if (filters.location?.trim()) params.set("location", filters.location.trim());
 
   const query = params.toString();
-  const { data } = await axiosAPI.get(`/lessons/all${query ? `?${query}` : ""}`, {
+
+  const { data } = await axiosAPI.get("/lessons/all" + (query ? "?" + query : ""), {
     headers: {
-      Authorization: token ? `Bearer ${token}` : undefined,
+      Authorization: token ? "Bearer " + token : undefined,
     },
   });
+
   return data;
 };
 
@@ -49,45 +49,19 @@ export const getLessonById = async ({
   token?: string;
   lessonId: number;
 }): Promise<ILessonRes> => {
-  const { data } = await axiosAPI.get(`/lessons/${lessonId}/details`, {
+  const { data } = await axiosAPI.get("/lessons/" + lessonId + "/details", {
     headers: {
-      Authorization: token ? `Bearer ${token}` : undefined,
+      Authorization: token ? "Bearer " + token : undefined,
     },
   });
+
   return data;
 };
 
 export const getLessonAvailability = async (
   lessonId: number
 ): Promise<ILessonAvailabilityRes> => {
-  const { data } = await axiosAPI.get(`/lessons/${lessonId}/availability`);
-  return data;
-};
-
-export const getLessonContents = async (
-  lessonId: number
-): Promise<ILessonContentRes> => {
-  const { data } = await axiosAPI.get(`/lessons/${lessonId}/contents`);
-  return data;
-};
-
-export const getLessonLectures = async ({
-  token,
-  lessonId,
-  contentId,
-}: {
-  token: string;
-  lessonId: number;
-  contentId: number;
-}): Promise<ILessonLecturesRes> => {
-  const { data } = await axiosAPI.get(
-    `/lessons/${lessonId}/${contentId}/lectures`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const { data } = await axiosAPI.get("/lessons/" + lessonId + "/availability");
   return data;
 };
 
@@ -101,12 +75,13 @@ export const getRelatedLesson = async ({
   lessonId: number;
 }): Promise<ILessonsRes> => {
   const { data } = await axiosAPI.get(
-    `/main/${teacherId}/lessons?exceptId=${lessonId}`,
+    "/main/" + teacherId + "/lessons?exceptId=" + lessonId,
     {
       headers: {
-        Authorization: token ? `Bearer ${token}` : undefined,
+        Authorization: token ? "Bearer " + token : undefined,
       },
     }
   );
+
   return data;
 };

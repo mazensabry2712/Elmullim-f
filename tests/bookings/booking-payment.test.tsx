@@ -1,7 +1,8 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import BookingPaymentDialog from "@/components/bookings/BookingPaymentDialog";
-import { I18nProvider } from "@/i18n";
+import { I18nProvider, useI18n } from "@/i18n";
+import { useEffect } from "react";
 
 const mocks = vi.hoisted(() => ({
   mutateAsync: vi.fn(),
@@ -46,10 +47,17 @@ describe("BookingPaymentDialog", () => {
       })
     );
   });
-  it("renders Arabic payment labels", () => {
-    localStorage.setItem("elmullim-language", "ar");
-    render(<I18nProvider><BookingPaymentDialog bookingId={15} price="250.00" /></I18nProvider>);
-    expect(screen.getByRole("button", { name: "ادفع 250.00" })).toBeInTheDocument();
+  it("renders Arabic payment labels", async () => {
+    const ArabicPaymentDialog = () => {
+      const { setLanguage } = useI18n();
+      useEffect(() => {
+        setLanguage("ar");
+      }, [setLanguage]);
+      return <BookingPaymentDialog bookingId={15} price="250.00" />;
+    };
+
+    render(<I18nProvider><ArabicPaymentDialog /></I18nProvider>);
+    await waitFor(() => expect(screen.getByRole("button", { name: "ادفع 250.00" })).toBeInTheDocument());
     fireEvent.click(screen.getByRole("button", { name: "ادفع 250.00" }));
     expect(screen.getByRole("heading", { name: "دفع الحجز" })).toBeInTheDocument();
     expect(screen.getByLabelText("رقم المحفظة")).toBeInTheDocument();

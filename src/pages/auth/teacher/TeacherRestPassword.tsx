@@ -35,6 +35,7 @@ const TeacherResetPassword = () => {
   const form = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
+      email: cookieService.getResetEmail() ?? "",
       code: "",
       password: "",
       password_confirmation: "",
@@ -42,6 +43,7 @@ const TeacherResetPassword = () => {
   });
 
   const onSubmit = async ({
+    email,
     code,
     password,
     password_confirmation,
@@ -49,6 +51,7 @@ const TeacherResetPassword = () => {
     try {
       const { message, status } = await resetPassword({
         role: "teacher",
+        email,
         code,
         password,
         password_confirmation,

@@ -27,8 +27,9 @@ const ParentResetPassword = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const canReset = cookieService.getCanResetPass()!;
-    const resetEmail = cookieService.getResetEmail();
-    if (!canReset || canReset !== "parent" || !resetEmail) navigate("/parent/forgot-password");
+    if (!canReset || canReset !== "parent" || !cookieService.getResetEmail()) {
+      navigate("/parent/forgot-password");
+    }
   }, [navigate]);
   const { mutateAsync: resetPassword, isPending } = useResetPassword();
 

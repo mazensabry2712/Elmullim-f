@@ -46,6 +46,7 @@ class CookieService {
     this.cookies.remove("t_n", { path: "/" });
     this.cookies.remove("r_l", { path: "/" });
     this.cookies.remove("_cr_p", { path: "/" });
+    this.cookies.remove("_cr_e", { path: "/" });
   }
 
   setCanResetPass(role: TRole) {
@@ -67,8 +68,23 @@ class CookieService {
     return canResetPass;
   }
 
+  setResetEmail(email: string) {
+    if (!email) throw new Error("Invalid email: Cannot set empty reset email");
+
+    this.cookies.set("_cr_e", email, {
+      ...this.getCookieOptions(1 / 24),
+    });
+  }
+
+  getResetEmail(): string | undefined {
+    const email = this.cookies.get("_cr_e");
+
+    return typeof email === "string" && email.trim() !== "" ? email : undefined;
+  }
+
   clearCanResetPass() {
     this.cookies.remove("_cr_p", { path: "/" });
+    this.cookies.remove("_cr_e", { path: "/" });
   }
 }
 

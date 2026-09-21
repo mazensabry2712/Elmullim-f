@@ -92,6 +92,11 @@ export const CHANGE_PASSWORD_INPUTS: IFormInput[] = [
 
 export const RESET_PASSWORD_FORM_INPUTS: IFormInput[] = [
   {
+    placeholder: "Email",
+    name: "email",
+    type: "text",
+  },
+  {
     placeholder: "Verification code",
     name: "code",
     type: "text",

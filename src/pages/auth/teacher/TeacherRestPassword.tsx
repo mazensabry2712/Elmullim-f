@@ -27,14 +27,16 @@ const TeacherResetPassword = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const canReset = cookieService.getCanResetPass()!;
-    if (!canReset || canReset !== "teacher")
+    if (!canReset || canReset !== "teacher" || !cookieService.getResetEmail()) {
       navigate("/teacher/forgot-password");
+    }
   }, [navigate]);
   const { mutateAsync: resetPassword, isPending } = useResetPassword();
 
   const form = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
+      email: cookieService.getResetEmail() ?? "",
       code: "",
       password: "",
       password_confirmation: "",
@@ -42,6 +44,7 @@ const TeacherResetPassword = () => {
   });
 
   const onSubmit = async ({
+    email,
     code,
     password,
     password_confirmation,
@@ -49,6 +52,7 @@ const TeacherResetPassword = () => {
     try {
       const { message, status } = await resetPassword({
         role: "teacher",
+        email,
         code,
         password,
         password_confirmation,

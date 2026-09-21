@@ -44,6 +44,7 @@ const ForgotPassword = () => {
       if (!status) return toast.error(message);
 
       cookieService.setCanResetPass("parent");
+      cookieService.setResetEmail(email);
       navigate("/parent/reset-password");
       return toast.success(message);
     } catch (error) {

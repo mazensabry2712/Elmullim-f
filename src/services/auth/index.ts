@@ -74,6 +74,7 @@ export const forgotPassword = async ({
 
 export const resetPassword = async ({
   role,
+  email,
   code,
   password,
   password_confirmation,
@@ -82,7 +83,7 @@ export const resetPassword = async ({
     `/${
       role === "teacher" ? "teacher" : role === "parent" ? "parent" : "student"
     }/reset-password`,
-    { code, password, password_confirmation }
+    { email, code, password, password_confirmation }
   );
   return data;
 };

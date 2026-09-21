@@ -2,6 +2,7 @@ import { TGender } from "@/types";
 import { IEducationLevel, IFavoriteSubject } from "../main";
 
 export interface IStudentProfile {
+  id?: number;
   name: string;
   phone: string;
   address: string;
@@ -11,6 +12,9 @@ export interface IStudentProfile {
   description: string | null;
   education_level: IEducationLevel;
   favourite_subjects: IFavoriteSubject[];
+  latitude?: string | number | null;
+  longitude?: string | number | null;
+  location_updated_at?: string | null;
 }
 
 export interface IStudentProfileRes {

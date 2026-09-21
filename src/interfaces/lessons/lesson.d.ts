@@ -1,5 +1,6 @@
 import { ITeacher } from "../teachers/teacherProfile";
 import { ILessonAvailabilitySlot } from "./availability";
+import { IServiceAreaListItem } from "../teacher/serviceAreas";
 
 export type LessonDeliveryMode = "online" | "offline";
 export type LessonBookingType = "private" | "group";
@@ -33,7 +34,8 @@ export interface ILesson {
   sessions_count?: number;
   meeting_url?: string | null;
   location?: string | null;
-  offline_visit_type?: string | null;
+  offline_visit_type?: "teacher_to_student" | "student_to_teacher" | null;
+  service_areas?: IServiceAreaListItem[];
   max_students?: number | null;
   publishing_status?: LessonPublishingStatus;
   availability?: ILessonAvailabilitySlot[];

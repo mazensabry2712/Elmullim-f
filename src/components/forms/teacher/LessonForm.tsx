@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useGetAllEducationLevels, useGetAllSubjects } from "@/lib/react-query/main";
 import { useGetTeacherProfile } from "@/lib/react-query/teacher/teacherProfile";
+import { useGetTeacherServiceAreas } from "@/lib/react-query/teacher/serviceAreas";
 import { useCreateTeacherLesson, useUpdateTeacherLesson } from "@/lib/react-query/teacher/lessons";
 import { ILesson } from "@/interfaces/lessons/lesson";
 import { lessonSchema } from "@/validations/teacher/lessonSchema";
@@ -39,6 +40,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
   const isArabic = language === "ar";
 
   const { data: teacherProfile, isLoading: isLoadingTeacher } = useGetTeacherProfile(token);
+  const { data: serviceAreas, isLoading: isLoadingServiceAreas } = useGetTeacherServiceAreas(token);
   const createMutation = useCreateTeacherLesson();
   const updateMutation = useUpdateTeacherLesson();
   const isSubmitting = createMutation.isPending || updateMutation.isPending;
@@ -55,6 +57,10 @@ const LessonForm = ({ action, lesson }: IProps) => {
         timezone: slot.timezone || defaultTimezone,
       }))
     : defaultAvailability;
+
+  const initialServiceAreaIds = lesson?.service_areas
+    ?.filter((area) => area.is_active !== false)
+    .map((area) => area.id) || [];
 
   const form = useForm<LessonFormValues>({
     resolver: zodResolver(lessonSchema),
@@ -73,6 +79,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
       meeting_url: lesson?.meeting_url ?? "",
       location: lesson?.location ?? "",
       offline_visit_type: lesson?.offline_visit_type ?? "",
+      service_area_ids: initialServiceAreaIds,
       max_students: lesson?.max_students ?? "",
       availability: lessonAvailability,
     },
@@ -82,21 +89,24 @@ const LessonForm = ({ action, lesson }: IProps) => {
   const educationLevelId = form.watch("education_level_id");
   const deliveryMode = form.watch("delivery_mode");
   const bookingType = form.watch("booking_type");
+  const offlineVisitType = form.watch("offline_visit_type");
+  const selectedServiceAreaIds = form.watch("service_area_ids") || [];
+
+  const activeServiceAreas = useMemo(
+    () => serviceAreas?.data?.filter((area) => area.is_active) || [],
+    [serviceAreas]
+  );
 
   const { data: subjects, isLoading: isLoadingSubjects } = useGetAllSubjects(
     educationLevelId ? String(educationLevelId) : ""
   );
 
-  const steps = useMemo(() => {
-    const base = isArabic
-      ? ["المادة والمرحلة", "نوع الدرس", "نوع الحجز", "تفاصيل الدرس والمواعيد"]
-      : ["Subject & Stage", "Delivery Mode", "Booking Type", "Lesson Details & Availability"];
-    const mode = deliveryMode === "online"
-      ? (isArabic ? "Online" : "Online")
-      : (isArabic ? "Offline" : "Offline");
-    const capacity = isArabic ? "السعة والنشر" : "Capacity & Publish";
-    return [...base, mode, capacity];
-  }, [deliveryMode, isArabic]);
+  const steps = useMemo(
+    () => (isArabic
+      ? ["المادة والمرحلة", "نوع الدرس", "نوع الحجز", "تفاصيل الدرس والمواعيد", "Online", "Offline", "السعة والنشر"]
+      : ["Subject & Stage", "Delivery Mode", "Booking Type", "Lesson Details & Availability", "Online", "Offline", "Capacity & Publish"]),
+    [isArabic]
+  );
 
   function label(english: string, arabic: string) {
     return isArabic ? arabic : english;
@@ -127,6 +137,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
       meeting_url: lesson?.meeting_url ?? "",
       location: lesson?.location ?? "",
       offline_visit_type: lesson?.offline_visit_type ?? "",
+      service_area_ids: lesson?.service_areas?.filter((area) => area.is_active !== false).map((area) => area.id) || [],
       max_students: lesson?.max_students ?? "",
       availability: lesson?.availability?.length
         ? lesson.availability.map((slot) => ({
@@ -146,9 +157,22 @@ const LessonForm = ({ action, lesson }: IProps) => {
     }
   }, [form, subjects]);
 
+  useEffect(() => {
+    if (deliveryMode !== "offline" || offlineVisitType !== "teacher_to_student") {
+      form.setValue("service_area_ids", [], { shouldValidate: false });
+    }
+  }, [deliveryMode, offlineVisitType, form]);
+
   const error = (field: keyof LessonFormValues) => {
     const message = form.formState.errors[field]?.message;
     return message ? <p className="mt-1 text-sm text-red-600">{String(message)}</p> : null;
+  };
+
+  const toggleServiceArea = (id: number) => {
+    const next = selectedServiceAreaIds.includes(id)
+      ? selectedServiceAreaIds.filter((selectedId) => selectedId !== id)
+      : [...selectedServiceAreaIds, id];
+    form.setValue("service_area_ids", next, { shouldDirty: true, shouldValidate: true });
   };
 
   const goNext = async () => {
@@ -157,11 +181,8 @@ const LessonForm = ({ action, lesson }: IProps) => {
       step === 1 ? ["delivery_mode"] :
       step === 2 ? ["booking_type"] :
       step === 3 ? ["title", "description", "duration_minutes", "price", "sessions_count", "availability"] :
-      step === 4
-        ? deliveryMode === "online"
-          ? ["meeting_url"]
-          : ["location", "offline_visit_type"]
-        : ["max_students"];
+      step === 4 ? ["meeting_url"] :
+      ["location", "offline_visit_type", "service_area_ids"];
 
     const valid = await form.trigger(fields);
     if (valid) setStep((current) => Math.min(current + 1, steps.length - 1));
@@ -192,6 +213,10 @@ const LessonForm = ({ action, lesson }: IProps) => {
           end_time: slot.end_time,
           timezone: slot.timezone,
         })),
+        service_area_ids:
+          values.delivery_mode === "offline" && values.offline_visit_type === "teacher_to_student"
+            ? values.service_area_ids
+            : [],
         ...(values.delivery_mode === "online"
           ? values.meeting_url ? { meeting_url: values.meeting_url } : {}
           : { location: values.location, offline_visit_type: values.offline_visit_type }),
@@ -334,32 +359,21 @@ const LessonForm = ({ action, lesson }: IProps) => {
         </section>
       )}
 
-      {step === 4 && deliveryMode === "online" && (
+      {step === 4 && (
         <section className="space-y-5 rounded-lg border bg-white p-5">
           <h2 className="text-xl font-bold text-black-blue">Online</h2>
-          <p className="text-sm text-muted-foreground">
-            {label(
-              "Provide the live meeting URL. Availability is configured in the previous step.",
-              "أدخل رابط الاجتماع المباشر. المواعيد تم تحديدها في الخطوة السابقة."
-            )}
-          </p>
-          <label className="block text-sm font-medium text-black-blue">
-            Meeting URL
-            <Input {...form.register("meeting_url")} placeholder="https://..." className={inputClassName} />
-            {error("meeting_url")}
-          </label>
+          <p className="text-sm text-muted-foreground">{label("Provide the live meeting URL. Availability is configured in the previous step.", "أدخل رابط الاجتماع المباشر. المواعيد متاحة ومحددة في الخطوة السابقة.")}</p>
+          <label className="block text-sm font-medium text-black-blue">Meeting URL<Input {...form.register("meeting_url")} placeholder="https://..." className={inputClassName} />{error("meeting_url")}</label>
         </section>
       )}
 
-      {step === 4 && deliveryMode === "offline" && (
-        <section className="space-y-5 rounded-lg border bg-white p-5">
-          <h2 className="text-xl font-bold text-black-blue">Offline</h2>
-          <p className="text-sm text-muted-foreground">
-            {label(
-              "Add the lesson location and how the visit works. Service-area matching will be added through the Service Areas domain.",
-              "أدخل مكان الدرس وطريقة الزيارة. سيتم إضافة مطابقة مناطق الخدمة من خلال نطاق مناطق الخدمة."
-            )}
-          </p>
+      {step === 5 && (
+        <section className="space-y-6 rounded-lg border bg-white p-5">
+          <div>
+            <h2 className="text-xl font-bold text-black-blue">Offline</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{label("Define where the lesson happens and whether the teacher travels to the student.", "حدد مكان الدرس وهل المعلم سيذهب إلى الطالب أم سيذهب الطالب إلى المعلم.")}</p>
+          </div>
+
           <div className="grid gap-4 md:grid-cols-2">
             <label className="text-sm font-medium text-black-blue">
               {label("Location", "المكان")}
@@ -367,40 +381,60 @@ const LessonForm = ({ action, lesson }: IProps) => {
               {error("location")}
             </label>
             <label className="text-sm font-medium text-black-blue">
-              {label("Visit type", "نوع الزيارة")}
-              <Input
-                {...form.register("offline_visit_type")}
-                placeholder={label(
-                  "teacher_goes_to_student / student_goes_to_teacher",
-                  "المعلم يذهب للطالب / الطالب يذهب للمعلم"
-                )}
-                className={inputClassName}
-              />
+              {label("Visit type", "طريقة الزيارة")}
+              <select {...form.register("offline_visit_type")} className={`${inputClassName} block h-11 w-full rounded-md px-3`}>
+                <option value="">{label("Select visit type", "اختر طريقة الزيارة")}</option>
+                <option value="teacher_to_student">{label("Teacher goes to student", "المعلم يذهب إلى الطالب")}</option>
+                <option value="student_to_teacher">{label("Student goes to teacher", "الطالب يذهب إلى المعلم")}</option>
+              </select>
               {error("offline_visit_type")}
             </label>
           </div>
+
+          {offlineVisitType === "teacher_to_student" && (
+            <div className="space-y-4 rounded-lg border border-main/30 bg-main/5 p-4">
+              <div>
+                <h3 className="font-semibold text-black-blue">{label("Service areas", "مناطق الخدمة")}</h3>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {label("Students can book this lesson only when their saved location is inside at least one selected area.", "يمكن للطلاب حجز هذا الدرس فقط عندما يكون موقعهم المسجل داخل منطقة خدمة واحدة على الأقل.")}
+                </p>
+              </div>
+
+              {isLoadingServiceAreas ? (
+                <div className="rounded-md bg-white p-4 text-sm text-muted-foreground">{label("Loading service areas...", "جاري تحميل مناطق الخدمة...")}</div>
+              ) : activeServiceAreas.length === 0 ? (
+                <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+                  {label("No active service areas found. Create an active service area from your profile before publishing a teacher-to-student lesson.", "لا توجد مناطق خدمة نشطة. أنشئ منطقة خدمة نشطة من ملفك الشخصي قبل نشر درس يذهب فيه المعلم إلى الطالب.")}
+                </div>
+              ) : (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {activeServiceAreas.map((area) => {
+                    const checked = selectedServiceAreaIds.includes(area.id);
+                    return (
+                      <label key={area.id} className={`flex cursor-pointer items-start gap-3 rounded-md border bg-white p-4 ${checked ? "border-main ring-1 ring-main/30" : "border-border"}`}>
+                        <input type="checkbox" checked={checked} onChange={() => toggleServiceArea(area.id)} className="mt-1 h-4 w-4 accent-main" />
+                        <span>
+                          <span className="block font-semibold text-black-blue">{area.name}</span>
+                          <span className="mt-1 block text-xs text-muted-foreground">
+                            {label("Radius", "نطاق")}: {area.radius_km} km
+                          </span>
+                        </span>
+                      </label>
+                    );
+                  })}
+                </div>
+              )}
+
+              {error("service_area_ids")}
+            </div>
+          )}
         </section>
       )}
 
-      {step === 5 && (
+      {step === 6 && (
         <section className="space-y-5 rounded-lg border bg-white p-5">
-          <h2 className="text-xl font-bold text-black-blue">
-            {label("Capacity & Publish", "السعة والنشر")}
-          </h2>
-          {bookingType === "group" ? (
-            <label className="block text-sm font-medium text-black-blue">
-              {label("Maximum students", "الحد الأقصى للطلاب")}
-              <Input type="number" min={1} {...form.register("max_students")} className={inputClassName} />
-              {error("max_students")}
-            </label>
-          ) : (
-            <p className="rounded-md bg-muted/40 p-4 text-sm text-muted-foreground">
-              {label(
-                "Private lessons do not need group capacity.",
-                "الدروس الخاصة لا تحتاج إلى سعة جماعية."
-              )}
-            </p>
-          )}
+          <h2 className="text-xl font-bold text-black-blue">{label("Capacity & Publish", "السعة والنشر")}</h2>
+          {bookingType === "group" ? <label className="block text-sm font-medium text-black-blue">{label("Maximum students", "الحد الأقصى للطلاب")}<Input type="number" min={1} {...form.register("max_students")} className={inputClassName} />{error("max_students")}</label> : <p className="rounded-md bg-muted/40 p-4 text-sm text-muted-foreground">{label("Private lessons do not need group capacity.", "الدروس الخاصة لا تحتاج إلى سعة جماعية.")}</p>}
         </section>
       )}
 

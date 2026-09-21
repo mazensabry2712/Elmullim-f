@@ -1,29 +1,32 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import QueryKeys from "@/enums";
+import {
+  IServiceAreaInput,
+  IServiceAreaRes,
+} from "@/interfaces/teacher/serviceAreas";
 import {
   createTeacherServiceArea,
   deleteTeacherServiceArea,
+  getTeacherLessonServiceAreas,
   getTeacherServiceAreas,
+  replaceTeacherLessonServiceAreas,
   updateTeacherServiceArea,
 } from "@/services/teacher/serviceAreas";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const serviceAreaKeys = {
-  all: ["teacher-service-areas"] as const,
-  mine: (token: string) => ["teacher-service-areas", token] as const,
-};
-
-export const useGetTeacherServiceAreas = (token: string, enabled = true) =>
+export const useGetTeacherServiceAreas = (token: string) =>
   useQuery({
-    queryKey: serviceAreaKeys.mine(token),
+    queryKey: [QueryKeys.TEACHER_SERVICE_AREAS],
     queryFn: () => getTeacherServiceAreas(token),
-    enabled: enabled && !!token,
+    enabled: !!token,
   });
 
 export const useCreateTeacherServiceArea = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createTeacherServiceArea,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: serviceAreaKeys.mine(variables.token) });
+    mutationFn: ({ token, payload }: { token: string; payload: IServiceAreaInput }) =>
+      createTeacherServiceArea({ token, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_SERVICE_AREAS] });
     },
   });
 };
@@ -31,9 +34,17 @@ export const useCreateTeacherServiceArea = () => {
 export const useUpdateTeacherServiceArea = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: updateTeacherServiceArea,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: serviceAreaKeys.mine(variables.token) });
+    mutationFn: ({
+      token,
+      id,
+      payload,
+    }: {
+      token: string;
+      id: number;
+      payload: Partial<IServiceAreaInput>;
+    }) => updateTeacherServiceArea({ token, id, payload }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_SERVICE_AREAS] });
     },
   });
 };
@@ -41,9 +52,46 @@ export const useUpdateTeacherServiceArea = () => {
 export const useDeleteTeacherServiceArea = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: deleteTeacherServiceArea,
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: serviceAreaKeys.mine(variables.token) });
+    mutationFn: ({ token, id }: { token: string; id: number }) =>
+      deleteTeacherServiceArea({ token, id }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_SERVICE_AREAS] });
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSON_SERVICE_AREAS] });
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
     },
   });
 };
+
+export const useGetTeacherLessonServiceAreas = ({
+  token,
+  lessonId,
+}: {
+  token: string;
+  lessonId: number;
+}) =>
+  useQuery({
+    queryKey: [QueryKeys.TEACHER_LESSON_SERVICE_AREAS, lessonId],
+    queryFn: () => getTeacherLessonServiceAreas({ token, lessonId }),
+    enabled: !!token && !!lessonId,
+  });
+
+export const useReplaceTeacherLessonServiceAreas = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      token,
+      lessonId,
+      serviceAreaIds,
+    }: {
+      token: string;
+      lessonId: number;
+      serviceAreaIds: number[];
+    }) => replaceTeacherLessonServiceAreas({ token, lessonId, serviceAreaIds }),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSON_SERVICE_AREAS, variables.lessonId] });
+      queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
+    },
+  });
+};
+
+export type TeacherServiceAreaMutationResponse = IServiceAreaRes;

@@ -23,6 +23,9 @@ export const forgotPasswordSchema = z.object({
 
 export const resetPasswordSchema = z
   .object({
+    email: z.string().email({
+      message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
+    }),
     code: z.string({
       message: validationMessage("Invalid verification code", "رمز التحقق غير صحيح"),
     }).length(6, {

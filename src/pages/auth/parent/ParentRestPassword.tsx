@@ -27,13 +27,15 @@ const ParentResetPassword = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const canReset = cookieService.getCanResetPass()!;
-    if (!canReset || canReset !== "parent") navigate("/parent/forgot-password");
+    const resetEmail = cookieService.getResetEmail();
+    if (!canReset || canReset !== "parent" || !resetEmail) navigate("/parent/forgot-password");
   }, [navigate]);
   const { mutateAsync: resetPassword, isPending } = useResetPassword();
 
   const form = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
     defaultValues: {
+      email: cookieService.getResetEmail() ?? "",
       code: "",
       password: "",
       password_confirmation: "",
@@ -41,6 +43,7 @@ const ParentResetPassword = () => {
   });
 
   const onSubmit = async ({
+    email,
     code,
     password,
     password_confirmation,
@@ -48,6 +51,7 @@ const ParentResetPassword = () => {
     try {
       const { message, status } = await resetPassword({
         role: "parent",
+        email,
         code,
         password,
         password_confirmation,

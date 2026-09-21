@@ -36,11 +36,12 @@ export const useResetPassword = () =>
   useMutation({
     mutationFn: ({
       role,
+      email,
       code,
       password,
       password_confirmation,
     }: IResetPassword) =>
-      resetPassword({ role, code, password, password_confirmation }),
+      resetPassword({ role, email, code, password, password_confirmation }),
   });
 
 export const useUpdatePassword = () =>

@@ -60,3 +60,58 @@ PH4 — Delivery
 **PH1 → PH2 → PH3 → PH4**
 
 هذه هي أسماء المراحل المعتمدة للمشروع للاستخدام الإداري والتنظيمي والتواصل مع العميل.
+
+
+---
+
+# Admin Panel Track
+
+هذه مرحلة تشغيلية مستقلة داخل المشروع، وتُنفذ على Backend/Admin Panel مع المحافظة على تكامل الـFrontend.
+
+| Code | المرحلة | الاسم المختصر |
+|---|---|---|
+| **AP0** | تثبيت الـAdmin الحالي وإصلاح التناقضات | **Admin Stabilization** |
+| **AP1** | لوحة التحكم التشغيلية | **Admin Dashboard** |
+| **AP2** | إدارة الدروس والاعتماد | **Lesson Administration** |
+| **AP3** | إدارة الحجوزات | **Booking Administration** |
+| **AP4** | إدارة الجلسات والـCalendar | **Sessions & Calendar** |
+| **AP5** | مراقبة الحضور | **Attendance Administration** |
+| **AP6** | الإدارة المالية | **Financial Administration** |
+| **AP7** | إدارة ومراجعة التقييمات | **Reviews Administration** |
+| **AP8** | مراقبة Availability وService Areas | **Availability & Areas** |
+| **AP9** | Communication وNotifications | **Communication & Notifications** |
+| **AP10** | التقارير والضوابط النهائية | **Reports & Final Controls** |
+| **AP11** | اختبار Admin + Platform وتسليم المرحلة | **Admin QA & Delivery** |
+
+## أسماء جاهزة لـ Trello
+
+```text
+AP0 — Admin Stabilization
+AP1 — Admin Dashboard
+AP2 — Lesson Administration
+AP3 — Booking Administration
+AP4 — Sessions & Calendar
+AP5 — Attendance Administration
+AP6 — Financial Administration
+AP7 — Reviews Administration
+AP8 — Availability & Areas
+AP9 — Communication & Notifications
+AP10 — Reports & Final Controls
+AP11 — Admin QA & Delivery
+```
+
+## قاعدة تنفيذ الـAdmin
+
+لا يتم الانتقال من AP إلى المرحلة التالية إلا بعد اجتياز:
+
+```Backend
++ Permissions
++ Admin UI
++ Tests
++ Real API verification where applicable
++ Browser verification
++ Documentation
+```
+
+الـMaster roadmap التفصيلي موجود في Backend داخل:
+`PROJECT-DOCUMENTATION/ADMIN-PANEL-ROADMAP.md`

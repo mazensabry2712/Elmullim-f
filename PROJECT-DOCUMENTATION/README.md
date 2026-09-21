@@ -13,6 +13,7 @@
 - `BOOKING-FRONTEND-API-MATRIX.md` — حالة التكامل بين واجهة الحجز والـBackend.
 - `BOOKING-FRONTEND-IMPLEMENTATION.md` — تفاصيل تنفيذ الحجز والدفع والجلسات والحضور والإشعارات.
 - `AVAILABILITY-CALENDAR-STATUS.md` — حالة Availability/Calendar الحالية.
+- `ADMIN-PANEL-INTEGRATION-ROADMAP.md` — خريطة مراحل تكامل الـAdmin Panel مع الـFrontend والـBackend.
 - `client_abbreviation.md` — أسماء المراحل المختصرة للاستخدام في متابعة العمل.
 
 ## مبدأ التوثيق

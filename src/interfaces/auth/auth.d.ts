@@ -63,6 +63,7 @@ export interface IUpdatePassword {
 
 export interface IResetPassword {
   role: TRole;
+  email: string;
   code: string;
   password: string;
   password_confirmation: string;

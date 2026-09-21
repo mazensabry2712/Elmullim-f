@@ -27,8 +27,9 @@ const TeacherResetPassword = () => {
   const navigate = useNavigate();
   useEffect(() => {
     const canReset = cookieService.getCanResetPass()!;
-    if (!canReset || canReset !== "teacher")
+    if (!canReset || canReset !== "teacher" || !cookieService.getResetEmail()) {
       navigate("/teacher/forgot-password");
+    }
   }, [navigate]);
   const { mutateAsync: resetPassword, isPending } = useResetPassword();
 

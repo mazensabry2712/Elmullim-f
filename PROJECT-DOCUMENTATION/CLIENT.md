@@ -206,7 +206,7 @@ Implemented:
 
 ## 6. Phase 4 — Admin Panel
 
-The current Admin Panel includes management/review areas for:
+The current Admin Panel foundation includes management/review areas for:
 
 - Dashboard.
 - Administrators.
@@ -349,7 +349,7 @@ The current production build completes successfully. The remaining Browserslist/
 
 ### Main Remaining Work
 
-#### Administrative verification
+#### Administrative / Admin Panel completion
 
 - Backend current checkout verified locally: 137 tests / 506 assertions passed.
 - Admin authorization suite verified: 12 tests / 78 assertions passed.
@@ -358,6 +358,8 @@ The current production build completes successfully. The remaining Browserslist/
 - Verify changing Admin permissions changes real access.
 - Verify direct unauthorized URLs return 403.
 - Verify production migration and permission seeding behavior.
+- Complete Phase 0 Admin stabilization (legacy Admin financial/content/login/view inconsistencies).
+- Complete operational Admin modules for Lessons, Bookings, Sessions, Attendance, Availability/Areas, Notifications and Reports as required by the final scope.
 - Complete any platform-level settings or sensitive-operation controls required by the final scope.
 
 #### Final QA
@@ -390,7 +392,9 @@ The platform has moved into the final integration, administrative authorization 
 
 The main Lesson Booking ecosystem is implemented across Frontend and Backend, and the Backend now has a native Admin/Super Admin permission layer.
 
-Final product acceptance now depends on real browser/API/payment verification and any remaining final-scope administrative controls; the current Backend permission implementation has passed the local automated test gate.
+The operational Admin Panel is **not yet fully complete**: the permission foundation and Chat Monitoring are implemented, while the staged Admin roadmap still contains stabilization and operational-module work.
+
+Final product acceptance depends on real browser/API/payment verification plus completion of the required Admin roadmap items. The current Backend permission implementation has passed its automated authorization tests.
 
 ## 11. Client Acceptance Checklist
 

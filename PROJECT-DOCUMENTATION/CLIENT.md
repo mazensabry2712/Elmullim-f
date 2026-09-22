@@ -3,7 +3,7 @@
 **Project:** Elmullim Educational Platform  
 **Document type:** Client-facing delivery and status document  
 **Scope:** Frontend + Backend + Admin Panel + Integration  
-**Last reviewed:** 2026-09-18
+**Last reviewed:** 2026-09-22
 
 ## 1. Purpose
 
@@ -313,7 +313,7 @@ Includes:
 ### Current frontend verification
 
 - **36 test files passed.**
-- **88 tests passed.**
+- **91 tests passed in the current CI run.**
 - **Lint passed.**
 - **Production build passed.**
 

@@ -89,21 +89,14 @@ export interface ISubCategoryCourse {
 }
 
 export interface UserDetails {
-  address: string;
-  conversation: string | null;
-  description: string | null;
-  education_level: IEducationLevel;
-  email: string;
-  favourite_subjects: IFavoriteSubject[];
-  gender: TGender;
-  id: string;
+  id: number;
   name: string;
-  phone: string;
   profile_image: string;
+  conversation: string | null;
 }
 
 export interface IUserSearch {
-  id: string;
+  id: number;
   type: TUserSearchType;
   details: UserDetails;
 }

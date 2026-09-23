@@ -8,9 +8,11 @@ import { I18nProvider, useI18n } from "@/i18n";
 
 const mockRefetch = vi.fn();
 const mockUseGetLessons = vi.fn();
+const mockUseGetLessonFilterOptions = vi.fn();
 
 vi.mock("@/lib/react-query/lessons/lessons", () => ({
   useGetLessons: (...args: unknown[]) => mockUseGetLessons(...args),
+  useGetLessonFilterOptions: () => mockUseGetLessonFilterOptions(),
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -54,6 +56,19 @@ describe("Lessons", () => {
   });
 
   it("renders API lessons and an accessible search field", () => {
+    mockUseGetLessonFilterOptions.mockReturnValue({
+      data: {
+        education_levels: [
+          { id: 1, name: "Secondary" },
+          { id: 2, name: "Primary" },
+        ],
+        subjects: [
+          { id: 11, name: "Mathematics" },
+          { id: 12, name: "Physics" },
+        ],
+      },
+    });
+
     mockUseGetLessons.mockReturnValue({
       data: { data: [{ id: 1, title: "Algebra Basics" }] },
       isLoading: false,
@@ -66,6 +81,22 @@ describe("Lessons", () => {
     expect(screen.getByRole("heading", { name: /lessons/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("searchbox", { name: /search lessons/i })).toBeInTheDocument();
     expect(screen.getByTestId("lessons-list")).toHaveTextContent("Algebra Basics");
+  });
+
+  it("renders stage and subject discovery filters", () => {
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    renderPage(<Lessons />);
+
+    expect(screen.getByRole("combobox", { name: "Education stage" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Secondary" })).toBeInTheDocument();
+    expect(screen.getByRole("combobox", { name: "Subject" })).toBeInTheDocument();
+    expect(screen.getByRole("option", { name: "Mathematics" })).toBeInTheDocument();
   });
 
   it("renders a retryable error state", async () => {

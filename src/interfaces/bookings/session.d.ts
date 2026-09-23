@@ -23,6 +23,7 @@ export interface IBookingSession {
   lesson?: {
     id: number;
     title?: string;
+    delivery_mode?: "online" | "offline";
   };
   bookings?: Array<{
     id: number;

@@ -85,8 +85,8 @@ const copy = {
       privateRequiresApproval: "This private lesson requires teacher approval.",
       groupBookingRequest: "This group lesson starts with a booking request.",
       lessonDuration: "Lesson duration",
-      availableSeats: "available seats",
-      availableSeat: "available seat",
+      availableSeats: "seats available",
+      availableSeat: "seat available",
       statuses: {
         booking_requested: "Booking requested",
         pending_teacher_approval: "Pending teacher approval",
@@ -187,7 +187,7 @@ const copy = {
       privateRequiresApproval: "هذا درس خاص ويحتاج إلى موافقة المعلم.",
       groupBookingRequest: "هذا درس جماعي يبدأ بطلب حجز.",
       lessonDuration: "مدة الحصة",
-      availableSeats: "مقعد متاح",
+      availableSeats: "مقاعد متاحة",
       availableSeat: "مقعد متاح",
       statuses: {
         booking_requested: "تم إرسال طلب الحجز",

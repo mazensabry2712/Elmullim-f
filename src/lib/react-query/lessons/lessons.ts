@@ -3,6 +3,7 @@ import {
   getAllLessons,
   getLessonFilterOptions,
   getLessonAvailability,
+  getLessonBookingOptions,
   getLessonById,
   getRelatedLesson,
   ILessonFilters,
@@ -34,14 +35,21 @@ export const useGetLessonById = ({
     enabled: !!lessonId,
   });
 
-export const useGetLessonAvailability = (
+export const useGetLessonAvailability = (lessonId: number) =>
+  useQuery({
+    queryKey: [QueryKeys.LESSON_AVAILABILITY, lessonId],
+    queryFn: () => getLessonAvailability(lessonId),
+    enabled: !!lessonId,
+  });
+
+export const useGetLessonBookingOptions = (
   lessonId: number,
   date?: string
 ) =>
   useQuery({
-    queryKey: [QueryKeys.LESSON_AVAILABILITY, lessonId, date],
-    queryFn: () => getLessonAvailability(lessonId, { date }),
-    enabled: !!lessonId,
+    queryKey: ["LESSON_BOOKING_OPTIONS", lessonId, date],
+    queryFn: () => getLessonBookingOptions(lessonId, date as string),
+    enabled: !!lessonId && !!date,
   });
 
 export const useGetRelatedLesson = ({

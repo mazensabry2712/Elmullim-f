@@ -10,7 +10,7 @@ export interface IStudentLocationResponse {
   status: boolean;
   message: string | null;
   data: {
-    id: number;
+    id?: number;
     address: string;
     latitude: string | number | null;
     longitude: string | number | null;

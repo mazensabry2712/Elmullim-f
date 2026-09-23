@@ -24,9 +24,7 @@ export interface IMessage {
   flagged: boolean;
   created_at: string;
   deleted_at: null | string;
-  read: {
-    status: boolean;
-  } | null;
+  read: boolean | null;
   sender: ISender | null;
 }
 
@@ -45,7 +43,7 @@ export interface IConversation {
 
 export interface IConversationRes {
   status: boolean;
-  message: null | boolean;
+  message: null | string;
   data: IConversation;
 }
 
@@ -68,7 +66,7 @@ export interface IConversationsRes {
         status: boolean;
       } | null;
       sender: ISender | null;
-    };
+    } | null;
   }[];
 }
 

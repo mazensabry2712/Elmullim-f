@@ -8,6 +8,7 @@ import {
   useGetTeacherSchedule,
   useMarkSessionAttendance,
   useUpdateSessionStatus,
+  useUpdateSessionMeetingLink,
 } from "@/lib/react-query/booking";
 import { IBookingSession } from "@/interfaces/bookings/session";
 import { joinBookingSession } from "@/services/booking";
@@ -22,9 +23,11 @@ const Schedule = () => {
   const studentSchedule = useGetSchedule({ token, enabled: !!token && !isTeacher });
   const teacherSchedule = useGetTeacherSchedule({ token, enabled: !!token && isTeacher });
   const updateStatus = useUpdateSessionStatus();
+  const updateMeetingLink = useUpdateSessionMeetingLink();
   const markAttendance = useMarkSessionAttendance();
   const [joinLoading, setJoinLoading] = useState<number | null>(null);
   const [attendancePending, setAttendancePending] = useState<string | null>(null);
+  const [meetingLinks, setMeetingLinks] = useState<Record<number, string>>({});
 
   const data = (isTeacher ? teacherSchedule.data?.data : studentSchedule.data?.data) ?? [];
   const loading = isTeacher ? teacherSchedule.isLoading : studentSchedule.isLoading;
@@ -62,6 +65,21 @@ const Schedule = () => {
       toast.error(copy.couldNotSaveAttendance);
     } finally {
       setAttendancePending(null);
+    }
+  };
+
+  const saveMeetingLink = async (session: IBookingSession) => {
+    const meetingUrl = (meetingLinks[session.id] ?? session.meeting_url ?? "").trim();
+    if (!meetingUrl) {
+      toast.error(copy.meetingLinkMissing);
+      return;
+    }
+
+    try {
+      await updateMeetingLink.mutateAsync({ token, sessionId: session.id, meetingUrl });
+      toast.success(copy.meetingLinkSaved);
+    } catch {
+      toast.error(copy.couldNotSaveMeetingLink);
     }
   };
 
@@ -128,6 +146,29 @@ const Schedule = () => {
                 <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{copy.status[session.status]}</span>
               </div>
 
+              {isTeacher && session.lesson?.delivery_mode === "online" && (
+                <div className="mt-5 rounded-lg border border-gray-200 bg-white p-4">
+                  <label className="block text-sm font-bold text-black-blue">
+                    {copy.meetingLink}
+                    <input
+                      type="url"
+                      value={meetingLinks[session.id] ?? session.meeting_url ?? ""}
+                      onChange={(event) => setMeetingLinks((current) => ({ ...current, [session.id]: event.target.value }))}
+                      placeholder={copy.meetingLinkPlaceholder}
+                      className="mt-2 w-full rounded-md border border-gray-300 bg-white px-3 py-2 font-sora text-sm"
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => void saveMeetingLink(session)}
+                    disabled={updateMeetingLink.isPending}
+                    className="mt-3 rounded-md bg-main px-4 py-2 text-sm font-semibold text-white disabled:opacity-50"
+                  >
+                    {updateMeetingLink.isPending ? copy.opening : copy.saveMeetingLink}
+                  </button>
+                </div>
+              )}
+
               {isTeacher && session.bookings?.length && (
                 <div className="mt-5 rounded-lg border border-gray-200 bg-white p-4">
                   <h3 className="mb-3 text-sm font-bold text-black-blue">{copy.attendance}</h3>
@@ -172,11 +213,11 @@ const Schedule = () => {
                     key={booking.id}
                     type="button"
                     onClick={() => void join(booking.id)}
-                    disabled={joinLoading === booking.id || !["upcoming", "in_progress", "confirmed"].includes(session.status)}
+                    disabled={joinLoading === booking.id || !session.meeting_url || !["upcoming", "in_progress", "confirmed"].includes(session.status)}
                     className="inline-flex items-center gap-2 rounded-md bg-main px-4 py-2 text-white disabled:opacity-50"
                   >
                     <ExternalLink size={17} />
-                    {joinLoading === booking.id ? copy.opening : copy.join}
+                    {joinLoading === booking.id ? copy.opening : session.meeting_url ? copy.join : copy.meetingLinkMissing}
                   </button>
                 ))}
 

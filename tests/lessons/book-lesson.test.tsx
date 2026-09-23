@@ -113,7 +113,7 @@ describe("BookLessonDialog", () => {
 
     await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
     fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), {
-      target: { value: "18:00|Africa/Cairo" },
+      target: { value: "2099-01-11T16:00:00.000Z" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
@@ -139,6 +139,22 @@ describe("BookLessonDialog", () => {
             { id: 43, name: "Child Two", address: "Dokki, Giza", latitude: 30.0383, longitude: 31.2114 },
           ],
         },
+      },
+    });
+
+    mocks.bookingOptions.mockReturnValue({
+      isLoading: false,
+      data: {
+        status: true,
+        message: null,
+        data: [{
+          slot_id: 1,
+          local_time: "18:00",
+          requested_start_at: "2099-01-11T16:00:00.000Z",
+          available_seats: 4,
+          is_available: true,
+          timezone: "Africa/Cairo",
+        }],
       },
     });
 

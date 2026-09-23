@@ -207,7 +207,7 @@ const BookLessonDialog = ({
         selectedStudentBeforeRequest?.latitude == null ||
         selectedStudentBeforeRequest?.longitude == null
       )
-    {
+    ) {
       toast.error(bookingCopy.studentLocationRequired);
       return;
     }

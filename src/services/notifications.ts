@@ -17,6 +17,8 @@ export interface IAppNotification {
     lesson_id?: number;
     lesson_title?: string;
     status?: string;
+    session_id?: number;
+    meeting_url?: string | null;
   };
   read_at?: string | null;
   created_at: string;

@@ -5,7 +5,7 @@ export interface IStudentProfile {
   id?: number;
   name: string;
   phone: string;
-  address: string;
+  address: string | null;
   email: string;
   gender: TGender;
   profile_image: string;

@@ -56,7 +56,7 @@ export const updateTeacherProfile = async ({
 
 export const getTeacherRatings = async (token: string): Promise<IRatingRes> => {
   return (
-    await axiosAPI.get(`/teacher/ratings/received-all`, {
+    await axiosAPI.get(`/teacher/rating/received-all`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

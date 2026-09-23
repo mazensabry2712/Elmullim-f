@@ -362,7 +362,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
       {step === 4 && (
         <section className="space-y-5 rounded-lg border bg-white p-5">
           <h2 className="text-xl font-bold text-black-blue">Online</h2>
-          <p className="text-sm text-muted-foreground">{label("Provide the live meeting URL. Availability is configured in the previous step.", "أدخل رابط الاجتماع المباشر. المواعيد متاحة ومحددة في الخطوة السابقة.")}</p>
+          <p className="text-sm text-muted-foreground">{label("Add the live meeting URL now or later from your teaching schedule.", "أدخل رابط الاجتماع الآن أو أضفه لاحقًا من جدول التدريس.")}</p>
           <label className="block text-sm font-medium text-black-blue">Meeting URL<Input {...form.register("meeting_url")} placeholder="https://..." className={inputClassName} />{error("meeting_url")}</label>
         </section>
       )}

@@ -33,6 +33,16 @@ const Schedule = () => {
   const loading = isTeacher ? teacherSchedule.isLoading : studentSchedule.isLoading;
   const error = isTeacher ? teacherSchedule.isError : studentSchedule.isError;
 
+  const openMeeting = (meetingUrl?: string | null) => {
+    const url = meetingUrl?.trim();
+    if (!url) {
+      toast.error(copy.meetingLinkMissing);
+      return;
+    }
+
+    window.open(url, "_blank", "noopener,noreferrer");
+  };
+
   const join = async (bookingId: number) => {
     setJoinLoading(bookingId);
     try {
@@ -42,7 +52,7 @@ const Schedule = () => {
         return;
       }
       if (response.data?.meeting_url) {
-        window.open(response.data.meeting_url, "_blank", "noopener,noreferrer");
+        openMeeting(response.data.meeting_url);
       } else if (response.data?.location) {
         toast.info(response.data.location);
       } else {
@@ -220,6 +230,17 @@ const Schedule = () => {
                     {joinLoading === booking.id ? copy.opening : session.meeting_url ? copy.join : copy.meetingLinkMissing}
                   </button>
                 ))}
+
+                {isTeacher && session.meeting_url && (
+                  <button
+                    type="button"
+                    onClick={() => openMeeting(session.meeting_url)}
+                    className="inline-flex items-center gap-2 rounded-md border border-main bg-white px-4 py-2 text-main"
+                  >
+                    <ExternalLink size={17} />
+                    {copy.openMeeting}
+                  </button>
+                )}
 
                 {isTeacher && session.status === "upcoming" && (
                   <button type="button" onClick={() => void update(session, "in_progress")} disabled={updateStatus.isPending} className="rounded-md bg-main px-4 py-2 text-white disabled:opacity-50">

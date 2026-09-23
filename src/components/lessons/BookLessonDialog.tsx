@@ -316,7 +316,7 @@ const BookLessonDialog = ({
                   <div className="mt-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-700">
                     {(role === "student" ? selfStudent : students.find((student) => student.id === studentId))?.address
                       || bookingCopy.studentLocationPlaceholder}
-                  </div>>
+                  </div>
                 </label>
               )}
 
@@ -327,7 +327,24 @@ const BookLessonDialog = ({
 
               <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
                 <button type="button" onClick={() => setOpen(false)} className="rounded-md border border-gray-300 px-5 py-2">{bookingCopy.cancel}</button>
-                <button type="button" onClick={submit} disabled={isPending || loadingStudents || loadingAvailability || availableSlots.length === 0 || (role === "parent" && students.length === 0) || !selectedDate || !selectedTime || (deliveryMode === "offline" && offlineVisitType === "teacher_goes_to_student" && !studentLocation.trim())} className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-2 text-white disabled:opacity-60">
+                <button type="button" onClick={submit} disabled={
+                    isPending ||
+                    loadingStudents ||
+                    loadingAvailability ||
+                    loadingBookingOptions ||
+                    availableSlots.length === 0 ||
+                    (role === "parent" && students.length === 0) ||
+                    !selectedDate ||
+                    !selectedTime ||
+                    (
+                      deliveryMode === "offline" &&
+                      offlineVisitType === "teacher_to_student" &&
+                      (
+                        (role === "student" ? selfStudent : students.find((student) => student.id === studentId))?.latitude == null ||
+                        (role === "student" ? selfStudent : students.find((student) => student.id === studentId))?.longitude == null
+                      )
+                    )
+                  } className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-2 text-white disabled:opacity-60">
                   {isPending && <Loader2 className="animate-spin" size={18} />}
                   {bookingCopy.confirm}
                 </button>

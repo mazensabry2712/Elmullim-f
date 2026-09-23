@@ -24,6 +24,12 @@ export interface ILessonAvailabilityRes {
   data: ILessonAvailabilitySlot[];
 }
 
+export interface ILessonBookingOptionsRes {
+  status: boolean;
+  message: string | null;
+  data: ILessonBookingOption[];
+}
+
 export interface ITeacherAvailabilityBlock {
   id: number;
   teacher_id: number;

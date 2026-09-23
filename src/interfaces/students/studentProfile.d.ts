@@ -51,7 +51,7 @@ export interface IRating {
 }
 
 export interface IRatingRes {
+  status: boolean;
   data: IRating[];
   message: null | string;
-  boolean: boolean;
 }

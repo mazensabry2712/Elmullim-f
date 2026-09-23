@@ -113,7 +113,7 @@ describe("BookLessonDialog", () => {
 
     await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
     fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), {
-      target: { value: "2099-01-11T16:00:00.000Z" },
+      target: { value: "18:00|Africa/Cairo" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
@@ -174,7 +174,7 @@ describe("BookLessonDialog", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Choose student" }), { target: { value: "43" } });
     fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-11" } });
     await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
-    fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), { target: { value: "18:00|Africa/Cairo" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), { target: { value: "2099-01-11T16:00:00.000Z" } });
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
     await waitFor(() =>

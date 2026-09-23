@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => ({
   mutateAsync: vi.fn(),
   get: vi.fn(),
   availability: vi.fn(),
+  bookingOptions: vi.fn(),
 }));
 
 vi.mock("@/lib/react-query/booking", () => ({
@@ -15,6 +16,7 @@ vi.mock("@/lib/react-query/booking", () => ({
 
 vi.mock("@/lib/react-query/lessons/lessons", () => ({
   useGetLessonAvailability: () => mocks.availability(),
+  useGetLessonBookingOptions: () => mocks.bookingOptions(),
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -40,7 +42,17 @@ describe("BookLessonDialog", () => {
       data: { status: "pending_teacher_approval" },
     });
     mocks.get.mockReset();
-    mocks.get.mockResolvedValue({ data: { data: { id: 42 } } });
+    mocks.get.mockResolvedValue({
+      data: {
+        data: {
+          id: 42,
+          name: "Student One",
+          address: "Nasr City, Cairo",
+          latitude: 30.0444,
+          longitude: 31.2357,
+        },
+      },
+    });
     mocks.availability.mockReset();
     mocks.availability.mockReturnValue({
       isLoading: false,
@@ -68,6 +80,15 @@ describe("BookLessonDialog", () => {
             is_active: true,
           },
         ],
+      },
+    });
+
+    mocks.bookingOptions.mockReturnValue({
+      isLoading: false,
+      data: {
+        status: true,
+        message: null,
+        data: [],
       },
     });
   });
@@ -114,8 +135,8 @@ describe("BookLessonDialog", () => {
       data: {
         data: {
           students: [
-            { id: 42, name: "Child One" },
-            { id: 43, name: "Child Two" },
+            { id: 42, name: "Child One", address: "Nasr City, Cairo", latitude: 30.0444, longitude: 31.2357 },
+            { id: 43, name: "Child Two", address: "Dokki, Giza", latitude: 30.0383, longitude: 31.2114 },
           ],
         },
       },
@@ -152,13 +173,13 @@ describe("BookLessonDialog", () => {
     );
   });
 
-  it("captures student location for teacher-to-student offline lessons", async () => {
+  it("uses the saved student location for teacher-to-student offline lessons", async () => {
     render(
       <BookLessonDialog
         lessonId={9}
         bookingType="private"
         deliveryMode="offline"
-        offlineVisitType="teacher_goes_to_student"
+        offlineVisitType="teacher_to_student"
         price="300.00"
         durationMinutes={60}
         language="en"
@@ -167,6 +188,7 @@ describe("BookLessonDialog", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
+    expect(screen.getByText("Nasr City, Cairo")).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Choose date"), {
       target: { value: "2099-01-10" },
@@ -175,9 +197,6 @@ describe("BookLessonDialog", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), {
       target: { value: "18:00|Africa/Cairo" },
     });
-
-    const location = screen.getByPlaceholderText("Enter the area/address where the lesson will take place");
-    fireEvent.change(location, { target: { value: "Nasr City, Cairo" } });
 
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
@@ -192,6 +211,39 @@ describe("BookLessonDialog", () => {
         },
       })
     );
+  });
+
+  it("shows server-provided seats for group booking options", async () => {
+    mocks.bookingOptions.mockReturnValue({
+      isLoading: false,
+      data: {
+        status: true,
+        message: null,
+        data: [{
+          slot_id: 1,
+          local_time: "18:00",
+          requested_start_at: "2099-01-10T16:00:00.000Z",
+          available_seats: 2,
+          is_available: true,
+          timezone: "Africa/Cairo",
+        }],
+      },
+    });
+
+    render(
+      <BookLessonDialog
+        lessonId={10}
+        bookingType="group"
+        price="0"
+        durationMinutes={60}
+        language="en"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Book now" }));
+    fireEvent.change(await screen.findByLabelText("Choose date"), { target: { value: "2099-01-10" } });
+
+    expect(await screen.findByRole("option", { name: /18:00.*2 seats/ })).toBeInTheDocument();
   });
 
   it("renders Arabic booking labels consistently", async () => {

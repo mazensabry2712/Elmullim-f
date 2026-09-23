@@ -6,9 +6,9 @@ import { ICreateLessonAvailabilitySlot } from "@/interfaces/lessons/availability
 
 const appendAvailability = (
   formData: FormData,
-  availability: ICreateLessonAvailabilitySlot[]
+  availability?: ICreateLessonAvailabilitySlot[]
 ) => {
-  availability.forEach((slot, index) => {
+  availability?.forEach((slot, index) => {
     formData.append(
       "availability[" + index + "][day_of_week]",
       slot.day_of_week.toString()

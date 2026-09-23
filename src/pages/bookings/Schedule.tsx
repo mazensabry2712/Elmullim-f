@@ -223,11 +223,11 @@ const Schedule = () => {
                     key={booking.id}
                     type="button"
                     onClick={() => void join(booking.id)}
-                    disabled={joinLoading === booking.id || !session.meeting_url || !["upcoming", "in_progress", "confirmed"].includes(session.status)}
+                    disabled={joinLoading === booking.id || !["upcoming", "in_progress"].includes(session.status)}
                     className="inline-flex items-center gap-2 rounded-md bg-main px-4 py-2 text-white disabled:opacity-50"
                   >
                     <ExternalLink size={17} />
-                    {joinLoading === booking.id ? copy.opening : session.meeting_url ? copy.join : copy.meetingLinkMissing}
+                    {joinLoading === booking.id ? copy.opening : copy.join}
                   </button>
                 ))}
 

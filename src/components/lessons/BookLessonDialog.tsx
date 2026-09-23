@@ -177,7 +177,7 @@ const BookLessonDialog = ({
 
     return Array.from(new Map(candidates.map((item) => [item.value, item])).values())
       .sort((a, b) => a.value.localeCompare(b.value));
-  }, [availableSlots, bookingOptions?.data, bookingType, selectedDate, durationMinutes]);
+  }, [availableSlots, bookingOptions?.data, bookingType, selectedDate, durationMinutes, bookingCopy.availableSeat, bookingCopy.availableSeats]);
 
   useEffect(() => {
     if (!timesForDate.some((item) => item.value === selectedTime)) setSelectedTime("");

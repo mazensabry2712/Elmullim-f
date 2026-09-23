@@ -78,9 +78,15 @@ export const getLessonById = async ({
 };
 
 export const getLessonAvailability = async (
-  lessonId: number
+  lessonId: number,
+  options?: { date?: string }
 ): Promise<ILessonAvailabilityRes> => {
-  const { data } = await axiosAPI.get("/lessons/" + lessonId + "/availability");
+  const params = new URLSearchParams();
+  if (options?.date) params.set("date", options.date);
+  const query = params.toString();
+  const { data } = await axiosAPI.get(
+    "/lessons/" + lessonId + "/availability" + (query ? "?" + query : "")
+  );
   return data;
 };
 

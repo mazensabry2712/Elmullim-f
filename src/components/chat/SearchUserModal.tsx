@@ -22,8 +22,11 @@ const SearchUserModal = ({ onClose, onSelectUser }: {
 
     const typeTranslations: Record<string, string> = {
       student: "طالب",
+      students: "طالب",
       teacher: "معلم",
+      teachers: "معلم",
       family: "ولي أمر",
+      familes: "ولي أمر",
       parent: "ولي أمر",
     };
 

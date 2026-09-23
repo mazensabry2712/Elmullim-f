@@ -54,6 +54,9 @@ function ChatWindow({
   useEffect(() => {
     if (!conversationId) return;
 
+    const echo = getEcho();
+    if (!echo) return;
+
     echo.leaveAllChannels();
 
     const channelName = `chat-conversation.${conversationId}`;

@@ -21,7 +21,8 @@ export interface ICreateLesson {
   logo: File;
 }
 
-export interface IUpdateLesson extends Omit<ICreateLesson, "logo"> {
+export interface IUpdateLesson extends Omit<ICreateLesson, "logo" | "availability"> {
   id: number;
   logo?: File;
+  availability?: ICreateLessonAvailabilitySlot[];
 }

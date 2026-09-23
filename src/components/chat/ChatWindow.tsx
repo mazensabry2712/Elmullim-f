@@ -55,7 +55,7 @@ function ChatWindow({
     if (!conversationId) return;
 
     let cancelled = false;
-    let echo: ReturnType<typeof getEcho> extends Promise<infer T> ? T : never;
+    let echo: Awaited<ReturnType<typeof getEcho>> = null;
     const channelName = `chat-conversation.${conversationId}`;
 
     const subscribe = async () => {

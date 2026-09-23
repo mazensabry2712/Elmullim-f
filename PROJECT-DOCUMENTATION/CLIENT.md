@@ -386,6 +386,18 @@ The current production build completes successfully. The remaining Browserslist/
 - Advanced disputes/reports where required.
 - Automatic recurring Session generation where required.
 
+## 9.5 — Latest operational refinements
+
+Implemented on the current main branches:
+
+- Offline Teacher → Student booking now uses the beneficiary student's saved address and coordinates instead of a free-text booking location.
+- Group lesson booking options now receive date-specific seat availability from the Backend.
+- Public lesson discovery now has Subject and Education Stage filters backed by published-lesson metadata.
+- Admin Operations now includes Availability and Teacher Service Area oversight.
+- Admin Reports now provides date-ranged Booking, Session, Attendance and financial summaries.
+
+These changes still require final local test execution and real browser/API verification before production acceptance.
+
 ## 10. Delivery Position
 
 The platform has moved into the final integration, administrative authorization and verification stage.

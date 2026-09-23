@@ -5,7 +5,10 @@ import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import { useCreateBooking } from "@/lib/react-query/booking";
 import { BookingStatus } from "@/interfaces/bookings/booking";
-import { useGetLessonAvailability } from "@/lib/react-query/lessons/lessons";
+import {
+  useGetLessonAvailability,
+  useGetLessonBookingOptions,
+} from "@/lib/react-query/lessons/lessons";
 import { ILessonAvailabilitySlot } from "@/interfaces/lessons/availability";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 
@@ -22,11 +25,13 @@ interface IProps {
 interface IStudentOption {
   id: number;
   name: string;
+  address?: string | null;
+  latitude?: string | number | null;
+  longitude?: string | number | null;
 }
 
 interface IProfileResponse {
-  data?: {
-    id?: number;
+  data?: IStudentOption & {
     students?: IStudentOption[];
   };
 }
@@ -98,12 +103,16 @@ const BookLessonDialog = ({
   const [open, setOpen] = useState(false);
   const [studentId, setStudentId] = useState<number | null>(null);
   const [students, setStudents] = useState<IStudentOption[]>([]);
+  const [selfStudent, setSelfStudent] = useState<IStudentOption | null>(null);
   const [loadingStudents, setLoadingStudents] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [customerNote, setCustomerNote] = useState("");
-  const [studentLocation, setStudentLocation] = useState("");
   const { data: availability, isLoading: loadingAvailability, isError: availabilityError } = useGetLessonAvailability(lessonId);
+  const { data: bookingOptions, isLoading: loadingBookingOptions } = useGetLessonBookingOptions(
+    lessonId,
+    bookingType === "group" ? selectedDate : undefined
+  );
   const { mutateAsync, isPending } = useCreateBooking();
 
   useEffect(() => {
@@ -115,12 +124,22 @@ const BookLessonDialog = ({
       .get<IProfileResponse>(endpoint, { headers: { Authorization: `Bearer ${token}` } })
       .then(({ data }) => {
         if (role === "student") {
-          if (data.data?.id) setStudentId(data.data.id);
+          if (data.data?.id) {
+            setStudentId(data.data.id);
+            setSelfStudent({
+              id: data.data.id,
+              name: data.data.name ?? "",
+              address: data.data.address ?? null,
+              latitude: data.data.latitude ?? null,
+              longitude: data.data.longitude ?? null,
+            });
+          }
           return;
         }
         const linkedStudents = data.data?.students ?? [];
         setStudents(linkedStudents);
         setStudentId(linkedStudents[0]?.id ?? null);
+        setSelfStudent(null);
       })
       .catch(() => toast.error(bookingCopy.failed))
       .finally(() => setLoadingStudents(false));
@@ -131,6 +150,17 @@ const BookLessonDialog = ({
 
   const timesForDate = useMemo(() => {
     if (!selectedDate || durationMinutes <= 0) return [];
+
+    if (bookingType === "group" && bookingOptions?.data) {
+      return bookingOptions.data
+        .filter((option) => option.is_available)
+        .sort((a, b) => a.requested_start_at.localeCompare(b.requested_start_at))
+        .map((option) => ({
+          value: option.requested_start_at,
+          label: \`\${option.local_time} (\${option.timezone}) — \${option.available_seats ?? 0} \${option.available_seats === 1 ? "seat" : "seats"}\`,
+        }));
+    }
+
     const weekday = isoWeekdayFromDate(selectedDate);
     const candidates: Array<{ value: string; label: string }> = [];
 
@@ -140,13 +170,14 @@ const BookLessonDialog = ({
         const start = timeToMinutes(slot.start_time.slice(0, 5));
         const end = timeToMinutes(slot.end_time.slice(0, 5));
         for (let cursor = start; cursor + durationMinutes <= end; cursor += durationMinutes) {
-          const time = `${String(Math.floor(cursor / 60)).padStart(2, "0")}:${String(cursor % 60).padStart(2, "0")}`;
-          candidates.push({ value: `${time}|${slot.timezone}`, label: `${time} (${slot.timezone})` });
+          const time = \`\${String(Math.floor(cursor / 60)).padStart(2, "0")}:\${String(cursor % 60).padStart(2, "0")}\`;
+          candidates.push({ value: \`\${time}|\${slot.timezone}\`, label: \`\${time} (\${slot.timezone})\` });
         }
       });
 
-    return Array.from(new Map(candidates.map((item) => [item.value, item])).values()).sort((a, b) => a.value.localeCompare(b.value));
-  }, [availableSlots, selectedDate, durationMinutes]);
+    return Array.from(new Map(candidates.map((item) => [item.value, item])).values())
+      .sort((a, b) => a.value.localeCompare(b.value));
+  }, [availableSlots, bookingOptions?.data, bookingType, selectedDate, durationMinutes]);
 
   useEffect(() => {
     if (!timesForDate.some((item) => item.value === selectedTime)) setSelectedTime("");
@@ -163,23 +194,51 @@ const BookLessonDialog = ({
     }
 
     const needsStudentLocation =
-      deliveryMode === "offline" && offlineVisitType === "teacher_goes_to_student";
+      deliveryMode === "offline" && offlineVisitType === "teacher_to_student";
 
-    if (needsStudentLocation && !studentLocation.trim()) {
+    const selectedStudentBeforeRequest =
+      role === "student"
+        ? selfStudent
+        : students.find((student) => student.id === studentId);
+
+    if (
+      needsStudentLocation &&
+      (
+        selectedStudentBeforeRequest?.latitude == null ||
+        selectedStudentBeforeRequest?.longitude == null
+      )
+    {
       toast.error(bookingCopy.studentLocationRequired);
       return;
     }
 
-    const [time, timezone] = selectedTime.split("|");
+    const selectedBookingOption =
+      bookingType === "group"
+        ? bookingOptions?.data.find((option) => option.requested_start_at === selectedTime)
+        : undefined;
+
+    const requestedStartAt = selectedBookingOption?.requested_start_at
+      ?? (() => {
+        const [time, timezone] = selectedTime.split("|");
+        return zonedTimeToIso(selectedDate, time, timezone);
+      })();
+
+    const selectedStudent =
+      role === "student"
+        ? selfStudent
+        : students.find((student) => student.id === studentId);
+
     try {
       const response = await mutateAsync({
         token,
         lessonId,
         booking: {
           student_id: studentId,
-          requested_start_at: zonedTimeToIso(selectedDate, time, timezone),
+          requested_start_at: requestedStartAt,
           ...(customerNote.trim() ? { customer_note: customerNote.trim() } : {}),
-          ...(needsStudentLocation ? { student_location: studentLocation.trim() } : {}),
+          ...(needsStudentLocation && selectedStudent?.address
+            ? { student_location: selectedStudent.address }
+            : {}),
         },
       });
 
@@ -195,7 +254,6 @@ const BookLessonDialog = ({
       setSelectedDate("");
       setSelectedTime("");
       setCustomerNote("");
-      setStudentLocation("");
     } catch {
       toast.error(bookingCopy.failed);
     }
@@ -229,7 +287,7 @@ const BookLessonDialog = ({
                 </label>
               )}
 
-              {loadingAvailability ? (
+              {loadingAvailability || (bookingType === "group" && !!selectedDate && loadingBookingOptions) ? (
                 <div className="rounded-md bg-gray-100 px-3 py-3 text-gray-600" role="status">{bookingCopy.availabilityLoading}</div>
               ) : availabilityError ? (
                 <div className="rounded-md border border-red-200 bg-red-50 px-3 py-3 text-red-700" role="alert">{bookingCopy.availabilityError}</div>
@@ -252,17 +310,13 @@ const BookLessonDialog = ({
                 </>
               )}
 
-              {deliveryMode === "offline" && offlineVisitType === "teacher_goes_to_student" && (
+              {deliveryMode === "offline" && offlineVisitType === "teacher_to_student" && (
                 <label className="block text-sm font-medium">
                   {bookingCopy.studentLocation}
-                  <input
-                    type="text"
-                    value={studentLocation}
-                    onChange={(event) => setStudentLocation(event.target.value)}
-                    placeholder={bookingCopy.studentLocationPlaceholder}
-                    maxLength={255}
-                    className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main"
-                  />
+                  <div className="mt-2 rounded-md border border-gray-200 bg-gray-50 px-3 py-3 text-sm text-gray-700">
+                    {(role === "student" ? selfStudent : students.find((student) => student.id === studentId))?.address
+                      || bookingCopy.studentLocationPlaceholder}
+                  </div>>
                 </label>
               )}
 

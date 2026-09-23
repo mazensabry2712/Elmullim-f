@@ -207,16 +207,24 @@ const LessonForm = ({ action, lesson }: IProps) => {
         duration_minutes: Number(values.duration_minutes),
         price: Number(values.price),
         sessions_count: Number(values.sessions_count),
-        availability: values.availability.map((slot) => ({
-          day_of_week: Number(slot.day_of_week),
-          start_time: slot.start_time,
-          end_time: slot.end_time,
-          timezone: slot.timezone,
-        })),
-        service_area_ids:
-          values.delivery_mode === "offline" && values.offline_visit_type === "teacher_to_student"
-            ? values.service_area_ids
-            : [],
+        ...(action === "create" || form.formState.dirtyFields.availability
+          ? {
+              availability: values.availability.map((slot) => ({
+                day_of_week: Number(slot.day_of_week),
+                start_time: slot.start_time,
+                end_time: slot.end_time,
+                timezone: slot.timezone,
+              })),
+            }
+          : {}),
+        ...(action === "create" || form.formState.dirtyFields.service_area_ids
+          ? {
+              service_area_ids:
+                values.delivery_mode === "offline" && values.offline_visit_type === "teacher_to_student"
+                  ? values.service_area_ids
+                  : [],
+            }
+          : {}),
         ...(values.delivery_mode === "online"
           ? values.meeting_url ? { meeting_url: values.meeting_url } : {}
           : { location: values.location, offline_visit_type: values.offline_visit_type }),

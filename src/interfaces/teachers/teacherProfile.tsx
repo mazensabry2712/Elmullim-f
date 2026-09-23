@@ -5,7 +5,7 @@ export interface ITeacher {
   id: number;
   name: string;
   phone: string;
-  address: string;
+  address: string | null;
   email: string;
   description: string | null;
   experince: number | null;

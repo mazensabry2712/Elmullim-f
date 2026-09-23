@@ -150,6 +150,33 @@ describe("Schedule", () => {
     }));
   });
 
+  it("allows a teacher to open the saved live meeting link", () => {
+    mocks.role = "teacher";
+    mocks.getTeacherSchedule.mockReturnValue({
+      status: true,
+      message: null,
+      data: [{
+        id: 2,
+        lesson_id: 15,
+        start_at: "2099-01-10T20:00:00Z",
+        end_at: "2099-01-10T21:00:00Z",
+        status: "upcoming",
+        meeting_url: "https://meet.google.com/abc-defg-hij",
+        bookings: [],
+        lesson: { id: 15, title: "Live lesson", delivery_mode: "online" },
+      }],
+    });
+
+    render(<I18nProvider><Schedule /></I18nProvider>);
+    fireEvent.click(screen.getByRole("button", { name: "Open meeting" }));
+
+    expect(window.open).toHaveBeenCalledWith(
+      "https://meet.google.com/abc-defg-hij",
+      "_blank",
+      "noopener,noreferrer"
+    );
+  });
+
   it("renders the student schedule in Arabic", () => {
     localStorage.setItem("elmullim-language", "ar");
     render(<I18nProvider><Schedule /></I18nProvider>);

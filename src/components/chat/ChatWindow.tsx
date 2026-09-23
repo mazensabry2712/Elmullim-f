@@ -1,5 +1,5 @@
 import { ICreateMessage, IMessage } from "@/interfaces/chat/chat";
-import echo from "@/lib/echo/echo";
+import getEcho from "@/lib/echo/echo";
 import {
   useCreateMessage,
   useDeleteConversation,

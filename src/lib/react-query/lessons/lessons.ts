@@ -34,10 +34,13 @@ export const useGetLessonById = ({
     enabled: !!lessonId,
   });
 
-export const useGetLessonAvailability = (lessonId: number) =>
+export const useGetLessonAvailability = (
+  lessonId: number,
+  date?: string
+) =>
   useQuery({
-    queryKey: [QueryKeys.LESSON_AVAILABILITY, lessonId],
-    queryFn: () => getLessonAvailability(lessonId),
+    queryKey: [QueryKeys.LESSON_AVAILABILITY, lessonId, date],
+    queryFn: () => getLessonAvailability(lessonId, { date }),
     enabled: !!lessonId,
   });
 

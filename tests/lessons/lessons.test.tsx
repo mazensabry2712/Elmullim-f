@@ -50,12 +50,6 @@ const renderPage = (children: React.ReactNode) =>
 describe("Lessons", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    localStorage.setItem("elmullim-language", "en");
-    document.documentElement.lang = "en";
-    document.documentElement.dir = "ltr";
-  });
-
-  it("renders API lessons and an accessible search field", () => {
     mockUseGetLessonFilterOptions.mockReturnValue({
       data: {
         education_levels: [
@@ -69,6 +63,12 @@ describe("Lessons", () => {
       },
     });
 
+    localStorage.setItem("elmullim-language", "en");
+    document.documentElement.lang = "en";
+    document.documentElement.dir = "ltr";
+  });
+
+  it("renders API lessons and an accessible search field", () => {
     mockUseGetLessons.mockReturnValue({
       data: { data: [{ id: 1, title: "Algebra Basics" }] },
       isLoading: false,

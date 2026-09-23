@@ -157,7 +157,7 @@ const BookLessonDialog = ({
         .sort((a, b) => a.requested_start_at.localeCompare(b.requested_start_at))
         .map((option) => ({
           value: option.requested_start_at,
-          label: \`\${option.local_time} (\${option.timezone}) — \${option.available_seats ?? 0} \${option.available_seats === 1 ? "seat" : "seats"}\`,
+          label: `${option.local_time} (${option.timezone}) — ${option.available_seats ?? 0} ${option.available_seats === 1 ? bookingCopy.availableSeat : bookingCopy.availableSeats}`,
         }));
     }
 
@@ -170,8 +170,8 @@ const BookLessonDialog = ({
         const start = timeToMinutes(slot.start_time.slice(0, 5));
         const end = timeToMinutes(slot.end_time.slice(0, 5));
         for (let cursor = start; cursor + durationMinutes <= end; cursor += durationMinutes) {
-          const time = \`\${String(Math.floor(cursor / 60)).padStart(2, "0")}:\${String(cursor % 60).padStart(2, "0")}\`;
-          candidates.push({ value: \`\${time}|\${slot.timezone}\`, label: \`\${time} (\${slot.timezone})\` });
+          const time = `${String(Math.floor(cursor / 60)).padStart(2, "0")}:${String(cursor % 60).padStart(2, "0")}`;
+          candidates.push({ value: `${time}|${slot.timezone}`, label: `${time} (${slot.timezone})` });
         }
       });
 

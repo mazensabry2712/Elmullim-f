@@ -196,6 +196,18 @@ const LessonForm = ({ action, lesson }: IProps) => {
         return toast.error(label("Lesson image is required", "صورة الدرس مطلوبة"));
       }
 
+      const availabilityValues = values.availability.map((slot) => ({
+        day_of_week: Number(slot.day_of_week),
+        start_time: slot.start_time,
+        end_time: slot.end_time,
+        timezone: slot.timezone,
+      }));
+
+      const serviceAreaIds =
+        values.delivery_mode === "offline" && values.offline_visit_type === "teacher_to_student"
+          ? values.service_area_ids
+          : [];
+
       const commonValues = {
         education_level_id: Number(values.education_level_id),
         subject_id: Number(values.subject_id),
@@ -208,35 +220,36 @@ const LessonForm = ({ action, lesson }: IProps) => {
         price: Number(values.price),
         sessions_count: Number(values.sessions_count),
         ...(action === "create" || form.formState.dirtyFields.availability
-          ? {
-              availability: values.availability.map((slot) => ({
-                day_of_week: Number(slot.day_of_week),
-                start_time: slot.start_time,
-                end_time: slot.end_time,
-                timezone: slot.timezone,
-              })),
-            }
+          ? { availability: availabilityValues }
           : {}),
         ...(action === "create" || form.formState.dirtyFields.service_area_ids
-          ? {
-              service_area_ids:
-                values.delivery_mode === "offline" && values.offline_visit_type === "teacher_to_student"
-                  ? values.service_area_ids
-                  : [],
-            }
+          ? { service_area_ids: serviceAreaIds }
           : {}),
         ...(values.delivery_mode === "online"
           ? values.meeting_url ? { meeting_url: values.meeting_url } : {}
           : { location: values.location, offline_visit_type: values.offline_visit_type }),
         ...(values.booking_type === "group" && values.max_students !== ""
-          ? { max_students: Number(values.max_students) } : {}),
+          ? { max_students: Number(values.max_students) }
+          : {}),
       };
 
       const response = action === "create"
-        ? await createMutation.mutateAsync({ token, lesson: { ...commonValues, logo: file as File } })
+        ? await createMutation.mutateAsync({
+            token,
+            lesson: {
+              ...commonValues,
+              availability: availabilityValues,
+              service_area_ids: serviceAreaIds,
+              logo: file as File,
+            },
+          })
         : await updateMutation.mutateAsync({
             token,
-            lesson: { id: lesson?.id as number, ...commonValues, ...(file ? { logo: file } : {}) },
+            lesson: {
+              id: lesson?.id as number,
+              ...commonValues,
+              ...(file ? { logo: file } : {}),
+            },
           });
 
       if (!response.status) {

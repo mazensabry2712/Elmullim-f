@@ -1,5 +1,8 @@
 import axiosAPI from "@/config/axios.config";
-import { ILessonAvailabilityRes } from "@/interfaces/lessons/availability";
+import {
+  ILessonAvailabilityRes,
+  ILessonBookingOptionsRes,
+} from "@/interfaces/lessons/availability";
 import { ILessonRes, ILessonsRes, LessonBookingType, LessonDeliveryMode } from "@/interfaces/lessons/lesson";
 
 export interface ILessonFilterOption {
@@ -78,14 +81,18 @@ export const getLessonById = async ({
 };
 
 export const getLessonAvailability = async (
-  lessonId: number,
-  options?: { date?: string }
+  lessonId: number
 ): Promise<ILessonAvailabilityRes> => {
-  const params = new URLSearchParams();
-  if (options?.date) params.set("date", options.date);
-  const query = params.toString();
+  const { data } = await axiosAPI.get("/lessons/" + lessonId + "/availability");
+  return data;
+};
+
+export const getLessonBookingOptions = async (
+  lessonId: number,
+  date: string
+): Promise<ILessonBookingOptionsRes> => {
   const { data } = await axiosAPI.get(
-    "/lessons/" + lessonId + "/availability" + (query ? "?" + query : "")
+    "/lessons/" + lessonId + "/availability?date=" + encodeURIComponent(date)
   );
   return data;
 };

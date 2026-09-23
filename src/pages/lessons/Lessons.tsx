@@ -3,7 +3,10 @@ import Newsletter from "@/components/Newsletter";
 import LessonList from "@/components/lessons/LessonsList";
 import SearchInput from "@/components/SearchInput";
 import useDebounce from "@/hooks/useDebounce";
-import { useGetLessons } from "@/lib/react-query/lessons/lessons";
+import {
+  useGetLessonFilterOptions,
+  useGetLessons,
+} from "@/lib/react-query/lessons/lessons";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
 import { Loader } from "lucide-react";
@@ -16,9 +19,14 @@ const Lessons = () => {
   const copy = getLessonsCopy(language);
   const [searchParams, setSearchParams] = useSearchParams();
   const search = useDebounce(searchParams.get("q"), 500) ?? undefined;
+  const { data: filterOptions } = useGetLessonFilterOptions();
   const token = cookieService.getToken() || undefined;
 
   const deliveryMode = searchParams.get("delivery_mode") as "online" | "offline" | null;
+  const educationLevelIdValue = searchParams.get("education_level_id");
+  const subjectIdValue = searchParams.get("subject_id");
+  const educationLevelId = educationLevelIdValue ? Number(educationLevelIdValue) : undefined;
+  const subjectId = subjectIdValue ? Number(subjectIdValue) : undefined;
   const bookingType = searchParams.get("booking_type") as "private" | "group" | null;
   const grade = searchParams.get("grade") || undefined;
   const location = searchParams.get("location") || undefined;
@@ -32,6 +40,8 @@ const Lessons = () => {
     token,
     ...(deliveryMode && { delivery_mode: deliveryMode }),
     ...(bookingType && { booking_type: bookingType }),
+    ...(Number.isFinite(educationLevelId) && { education_level_id: educationLevelId }),
+    ...(Number.isFinite(subjectId) && { subject_id: subjectId }),
     ...(grade && { grade }),
     ...(location && { location }),
     ...(Number.isFinite(minPrice) && { min_price: minPrice }),
@@ -126,6 +136,36 @@ const Lessons = () => {
                   <option value="">{copy.allTypes}</option>
                   <option value="private">{copy.private}</option>
                   <option value="group">{copy.group}</option>
+                </select>
+              </label>
+
+              <label className="text-sm">
+                <span className="block mb-2 text-black-blue">{copy.educationStage}</span>
+                <select
+                  aria-label={copy.educationStage}
+                  value={educationLevelIdValue ?? ""}
+                  onChange={(event) => updateFilter("education_level_id", event.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                >
+                  <option value="">{copy.allTypes}</option>
+                  {filterOptions?.data.education_levels.map((level) => (
+                    <option key={level.id} value={level.id}>{level.name}</option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="text-sm">
+                <span className="block mb-2 text-black-blue">{copy.subject}</span>
+                <select
+                  aria-label={copy.subject}
+                  value={subjectIdValue ?? ""}
+                  onChange={(event) => updateFilter("subject_id", event.target.value)}
+                  className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
+                >
+                  <option value="">{copy.allTypes}</option>
+                  {filterOptions?.data.subjects.map((subject) => (
+                    <option key={subject.id} value={subject.id}>{subject.name}</option>
+                  ))}
                 </select>
               </label>
 

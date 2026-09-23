@@ -112,6 +112,19 @@ export const joinBookingSession = async ({ token, bookingId }: { token: string; 
   };
 };
 
+export const updateSessionMeetingLink = async ({ token, sessionId, meetingUrl }: {
+  token: string;
+  sessionId: number;
+  meetingUrl: string;
+}) => {
+  const { data } = await axiosAPI.put(
+    "/teacher/sessions/" + sessionId + "/meeting-link",
+    { meeting_url: meetingUrl.trim() },
+    { headers: authHeaders(token) }
+  );
+  return data as { status: boolean; message: string | null; data?: IBookingSession };
+};
+
 export const updateSessionStatus = async ({ token, sessionId, status }: {
   token: string;
   sessionId: number;

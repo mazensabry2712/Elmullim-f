@@ -2,6 +2,20 @@ import axiosAPI from "@/config/axios.config";
 import { ILessonAvailabilityRes } from "@/interfaces/lessons/availability";
 import { ILessonRes, ILessonsRes, LessonBookingType, LessonDeliveryMode } from "@/interfaces/lessons/lesson";
 
+export interface ILessonFilterOption {
+  id: number;
+  name: string;
+}
+
+export interface ILessonFilterOptionsRes {
+  status: boolean;
+  message: string | null;
+  data: {
+    education_levels: ILessonFilterOption[];
+    subjects: ILessonFilterOption[];
+  };
+}
+
 export interface ILessonFilters {
   q?: string;
   delivery_mode?: LessonDeliveryMode;
@@ -13,6 +27,11 @@ export interface ILessonFilters {
   max_price?: number;
   location?: string;
 }
+
+export const getLessonFilterOptions = async (): Promise<ILessonFilterOptionsRes> => {
+  const { data } = await axiosAPI.get("/lessons/filters");
+  return data;
+};
 
 export const getAllLessons = async ({
   q,

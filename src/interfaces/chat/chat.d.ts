@@ -73,7 +73,7 @@ export interface IConversationsRes {
 export interface ICreateConversation {
   role: TUserSearchType;
   token: string;
-  userId: string;
+  userId: number;
 }
 
 export interface IDeleteMessage {

@@ -52,14 +52,18 @@ describe("Lessons", () => {
     vi.clearAllMocks();
     mockUseGetLessonFilterOptions.mockReturnValue({
       data: {
-        education_levels: [
-          { id: 1, name: "Secondary" },
-          { id: 2, name: "Primary" },
-        ],
-        subjects: [
-          { id: 11, name: "Mathematics" },
-          { id: 12, name: "Physics" },
-        ],
+        status: true,
+        message: null,
+        data: {
+          education_levels: [
+            { id: 1, name: "Secondary" },
+            { id: 2, name: "Primary" },
+          ],
+          subjects: [
+            { id: 11, name: "Mathematics" },
+            { id: 12, name: "Physics" },
+          ],
+        },
       },
     });
 

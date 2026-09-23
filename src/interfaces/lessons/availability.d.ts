@@ -1,3 +1,12 @@
+export interface ILessonBookingOption {
+  slot_id: number;
+  local_time: string;
+  requested_start_at: string;
+  available_seats: number | null;
+  is_available: boolean;
+  timezone: string;
+}
+
 export interface ILessonAvailabilitySlot {
   id: number;
   lesson_id?: number;
@@ -6,6 +15,7 @@ export interface ILessonAvailabilitySlot {
   end_time: string;
   timezone: string;
   is_active: boolean;
+  booking_options?: ILessonBookingOption[];
 }
 
 export interface ILessonAvailabilityRes {

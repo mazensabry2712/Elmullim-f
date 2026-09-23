@@ -1,4 +1,4 @@
-import { TGender, TUserSearchType } from "@/types";
+import { TUserSearchType } from "@/types";
 
 export interface ICountry {
   id: number;

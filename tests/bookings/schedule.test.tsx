@@ -10,6 +10,7 @@ const mocks = vi.hoisted(() => ({
   updateStatus: vi.fn(),
   markAttendance: vi.fn(),
   join: vi.fn(),
+  updateMeetingLink: vi.fn(),
   getToken: vi.fn(),
 }));
 
@@ -25,6 +26,7 @@ vi.mock("@/lib/react-query/booking", () => ({
   useGetTeacherSchedule: () => ({ data: mocks.getTeacherSchedule(), isLoading: false, isFetching: false, isError: false }),
   useMarkSessionAttendance: () => ({ mutateAsync: mocks.markAttendance, isPending: false }),
   useUpdateSessionStatus: () => ({ mutateAsync: mocks.updateStatus, isPending: false }),
+  useUpdateSessionMeetingLink: () => ({ mutateAsync: mocks.updateMeetingLink, isPending: false }),
 }));
 
 vi.mock("@/services/booking", () => ({
@@ -64,6 +66,8 @@ describe("Schedule", () => {
     mocks.markAttendance.mockResolvedValue({ status: true, message: "Attendance saved." });
     mocks.updateStatus.mockReset();
     mocks.updateStatus.mockResolvedValue({ status: true, message: null });
+    mocks.updateMeetingLink.mockReset();
+    mocks.updateMeetingLink.mockResolvedValue({ status: true, message: null });
   });
 
   afterEach(() => {
@@ -117,6 +121,35 @@ describe("Schedule", () => {
 
     await waitFor(() => expect(mocks.updateStatus).toHaveBeenCalledWith({ token: "token", sessionId: 2, status: "in_progress" }));
   });
+  it("allows a teacher to save the live meeting link", async () => {
+    mocks.role = "teacher";
+    mocks.getTeacherSchedule.mockReturnValue({
+      status: true,
+      message: null,
+      data: [{
+        id: 2,
+        lesson_id: 15,
+        start_at: "2099-01-10T20:00:00Z",
+        end_at: "2099-01-10T21:00:00Z",
+        status: "upcoming",
+        bookings: [],
+        lesson: { id: 15, title: "Frontend Development", delivery_mode: "online" },
+      }],
+    });
+
+    render(<I18nProvider><Schedule /></I18nProvider>);
+    fireEvent.change(screen.getByPlaceholderText("Paste Google Meet, Zoom, Teams, or another meeting link"), {
+      target: { value: "https://zoom.us/j/123456" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Save link" }));
+
+    await waitFor(() => expect(mocks.updateMeetingLink).toHaveBeenCalledWith({
+      token: "token",
+      sessionId: 2,
+      meetingUrl: "https://zoom.us/j/123456",
+    }));
+  });
+
   it("renders the student schedule in Arabic", () => {
     localStorage.setItem("elmullim-language", "ar");
     render(<I18nProvider><Schedule /></I18nProvider>);

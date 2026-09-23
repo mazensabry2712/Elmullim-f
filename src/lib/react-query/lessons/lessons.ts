@@ -1,12 +1,19 @@
 import QueryKeys from "@/enums";
 import {
   getAllLessons,
+  getLessonFilterOptions,
   getLessonAvailability,
   getLessonById,
   getRelatedLesson,
   ILessonFilters,
 } from "@/services/lessons/lessons";
 import { useQuery } from "@tanstack/react-query";
+
+export const useGetLessonFilterOptions = () =>
+  useQuery({
+    queryKey: ["LESSON_FILTER_OPTIONS"],
+    queryFn: getLessonFilterOptions,
+  });
 
 export const useGetLessons = (filters: ILessonFilters & { token?: string }) =>
   useQuery({

@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import axiosAPI from "@/config/axios.config";
 import { getStudentProfile } from "@/services/student/studentProfile";
-import { getTeacherProfile } from "@/services/teacher/teacherProfile";
+import { getTeacherProfile, getTeacherRatings } from "@/services/teacher/teacherProfile";
 import { getParentProfile } from "@/services/parent/parentProfile";
 
 vi.mock("@/config/axios.config", () => ({
@@ -61,6 +61,22 @@ describe("profile service requests", () => {
     });
 
     expect(getMock).toHaveBeenCalledWith("/teacher/me", {
+      headers: { Authorization: "Bearer teacher-token" },
+    });
+  });
+
+  it("requests teacher ratings using the backend singular rating route", async () => {
+    getMock.mockResolvedValueOnce({
+      data: {
+        status: true,
+        message: null,
+        data: [],
+      },
+    });
+
+    await getTeacherRatings("teacher-token");
+
+    expect(getMock).toHaveBeenCalledWith("/teacher/rating/received-all", {
       headers: { Authorization: "Bearer teacher-token" },
     });
   });

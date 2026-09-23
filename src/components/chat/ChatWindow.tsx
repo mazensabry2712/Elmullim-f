@@ -54,26 +54,37 @@ function ChatWindow({
   useEffect(() => {
     if (!conversationId) return;
 
-    const echo = getEcho();
-    if (!echo) return;
-
-    echo.leaveAllChannels();
-
+    let cancelled = false;
+    let echo: ReturnType<typeof getEcho> extends Promise<infer T> ? T : never;
     const channelName = `chat-conversation.${conversationId}`;
-    echo
-      .private(channelName)
-      .listen("ConversationEvent", (data: any) => {
-        console.log("conversationId", data.conversation_id);
-        if (data.conversation_id === conversationId) {
-          refetchConversation();
-        }
-      })
-      .error((error: any) => {
-        console.error("Pusher channel error:", error);
-      });
+
+    const subscribe = async () => {
+      const instance = await getEcho();
+
+      if (cancelled || !instance) return;
+
+      echo = instance;
+      echo.leaveAllChannels();
+
+      echo
+        .private(channelName)
+        .listen("ConversationEvent", (data: any) => {
+          if (data.conversation_id === conversationId) {
+            refetchConversation();
+          }
+        })
+        .error((error: any) => {
+          console.error("Pusher channel error:", error);
+        });
+    };
+
+    void subscribe();
 
     return () => {
-      echo.leave(channelName);
+      cancelled = true;
+      if (echo) {
+        echo.leave(channelName);
+      }
     };
   }, [conversationId, refetchConversation]);
 

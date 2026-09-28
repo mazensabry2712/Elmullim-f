@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useI18n } from "@/i18n";
-import { CalendarClock, ExternalLink, Loader } from "lucide-react";
+import { CalendarClock, ChevronLeft, ChevronRight, ExternalLink, Loader } from "lucide-react";
 import { toast } from "react-toastify";
 import cookieService from "@/utils/cookieService";
 import {
@@ -20,8 +20,9 @@ const Schedule = () => {
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
   const isTeacher = role === "teacher";
-  const studentSchedule = useGetSchedule({ token, enabled: !!token && !isTeacher });
-  const teacherSchedule = useGetTeacherSchedule({ token, enabled: !!token && isTeacher });
+  const [page, setPage] = useState(1);
+  const studentSchedule = useGetSchedule({ token, page, enabled: !!token && !isTeacher });
+  const teacherSchedule = useGetTeacherSchedule({ token, page, enabled: !!token && isTeacher });
   const updateStatus = useUpdateSessionStatus();
   const updateMeetingLink = useUpdateSessionMeetingLink();
   const markAttendance = useMarkSessionAttendance();
@@ -30,8 +31,11 @@ const Schedule = () => {
   const [meetingLinks, setMeetingLinks] = useState<Record<number, string>>({});
 
   const data = (isTeacher ? teacherSchedule.data?.data : studentSchedule.data?.data) ?? [];
+  const pagination = (isTeacher ? teacherSchedule.data?.meta : studentSchedule.data?.meta);
   const loading = isTeacher ? teacherSchedule.isLoading : studentSchedule.isLoading;
+  const fetching = isTeacher ? teacherSchedule.isFetching : studentSchedule.isFetching;
   const error = isTeacher ? teacherSchedule.isError : studentSchedule.isError;
+  const isPaginating = fetching && !loading;
 
   const openMeeting = (meetingUrl?: string | null) => {
     const url = meetingUrl?.trim();
@@ -114,7 +118,7 @@ const Schedule = () => {
           </p>
         </div>
 
-        {(loading || (isTeacher ? teacherSchedule.isFetching : studentSchedule.isFetching)) && (
+        {(loading || fetching) && (
           <div className="py-16 text-center" role="status"><Loader className="mx-auto animate-spin" size={36} /></div>
         )}
 
@@ -261,6 +265,32 @@ const Schedule = () => {
             </article>
           ))}
         </div>
+
+        {pagination && pagination.last_page > 1 && (
+          <nav className="mt-8 flex flex-wrap items-center justify-center gap-3" aria-label={copy.paginationLabel}>
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              disabled={page <= 1 || isPaginating}
+              className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <ChevronLeft size={16} />
+              {copy.previous}
+            </button>
+            <span className="font-sora text-sm text-[#4D5756]">
+              {copy.page} {pagination.current_page} {copy.of} {pagination.last_page}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.min(pagination.last_page, current + 1))}
+              disabled={!pagination.has_more_pages || isPaginating}
+              className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {copy.next}
+              <ChevronRight size={16} />
+            </button>
+          </nav>
+        )}
       </div>
     </main>
   );

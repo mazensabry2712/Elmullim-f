@@ -136,6 +136,13 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
               ? "الوصول الكامل يعود تلقائيًا بمجرد انتهاء الصيانة."
               : "Full access will return automatically when maintenance is complete."}
           </p>
+
+          <p style={styles.developedBy}>
+            {isArabic
+              ? "تم تطوير منصة Elmullim بواسطة "
+              : "Elmullim platform developed by "}
+            <strong>The Xro System</strong>
+          </p>
         </section>
       </main>
     </div>
@@ -344,6 +351,12 @@ const styles: Record<string, CSSProperties> = {
     margin: "19px 0 0",
     fontSize: "12px",
     color: "#98a2b3",
+  },
+  developedBy: {
+    margin: "10px 0 0",
+    fontSize: "12px",
+    color: "#667085",
+    lineHeight: 1.6,
   },
   center: {
     minHeight: "100vh",

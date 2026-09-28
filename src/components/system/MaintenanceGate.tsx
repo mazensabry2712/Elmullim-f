@@ -88,10 +88,11 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
       <main style={styles.shell}>
         <div style={styles.topBar}>
           <div style={styles.brandGroup}>
-            <div style={styles.logoMark} aria-hidden="true">
-              <span style={styles.logoBook}>E</span>
-            </div>
-            <span style={styles.brand}>Elmullim</span>
+            <img
+              src="/images/logo.webp"
+              alt="Elmullim"
+              style={styles.logo}
+            />
           </div>
 
           <div style={styles.statusBadge}>
@@ -101,10 +102,9 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
         </div>
 
         <section style={styles.card} aria-labelledby="maintenance-title">
-          <div style={styles.iconWrap} aria-hidden="true">
-            <div style={styles.iconRing}>
-              <span style={styles.icon}>⚙</span>
-            </div>
+          <div style={styles.heroBrand} aria-hidden="true">
+            <div style={styles.heroBrandGlow} />
+            <img src="/images/logo.webp" alt="" style={styles.heroLogo} />
           </div>
 
           <div style={styles.eyebrow}>
@@ -165,7 +165,7 @@ const styles: Record<string, CSSProperties> = {
     boxSizing: "border-box",
     background:
       "radial-gradient(circle at top, #eef4ff 0%, #f7f9fc 42%, #eef1f6 100%)",
-    color: "#101828",
+    color: "#21374B",
     fontFamily:
       "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   },
@@ -186,7 +186,7 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: "50%",
     top: "-190px",
     left: "-130px",
-    background: "rgba(59,130,246,.14)",
+    background: "rgba(10,185,157,.13)",
     filter: "blur(18px)",
     pointerEvents: "none",
   },
@@ -197,7 +197,7 @@ const styles: Record<string, CSSProperties> = {
     borderRadius: "50%",
     bottom: "-160px",
     right: "-100px",
-    background: "rgba(99,102,241,.12)",
+    background: "rgba(33,55,75,.10)",
     filter: "blur(18px)",
     pointerEvents: "none",
   },
@@ -218,26 +218,13 @@ const styles: Record<string, CSSProperties> = {
   brandGroup: {
     display: "inline-flex",
     alignItems: "center",
-    gap: "12px",
+    minWidth: 0,
   },
-  logoMark: {
-    width: "42px",
-    height: "42px",
-    borderRadius: "13px",
-    display: "grid",
-    placeItems: "center",
-    background: "linear-gradient(145deg, #111827, #334155)",
-    boxShadow: "0 10px 24px rgba(15,23,42,.18)",
-  },
-  logoBook: {
-    color: "#fff",
-    fontWeight: 900,
-    fontSize: "19px",
-  },
-  brand: {
-    fontSize: "20px",
-    fontWeight: 800,
-    letterSpacing: "-.02em",
+  logo: {
+    display: "block",
+    width: "clamp(145px, 23vw, 205px)",
+    height: "auto",
+    objectFit: "contain",
   },
   statusBadge: {
     display: "inline-flex",
@@ -271,33 +258,43 @@ const styles: Record<string, CSSProperties> = {
     backdropFilter: "blur(20px)",
     textAlign: "center",
   },
-  iconWrap: {
-    display: "grid",
-    placeItems: "center",
-    marginBottom: "26px",
+  heroBrand: {
+    position: "relative",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "min(340px, 82vw)",
+    minHeight: "104px",
+    margin: "0 auto 30px",
+    padding: "20px 28px",
+    borderRadius: "28px",
+    background: "rgba(255,255,255,.72)",
+    border: "1px solid rgba(10,185,157,.16)",
+    boxShadow: "0 20px 60px rgba(33,55,75,.10)",
+    backdropFilter: "blur(15px)",
+    overflow: "hidden",
   },
-  iconRing: {
-    width: "94px",
-    height: "94px",
-    borderRadius: "30px",
-    display: "grid",
-    placeItems: "center",
-    background: "linear-gradient(145deg, #111827, #1f3b73)",
-    boxShadow:
-      "0 20px 46px rgba(30,64,175,.22), inset 0 1px 0 rgba(255,255,255,.18)",
-    transform: "rotate(-5deg)",
+  heroBrandGlow: {
+    position: "absolute",
+    width: "190px",
+    height: "190px",
+    borderRadius: "50%",
+    background: "rgba(10,185,157,.13)",
+    filter: "blur(20px)",
   },
-  icon: {
+  heroLogo: {
+    position: "relative",
+    zIndex: 1,
     display: "block",
-    fontSize: "41px",
-    color: "#fff",
-    transform: "rotate(5deg)",
+    width: "min(260px, 70vw)",
+    height: "auto",
+    objectFit: "contain",
   },
   eyebrow: {
     fontSize: "11px",
     fontWeight: 800,
     letterSpacing: ".18em",
-    color: "#64748b",
+    color: "#0a9f89",
     marginBottom: "13px",
   },
   title: {
@@ -328,7 +325,7 @@ const styles: Record<string, CSSProperties> = {
     inset: 0,
     width: "68%",
     borderRadius: "999px",
-    background: "linear-gradient(90deg, #111827, #4f46e5)",
+    background: "linear-gradient(90deg, #0ab99d, #21374B)",
   },
   progressPulse: {
     position: "absolute",
@@ -389,9 +386,9 @@ const styles: Record<string, CSSProperties> = {
     fontWeight: 800,
     fontSize: "14px",
     cursor: "pointer",
-    background: "linear-gradient(135deg, #111827, #283b67)",
+    background: "linear-gradient(135deg, #21374B, #0ab99d)",
     color: "#fff",
-    boxShadow: "0 14px 30px rgba(15,23,42,.18)",
+    boxShadow: "0 14px 30px rgba(33,55,75,.18)",
   },
 
   footerNote: {

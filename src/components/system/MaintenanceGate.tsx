@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { useSelector } from "react-redux";
 import { useLocation, useNavigate } from "react-router-dom";
 import axiosAPI from "@/config/axios.config";
@@ -27,7 +27,7 @@ type CheckAuthResponse = {
   auth?: boolean;
 };
 
-const MaintenanceGate = ({ children }: { children: React.ReactNode }) => {
+const MaintenanceGate = ({ children }: { children: ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -137,7 +137,7 @@ const MaintenanceGate = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-const styles: Record<string, React.CSSProperties> = {
+const styles: Record<string, CSSProperties> = {
   page: {
     minHeight: "100vh",
     display: "grid",

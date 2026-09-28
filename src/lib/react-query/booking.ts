@@ -41,11 +41,21 @@ export const useCreateBooking = () => {
   });
 };
 
-export const useGetBookings = ({ token, enabled = true }: { token: string; enabled?: boolean }) =>
-  useQuery({ queryKey: bookingKeys.mine(token), queryFn: () => getBookings({ token }), enabled: enabled && !!token });
+export const useGetBookings = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
+  useQuery({
+    queryKey: [...bookingKeys.mine(token), page],
+    queryFn: () => getBookings({ token, page }),
+    enabled: enabled && !!token,
+    placeholderData: (previous) => previous,
+  });
 
-export const useGetTeacherBookings = ({ token, enabled = true }: { token: string; enabled?: boolean }) =>
-  useQuery({ queryKey: bookingKeys.teacher(token), queryFn: () => getTeacherBookings({ token }), enabled: enabled && !!token });
+export const useGetTeacherBookings = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
+  useQuery({
+    queryKey: [...bookingKeys.teacher(token), page],
+    queryFn: () => getTeacherBookings({ token, page }),
+    enabled: enabled && !!token,
+    placeholderData: (previous) => previous,
+  });
 
 export const useGetBooking = ({ token, bookingId, enabled = true }: { token: string; bookingId?: number; enabled?: boolean }) =>
   useQuery({
@@ -54,11 +64,21 @@ export const useGetBooking = ({ token, bookingId, enabled = true }: { token: str
     enabled: enabled && !!bookingId && !!token,
   });
 
-export const useGetSchedule = ({ token, enabled = true }: { token: string; enabled?: boolean }) =>
-  useQuery({ queryKey: bookingKeys.schedule(token), queryFn: () => getSchedule({ token }), enabled: enabled && !!token });
+export const useGetSchedule = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
+  useQuery({
+    queryKey: [...bookingKeys.schedule(token), page],
+    queryFn: () => getSchedule({ token, page }),
+    enabled: enabled && !!token,
+    placeholderData: (previous) => previous,
+  });
 
-export const useGetTeacherSchedule = ({ token, enabled = true }: { token: string; enabled?: boolean }) =>
-  useQuery({ queryKey: bookingKeys.teacherSchedule(token), queryFn: () => getTeacherSchedule({ token }), enabled: enabled && !!token });
+export const useGetTeacherSchedule = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
+  useQuery({
+    queryKey: [...bookingKeys.teacherSchedule(token), page],
+    queryFn: () => getTeacherSchedule({ token, page }),
+    enabled: enabled && !!token,
+    placeholderData: (previous) => previous,
+  });
 
 export const useCancelBooking = () => {
   const queryClient = useQueryClient();
@@ -124,7 +144,6 @@ export const useUpdateSessionStatus = () => {
     },
   });
 };
-
 
 export const useUpdateSessionMeetingLink = () => {
   const queryClient = useQueryClient();

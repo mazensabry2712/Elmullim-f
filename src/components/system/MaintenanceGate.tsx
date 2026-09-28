@@ -3,6 +3,7 @@ import { useSelector } from "react-redux";
 import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import type { RootState } from "@/store/store";
+import { useI18n } from "@/i18n";
 
 
 
@@ -14,6 +15,7 @@ type MaintenanceResponse = {
 
 const MaintenanceGate = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const { language } = useI18n();
   const [loading, setLoading] = useState(true);
   const [maintenance, setMaintenance] = useState<MaintenanceResponse | null>(null);
 
@@ -77,7 +79,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
     return <>{children}</>;
   }
 
-  const isArabic = localStorage.getItem("elmullim-language") === "ar";
+  const isArabic = language === "ar";
 
   return (
     <div dir={isArabic ? "rtl" : "ltr"} style={styles.page}>

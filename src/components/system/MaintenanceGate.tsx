@@ -19,13 +19,8 @@ const AUTH_PATHS = new Set([
 
 type MaintenanceResponse = {
   enabled?: boolean;
+  allowed?: boolean;
   message?: string;
-};
-
-type CheckAuthResponse = {
-  auth?: boolean;
-  "email-verified"?: boolean;
-  role?: string;
 };
 
 const MaintenanceGate = ({ children }: { children: ReactNode }) => {
@@ -40,47 +35,28 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
 
     const check = async () => {
       try {
+        const token = cookieService.getToken();
+
         const statusResponse = await axiosAPI.get<{ data?: MaintenanceResponse }>(
-          "/main/maintenance"
+          "/main/maintenance",
+          token
+            ? {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            : undefined
         );
         const status = statusResponse.data?.data ?? {};
 
         if (!active) return;
 
-        if (!status.enabled) {
+        if (!status.enabled || status.allowed) {
           setMaintenance(null);
           return;
         }
 
-        if (AUTH_PATHS.has(currentPath)) {
-          setMaintenance(status);
-          return;
-        }
-
-        const token = cookieService.getToken();
-
-        if (!token) {
-          setMaintenance(status);
-          return;
-        }
-
-        try {
-          const authResponse = await axiosAPI.post<{ data?: CheckAuthResponse }>(
-            "/check-auth",
-            undefined,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-
-          const authenticated = authResponse.data?.data?.auth === true;
-
-          setMaintenance(authenticated ? null : status);
-        } catch {
-          setMaintenance(status);
-        }
+        setMaintenance(status);
       } catch {
         if (active) {
           setMaintenance(null);

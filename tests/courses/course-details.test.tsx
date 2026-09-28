@@ -63,6 +63,7 @@ vi.mock("@/components/Newsletter", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  localStorage.setItem("elmullim-language", "en");
   mockUseGetCourseById.mockReturnValue({
     data: {
       data: {

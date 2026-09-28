@@ -93,7 +93,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  if (!maintenance) {
+  if (!maintenance || AUTH_PATHS.has(location.pathname)) {
     return <>{children}</>;
   }
 

@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import { useI18n } from "@/i18n";
-import { CalendarDays, Loader, XCircle } from "lucide-react";
+import { CalendarDays, ChevronLeft, ChevronRight, Loader, XCircle } from "lucide-react";
 import cookieService from "@/utils/cookieService";
 import { useCancelBooking, useGetBookings, useRespondToBookingProposal } from "@/lib/react-query/booking";
 import { IBooking } from "@/interfaces/bookings/booking";
@@ -22,12 +22,15 @@ const Bookings = () => {
   const copy = getBookingCopy(language).bookings;
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
-  const { data, isLoading, isError, refetch } = useGetBookings({ token, enabled: !!token });
+  const [page, setPage] = useState(1);
+  const { data, isLoading, isFetching, isError, refetch } = useGetBookings({ token, page, enabled: !!token });
   const cancelMutation = useCancelBooking();
   const respondMutation = useRespondToBookingProposal();
   const [error, setError] = useState("");
 
   const bookings = data?.data ?? [];
+  const pagination = data?.meta;
+  const isPaginating = isFetching && !isLoading;
 
   const cancel = async (bookingId: number) => {
     setError("");
@@ -122,6 +125,32 @@ const Bookings = () => {
             </article>
           ))}
         </div>
+
+        {pagination && pagination.last_page > 1 && (
+          <nav className="mt-8 flex flex-wrap items-center justify-center gap-3" aria-label={copy.paginationLabel}>
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.max(1, current - 1))}
+              disabled={page <= 1 || isPaginating}
+              className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <ChevronLeft size={16} />
+              {copy.previous}
+            </button>
+            <span className="font-sora text-sm text-[#4D5756]">
+              {copy.page} {pagination.current_page} {copy.of} {pagination.last_page}
+            </span>
+            <button
+              type="button"
+              onClick={() => setPage((current) => Math.min(pagination.last_page, current + 1))}
+              disabled={!pagination.has_more_pages || isPaginating}
+              className="inline-flex items-center gap-1 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {copy.next}
+              <ChevronRight size={16} />
+            </button>
+          </nav>
+        )}
       </div>
     </main>
   );

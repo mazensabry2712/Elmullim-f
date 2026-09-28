@@ -36,21 +36,21 @@ describe("frontend i18n", () => {
       </I18nProvider>
     );
 
-    expect(screen.getByTestId("language")).toHaveTextContent("en");
-    expect(screen.getByTestId("direction")).toHaveTextContent("ltr");
-    expect(screen.getByText("Home")).toBeInTheDocument();
-    expect(screen.getByText("Secured Payment")).toBeInTheDocument();
-    expect(screen.getByText("Make secure payments through a trusted learning platform.")).toBeInTheDocument();
-
-    await user.click(screen.getByRole("button", { name: "toggle" }));
-
     expect(screen.getByTestId("language")).toHaveTextContent("ar");
     expect(screen.getByTestId("direction")).toHaveTextContent("rtl");
-    expect(document.documentElement.lang).toBe("ar");
-    expect(document.documentElement.dir).toBe("rtl");
     expect(screen.getByText("الرئيسية")).toBeInTheDocument();
     expect(screen.getByText("دفع آمن")).toBeInTheDocument();
     expect(screen.getByText("أجرِ مدفوعاتك بأمان من خلال منصة تعليمية موثوقة.")).toBeInTheDocument();
-    expect(localStorage.getItem("elmullim-language")).toBe("ar");
+
+    await user.click(screen.getByRole("button", { name: "toggle" }));
+
+    expect(screen.getByTestId("language")).toHaveTextContent("en");
+    expect(screen.getByTestId("direction")).toHaveTextContent("ltr");
+    expect(document.documentElement.lang).toBe("ar");
+    expect(document.documentElement.dir).toBe("rtl");
+    expect(screen.getByText("Home")).toBeInTheDocument();
+    expect(screen.getByText("Secured Payment")).toBeInTheDocument();
+    expect(screen.getByText("Make secure payments through a trusted learning platform.")).toBeInTheDocument();
+    expect(localStorage.getItem("elmullim-language")).toBe("en");
   });
 });

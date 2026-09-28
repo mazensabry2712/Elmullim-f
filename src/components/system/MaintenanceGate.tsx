@@ -88,20 +88,6 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
       <div style={styles.glowTwo} aria-hidden="true" />
 
       <main style={styles.shell}>
-        {/* <div style={styles.topBar}>
-          <div style={styles.brandGroup}>
-            <img
-              src="/images/logo.webp"
-              alt="Elmullim"
-              style={styles.logo}
-            />
-          </div>
-
-          <div style={styles.statusBadge}>
-            <span style={styles.statusDot} />
-            {isArabic ? "تحديثات جارية" : "Updates in progress"}
-          </div>
-        </div> */}
 
         <section style={styles.card} aria-labelledby="maintenance-title">
           <div style={styles.heroBrand} aria-hidden="true">

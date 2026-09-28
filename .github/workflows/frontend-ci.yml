@@ -47,4 +47,4 @@ jobs:
 
       - name: E2E status
         if: ${{ env.E2E_API_BASE_URL == '' }}
-        run: echo "E2E skipped: configure the E2E_API_BASE_URL repository secret for a dedicated staging/test API."
+        run: echo "E2E skipped - configure the E2E_API_BASE_URL repository secret for a dedicated staging/test API."

@@ -1,6 +1,6 @@
 # Elmullim — Roadmap Status Snapshot
 
-**Last reviewed:** 2026-09-18
+**Last reviewed:** 2026-09-28
 
 This snapshot reflects the current implementation status across the platform.
 
@@ -25,8 +25,6 @@ Implemented:
 - Booking-focused Lesson screens.
 
 Remaining refinements:
-- Public Subject/Stage filter controls in the final discovery UI.
-- Dynamic available-seat display based on the selected group time slot.
 - Final browser verification for all four Lesson combinations.
 
 ### Availability & Calendar
@@ -157,17 +155,15 @@ Implemented current administration modules include:
 - Chat Monitoring.
 
 Remaining administrative completion:
-- Super Admin authentication.
-- Admin vs Super Admin role separation.
-- Role / Permission management.
-- Sensitive administrative authorization.
-- Platform-level administrative settings/controls.
+- Final browser verification for Admin and Super Admin flows.
 - Additional approval/reporting/dispute workflows where required.
 
 ### Reviews & academic domains
 
-Remaining:
+Implemented:
 - Completion-linked rating eligibility.
+
+Remaining:
 - Review moderation completion where required.
 - Homework.
 - Exams / Grades.
@@ -176,20 +172,19 @@ Remaining:
 
 ## Verification
 
-Current local frontend verification:
-- **36 test files / 88 tests passed.**
-- **Lint passed.**
-- **Production build passed.**
+Latest observed automated frontend CI on 2026-09-28:
+- Unit/component test suite passed.
+- Lint passed.
+- Production build passed.
 
-Current backend verification:
-- Latest main CI is green.
-- Latest local database migrations for Attendance, Notifications, Teacher Service Areas and Student Location completed successfully.
+The frontend E2E test is implemented against the real booking/availability flow. CI runs it only when a dedicated staging/test API is supplied through repository secrets; production is intentionally not used for destructive booking tests.
 
-Separate final gate:
-- Real API end-to-end verification.
-- Browser verification for Student, Parent and Teacher.
+Backend full-suite verification for the current performance-hardening commits is tracked through the Backend CI run on main.
+
+Separate release gates:
+- Real API/browser verification for Student, Parent and Teacher.
 - Real payment-provider verification.
-- Super Admin verification.
+- Admin/Super Admin browser verification.
 
 ## Execution rule
 

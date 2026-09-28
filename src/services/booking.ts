@@ -6,6 +6,28 @@ const authHeaders = (token: string) => ({
   Authorization: `Bearer ${token}`,
 });
 
+export type PaginationMeta = {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+  has_more_pages: boolean;
+};
+
+export type PaginatedResponse<T> = {
+  status: boolean;
+  message: string | null;
+  data: T[];
+  meta: PaginationMeta;
+};
+
+const pageConfig = (token: string, page: number) => ({
+  headers: authHeaders(token),
+  ...(page > 1 ? { params: { page } } : {}),
+});
+
 export const createBooking = async ({ token, lessonId, booking }: {
   token: string;
   lessonId: number;
@@ -15,19 +37,13 @@ export const createBooking = async ({ token, lessonId, booking }: {
   return data;
 };
 
-export const getBookings = async ({ token }: { token: string }) => {
-  const { data } = await axiosAPI.get<{ status: boolean; message: string | null; data: IBooking[] }>(
-    "/bookings",
-    { headers: authHeaders(token) }
-  );
+export const getBookings = async ({ token, page = 1 }: { token: string; page?: number }): Promise<PaginatedResponse<IBooking>> => {
+  const { data } = await axiosAPI.get("/bookings", pageConfig(token, page));
   return data;
 };
 
-export const getTeacherBookings = async ({ token }: { token: string }) => {
-  const { data } = await axiosAPI.get<{ status: boolean; message: string | null; data: IBooking[] }>(
-    "/teacher/bookings",
-    { headers: authHeaders(token) }
-  );
+export const getTeacherBookings = async ({ token, page = 1 }: { token: string; page?: number }): Promise<PaginatedResponse<IBooking>> => {
+  const { data } = await axiosAPI.get("/teacher/bookings", pageConfig(token, page));
   return data;
 };
 
@@ -93,13 +109,13 @@ export const initiateBookingPayment = async ({ token, bookingId, walletNumber, i
   return data as { status: boolean; message: string | null; data?: { redirect_url?: string | null } };
 };
 
-export const getSchedule = async ({ token }: { token: string }): Promise<{ status: boolean; message: string | null; data: IBookingSession[] }> => {
-  const { data } = await axiosAPI.get("/schedule", { headers: authHeaders(token) });
+export const getSchedule = async ({ token, page = 1 }: { token: string; page?: number }): Promise<PaginatedResponse<IBookingSession>> => {
+  const { data } = await axiosAPI.get("/schedule", pageConfig(token, page));
   return data;
 };
 
-export const getTeacherSchedule = async ({ token }: { token: string }): Promise<{ status: boolean; message: string | null; data: IBookingSession[] }> => {
-  const { data } = await axiosAPI.get("/teacher/schedule", { headers: authHeaders(token) });
+export const getTeacherSchedule = async ({ token, page = 1 }: { token: string; page?: number }): Promise<PaginatedResponse<IBookingSession>> => {
+  const { data } = await axiosAPI.get("/teacher/schedule", pageConfig(token, page));
   return data;
 };
 
@@ -133,7 +149,6 @@ export const updateSessionStatus = async ({ token, sessionId, status }: {
   const { data } = await axiosAPI.post(`/teacher/sessions/${sessionId}/status`, { status }, { headers: authHeaders(token) });
   return data;
 };
-
 
 export const markSessionAttendance = async ({ token, sessionId, bookingId, status, note }: {
   token: string;

@@ -8,8 +8,21 @@ const studentPassword = process.env.E2E_STUDENT_PASSWORD || "Student@12345";
 const browserUrl = new URL(browserBaseURL);
 
 if (browserUrl.protocol !== "http:" && browserUrl.protocol !== "https:") {
-  throw new Error(`Unsupported E2E_BASE_URL protocol: ${browserUrl.protocol}`);
+  throw new Error("Unsupported E2E_BASE_URL protocol: " + browserUrl.protocol);
 }
+
+const dateInputValue = (offset: number) => {
+  const date = new Date();
+  date.setUTCHours(12, 0, 0, 0);
+  date.setUTCDate(date.getUTCDate() + offset);
+  return date.toISOString().slice(0, 10);
+};
+
+const isoWeekday = (dateString: string) => {
+  const date = new Date(dateString + "T12:00:00Z");
+  const day = date.getUTCDay();
+  return day === 0 ? 7 : day;
+};
 
 test("student can create and cancel a booking through the real API", async ({ page }) => {
   const api = await playwrightRequest.newContext({ baseURL: apiBaseURL });
@@ -33,40 +46,97 @@ test("student can create and cancel a booking through the real API", async ({ pa
 
     const lessonsBody = await lessonsResponse.json();
     const lessons = Array.isArray(lessonsBody.data) ? lessonsBody.data : [];
-    const lesson = lessons.find(
+    const bookableLessons = lessons.filter(
       (item: { id: number; booking_type?: string; publishing_status?: string }) =>
         (item.booking_type === "private" || item.booking_type === "group") &&
         item.publishing_status === "published"
     );
 
-    expect(lesson?.id).toBeTruthy();
+    expect(bookableLessons.length).toBeGreaterThan(0);
+
+    let candidate: {
+      lesson: { id: number; booking_type: "private" | "group" };
+      date: string;
+      option: {
+        requested_start_at: string;
+        local_time: string;
+        timezone: string;
+        is_available: boolean;
+      };
+    } | null = null;
+
+    for (const lesson of bookableLessons) {
+      const availabilityResponse = await api.get(
+        "/api/lessons/" + lesson.id + "/availability"
+      );
+      if (!availabilityResponse.ok()) {
+        continue;
+      }
+
+      const availabilityBody = await availabilityResponse.json();
+      const slots = Array.isArray(availabilityBody.data) ? availabilityBody.data : [];
+      const weekdays = new Set<number>(
+        slots
+          .filter((slot: { is_active?: boolean }) => slot.is_active !== false)
+          .map((slot: { day_of_week: number }) => Number(slot.day_of_week))
+      );
+
+      for (let offset = 2; offset <= 30 && !candidate; offset += 1) {
+        const date = dateInputValue(offset);
+        if (!weekdays.has(isoWeekday(date))) {
+          continue;
+        }
+
+        const optionsResponse = await api.get(
+          "/api/lessons/" + lesson.id + "/availability?date=" + date
+        );
+        if (!optionsResponse.ok()) {
+          continue;
+        }
+
+        const optionsBody = await optionsResponse.json();
+        const option = (Array.isArray(optionsBody.data) ? optionsBody.data : []).find(
+          (item: {
+            requested_start_at: string;
+            local_time: string;
+            timezone: string;
+            is_available: boolean;
+          }) => item.is_available
+        );
+
+        if (option) {
+          candidate = {
+            lesson: {
+              id: lesson.id,
+              booking_type: lesson.booking_type as "private" | "group",
+            },
+            date,
+            option,
+          };
+        }
+      }
+
+      if (candidate) {
+        break;
+      }
+    }
+
+    expect(candidate).not.toBeNull();
 
     const bookingsResponse = await api.get("/api/bookings", {
-      headers: { Authorization: `Bearer ${token}` },
+      headers: { Authorization: "Bearer " + token },
+      params: { per_page: 100 },
     });
     expect(bookingsResponse.ok()).toBeTruthy();
 
     const bookingsBody = await bookingsResponse.json();
-    const existingBooking = bookingsBody.data.find(
-      (booking: { lesson_id: number; status: string }) =>
-        booking.lesson_id === lesson.id &&
-        [
-          "booking_requested",
-          "pending_teacher_approval",
-          "accepted",
-          "confirmed",
-          "upcoming",
-          "in_progress",
-          "rescheduled",
-        ].includes(booking.status)
+    const existingExactBooking = (Array.isArray(bookingsBody.data) ? bookingsBody.data : []).find(
+      (booking: { lesson_id: number; requested_start_at?: string }) =>
+        booking.lesson_id === candidate!.lesson.id &&
+        booking.requested_start_at === candidate!.option.requested_start_at
     );
 
-    if (existingBooking) {
-      const cleanupResponse = await api.post(`/api/bookings/${existingBooking.id}/cancel`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      expect(cleanupResponse.ok()).toBeTruthy();
-    }
+    expect(existingExactBooking).toBeFalsy();
 
     await page.context().addCookies([
       {
@@ -87,18 +157,29 @@ test("student can create and cancel a booking through the real API", async ({ pa
       },
     ]);
 
-    await page.goto(new URL(`/lessons/${lesson.id}`, browserBaseURL).toString());
+    await page.goto(
+      new URL("/lessons/" + candidate!.lesson.id, browserBaseURL).toString()
+    );
 
     const bookButton = page.getByRole("button", { name: /Book now/i });
     await expect(bookButton).toBeVisible();
     await bookButton.click();
 
-    const requestedTime = "2099-01-10T20:00";
-    await page.getByLabel(/Requested date & time/i).fill(requestedTime);
+    await page.locator('input[type="date"]').fill(candidate!.date);
 
-    const bookingResponsePromise = page.waitForResponse((response) =>
-      response.url().includes(`/api/lessons/${lesson.id}/bookings`) &&
-      response.request().method() === "POST"
+    const timeValue =
+      candidate!.lesson.booking_type === "group"
+        ? candidate!.option.requested_start_at
+        : candidate!.option.local_time + "|" + candidate!.option.timezone;
+
+    await page
+      .locator('select[aria-label="Choose available time"]')
+      .selectOption(timeValue);
+
+    const bookingResponsePromise = page.waitForResponse(
+      (response) =>
+        response.url().includes("/api/lessons/" + candidate!.lesson.id + "/bookings") &&
+        response.request().method() === "POST"
     );
 
     await page.getByRole("button", { name: /Submit booking/i }).click();
@@ -108,14 +189,20 @@ test("student can create and cancel a booking through the real API", async ({ pa
 
     const bookingBody = await bookingResponse.json();
     expect(bookingBody.status).toBe(true);
-    expect(bookingBody.data.lesson_id).toBe(lesson.id);
+    expect(bookingBody.data.lesson_id).toBe(candidate!.lesson.id);
     expect(bookingBody.data.status).toBe(
-      lesson.booking_type === "private" ? "pending_teacher_approval" : "booking_requested"
+      candidate!.lesson.booking_type === "private"
+        ? "pending_teacher_approval"
+        : "booking_requested"
     );
 
-    const cleanupResponse = await api.post(`/api/bookings/${bookingBody.data.id}/cancel`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const cleanupResponse = await api.post(
+      "/api/bookings/" + bookingBody.data.id + "/cancel",
+      {},
+      {
+        headers: { Authorization: "Bearer " + token },
+      }
+    );
     expect(cleanupResponse.ok()).toBeTruthy();
   } finally {
     await api.dispose();

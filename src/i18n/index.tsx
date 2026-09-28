@@ -242,9 +242,12 @@ const LANGUAGE_STORAGE_KEY = "elmullim-language";
 
 const getInitialLanguage = (): Language => {
   const storedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY);
-  if (storedLanguage === "ar" || storedLanguage === "en") return storedLanguage;
 
-  return navigator.language.toLowerCase().startsWith("ar") ? "ar" : "en";
+  if (storedLanguage === "ar" || storedLanguage === "en") {
+    return storedLanguage;
+  }
+
+  return "ar";
 };
 
 interface I18nContextValue {

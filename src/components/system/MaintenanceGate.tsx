@@ -1,17 +1,17 @@
-import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { useSelector } from "react-redux";
 import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import type { RootState } from "@/store/store";
 import { useI18n } from "@/i18n";
 
-
-
 type MaintenanceResponse = {
   enabled?: boolean;
-  allowed?: boolean;
   message?: string;
 };
+
+const MAINTENANCE_EVENT = "elmullim:maintenance";
+const CHECK_INTERVAL_MS = 30_000;
 
 const MaintenanceGate = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -19,53 +19,71 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
   const [maintenance, setMaintenance] = useState<MaintenanceResponse | null>(null);
 
-  const currentPath = window.location.pathname;
+  const check = useCallback(async () => {
+    try {
+      const token = cookieService.getToken();
+
+      const statusResponse = await axiosAPI.get<{ data?: MaintenanceResponse }>(
+        "/main/maintenance",
+        token
+          ? {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          : undefined
+      );
+
+      const status = statusResponse.data?.data ?? {};
+
+      setMaintenance(status.enabled ? status : null);
+    } catch {
+      // Keep the last known state on transient failures. The backend remains
+      // the real enforcement boundary for all protected API operations.
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     let active = true;
 
-    const check = async () => {
-      try {
-        const token = cookieService.getToken();
+    const runCheck = async () => {
+      if (!active) return;
+      await check();
+    };
 
-        const statusResponse = await axiosAPI.get<{ data?: MaintenanceResponse }>(
-          "/main/maintenance",
-          token
-            ? {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                },
-              }
-            : undefined
-        );
-        const status = statusResponse.data?.data ?? {};
-
-        if (!active) return;
-
-        if (!status.enabled || status.allowed) {
-          setMaintenance(null);
-          return;
-        }
-
-        setMaintenance(status);
-      } catch {
-        if (active) {
-          setMaintenance(null);
-        }
-      } finally {
-        if (active) {
-          setLoading(false);
-        }
+    const handleMaintenanceEvent = (event: Event) => {
+      const customEvent = event as CustomEvent<MaintenanceResponse>;
+      if (customEvent.detail?.enabled) {
+        setMaintenance(customEvent.detail);
+      } else {
+        setMaintenance(null);
       }
     };
 
-    setLoading(true);
-    check();
+    window.addEventListener(MAINTENANCE_EVENT, handleMaintenanceEvent);
+    void runCheck();
+
+    const intervalId = window.setInterval(() => {
+      void runCheck();
+    }, CHECK_INTERVAL_MS);
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        void runCheck();
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
 
     return () => {
       active = false;
+      window.clearInterval(intervalId);
+      window.removeEventListener(MAINTENANCE_EVENT, handleMaintenanceEvent);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
     };
-  }, [isAuthenticated, currentPath]);
+  }, [check, isAuthenticated, language]);
 
   if (loading) {
     return (
@@ -88,7 +106,6 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
       <div style={styles.glowTwo} aria-hidden="true" />
 
       <main style={styles.shell}>
-
         <section style={styles.card} aria-labelledby="maintenance-title">
           <div style={styles.heroBrand} aria-hidden="true">
             <div style={styles.heroBrandGlow} />
@@ -121,20 +138,20 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
             </div>
             <div style={styles.accessText}>
               <strong style={styles.accessTitle}>
-                {isArabic ? "دخول الحسابات المصرح لها" : "Authorized access"}
+                {isArabic ? "الإدارة متاحة أثناء الصيانة" : "Admin access remains available"}
               </strong>
               <span style={styles.note}>
                 {isArabic
-                  ? "الحسابات الموجودة في قائمة السماح يمكنها متابعة استخدام المنصة أثناء الصيانة."
-                  : "Accounts on the allowlist can continue using the platform during maintenance."}
+                  ? "يمكن للـSuper Admin الدخول إلى لوحة الإدارة لإيقاف وضع الصيانة."
+                  : "Super Admin can access the Admin Panel and disable maintenance mode."}
               </span>
             </div>
           </div>
 
           <p style={styles.footerNote}>
             {isArabic
-              ? "الوصول الكامل يعود تلقائيًا بمجرد انتهاء الصيانة."
-              : "Full access will return automatically when maintenance is complete."}
+              ? "سيعود الوصول الكامل تلقائيًا بمجرد إيقاف وضع الصيانة."
+              : "Full access returns automatically once maintenance mode is disabled."}
           </p>
 
           <p style={styles.developedBy}>
@@ -202,7 +219,6 @@ const styles: Record<string, CSSProperties> = {
     width: "100%",
     maxWidth: "980px",
   },
-
   card: {
     width: "100%",
     boxSizing: "border-box",
@@ -330,23 +346,6 @@ const styles: Record<string, CSSProperties> = {
     color: "#98a2b3",
     lineHeight: 1.7,
   },
-  button: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "12px",
-    minWidth: "210px",
-    border: 0,
-    borderRadius: "15px",
-    padding: "14px 20px",
-    fontWeight: 800,
-    fontSize: "14px",
-    cursor: "pointer",
-    background: "linear-gradient(135deg, #21374B, #0ab99d)",
-    color: "#fff",
-    boxShadow: "0 14px 30px rgba(33,55,75,.18)",
-  },
-
   footerNote: {
     margin: "19px 0 0",
     fontSize: "12px",

@@ -4,18 +4,7 @@ import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import type { RootState } from "@/store/store";
 
-const AUTH_PATHS = new Set([
-  "/login",
-  "/sign-in",
-  "/parent/sign-in",
-  "/teacher/sign-in",
-  "/forgot-password",
-  "/parent/forgot-password",
-  "/teacher/forgot-password",
-  "/reset-password",
-  "/parent/reset-password",
-  "/teacher/reset-password",
-]);
+
 
 type MaintenanceResponse = {
   enabled?: boolean;
@@ -84,7 +73,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  if (!maintenance || AUTH_PATHS.has(currentPath)) {
+  if (!maintenance) {
     return <>{children}</>;
   }
 
@@ -153,17 +142,6 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
               </span>
             </div>
           </div>
-
-          <button
-            type="button"
-            style={styles.button}
-            onClick={() => window.location.assign("/login")}
-          >
-            <span>{isArabic ? "تسجيل الدخول" : "Login"}</span>
-            <span style={styles.buttonArrow} aria-hidden="true">
-              {isArabic ? "←" : "→"}
-            </span>
-          </button>
 
           <p style={styles.footerNote}>
             {isArabic
@@ -415,10 +393,7 @@ const styles: Record<string, CSSProperties> = {
     color: "#fff",
     boxShadow: "0 14px 30px rgba(15,23,42,.18)",
   },
-  buttonArrow: {
-    fontSize: "18px",
-    lineHeight: 1,
-  },
+
   footerNote: {
     margin: "19px 0 0",
     fontSize: "12px",

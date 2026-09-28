@@ -1,6 +1,5 @@
 import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { useSelector } from "react-redux";
-import { useLocation, useNavigate } from "react-router-dom";
 import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import type { RootState } from "@/store/store";
@@ -28,11 +27,11 @@ type CheckAuthResponse = {
 };
 
 const MaintenanceGate = ({ children }: { children: ReactNode }) => {
-  const location = useLocation();
-  const navigate = useNavigate();
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
   const [loading, setLoading] = useState(true);
   const [maintenance, setMaintenance] = useState<MaintenanceResponse | null>(null);
+
+  const currentPath = window.location.pathname;
 
   useEffect(() => {
     let active = true;
@@ -49,7 +48,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
           return;
         }
 
-        if (AUTH_PATHS.has(location.pathname)) {
+        if (AUTH_PATHS.has(currentPath)) {
           setMaintenance(status);
           return;
         }
@@ -83,7 +82,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
     return () => {
       active = false;
     };
-  }, [isAuthenticated, location.pathname]);
+  }, [isAuthenticated, currentPath]);
 
   if (loading) {
     return (
@@ -93,7 +92,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
     );
   }
 
-  if (!maintenance || AUTH_PATHS.has(location.pathname)) {
+  if (!maintenance || AUTH_PATHS.has(currentPath)) {
     return <>{children}</>;
   }
 
@@ -114,14 +113,14 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
               : "We are currently performing updates and improvements. We will be back shortly.")}
         </p>
 
-        {AUTH_PATHS.has(location.pathname) ? (
-          <button style={styles.button} onClick={() => navigate("/login")}>
+        {AUTH_PATHS.has(currentPath) ? (
+          <button style={styles.button} onClick={() => window.location.assign("/login")}>
             {isArabic ? "العودة لتسجيل الدخول" : "Back to login"}
           </button>
         ) : (
           <button
             style={styles.button}
-            onClick={() => navigate("/login")}
+            onClick={() => window.location.assign("/login")}
           >
             {isArabic ? "دخول المستخدمين المصرح لهم" : "Login for authorized users"}
           </button>

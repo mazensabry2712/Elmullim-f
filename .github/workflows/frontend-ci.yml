@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      E2E_API_BASE_URL: ${{ secrets.E2E_API_BASE_URL }}
-      E2E_STUDENT_EMAIL: ${{ secrets.E2E_STUDENT_EMAIL }}
-      E2E_STUDENT_PASSWORD: ${{ secrets.E2E_STUDENT_PASSWORD }}
+      E2E_API_BASE_URL: "${{ secrets.E2E_API_BASE_URL }}"
+      E2E_STUDENT_EMAIL: "${{ secrets.E2E_STUDENT_EMAIL }}"
+      E2E_STUDENT_PASSWORD: "${{ secrets.E2E_STUDENT_PASSWORD }}"
 
     steps:
       - name: Checkout
@@ -38,7 +38,7 @@ jobs:
         run: npm run build
 
       - name: Install Playwright browser
-        if: env.E2E_API_BASE_URL != ''
+        if: ${{ env.E2E_API_BASE_URL != '' }}
         run: npx playwright install --with-deps chromium
 
       - name: Run E2E against staging API
@@ -46,5 +46,5 @@ jobs:
         run: npm run test:e2e
 
       - name: E2E status
-        if: env.E2E_API_BASE_URL == ''
+        if: ${{ env.E2E_API_BASE_URL == '' }}
         run: echo "E2E skipped: configure the E2E_API_BASE_URL repository secret for a dedicated staging/test API."

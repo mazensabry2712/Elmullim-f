@@ -46,8 +46,8 @@ describe("frontend i18n", () => {
 
     expect(screen.getByTestId("language")).toHaveTextContent("en");
     expect(screen.getByTestId("direction")).toHaveTextContent("ltr");
-    expect(document.documentElement.lang).toBe("ar");
-    expect(document.documentElement.dir).toBe("rtl");
+    expect(document.documentElement.lang).toBe("en");
+    expect(document.documentElement.dir).toBe("ltr");
     expect(screen.getByText("Home")).toBeInTheDocument();
     expect(screen.getByText("Secured Payment")).toBeInTheDocument();
     expect(screen.getByText("Make secure payments through a trusted learning platform.")).toBeInTheDocument();

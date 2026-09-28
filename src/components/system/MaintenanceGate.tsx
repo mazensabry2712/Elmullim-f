@@ -24,6 +24,8 @@ type MaintenanceResponse = {
 
 type CheckAuthResponse = {
   auth?: boolean;
+  "email-verified"?: boolean;
+  role?: string;
 };
 
 const MaintenanceGate = ({ children }: { children: ReactNode }) => {
@@ -38,7 +40,9 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
 
     const check = async () => {
       try {
-        const statusResponse = await axiosAPI.get<{ data?: MaintenanceResponse }>("/main/maintenance");
+        const statusResponse = await axiosAPI.get<{ data?: MaintenanceResponse }>(
+          "/main/maintenance"
+        );
         const status = statusResponse.data?.data ?? {};
 
         if (!active) return;
@@ -70,6 +74,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
               },
             }
           );
+
           const authenticated = authResponse.data?.data?.auth === true;
 
           setMaintenance(authenticated ? null : status);
@@ -77,17 +82,39 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
           setMaintenance(status);
         }
       } catch {
-        // Do not take the whole platform offline if the status endpoint itself fails.
-        if (active) setMaintenance(null);
+        if (active) {
+          setMaintenance(null);
+        }
       } finally {
-        if (active) setLoading(false);
+        if (active) {
+          setLoading(false);
+        }
       }
     };
 
     setLoading(true);
     check();
 
+    return () => {
+      active = false;
+    };
+  }, [isAuthenticated, currentPath]);
+
+  if (loading) {
     return (
+      <div style={styles.center} aria-label="Loading">
+        <div style={styles.spinner} />
+      </div>
+    );
+  }
+
+  if (!maintenance || AUTH_PATHS.has(currentPath)) {
+    return <>{children}</>;
+  }
+
+  const isArabic = localStorage.getItem("elmullim-language") === "ar";
+
+  return (
     <div dir={isArabic ? "rtl" : "ltr"} style={styles.page}>
       <div style={styles.grid} aria-hidden="true" />
       <div style={styles.glowOne} aria-hidden="true" />
@@ -108,7 +135,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
           </div>
         </div>
 
-        <section style={styles.card}>
+        <section style={styles.card} aria-labelledby="maintenance-title">
           <div style={styles.iconWrap} aria-hidden="true">
             <div style={styles.iconRing}>
               <span style={styles.icon}>⚙</span>
@@ -119,7 +146,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
             {isArabic ? "نعود قريبًا" : "BACK ONLINE SOON"}
           </div>
 
-          <h1 style={styles.title}>
+          <h1 id="maintenance-title" style={styles.title}>
             {isArabic ? "المنصة تحت الصيانة" : "Platform Under Maintenance"}
           </h1>
 
@@ -136,7 +163,9 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
           </div>
 
           <div style={styles.accessBox}>
-            <div style={styles.accessIcon} aria-hidden="true">🔐</div>
+            <div style={styles.accessIcon} aria-hidden="true">
+              🔐
+            </div>
             <div style={styles.accessText}>
               <strong style={styles.accessTitle}>
                 {isArabic ? "دخول الحسابات المصرح لها" : "Authorized access"}
@@ -150,6 +179,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
           </div>
 
           <button
+            type="button"
             style={styles.button}
             onClick={() => window.location.assign("/login")}
           >
@@ -177,10 +207,13 @@ const styles: Record<string, CSSProperties> = {
     overflow: "hidden",
     display: "grid",
     placeItems: "center",
-    padding: "28px",
-    background: "radial-gradient(circle at top, #eef4ff 0%, #f7f9fc 42%, #eef1f6 100%)",
+    padding: "clamp(18px, 4vw, 36px)",
+    boxSizing: "border-box",
+    background:
+      "radial-gradient(circle at top, #eef4ff 0%, #f7f9fc 42%, #eef1f6 100%)",
     color: "#101828",
-    fontFamily: "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
+    fontFamily:
+      "Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif",
   },
   grid: {
     position: "absolute",
@@ -190,6 +223,7 @@ const styles: Record<string, CSSProperties> = {
       "linear-gradient(rgba(16,24,40,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(16,24,40,.045) 1px, transparent 1px)",
     backgroundSize: "34px 34px",
     maskImage: "linear-gradient(to bottom, black, transparent 82%)",
+    pointerEvents: "none",
   },
   glowOne: {
     position: "absolute",
@@ -200,6 +234,7 @@ const styles: Record<string, CSSProperties> = {
     left: "-130px",
     background: "rgba(59,130,246,.14)",
     filter: "blur(18px)",
+    pointerEvents: "none",
   },
   glowTwo: {
     position: "absolute",
@@ -210,6 +245,7 @@ const styles: Record<string, CSSProperties> = {
     right: "-100px",
     background: "rgba(99,102,241,.12)",
     filter: "blur(18px)",
+    pointerEvents: "none",
   },
   shell: {
     position: "relative",
@@ -221,7 +257,8 @@ const styles: Record<string, CSSProperties> = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    gap: "18px",
+    flexWrap: "wrap",
+    gap: "14px",
     marginBottom: "20px",
   },
   brandGroup: {
@@ -245,7 +282,7 @@ const styles: Record<string, CSSProperties> = {
   },
   brand: {
     fontSize: "20px",
-    fontWeight: 850,
+    fontWeight: 800,
     letterSpacing: "-.02em",
   },
   statusBadge: {
@@ -258,7 +295,7 @@ const styles: Record<string, CSSProperties> = {
     border: "1px solid rgba(16,24,40,.08)",
     boxShadow: "0 8px 22px rgba(15,23,42,.06)",
     fontSize: "12px",
-    fontWeight: 750,
+    fontWeight: 700,
     color: "#475467",
     backdropFilter: "blur(12px)",
   },
@@ -272,9 +309,9 @@ const styles: Record<string, CSSProperties> = {
   card: {
     width: "100%",
     boxSizing: "border-box",
-    padding: "58px clamp(22px, 5vw, 78px) 44px",
+    padding: "clamp(34px, 5vw, 58px) clamp(20px, 5vw, 78px) 42px",
     borderRadius: "32px",
-    background: "rgba(255,255,255,.88)",
+    background: "rgba(255,255,255,.9)",
     border: "1px solid rgba(255,255,255,.92)",
     boxShadow: "0 28px 90px rgba(15,23,42,.12)",
     backdropFilter: "blur(20px)",
@@ -292,7 +329,8 @@ const styles: Record<string, CSSProperties> = {
     display: "grid",
     placeItems: "center",
     background: "linear-gradient(145deg, #111827, #1f3b73)",
-    boxShadow: "0 20px 46px rgba(30,64,175,.22), inset 0 1px 0 rgba(255,255,255,.18)",
+    boxShadow:
+      "0 20px 46px rgba(30,64,175,.22), inset 0 1px 0 rgba(255,255,255,.18)",
     transform: "rotate(-5deg)",
   },
   icon: {
@@ -303,7 +341,7 @@ const styles: Record<string, CSSProperties> = {
   },
   eyebrow: {
     fontSize: "11px",
-    fontWeight: 850,
+    fontWeight: 800,
     letterSpacing: ".18em",
     color: "#64748b",
     marginBottom: "13px",
@@ -326,7 +364,7 @@ const styles: Record<string, CSSProperties> = {
     position: "relative",
     width: "min(340px, 72%)",
     height: "5px",
-    margin: "30px auto 30px",
+    margin: "30px auto",
     borderRadius: "999px",
     overflow: "hidden",
     background: "#e8edf5",
@@ -377,7 +415,13 @@ const styles: Record<string, CSSProperties> = {
   },
   accessTitle: {
     fontSize: "14px",
-    fontWeight: 850,
+    fontWeight: 800,
+  },
+  note: {
+    display: "block",
+    fontSize: "12px",
+    color: "#98a2b3",
+    lineHeight: 1.7,
   },
   button: {
     display: "inline-flex",
@@ -398,12 +442,6 @@ const styles: Record<string, CSSProperties> = {
   buttonArrow: {
     fontSize: "18px",
     lineHeight: 1,
-  },
-  note: {
-    display: "block",
-    fontSize: "12px",
-    color: "#98a2b3",
-    lineHeight: 1.7,
   },
   footerNote: {
     margin: "19px 0 0",

@@ -113,7 +113,7 @@ const Footer = () => {
         viewport={{ once: true }}
         className="bg-[#1F2C3B] py-3 text-center font-exo text-[17px] font-normal capitalize text-white font-sora"
       >
-        &copy; {new Date().getFullYear()} <span className="font-black text-main">Elmullim</span> || {t("footer.rightsReserved")}
+        &copy; {new Date().getFullYear()} <span className="font-black text-main">Elmullim</span> || {t("footer.rightsReserved")} By XRO
       </motion.div>
     </footer>
   );

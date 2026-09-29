@@ -3,17 +3,54 @@ import {
   useGetAllConversations,
 } from "@/lib/react-query/chat/chat";
 import cookieService from "@/utils/cookieService";
-import { ChevronDown, MoreHorizontal, Plus } from "lucide-react";
+import { ChevronDown, MoreHorizontal, Plus, X } from "lucide-react";
 import { useState, useMemo } from "react";
 import { toast } from "react-toastify";
 import { IUserSearch } from "@/interfaces/main";
 import { useGetUserSearch } from "@/lib/react-query/main";
+import { useI18n } from "@/i18n";
 
 interface SideBarProps {
   setSelectedConversationId: (id: string) => void;
 }
 function SideBar({ setSelectedConversationId }: SideBarProps) {
   const token = cookieService.getToken()!;
+  const { language } = useI18n();
+  const text = language === "ar"
+    ? {
+        search: "🔍 ابحث هنا...",
+        allChats: "كل المحادثات",
+        loading: "جاري التحميل...",
+        noConversations: "لا توجد محادثات بعد",
+        noMatches: "لا توجد محادثات مطابقة.",
+        newChat: "بدء محادثة جديدة",
+        searchPerson: "🔍 ابحث عن الاسم....",
+        contact: "تواصل معهم عبر الدردشة...",
+        searching: "جاري البحث...",
+        noUsers: "لم يتم العثور على مستخدمين.",
+        startTyping: "ابدأ بكتابة اسم للبحث عن المستخدمين.",
+        closeNewChat: "إغلاق بدء محادثة جديدة",
+      }
+    : {
+        search: "🔍 Search Here...",
+        allChats: "All Chats",
+        loading: "Loading...",
+        noConversations: "{text.noConversations}",
+        noMatches: "{text.noMatches}",
+        newChat: "Start a new chat",
+        searchPerson: "🔍 Search For The Name....",
+        contact: "{text.contact}",
+        searching: "Searching...",
+        noUsers: "No users found.",
+        startTyping: "Start typing to search for users.",
+        closeNewChat: "Close new chat",
+      };
+  const userTypeLabel = (type: IUserSearch["type"]) =>
+    type === "teachers"
+      ? (language === "ar" ? "معلم" : "Teacher")
+      : type === "students"
+        ? (language === "ar" ? "طالب" : "Student")
+        : (language === "ar" ? "ولي أمر" : "Parent");
   const {
     data: conversations,
     isLoading,
@@ -70,13 +107,13 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
       {/* Main View: Conversation List */}
       <div
         className={`h-full flex flex-col transform transition-transform duration-300 ease-in-out ${
-          isAddingChat ? "-translate-x-full" : "translate-x-0"
+          isAddingChat ? (language === "ar" ? "translate-x-full" : "-translate-x-full") : "translate-x-0"
         }`}
       >
         <div className="px-4 pt-4">
           <input
             type="search"
-            placeholder="🔍 Search Here..."
+            placeholder={text.search}
             className="w-full p-3 bg-[#F0FEFC] shadow-sm rounded-md text-center focus:outline-none placeholder:text-black placeholder:text-center"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -90,7 +127,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
               <h3 className="font-bold font-sora text-[#194C80] text-lg">
               All Chats
             </h3>
-            <ChevronDown size={25} className="text-[#194C80] cursor-pointer" />
+            <ChevronDown size={25} className="text-[#194C80]" aria-hidden="true" />
               </>
             )}
           </div>
@@ -104,7 +141,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
         {/* conversation list */}
         <div className="flex-grow overflow-y-auto py-5">
           {isLoading ? (
-            <p className="text-black text-base text-center">Loading...</p>
+            <p className="text-black text-base text-center" role="status">{text.loading}</p>
           ) : filteredConversations.length === 0 && !searchQuery ? (
             <div className="flex flex-col items-center justify-center gap-2">
              <svg width="150" height="100" viewBox="0 0 360 281" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
@@ -128,12 +165,14 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
           ) : (
             <div className="flex flex-col gap-2">
               {filteredConversations.map((conv) => (
-                <div
+                <button
+                  type="button"
                   key={conv.conversation_id}
                   onClick={() =>
                     setSelectedConversationId(conv.conversation_id)
                   }
-                  className="flex flex-row items-center justify-center gap-4 cursor-pointer hover:bg-[#F0FEFC] py-1 transition-colors duration-200"
+                  aria-label={conv.participant?.name || text.allChats}
+                  className="flex w-full flex-row items-center gap-4 rounded-md px-3 py-2 text-start transition-colors duration-200 hover:bg-[#F0FEFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
                 >
                   <div className="w-10 h-10 rounded-full flex-shrink-0">
                     <img
@@ -151,14 +190,14 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
                         {conv.participant?.name}
                       </h4>
                       <div>
-                        <MoreHorizontal size={22} />
+                        <MoreHorizontal size={22} aria-hidden="true" />
                       </div>
                     </div>
                     <p className="font-sora text-sm">
                       {conv.last_message?.data?.body || ""}
                     </p>
                   </div>
-                </div>
+                </button>
               ))}
             </div>
           )}
@@ -168,21 +207,28 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
       {/* Add New Chat View */}
       <div
         className={`absolute top-0 left-0 w-full h-full bg-white flex flex-col transform transition-transform duration-300 ease-in-out ${
-          isAddingChat ? "translate-x-0" : "translate-x-full"
+          isAddingChat ? "translate-x-0" : language === "ar" ? "-translate-x-full" : "translate-x-full"
         }`}
       >
-        {/*
-                <div className="flex items-center p-4 bg-main text-white flex-shrink-0">
-                    <button onClick={() => { setIsAddingChat(false); setUserSearchQuery(""); }} className="mr-4">
-                        <ArrowLeft size={24} />
-                    </button>
-                    <h3 className="text-xl font-bold">New Chat</h3>
-                </div> 
-                 */}
+        <div className="flex items-center justify-between gap-3 border-b px-4 py-3">
+          <h3 className="font-sora text-lg font-bold text-[#194C80]">{text.newChat}</h3>
+          <button
+            type="button"
+            onClick={() => {
+              setIsAddingChat(false);
+              setUserSearchQuery("");
+            }}
+            aria-label={text.closeNewChat}
+            title={text.closeNewChat}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-[#194C80] hover:bg-[#F0FEFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+          >
+            <X size={20} aria-hidden="true" />
+          </button>
+        </div>
         <div className="p-4 flex-shrink-0">
           <input
             type="search"
-            placeholder="🔍 Search For The Name...."
+            placeholder={text.searchPerson}
             value={userSearchQuery}
             onChange={(e) => setUserSearchQuery(e.target.value)}
             className="w-full p-3 bg-[#F0FEFC] shadow-sm rounded-md text-center focus:outline-none placeholder:text-black placeholder:text-center"
@@ -196,13 +242,15 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
         </div>
         <div className="flex-grow overflow-y-auto px-2">
           {isLoadingUsers ? (
-            <p className="text-center text-gray-500 pt-4">Searching...</p>
+            <p className="pt-4 text-center text-gray-500" role="status">{text.searching}</p>
           ) : users && users.length > 0 ? (
             users.map((user: IUserSearch) => (
-              <div
+              <button
+                type="button"
                 key={user.details.id}
                 onClick={() => handleUserSelect(user)}
-                className="flex justify-center items-center gap-4 p-1 hover:bg-[#194D80] group cursor-pointer rounded-md transition-colors"
+                aria-label={user.details.name + " - " + userTypeLabel(user.type)}
+                className="group flex w-full items-center justify-center gap-4 rounded-md p-2 text-start transition-colors hover:bg-[#194D80] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
               >
                 <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
                   <img
@@ -219,16 +267,14 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
                     {user.details.name}
                   </span>
                   <span className="text-gray-500 text-xs group-hover:text-white">
-                    {user.type}
+                    {userTypeLabel(user.type)}
                   </span>
                 </div>
-              </div>
+              </button>
             ))
           ) : (
-            <p className="text-center text-gray-500 pt-4">
-              {userSearchQuery
-                ? "No users found."
-                : "Start typing to search for users."}
+            <p className="pt-4 text-center text-gray-500" role="status">
+              {userSearchQuery ? text.noUsers : text.startTyping}
             </p>
           )}
         </div>

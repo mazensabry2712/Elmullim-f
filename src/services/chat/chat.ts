@@ -9,12 +9,30 @@ import {
 } from "@/interfaces/chat/chat";
 
 // ============== Conversations ================ //
-export const getAllConversations = async (
-  token: string
-): Promise<IConversationsRes> => {
-  const { data } = await axiosAPI.get(`/chat/a/conversations`, {
+export const getAllConversations = async ({
+  token,
+  page = 1,
+  perPage = 25,
+  search,
+}: {
+  token: string;
+  page?: number;
+  perPage?: number;
+  search?: string;
+}): Promise<IConversationsRes> => {
+  const params = new URLSearchParams({
+    page: String(Math.max(1, page)),
+    per_page: String(Math.min(50, Math.max(1, perPage))),
+  });
+
+  if (search?.trim()) {
+    params.set("q", search.trim());
+  }
+
+  const { data } = await axiosAPI.get(`/chat/a/conversations?${params.toString()}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
+
   return data;
 };
 

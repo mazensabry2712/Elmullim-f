@@ -216,7 +216,7 @@ function ChatWindow({
                 conv?.data.participant.profile_image ||
                 "/images/profile-avatar.webp"
               }
-              alt="user-image"
+              alt={language === "ar" ? "صورة المستخدم" : "User profile"}
             />
           </div>
           <div>
@@ -225,27 +225,27 @@ function ChatWindow({
             </h4>
           </div>
         </div>
-        <div className="relative cursor-pointer">
-          <MoreVertical size={20} onClick={() => setIsMenuOpen(!isMenuOpen)} />
+        <div ref={menuRef} className="relative">
+          <button
+            type="button"
+            aria-label={language === "ar" ? "خيارات المحادثة" : "Chat options"}
+            aria-expanded={isMenuOpen}
+            aria-haspopup="menu"
+            onClick={() => setIsMenuOpen((value) => !value)}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-black-blue transition-colors hover:bg-white-gray focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+          >
+            <MoreVertical size={20} aria-hidden="true" />
+          </button>
           {isMenuOpen && (
-            <div
-              ref={menuRef}
-              className="absolute right-0 mt-2 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
-            >
-              <ul className="py-1">
-                {/*<li
-                  className="px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleMenuOptionClick("remove")} // إضافة خيار حذف المحادثة
-                >
-                  Delete Chat
-                </li>*/}
-                <li
-                  className="px-4 py-2 text-sm text-black hover:bg-gray-100 cursor-pointer"
-                  onClick={() => handleMenuOptionClick("close")}
-                >
-                  Close Chat
-                </li>
-              </ul>
+            <div className="absolute right-0 top-full z-10 mt-2 w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => handleMenuOptionClick("close")}
+                className="w-full rounded-md px-3 py-2 text-left text-sm text-black hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+              >
+                {language === "ar" ? "إغلاق الدردشة" : "Close Chat"}
+              </button>
             </div>
           )}
         </div>
@@ -280,7 +280,7 @@ function ChatWindow({
                     <img
                       src={msg.data.image.url}
                       className="w-full h-30 object-fill rounded-lg"
-                      alt="image"
+                      alt={language === "ar" ? "صورة مرفقة" : "Shared image"}
                     />
                     {msg.data.body}
                   </>
@@ -299,9 +299,10 @@ function ChatWindow({
       </div>
       {/* send */}
       <div className="flex w-full shrink-0 flex-wrap items-center justify-center gap-2 border-t border-gray-100 px-3 py-3 sm:gap-3 sm:px-6">
-        <div
-          className="order-2 shrink-0 border border-main p-2 cursor-pointer rounded-lg sm:order-none"
-          onClick={() => document.getElementById("hiddenFileInput")?.click()}
+        <label
+          htmlFor="hiddenFileInput"
+          className="order-2 inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-main p-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-main focus-within:ring-offset-2 sm:order-none"
+          aria-label={language === "ar" ? "إرفاق صورة" : "Attach image"}
         >
           <svg
             width="24"
@@ -326,9 +327,9 @@ function ChatWindow({
           <input
             type="file"
             id="hiddenFileInput"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) => {
+            className="hidden"        </label>
+        <input
+          type="text"{(e) => {
               const file = e.target.files?.[0] || null;
               setImageFile(file);
             }}
@@ -336,11 +337,11 @@ function ChatWindow({
         </div>
         <input
           type="text"
-          placeholder="Type your message....."
+          placeholder={language === "ar" ? "اكتب رسالتك....." : "Type your message....."}
           className="w-full min-w-0 flex-1 rounded-2xl border border-main px-3 py-2 text-sm placeholder:text-sm focus:outline-none sm:max-w-[300px]"
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}
-          onKeyPress={(e) => e.key === "Enter" && handleSend()}
+          onKeyDown={(e) => e.key === "Enter" && handleSend()}
         />
         <button
           type="button"
@@ -348,7 +349,7 @@ function ChatWindow({
           disabled={isSending || (!messageText.trim() && !imageFile)}
           className="order-2 shrink-0 bg-main text-white font-sora text-[16px] flex items-center gap-2 px-3 py-2 rounded-lg disabled:opacity-50 sm:order-none"
         >
-          {isSending ? "Sending..." : "Send"} <Send size={18} />
+          {isSending ? (language === "ar" ? "جاري الإرسال..." : "Sending...") : (language === "ar" ? "إرسال" : "Send")} <Send size={18} aria-hidden="true" />
         </button>
       </div>
     </div>

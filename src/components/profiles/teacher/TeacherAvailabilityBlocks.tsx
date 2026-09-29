@@ -3,7 +3,6 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
-import { ITeacherAvailabilityBlock } from "@/interfaces/lessons/availability";
 import {
   useCreateTeacherAvailabilityBlock,
   useDeleteTeacherAvailabilityBlock,

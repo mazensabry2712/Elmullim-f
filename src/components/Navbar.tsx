@@ -240,6 +240,24 @@ const Navbar = () => {
                   </button>
                 </motion.li>
 
+                {isAuthenticated && (
+                  <motion.li variants={navItemsVariants} className="pt-3">
+                    <div className="flex items-center justify-center gap-2 rounded-lg border border-main/20 bg-white-gray p-2">
+                      <Link
+                        to="/notifications"
+                        onClick={() => setOpenNav(false)}
+                        className="inline-flex flex-1 items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-black-blue hover:bg-white hover:text-main"
+                      >
+                        <Bell size={17} className="mr-2" aria-hidden="true" />
+                        {language === "ar" ? "الإشعارات" : "Notifications"}
+                      </Link>
+                      <div className="shrink-0 rounded-md bg-white">
+                        <ProfileDropdownMenu />
+                      </div>
+                    </div>
+                  </motion.li>
+                )}
+
                 {!isAuthenticated && (
                   <motion.li variants={navItemsVariants} className="pt-3">
                     <div className="rounded-lg border border-main/20 bg-white-gray p-2">

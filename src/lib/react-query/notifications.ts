@@ -7,12 +7,12 @@ import {
 
 export const notificationKeys = {
   all: ["notifications"] as const,
-  mine: (token: string) => ["notifications", "mine", token] as const,
+  mine: () => ["notifications", "mine"] as const,
 };
 
 export const useGetNotifications = ({ token, enabled = true }: { token: string; enabled?: boolean }) =>
   useQuery({
-    queryKey: notificationKeys.mine(token),
+    queryKey: notificationKeys.mine(),
     queryFn: () => getNotifications({ token }),
     enabled: enabled && !!token,
   });
@@ -22,7 +22,7 @@ export const useMarkNotificationRead = () => {
   return useMutation({
     mutationFn: markNotificationRead,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: notificationKeys.mine(variables.token) });
+      queryClient.invalidateQueries({ queryKey: notificationKeys.mine() });
     },
   });
 };

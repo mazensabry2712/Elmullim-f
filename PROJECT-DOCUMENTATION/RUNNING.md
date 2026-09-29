@@ -93,6 +93,18 @@ npm run test:coverage
 npm run test:e2e
 ```
 
+لـ E2E الخاص بالـ booking يمكن تحديد الـFrontend والـBackend بشكل صريح:
+
+```powershell
+$env:E2E_BASE_URL="http://127.0.0.1:5173"
+$env:E2E_API_BASE_URL="http://Elmullim-b.test"
+$env:E2E_STUDENT_EMAIL="student@elmullim.test"
+$env:E2E_STUDENT_PASSWORD="Student@12345"
+npm run test:e2e
+```
+
+الـ E2E لا يستخدم Production API. في CI يجب توفير `E2E_API_BASE_URL` وبيانات حساب اختبار مخصص من Repository Secrets.
+
 ### Backend
 
 ```bash

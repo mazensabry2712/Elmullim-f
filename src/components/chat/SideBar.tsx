@@ -137,10 +137,13 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
             )}
           </div>
           <button
+            type="button"
             onClick={() => setIsAddingChat(true)}
-            className="text-[#194C80] hover:text-main border border-[#194D80] rounded-md p-1 hover:border-main transition-colors duration-300"
+            aria-label={text.newChat}
+            title={text.newChat}
+            className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-[#194D80] text-[#194C80] transition-colors duration-300 hover:border-main hover:text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
           >
-            <Plus size={25} />
+            <Plus size={20} aria-hidden="true" />
           </button>
         </div>
         {/* conversation list */}

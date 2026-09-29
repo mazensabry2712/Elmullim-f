@@ -75,11 +75,14 @@ describe("Chat sidebar", () => {
       screen.getByRole("searchbox", { name: "🔍 Search For The Name...." })
     ).toBeInTheDocument();
 
+    const newChatPanel = screen
+      .getByRole("heading", { name: "Start a new chat" })
+      .closest('[aria-label="Start a new chat"]');
+
+    expect(newChatPanel).not.toBeNull();
     fireEvent.click(screen.getByRole("button", { name: "Close new chat" }));
 
-    expect(
-      screen.queryByRole("heading", { name: "Start a new chat" })
-    ).not.toBeInTheDocument();
+    expect(newChatPanel).toHaveClass("translate-x-full");
   });
 
   it("renders conversation entries as keyboard-accessible buttons", () => {

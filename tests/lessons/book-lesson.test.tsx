@@ -128,7 +128,7 @@ describe("BookLessonDialog", () => {
 
     await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
     fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), {
-      target: { value: "18:00|Africa/Cairo" },
+      target: { value: "2099-01-10T16:00:00.000Z" },
     });
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 

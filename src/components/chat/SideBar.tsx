@@ -85,7 +85,11 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
           },
           onError: (error) => {
             console.error("Failed to create conversation:", error);
-            toast.error("Failed to start a new chat. Please try again.");
+            toast.error(
+              language === "ar"
+                ? "تعذر بدء محادثة جديدة. يرجى المحاولة مرة أخرى."
+                : "Failed to start a new chat. Please try again."
+            );
           },
         }
       );
@@ -117,6 +121,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
             className="w-full p-3 bg-[#F0FEFC] shadow-sm rounded-md text-center focus:outline-none placeholder:text-black placeholder:text-center"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label={text.search}
           />
         </div>
         <hr className="mt-4" />
@@ -232,6 +237,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
             placeholder={text.searchPerson}
             value={userSearchQuery}
             onChange={(e) => setUserSearchQuery(e.target.value)}
+            aria-label={text.searchPerson}
             className="w-full p-3 bg-[#F0FEFC] shadow-sm rounded-md text-center focus:outline-none placeholder:text-black placeholder:text-center"
           />
         </div>

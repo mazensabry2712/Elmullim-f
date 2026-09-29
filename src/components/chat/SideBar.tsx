@@ -3,12 +3,13 @@ import {
   useGetAllConversations,
 } from "@/lib/react-query/chat/chat";
 import cookieService from "@/utils/cookieService";
-import { ChevronDown, MoreHorizontal, Plus, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal, Plus, X } from "lucide-react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { IUserSearch } from "@/interfaces/main";
 import { useGetUserSearch } from "@/lib/react-query/main";
 import { useI18n } from "@/i18n";
+import useDebounce from "@/hooks/useDebounce";
 
 interface SideBarProps {
   setSelectedConversationId: (id: string) => void;
@@ -51,16 +52,26 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
       : type === "students"
         ? (language === "ar" ? "طالب" : "Student")
         : (language === "ar" ? "ولي أمر" : "Parent");
+  const [conversationPage, setConversationPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const debouncedConversationSearch = useDebounce(searchQuery, 400) ?? "";
+
   const {
     data: conversations,
     isLoading,
+    isFetching,
     refetch: refetchConversations,
-  } = useGetAllConversations(token);
+  } = useGetAllConversations({
+    token,
+    page: conversationPage,
+    search: debouncedConversationSearch,
+  });
   const [isAddingChat, setIsAddingChat] = useState(false);
   const { mutate: createNewConversation } = useCreateConversation();
 
-  // State to store the search query for conversations
-  const [searchQuery, setSearchQuery] = useState<string>("");
+  useEffect(() => {
+    setConversationPage(1);
+  }, [debouncedConversationSearch]);
 
   // State and hook for searching new users
   const [userSearchQuery, setUserSearchQuery] = useState("");
@@ -96,15 +107,9 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
     }
   };
 
-  // Filtered conversations based on search query
-  const filteredConversations = useMemo(() => {
-    if (!conversations?.data) {
-      return [];
-    }
-    return conversations.data.filter((conv) =>
-      conv.participant?.name.toLowerCase().includes(searchQuery.toLowerCase())
-    );
-  }, [conversations, searchQuery]);
+  const displayedConversations = conversations?.data ?? [];
+  const pagination = conversations?.meta;
+  const isPaginating = isFetching && !isLoading;
 
   return (
     <div className="relative col-span-1 min-h-[360px] overflow-hidden rounded-md bg-[#FFFFFF] shadow-md md:h-[500px]">
@@ -150,7 +155,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
         <div className="flex-grow overflow-y-auto py-5">
           {isLoading ? (
             <p className="text-black text-base text-center" role="status">{text.loading}</p>
-          ) : filteredConversations.length === 0 && !searchQuery ? (
+          ) : displayedConversations.length === 0 && !debouncedConversationSearch ? (
             <div className="flex flex-col items-center justify-center gap-2">
              <svg width="150" height="100" viewBox="0 0 360 281" fill="none" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink">
 <rect width="360" height="281" fill="url(#pattern0_3807_525)"/>
@@ -166,13 +171,13 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
                 {text.noConversations}
               </p>
             </div>
-          ) : filteredConversations.length === 0 && searchQuery ? (
+          ) : displayedConversations.length === 0 && debouncedConversationSearch ? (
             <p className="text-black text-base text-center">
               {text.noMatches}
             </p>
           ) : (
             <div className="flex flex-col gap-2">
-              {filteredConversations.map((conv) => (
+              {displayedConversations.map((conv) => (
                 <button
                   type="button"
                   key={conv.conversation_id}

@@ -11,9 +11,12 @@ const SearchUserModal = ({ onClose, onSelectUser }: {
   onClose: () => void;
   onSelectUser: (user: IUserSearch) => void;
 }) => {
-  const token = cookieService.getToken()!;
+  const token = cookieService.getToken() || "";
   const [searchTerm, setSearchTerm] = useState("");
-  const { data: users, isLoading } = useGetUserSearch(token, searchTerm);
+  const { data: users, isLoading } = useGetUserSearch(
+    token,
+    searchTerm
+  );
   const { language } = useI18n();
   const isArabic = language === "ar";
 

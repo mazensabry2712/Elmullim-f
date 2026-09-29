@@ -12,8 +12,9 @@ interface IProps {
 
 const ProtectedRoute = ({ children, requiredRole }: IProps) => {
   const token = cookieService.getToken();
-  const role = cookieService.getRole();
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const cookieRole = cookieService.getRole();
+  const { isAuthenticated, role: stateRole } = useSelector((state: RootState) => state.auth);
+  const role = stateRole ?? cookieRole;
 
   if (!token || !isAuthenticated) {
     return <Navigate to="/login" replace />;

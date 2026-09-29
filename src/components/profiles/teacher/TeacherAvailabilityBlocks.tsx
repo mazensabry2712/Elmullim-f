@@ -1,71 +1,58 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
-import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
-import { ITeacherAvailabilityBlock, ITeacherAvailabilityBlocksRes } from "@/interfaces/lessons/availability";
-
-interface ITeacherAvailabilityBlockRes {
-  status: boolean;
-  message: string | null;
-  data: ITeacherAvailabilityBlock;
-}
+import { ITeacherAvailabilityBlock } from "@/interfaces/lessons/availability";
+import {
+  useCreateTeacherAvailabilityBlock,
+  useDeleteTeacherAvailabilityBlock,
+  useGetTeacherAvailabilityBlocks,
+} from "@/lib/react-query/teacher/availabilityBlocks";
 
 const TeacherAvailabilityBlocks = () => {
   const { language } = useI18n();
   const token = cookieService.getToken() || "";
-  const [blocks, setBlocks] = useState<ITeacherAvailabilityBlock[]>([]);
   const [startsAt, setStartsAt] = useState("");
   const [endsAt, setEndsAt] = useState("");
   const [reason, setReason] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
 
   const copy = language === "ar"
     ? { title: "فترات عدم التوفر", desc: "أضف فترات تمنع الحجز خلالها على جميع دروسك.", start: "البداية", end: "النهاية", reason: "السبب (اختياري)", add: "إضافة فترة", empty: "لا توجد فترات عدم توفر.", remove: "حذف", error: "تعذر تحميل فترات عدم التوفر", saved: "تمت إضافة فترة عدم التوفر", deleted: "تم حذف فترة عدم التوفر" }
     : { title: "Unavailable periods", desc: "Add periods when students must not book any of your lessons.", start: "Starts", end: "Ends", reason: "Reason (optional)", add: "Add period", empty: "No unavailable periods.", remove: "Remove", error: "Could not load unavailable periods", saved: "Unavailable period added", deleted: "Unavailable period removed" };
 
-  const loadBlocks = useCallback(async () => {
-    try {
-      const { data } = await axiosAPI.get<ITeacherAvailabilityBlocksRes>("/teacher/availability-blocks", { headers: { Authorization: `Bearer ${token}` } });
-      setBlocks(data.data ?? []);
-    } catch {
-      toast.error(copy.error);
-    } finally {
-      setLoading(false);
-    }
-  }, [token, copy.error]);
-
+  const { data, isLoading, isError } = useGetTeacherAvailabilityBlocks(token);
+  const createMutation = useCreateTeacherAvailabilityBlock();
+  const deleteMutation = useDeleteTeacherAvailabilityBlock();
+  const blocks = data?.data ?? [];
+  const saving = createMutation.isPending;
+  
   useEffect(() => {
-    void loadBlocks();
-  }, [loadBlocks]);
+    if (isError) toast.error(copy.error);
+  }, [isError, copy.error]);
 
   const addBlock = async () => {
     if (!startsAt || !endsAt) return;
-    setSaving(true);
+
     try {
-      const { data } = await axiosAPI.post<ITeacherAvailabilityBlockRes>("/teacher/availability-blocks", {
-        starts_at: new Date(startsAt).toISOString(),
-        ends_at: new Date(endsAt).toISOString(),
-        reason: reason.trim() || undefined,
-      }, { headers: { Authorization: `Bearer ${token}` } });
-      setBlocks((current) => [...current, data.data].sort((a, b) => a.starts_at.localeCompare(b.starts_at)));
+      await createMutation.mutateAsync({
+        token,
+        startsAt: new Date(startsAt).toISOString(),
+        endsAt: new Date(endsAt).toISOString(),
+        reason,
+      });
       setStartsAt("");
       setEndsAt("");
       setReason("");
       toast.success(copy.saved);
     } catch {
       toast.error(copy.error);
-    } finally {
-      setSaving(false);
     }
   };
 
   const removeBlock = async (id: number) => {
     try {
-      await axiosAPI.delete(`/teacher/availability-blocks/${id}`, { headers: { Authorization: `Bearer ${token}` } });
-      setBlocks((current) => current.filter((block) => block.id !== id));
+      await deleteMutation.mutateAsync({ token, id });
       toast.success(copy.deleted);
     } catch {
       toast.error(copy.error);
@@ -89,10 +76,10 @@ const TeacherAvailabilityBlocks = () => {
       </button>
 
       <div className="mt-6 space-y-3">
-        {loading ? <div className="flex items-center justify-center py-5"><Loader2 className="h-5 w-5 animate-spin" /></div> : blocks.length === 0 ? <p className="rounded-md border border-dashed px-4 py-5 text-sm text-muted-foreground">{copy.empty}</p> : blocks.map((block) => (
+        {isLoading ? <div className="flex items-center justify-center py-5"><Loader2 className="h-5 w-5 animate-spin" /></div> : blocks.length === 0 ? <p className="rounded-md border border-dashed px-4 py-5 text-sm text-muted-foreground">{copy.empty}</p> : blocks.map((block) => (
           <div key={block.id} className="flex flex-col gap-3 rounded-md border p-4 md:flex-row md:items-center md:justify-between">
             <div className="text-sm text-black-blue"><div className="font-semibold">{new Date(block.starts_at).toLocaleString()} → {new Date(block.ends_at).toLocaleString()}</div>{block.reason && <div className="mt-1 text-muted-foreground">{block.reason}</div>}</div>
-            <button type="button" onClick={() => void removeBlock(block.id)} aria-label={`${copy.remove}: ${block.id}`} title={copy.remove} className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-red-200 text-red-600"><Trash2 className="h-4 w-4" /></button>
+            <button type="button" onClick={() => void removeBlock(block.id)} aria-label={`${copy.remove}: ${block.id}`} title={copy.remove} disabled={deleteMutation.isPending} className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-red-200 text-red-600 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
           </div>
         ))}
       </div>

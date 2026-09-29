@@ -26,14 +26,16 @@ export const useUpdateStudentProfile = () => {
   });
 };
 
-export const useGetStudentRatings = (token: string) =>
+export const useGetStudentRatings = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.STUDENTS_RATING],
     queryFn: () => getStudentRatings(token),
+    enabled: enabled && !!token,
   });
 
-export const useGetStudentCourses = (token: string) =>
+export const useGetStudentCourses = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.COURSES],
     queryFn: () => getStudentCourses(token),
+    enabled: enabled && !!token,
   });

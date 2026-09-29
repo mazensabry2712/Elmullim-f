@@ -66,7 +66,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
   }, [conversations, searchQuery]);
 
   return (
-    <div className="col-span-1 bg-[#FFFFFF] shadow-md rounded-md relative h-[400px] overflow-hidden">
+    <div className="relative col-span-1 min-h-[360px] overflow-hidden rounded-md bg-[#FFFFFF] shadow-md md:h-[500px]">
       {/* Main View: Conversation List */}
       <div
         className={`h-full flex flex-col transform transition-transform duration-300 ease-in-out ${

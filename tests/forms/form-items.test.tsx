@@ -6,21 +6,17 @@ import SelectFormItem from "@/components/forms/formItems/SelectFormItem";
 import MultiSelectFormItem from "@/components/forms/formItems/MultiSelectFormItem";
 import { I18nProvider } from "@/i18n";
 
-const selectInput = {
-  name: "country_id",
-  label: "Country Name",
-  type: "select",
-};
+const renderWithProviders = (children: React.ReactNode) =>
+  render(<I18nProvider>{children}</I18nProvider>);
 
-const renderSelect = (language: "en" | "ar" = "en") => {
+const renderSelect = () => {
   const Wrapper = () => {
-    const form = useForm<{ country_id: string; subjects: string[] }>({
-      defaultValues: { country_id: "", subjects: [] },
+    const form = useForm<{ country_id: string }>({
+      defaultValues: { country_id: "" },
     });
 
     return (
-      <I18nProvider>
-        <Form {...form}>
+      <Form {...form}>
         <FormField
           control={form.control}
           name="country_id"
@@ -31,7 +27,11 @@ const renderSelect = (language: "en" | "ar" = "en") => {
                 { value: "eg", label: "Egypt" },
                 { value: "sa", label: "Saudi Arabia" },
               ]}
-              input={selectInput}
+              input={{
+                name: "country_id",
+                label: "Country Name",
+                type: "select",
+              }}
               label
             />
           )}
@@ -40,11 +40,7 @@ const renderSelect = (language: "en" | "ar" = "en") => {
     );
   };
 
-  return render(
-    <I18nProvider>
-      <Wrapper />
-    </I18nProvider>
-  );
+  renderWithProviders(<Wrapper />);
 };
 
 describe("form item controls", () => {
@@ -60,12 +56,12 @@ describe("form item controls", () => {
 
     fireEvent.click(screen.getByRole("combobox", { name: "Country Name" }));
 
-    const popoverContent = screen.getByPlaceholderText("Choose...");
-    expect(popoverContent.parentElement?.parentElement?.parentElement?.className.toString()).toContain(
+    const searchInput = screen.getByPlaceholderText("Choose...");
+    expect(searchInput.parentElement?.parentElement?.parentElement?.className.toString()).toContain(
       "w-[calc(100vw-2rem)]"
     );
 
-    fireEvent.change(popoverContent, { target: { value: "Egypt" } });
+    fireEvent.change(searchInput, { target: { value: "Egypt" } });
     expect(screen.getByText("Egypt")).toBeInTheDocument();
   });
 
@@ -100,7 +96,7 @@ describe("form item controls", () => {
       );
     };
 
-    render(<Wrapper />);
+    renderWithProviders(<Wrapper />);
 
     const trigger = screen.getByRole("combobox", { name: "Subjects" });
     expect(trigger).toHaveAttribute("type", "button");
@@ -111,7 +107,6 @@ describe("form item controls", () => {
     expect(searchInput).toBeInTheDocument();
 
     fireEvent.change(searchInput, { target: { value: "does-not-exist" } });
-
     expect(screen.getByText("Not found")).toBeInTheDocument();
   });
 });

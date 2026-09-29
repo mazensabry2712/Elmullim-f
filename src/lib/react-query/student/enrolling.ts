@@ -6,10 +6,11 @@ import {
 } from "@/services/student/enrolling";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetMyCourses = (token: string) =>
+export const useGetMyCourses = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.MY_COURSES],
     queryFn: () => getMyCourses(token),
+    enabled: enabled && !!token,
   });
 
 export const useEnrollFreeCourse = () => {

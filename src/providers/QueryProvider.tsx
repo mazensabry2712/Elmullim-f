@@ -11,7 +11,6 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: true,
       refetchOnReconnect: true,
       refetchOnMount: true,
-      enabled: typeof navigator !== "undefined" && navigator.onLine,
     },
   },
 });

@@ -63,6 +63,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
             }}
           >
             <button
+              type="button"
               id={input.name}
               role="combobox"
               aria-expanded={open}
@@ -80,7 +81,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
             </button>
           </PopoverTrigger>
           <PopoverContent
-            className="w-[300px] sm:w-[400px] md:w-[370px] xl:w-[420px] p-0 z-[1000] border-none"
+            className="w-[calc(100vw-2rem)] max-w-[420px] p-0 z-[1000] border-none sm:w-[min(400px,calc(100vw-2rem))] md:w-[min(370px,calc(100vw-2rem))] xl:w-[min(420px,calc(100vw-2rem))]"
             onWheel={(e) => e.stopPropagation()}
           >
             <Command className="text-black-blue">

@@ -9,7 +9,6 @@ import {
   useGetLessonAvailability,
   useGetLessonBookingOptions,
 } from "@/lib/react-query/lessons/lessons";
-import { ILessonAvailabilitySlot } from "@/interfaces/lessons/availability";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 
 interface IProps {
@@ -36,57 +35,6 @@ interface IProfileResponse {
   };
 }
 
-const isoWeekdayFromDate = (date: string) => {
-  const [year, month, day] = date.split("-").map(Number);
-  const weekday = new Date(Date.UTC(year, month - 1, day)).getUTCDay();
-  return weekday === 0 ? 7 : weekday;
-};
-
-const getTimeZoneOffsetMs = (date: Date, timeZone: string) => {
-  const parts = new Intl.DateTimeFormat("en-US", {
-    timeZone,
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-    second: "2-digit",
-    hour12: false,
-    hourCycle: "h23",
-  }).formatToParts(date);
-
-  const values = Object.fromEntries(
-    parts.filter((part) => part.type !== "literal").map((part) => [part.type, part.value])
-  );
-  const asUtc = Date.UTC(
-    Number(values.year),
-    Number(values.month) - 1,
-    Number(values.day),
-    Number(values.hour),
-    Number(values.minute),
-    Number(values.second)
-  );
-  return asUtc - date.getTime();
-};
-
-const zonedTimeToIso = (date: string, time: string, timeZone: string) => {
-  const [year, month, day] = date.split("-").map(Number);
-  const [hour, minute] = time.split(":").map(Number);
-  const naiveUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, 0));
-  const offset = getTimeZoneOffsetMs(naiveUtc, timeZone);
-  return new Date(naiveUtc.getTime() - offset).toISOString();
-};
-
-const timeToMinutes = (time: string) => {
-  const [hours, minutes] = time.split(":").map(Number);
-  return hours * 60 + minutes;
-};
-
-const getTodayInputValue = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
-};
-
 const BookLessonDialog = ({
   lessonId,
   bookingType,
@@ -109,10 +57,11 @@ const BookLessonDialog = ({
   const [selectedTime, setSelectedTime] = useState("");
   const [customerNote, setCustomerNote] = useState("");
   const { data: availability, isLoading: loadingAvailability, isError: availabilityError } = useGetLessonAvailability(lessonId);
-  const { data: bookingOptions, isLoading: loadingBookingOptions } = useGetLessonBookingOptions(
-    lessonId,
-    bookingType === "group" ? selectedDate : undefined
-  );
+  const {
+    data: bookingOptions,
+    isLoading: loadingBookingOptions,
+    isError: bookingOptionsError,
+  } = useGetLessonBookingOptions(lessonId, selectedDate);
   const { mutateAsync, isPending } = useCreateBooking();
 
   useEffect(() => {
@@ -145,39 +94,26 @@ const BookLessonDialog = ({
       .finally(() => setLoadingStudents(false));
   }, [open, role, token, language, bookingCopy.failed]);
 
-  const availableSlots = useMemo(() => availability?.data ?? [], [availability?.data]);
   const minimumDate = getTodayInputValue();
 
   const timesForDate = useMemo(() => {
-    if (!selectedDate || durationMinutes <= 0) return [];
+    if (!selectedDate || !bookingOptions?.data) return [];
 
-    if (bookingType === "group" && bookingOptions?.data) {
-      return bookingOptions.data
-        .filter((option) => option.is_available)
-        .sort((a, b) => a.requested_start_at.localeCompare(b.requested_start_at))
-        .map((option) => ({
-          value: option.requested_start_at,
-          label: `${option.local_time} (${option.timezone}) — ${option.available_seats ?? 0} ${option.available_seats === 1 ? bookingCopy.availableSeat : bookingCopy.availableSeats}`,
-        }));
-    }
+    const now = Date.now();
 
-    const weekday = isoWeekdayFromDate(selectedDate);
-    const candidates: Array<{ value: string; label: string }> = [];
-
-    availableSlots
-      .filter((slot: ILessonAvailabilitySlot) => slot.is_active && slot.day_of_week === weekday)
-      .forEach((slot) => {
-        const start = timeToMinutes(slot.start_time.slice(0, 5));
-        const end = timeToMinutes(slot.end_time.slice(0, 5));
-        for (let cursor = start; cursor + durationMinutes <= end; cursor += durationMinutes) {
-          const time = `${String(Math.floor(cursor / 60)).padStart(2, "0")}:${String(cursor % 60).padStart(2, "0")}`;
-          candidates.push({ value: `${time}|${slot.timezone}`, label: `${time} (${slot.timezone})` });
-        }
-      });
-
-    return Array.from(new Map(candidates.map((item) => [item.value, item])).values())
-      .sort((a, b) => a.value.localeCompare(b.value));
-  }, [availableSlots, bookingOptions?.data, bookingType, selectedDate, durationMinutes, bookingCopy.availableSeat, bookingCopy.availableSeats]);
+    return bookingOptions.data
+      .filter((option) => option.is_available && new Date(option.requested_start_at).getTime() > now)
+      .sort((a, b) => a.requested_start_at.localeCompare(b.requested_start_at))
+      .map((option) => ({
+        value: option.requested_start_at,
+        label:
+          bookingType === "group"
+            ? option.local_time + " (" + option.timezone + ") — " +
+              (option.available_seats ?? 0) + " " +
+              (option.available_seats === 1 ? bookingCopy.availableSeat : bookingCopy.availableSeats)
+            : option.local_time + " (" + option.timezone + ")",
+      }));
+  }, [bookingOptions?.data, bookingType, selectedDate, bookingCopy.availableSeat, bookingCopy.availableSeats]);
 
   useEffect(() => {
     if (!timesForDate.some((item) => item.value === selectedTime)) setSelectedTime("");
@@ -212,16 +148,16 @@ const BookLessonDialog = ({
       return;
     }
 
-    const selectedBookingOption =
-      bookingType === "group"
-        ? bookingOptions?.data.find((option) => option.requested_start_at === selectedTime)
-        : undefined;
+    const selectedBookingOption = bookingOptions?.data.find(
+      (option) => option.requested_start_at === selectedTime
+    );
 
-    const requestedStartAt = selectedBookingOption?.requested_start_at
-      ?? (() => {
-        const [time, timezone] = selectedTime.split("|");
-        return zonedTimeToIso(selectedDate, time, timezone);
-      })();
+    if (!selectedBookingOption?.is_available) {
+      toast.error(bookingCopy.noTimes);
+      return;
+    }
+
+    const requestedStartAt = selectedBookingOption.requested_start_at;
 
     const selectedStudent =
       role === "student"
@@ -287,12 +223,10 @@ const BookLessonDialog = ({
                 </label>
               )}
 
-              {loadingAvailability || (bookingType === "group" && !!selectedDate && loadingBookingOptions) ? (
+              {loadingAvailability && !selectedDate ? (
                 <div className="rounded-md bg-gray-100 px-3 py-3 text-gray-600" role="status">{bookingCopy.availabilityLoading}</div>
               ) : availabilityError ? (
                 <div className="rounded-md border border-red-200 bg-red-50 px-3 py-3 text-red-700" role="alert">{bookingCopy.availabilityError}</div>
-              ) : availableSlots.length === 0 ? (
-                <div className="rounded-md border border-dashed border-gray-300 px-3 py-3 text-gray-600">{bookingCopy.noTimes}</div>
               ) : (
                 <>
                   <label className="block text-sm font-medium">
@@ -301,11 +235,13 @@ const BookLessonDialog = ({
                   </label>
                   <label className="block text-sm font-medium">
                     {bookingCopy.time}
-                    <select aria-label={bookingCopy.time} disabled={!selectedDate || timesForDate.length === 0} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
+                    <select aria-label={bookingCopy.time} disabled={!selectedDate || timesForDate.length === 0 || loadingBookingOptions || bookingOptionsError} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
                       <option value="">{bookingCopy.time}</option>
                       {timesForDate.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
                     </select>
-                    {selectedDate && timesForDate.length === 0 && <p className="mt-1 text-sm text-gray-600">{bookingCopy.noTimes}</p>}
+                    {selectedDate && loadingBookingOptions && <p className="mt-1 text-sm text-gray-600">{bookingCopy.availabilityLoading}</p>}
+                    {selectedDate && bookingOptionsError && <p className="mt-1 text-sm text-red-700" role="alert">{bookingCopy.availabilityError}</p>}
+                    {selectedDate && !loadingBookingOptions && !bookingOptionsError && timesForDate.length === 0 && <p className="mt-1 text-sm text-gray-600">{bookingCopy.noTimes}</p>}
                   </label>
                 </>
               )}
@@ -332,7 +268,6 @@ const BookLessonDialog = ({
                     loadingStudents ||
                     loadingAvailability ||
                     loadingBookingOptions ||
-                    availableSlots.length === 0 ||
                     (role === "parent" && students.length === 0) ||
                     !selectedDate ||
                     !selectedTime ||

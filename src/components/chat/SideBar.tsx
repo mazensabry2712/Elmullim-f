@@ -163,12 +163,12 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
 </svg>
 
               <p className="text-[#194D80] text-lg font-sora font-bold text-center">
-                No Conversation .... Yet
+                {text.noConversations}
               </p>
             </div>
           ) : filteredConversations.length === 0 && searchQuery ? (
             <p className="text-black text-base text-center">
-              No Matching Conversations.
+              {text.noMatches}
             </p>
           ) : (
             <div className="flex flex-col gap-2">
@@ -189,7 +189,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
                         conv.participant.profile_image ||
                         "/images/profile-avatar.webp"
                       }
-                      alt="user-image"
+                      alt={conv.participant?.name || text.allChats}
                     />
                   </div>
                   <div className="flex flex-col justify-center gap-1">

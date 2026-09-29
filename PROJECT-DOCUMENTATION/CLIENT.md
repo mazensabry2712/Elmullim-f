@@ -3,7 +3,7 @@
 **Project:** Elmullim Educational Platform  
 **Document type:** Client-facing delivery and status document  
 **Scope:** Frontend + Backend + Admin Panel + Integration  
-**Last reviewed:** 2026-09-22
+**Last reviewed:** 2026-09-29
 
 ## 1. Purpose
 
@@ -310,12 +310,18 @@ Includes:
 - Responsive UI behavior.
 - Core service/type behavior.
 
-### Current frontend verification
+### Current verification
 
-- **36 test files passed.**
-- **91 tests passed in the current CI run.**
+Frontend:
+- **52 test files passed.**
+- **131 tests passed.**
 - **Lint passed.**
 - **Production build passed.**
+- **Playwright E2E: 2 tests passed.**
+
+Backend:
+- **414 tests passed.**
+- **2,059 assertions passed.**
 
 The current production build completes successfully. The remaining Browserslist/caniuse-lite message is a non-blocking maintenance warning.
 
@@ -351,9 +357,9 @@ The current production build completes successfully. The remaining Browserslist/
 
 #### Administrative / Admin Panel completion
 
-- Backend current checkout verified locally: 137 tests / 506 assertions passed.
-- Admin authorization suite verified: 12 tests / 78 assertions passed.
-- Admin Chat suite verified: 2 tests / 5 assertions passed.
+- Backend current main checkout verified locally: 414 tests / 2,059 assertions passed.
+- Chat suite verified: 14 tests / 68 assertions passed, including Admin Chat monitoring.
+- Frontend current main checkout verified locally: 52 test files / 131 tests passed, lint/build/E2E all green.
 - Verify Admin and Super Admin flows in the real browser.
 - Verify changing Admin permissions changes real access.
 - Verify direct unauthorized URLs return 403.
@@ -372,8 +378,8 @@ The current production build completes successfully. The remaining Browserslist/
 
 #### Remaining Lesson refinements
 
-- Final public Subject/Stage filter controls.
-- Dynamic available-seat display based on the selected Group time slot.
+- Final real browser verification for the supported Online/Offline and Private/Group combinations.
+- Final validation of dynamic seat availability against the target production/staging environment.
 
 #### Later academic scope
 
@@ -396,7 +402,7 @@ Implemented on the current main branches:
 - Admin Operations now includes Availability and Teacher Service Area oversight.
 - Admin Reports now provides date-ranged Booking, Session, Attendance and financial summaries.
 
-These changes still require final local test execution and real browser/API verification before production acceptance.
+Automated local verification for these refinements is now green. Real browser/API/payment verification is still required before production acceptance.
 
 ## 10. Delivery Position
 

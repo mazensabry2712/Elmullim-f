@@ -55,7 +55,7 @@ export const routes = createRoutesFromElements(
       <Route path="/lessons/:lessonId" element={<LessonDetails />} id="lesson-details" />
       <Route path="/view-quiz" element={<ProtectedRoute requiredRole="student"><ViewQuiz /></ProtectedRoute>} />
       <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} id="chat" />
-      <Route path="/bookings" element={<ProtectedRoute><Bookings /></ProtectedRoute>} id="bookings" />
+      <Route path="/bookings" element={<ProtectedRoute requiredRole={["student", "parent"]}><Bookings /></ProtectedRoute>} id="bookings" />
       <Route path="/schedule" element={<ProtectedRoute><Schedule /></ProtectedRoute>} id="schedule" />
       <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} id="notifications" />
       <Route path="/profile/teacher/bookings" element={<ProtectedRoute requiredRole="teacher"><TeacherBookings /></ProtectedRoute>} id="teacher-bookings" />

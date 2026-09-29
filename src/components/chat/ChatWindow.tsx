@@ -195,7 +195,7 @@ function ChatWindow({
           </svg>
 
           <h3 className="font-bold font-sora text-[#14B8AF] text-3xl ">
-            Ready to Chat?
+            {language === "ar" ? "جاهز للدردشة؟" : "Ready to Chat?"}
           </h3>
         </div>
       </div>

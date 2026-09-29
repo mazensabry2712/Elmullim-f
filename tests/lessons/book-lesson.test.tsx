@@ -94,6 +94,21 @@ describe("BookLessonDialog", () => {
   });
 
   it("opens, shows available times for a date, and submits the selected slot", async () => {
+    mocks.bookingOptions.mockReturnValue({
+      isLoading: false,
+      data: {
+        status: true,
+        message: null,
+        data: [{
+          slot_id: 1,
+          local_time: "18:00",
+          requested_start_at: "2099-01-10T16:00:00.000Z",
+          available_seats: null,
+          is_available: true,
+          timezone: "Africa/Cairo",
+        }],
+      },
+    });
     render(
       <BookLessonDialog
         lessonId={7}
@@ -190,6 +205,21 @@ describe("BookLessonDialog", () => {
   });
 
   it("uses the saved student location for teacher-to-student offline lessons", async () => {
+    mocks.bookingOptions.mockReturnValue({
+      isLoading: false,
+      data: {
+        status: true,
+        message: null,
+        data: [{
+          slot_id: 1,
+          local_time: "18:00",
+          requested_start_at: "2099-01-10T16:00:00.000Z",
+          available_seats: null,
+          is_available: true,
+          timezone: "Africa/Cairo",
+        }],
+      },
+    });
     render(
       <BookLessonDialog
         lessonId={9}

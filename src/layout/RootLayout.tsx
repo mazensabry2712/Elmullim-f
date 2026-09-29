@@ -2,7 +2,7 @@ import Footer from "@/components/Footer";
 import Header from "@/components/Header";
 import PageTitle from "@/components/PageTitle";
 import { useCheckAuth } from "@/lib/react-query/auth";
-import { logout } from "@/store/features/auth/authSlice";
+import { logout, syncSession } from "@/store/features/auth/authSlice";
 import { useAppDispatch } from "@/store/store";
 import cookieService from "@/utils/cookieService";
 import { useEffect } from "react";
@@ -29,17 +29,13 @@ const RootLayout = () => {
         const { data, message, status } = await checkAuth(token);
         if (cancelled) return;
 
-        if (!status) {
-          toast.error(message);
-          return;
-        }
-
-        const { auth } = data;
-
-        if (!auth) {
+        if (!status || !data?.auth) {
           dispatch(logout());
+          if (message) toast.error(message);
           return;
         }
+
+        dispatch(syncSession({ role: data.role }));
 
         if (!data["email-verified"]) {
           toast.warn("Please verify your account");

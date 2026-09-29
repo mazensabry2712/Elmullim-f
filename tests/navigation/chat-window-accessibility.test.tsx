@@ -66,7 +66,7 @@ describe("ChatWindow accessibility", () => {
     expect(optionsButton).toHaveAttribute("aria-haspopup", "menu");
     expect(optionsButton).toHaveAttribute("aria-expanded", "false");
 
-    expect(screen.getByLabelText("Attach image")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Attach image" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Type your message.....")).toBeInTheDocument();
 
     fireEvent.click(optionsButton);

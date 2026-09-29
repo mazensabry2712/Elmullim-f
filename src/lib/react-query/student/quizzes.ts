@@ -7,7 +7,7 @@ import {
   submitStudentQuiz,
 } from "@/services/student/quizzes";
 import type { IStudentQuizSubmissionAnswer } from "@/interfaces/quizzes/quizzes";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetStudentQuizzes = (token?: string) =>
   useQuery({
@@ -16,21 +16,40 @@ export const useGetStudentQuizzes = (token?: string) =>
     enabled: !!token,
   });
 
-export const useGetStudentQuiz = ({ token, quizId }: { token?: string; quizId: number }) =>
+export const useGetStudentQuiz = ({
+  token,
+  quizId,
+}: {
+  token?: string;
+  quizId: number;
+}) =>
   useQuery({
     queryKey: [QueryKeys.STUDENT_QUIZ, quizId],
     queryFn: () => getStudentQuiz({ token: token as string, quizId }),
     enabled: !!token && Number.isInteger(quizId) && quizId > 0,
   });
 
-export const useStartStudentQuiz = () =>
-  useMutation({
+export const useStartStudentQuiz = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: ({ token, quizId }: { token: string; quizId: number }) =>
       startStudentQuiz({ token, quizId }),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.STUDENT_QUIZZES],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.STUDENT_QUIZ_RESULT, variables.quizId],
+      });
+    },
   });
+};
 
-export const useSubmitStudentQuiz = () =>
-  useMutation({
+export const useSubmitStudentQuiz = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
     mutationFn: ({
       token,
       quizId,
@@ -40,7 +59,19 @@ export const useSubmitStudentQuiz = () =>
       quizId: number;
       answers: IStudentQuizSubmissionAnswer[];
     }) => submitStudentQuiz({ token, quizId, answers }),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.STUDENT_QUIZZES],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.STUDENT_QUIZ, variables.quizId],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.STUDENT_QUIZ_RESULT, variables.quizId],
+      });
+    },
   });
+};
 
 export const useGetStudentQuizResult = ({
   token,

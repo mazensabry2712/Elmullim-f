@@ -249,6 +249,7 @@ function ChatWindow({
             </div>
           )}
         </div>
+      </div>
       <hr />
       {/* chat messages */}
       <div

@@ -96,10 +96,10 @@ function ChatWindow({
   }, [conv]);
 
   const handleSend = () => {
-    if (!messageText.trim()) return;
+    if (!messageText.trim() && !imageFile) return;
 
     const message: ICreateMessage = {
-      body: messageText,
+      body: messageText.trim(),
       ...(imageFile && { image: imageFile }),
     };
 

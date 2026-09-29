@@ -19,18 +19,18 @@ import {
 
 export const bookingKeys = {
   all: ["bookings"] as const,
-  mine: (token: string) => ["bookings", "mine", token] as const,
-  teacher: (token: string) => ["bookings", "teacher", token] as const,
+  mine: () => ["bookings", "mine"] as const,
+  teacher: () => ["bookings", "teacher"] as const,
   detail: (bookingId?: number) => ["booking", bookingId] as const,
-  schedule: (token: string) => ["schedule", "mine", token] as const,
-  teacherSchedule: (token: string) => ["schedule", "teacher", token] as const,
+  schedule: () => ["schedule", "mine"] as const,
+  teacherSchedule: () => ["schedule", "teacher"] as const,
 };
 
 const invalidateBookingViews = (queryClient: ReturnType<typeof useQueryClient>, token: string, bookingId?: number) => {
-  queryClient.invalidateQueries({ queryKey: bookingKeys.mine(token) });
+  queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
   queryClient.invalidateQueries({ queryKey: bookingKeys.detail(bookingId) });
-  queryClient.invalidateQueries({ queryKey: bookingKeys.schedule(token) });
-  queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule(token) });
+  queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
+  queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
 };
 
 export const useCreateBooking = () => {
@@ -51,7 +51,7 @@ export const useGetBookings = ({ token, page = 1, enabled = true }: { token: str
 
 export const useGetTeacherBookings = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
   useQuery({
-    queryKey: [...bookingKeys.teacher(token), page],
+    queryKey: [...bookingKeys.teacher(), page],
     queryFn: () => getTeacherBookings({ token, page }),
     enabled: enabled && !!token,
     placeholderData: (previous) => previous,

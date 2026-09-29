@@ -28,6 +28,19 @@ export const formatDate = (
   }).format(date);
 };
 
+export const formatWeekday = (
+  value: string | Date,
+  language: AppLanguage = "en"
+) => {
+  const date = parseDate(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat(localeFor(language), {
+    weekday: "short",
+  }).format(date);
+};
+
 export const formatDateTime = (
   value: string | Date,
   language: AppLanguage = "en"

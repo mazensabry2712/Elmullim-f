@@ -75,9 +75,10 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
 
   // State and hook for searching new users
   const [userSearchQuery, setUserSearchQuery] = useState("");
+  const debouncedUserSearch = useDebounce(userSearchQuery, 400) ?? "";
   const { data: users, isLoading: isLoadingUsers } = useGetUserSearch(
     token,
-    userSearchQuery
+    debouncedUserSearch
   );
 
   const handleUserSelect = (user: IUserSearch) => {

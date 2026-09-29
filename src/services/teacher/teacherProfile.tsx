@@ -33,8 +33,7 @@ export const updateTeacherProfile = async ({
     formData.append("profile_image", dataForm.profile_image);
   if (dataForm.cv) formData.append("cv", dataForm.cv);
 
-  if (dataForm.description)
-    formData.append("description", dataForm.description);
+  formData.append("description", dataForm.description ?? "");
 
   if (dataForm.subjects)
     dataForm.subjects.map((subject, idx) =>

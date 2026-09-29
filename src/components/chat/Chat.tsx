@@ -112,7 +112,7 @@ const Chat = () => {
     <div
       ref={chatRootRef}
       dir={language === "ar" ? "rtl" : "ltr"}
-      className="grid grid-cols-1 md:grid-cols-3 gap-10 bg-white rounded-lg py-10 px-10"
+      className="grid min-w-0 grid-cols-1 gap-4 rounded-lg bg-white px-3 py-6 sm:gap-6 sm:px-6 sm:py-8 md:grid-cols-3 md:gap-8 md:px-8 md:py-10"
     >
       <SideBar setSelectedConversationId={setSelectedConversationId} />
       <ChatWindow conversationId={selectedConversationId} onClose={handleCloseChat} />

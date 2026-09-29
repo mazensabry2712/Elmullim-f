@@ -1,6 +1,6 @@
 # Elmullim — Roadmap Status Snapshot
 
-**Last reviewed:** 2026-09-28
+**Last reviewed:** 2026-09-29
 
 This snapshot reflects the current implementation status across the platform.
 
@@ -172,14 +172,16 @@ Remaining:
 
 ## Verification
 
-Latest observed automated frontend CI on 2026-09-28:
-- Unit/component test suite passed.
-- Lint passed.
-- Production build passed.
+Latest local automated verification on 2026-09-29:
+- Frontend: 52 test files / 131 tests passed.
+- Frontend lint passed.
+- Frontend production build passed.
+- Frontend Playwright E2E: 2 tests passed.
+- Backend: 414 tests / 2059 assertions passed.
 
-The frontend E2E test is implemented against the real booking/availability flow. CI runs it only when a dedicated staging/test API is supplied through repository secrets; production is intentionally not used for destructive booking tests.
+The frontend Playwright E2E suite is implemented against the booking/availability flow. CI keeps destructive booking tests isolated from production unless a dedicated staging/test API is configured.
 
-Backend full-suite verification for the current performance-hardening commits is tracked through the Backend CI run on main.
+The latest local verification is green; GitHub commit status for the current main commits did not expose completed workflow statuses through the connected GitHub API at review time.
 
 Separate release gates:
 - Real API/browser verification for Student, Parent and Teacher.

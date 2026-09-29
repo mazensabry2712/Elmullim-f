@@ -29,53 +29,17 @@ const Header = () => {
         className="container relative z-50 lg:px-4 xl:px-8 2xl:px-12"
       >
         <div className="relative z-50 px-2 pt-1 sm:px-4 md:pt-0 md:space-y-2">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={navItemsVariants}
-            className="hidden md:flex md:pt-2 gap-4 lg:gap-6 mx-auto w-fit max-w-full flex-wrap justify-center"
-          >
-            <motion.div
-              variants={navItemsVariants}
-              className="flex items-center gap-2"
-            >
-              <img
-                src="/icons/phone-icon.svg"
-                alt={text.phone}
-                className="h-5 w-5"
-              />
-              <p className="text-[15px]">(966) 55-675-4697</p>
+,
+                  alt: text.address,
+                  value: import.meta.env.VITE_CONTACT_ADDRESS as string | undefined,
+                },
+              ]
+                .filter((item) => item.value?.trim())
+                .map((item) => (
+                  <motion.div key={item.alt} variants={navItemsVariants} className="flex items-center gap-2">
+                    <img src={item.icon} alt={item.alt} className="h-5 w-5" />
+                    <p className="text-[15px] break-all">{item.value}</p>
+                  </motion.div>
+                ))}
             </motion.div>
-            <motion.div
-              variants={navItemsVariants}
-              className="flex items-center gap-2"
-            >
-              <img
-                src="/icons/email-icon.svg"
-                alt={text.email}
-                className="h-5 w-5"
-              />
-              <p className="text-[15px]">test@gmail.com</p>
-            </motion.div>
-            <motion.div
-              variants={navItemsVariants}
-              className="flex items-center gap-2"
-            >
-              <img
-                src="/icons/address-icon.svg"
-                alt={text.address}
-                className="h-5 w-5"
-              />
-              <p className="text-[15px]">Hudson, Wisconsin(WI), 54016</p>
-            </motion.div>
-          </motion.div>
-          <div className="relative z-50 rounded-lg bg-white shadow-[0px_0px_50px_0px_hsla(210,67%,16%,0.1)] overflow-visible">
-            <Navbar />
-          </div>
-        </div>
-      </motion.header>
-    </div>
-  );
-};
-
-export default Header;
+          )}

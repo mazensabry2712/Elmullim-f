@@ -11,8 +11,8 @@ const QueryProvider = lazy(() => import("./QueryProvider"));
 const Providers = () => {
   return (
     <I18nProvider>
-      <QueryProvider>
-        <Provider store={store}>
+      <Provider store={store}>
+        <QueryProvider>
           <MaintenanceGate>
             <RouterProvider router={router} />
           </MaintenanceGate>
@@ -26,8 +26,8 @@ const Providers = () => {
             theme="light"
             transition={Bounce}
           />
-        </Provider>
-      </QueryProvider>
+        </QueryProvider>
+      </Provider>
     </I18nProvider>
   );
 };

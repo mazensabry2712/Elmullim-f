@@ -132,9 +132,9 @@ const StudentSignUpForm = () => {
                 form={form}
                 schema={studentSignUpSchema}
                 options={{
-                  countries: countriesOptions!,
-                  educationSystems: educationSystemsOptions!,
-                  educationLevels: educationLevelsOptions!,
+                  countries: countriesOptions ?? [],
+                  educationSystems: educationSystemsOptions ?? [],
+                  educationLevels: educationLevelsOptions ?? [],
                 }}
               />
             ))}

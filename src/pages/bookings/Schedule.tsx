@@ -147,7 +147,11 @@ const Schedule = () => {
         )}
 
         <div className="space-y-5">
-          {data.map((session) => (
+          {data.map((session) => {
+            const bookings = session.bookings ?? [];
+            const attendances = session.attendances ?? [];
+
+            return (
             <article key={session.id} className="rounded-xl border border-gray-200 bg-[#F0F1F1] p-5 shadow-sm">
               <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -158,14 +162,14 @@ const Schedule = () => {
                   <p className="mt-2 font-sora text-sm text-[#4D5756]">
                     {formatDateTime(session.start_at, language)} → {new Date(session.end_at).toLocaleTimeString(language === "ar" ? "ar-EG" : "en-EG", { hour: "2-digit", minute: "2-digit" })}
                   </p>
-                  {session.bookings?.length > 0 && (
+                  {bookings.length > 0 && (
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">
-                      {copy.students}: {session.bookings.map((item) => item.student?.name ?? `#${item.student_id}`).join(", ")}
+                      {copy.students}: {bookings.map((item) => item.student?.name ?? `#${item.student_id}`).join(", ")}
                     </p>
                   )}
-                  {!isTeacher && session.attendances?.length > 0 && (
+                  {!isTeacher && attendances.length > 0 && (
                     <p className="mt-2 font-sora text-sm text-[#4D5756]">
-                      {copy.attendance}: {session.attendances.map((item) => `${item.student?.name ?? `#${item.student_id}`}: ${copy[item.status === "no_show" ? "noShow" : item.status]}`).join(", ")}
+                      {copy.attendance}: {attendances.map((item) => `${item.student?.name ?? `#${item.student_id}`}: ${copy[item.status === "no_show" ? "noShow" : item.status]}`).join(", ")}
                     </p>
                   )}
                 </div>
@@ -195,12 +199,12 @@ const Schedule = () => {
                 </div>
               )}
 
-              {isTeacher && session.bookings?.length && (
+              {isTeacher && bookings.length > 0 && (
                 <div className="mt-5 rounded-lg border border-gray-200 bg-white p-4">
                   <h3 className="mb-3 text-sm font-bold text-black-blue">{copy.attendance}</h3>
                   <div className="space-y-3">
-                    {session.bookings.map((booking) => {
-                      const record = session.attendances?.find((item) => item.booking_id === booking.id);
+                    {bookings.map((booking) => {
+                      const record = attendances.find((item) => item.booking_id === booking.id);
                       const studentName = booking.student?.name ?? `#${booking.student_id}`;
                       return (
                         <div key={booking.id} className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
@@ -234,7 +238,7 @@ const Schedule = () => {
               )}
 
               <div className="mt-5 flex flex-wrap gap-2">
-                {!isTeacher && session.bookings?.map((booking) => (
+                {!isTeacher && bookings.map((booking) => (
                   <button
                     key={booking.id}
                     type="button"
@@ -275,7 +279,8 @@ const Schedule = () => {
                 )}
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
 
         {pagination && pagination.last_page > 1 && (

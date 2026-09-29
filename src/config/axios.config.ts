@@ -3,9 +3,17 @@ import axios from "axios";
 import { store } from "@/store/store";
 import { toast } from "react-toastify";
 
+const configuredApiUrl = String(import.meta.env.VITE_API || "").trim();
 const apiBaseUrl =
-  import.meta.env.VITE_API ||
-  (import.meta.env.DEV ? "http://Elmullim-b.test" : "https://api.elmullim.com");
+  configuredApiUrl ||
+  (import.meta.env.DEV
+    ? "http://Elmullim-b.test"
+    : "https://api.elmullim.com");
+
+const normalizedApiBaseUrl = apiBaseUrl.replace(/\/$/, "");
+const apiRoot = normalizedApiBaseUrl.endsWith("/api")
+  ? normalizedApiBaseUrl
+  : `${normalizedApiBaseUrl}/api`;
 
 const getLanguage = (): "en" | "ar" =>
   localStorage.getItem("elmullim-language") === "ar" ? "ar" : "en";
@@ -13,7 +21,7 @@ const getLanguage = (): "en" | "ar" =>
 const MAINTENANCE_EVENT = "elmullim:maintenance";
 
 const axiosAPI = axios.create({
-  baseURL: `${apiBaseUrl.replace(/\/$/, "")}/api`,
+  baseURL: apiRoot,
   headers: {
     Accept: "application/json",
   },

@@ -21,7 +21,7 @@ vi.mock("@/lib/react-query/courses/courses", () => ({
 }));
 
 vi.mock("@/utils/cookieService", () => ({
-  default: { getToken: () => null },
+  default: { getToken: () => null, getRole: () => undefined },
 }));
 
 const LanguageToggle = () => {

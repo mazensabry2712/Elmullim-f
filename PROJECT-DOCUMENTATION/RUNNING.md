@@ -103,7 +103,7 @@ $env:E2E_STUDENT_PASSWORD="Student@12345"
 npm run test:e2e
 ```
 
-الـ E2E لا يستخدم Production API. في CI يجب توفير `E2E_API_BASE_URL` وبيانات حساب اختبار مخصص من Repository Secrets.
+الـ E2E لا يستخدم Production API. محليًا يستخدم booking E2E افتراضيًا `http://Elmullim-b.test`. في CI يعمل اختبار الـhome/smoke دائمًا، بينما يتخطى booking E2E فقط عند غياب `E2E_API_BASE_URL`. لتفعيل booking E2E في CI يجب توفير `E2E_API_BASE_URL` وبيانات حساب اختبار مخصص من Repository Secrets.
 
 ### Backend
 

@@ -65,7 +65,12 @@ test("student can create and cancel a booking through the real API", async ({ pa
     const lessonsBody = await lessonsResponse.json();
     const lessons = Array.isArray(lessonsBody.data) ? lessonsBody.data : [];
     const bookableLessons = lessons.filter(
-      (item: { id: number; booking_type?: string; publishing_status?: string }) =>
+      (item: {
+        id: number;
+        booking_type?: string;
+        publishing_status?: string;
+        delivery_mode?: string;
+      }) =>
         (item.booking_type === "private" || item.booking_type === "group") &&
         item.publishing_status === "published"
     );
@@ -105,7 +110,8 @@ test("student can create and cancel a booking through the real API", async ({ pa
     }
 
     const candidateLessons = bookableLessons.filter(
-      (lesson: { id: number }) => !activeLessonIds.has(lesson.id)
+      (lesson: { id: number; delivery_mode?: string }) =>
+        lesson.delivery_mode === "online" && !activeLessonIds.has(lesson.id)
     );
 
     expect(candidateLessons.length).toBeGreaterThan(

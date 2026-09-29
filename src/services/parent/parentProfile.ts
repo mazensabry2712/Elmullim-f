@@ -28,8 +28,7 @@ export const updateParentProfile = async ({
 
   if (dataForm.profile_image)
     formData.append("profile_image", dataForm.profile_image);
-  if (dataForm.description)
-    formData.append("description", dataForm.description);
+  formData.append("description", dataForm.description ?? "");
   if (dataForm.students) {
     dataForm.students.map((student, idx) =>
       formData.append(`students[${idx}]`, student)

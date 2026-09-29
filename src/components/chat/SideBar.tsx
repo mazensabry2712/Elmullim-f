@@ -106,7 +106,6 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
     <div className="relative col-span-1 min-h-[360px] overflow-hidden rounded-md bg-[#FFFFFF] shadow-md md:h-[500px]">
       {/* Main View: Conversation List */}
       <div
-        aria-label={text.newChat}
         className={`h-full flex flex-col transform transition-transform duration-300 ease-in-out ${
           isAddingChat ? (language === "ar" ? "translate-x-full" : "-translate-x-full") : "translate-x-0"
         }`}
@@ -207,6 +206,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
 
       {/* Add New Chat View */}
       <div
+        aria-label={text.newChat}
         className={`absolute top-0 left-0 w-full h-full bg-white flex flex-col transform transition-transform duration-300 ease-in-out ${
           isAddingChat ? "translate-x-0" : language === "ar" ? "-translate-x-full" : "translate-x-full"
         }`}

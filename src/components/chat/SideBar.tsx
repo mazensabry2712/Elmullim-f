@@ -210,6 +210,34 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
             </div>
           )}
         </div>
+        {pagination && pagination.last_page > 1 && (
+          <div
+            className="flex items-center justify-between gap-2 border-t border-gray-100 px-3 py-3"
+            aria-label={text.allChats}
+          >
+            <button
+              type="button"
+              onClick={() => setConversationPage((page) => Math.max(1, page - 1))}
+              disabled={conversationPage <= 1 || isPaginating}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 bg-white text-black-blue disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label={text.previousConversations}
+            >
+              <ChevronLeft size={16} aria-hidden="true" />
+            </button>
+            <span className="font-sora text-xs text-gray-500" aria-live="polite">
+              {pagination.current_page} / {pagination.last_page}
+            </span>
+            <button
+              type="button"
+              onClick={() => setConversationPage((page) => Math.min(pagination.last_page, page + 1))}
+              disabled={!pagination.has_more_pages || isPaginating}
+              className="inline-flex h-9 w-9 items-center justify-center rounded-md border border-gray-200 bg-white text-black-blue disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label={text.nextConversations}
+            >
+              <ChevronRight size={16} aria-hidden="true" />
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Add New Chat View */}

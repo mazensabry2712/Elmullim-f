@@ -70,9 +70,17 @@ const BookLessonDialog = ({
 
     if (role === "student" && studentProfileQuery.data?.data) {
       const profile = studentProfileQuery.data.data;
-      setStudentId(profile.id ?? null);
+
+      if (typeof profile.id !== "number") {
+        setStudentId(null);
+        setSelfStudent(null);
+        setStudents([]);
+        return;
+      }
+
+      setStudentId(profile.id);
       setSelfStudent({
-        id: profile.id ?? 0,
+        id: profile.id,
         name: profile.name ?? "",
         address: profile.address ?? null,
         latitude: profile.latitude ?? null,
@@ -83,7 +91,21 @@ const BookLessonDialog = ({
     }
 
     if (role === "parent" && parentProfileQuery.data?.data) {
-      const linkedStudents = parentProfileQuery.data.data.students ?? [];
+      const linkedStudents = (parentProfileQuery.data.data.students ?? []).flatMap(
+        (student) =>
+          typeof student.id === "number"
+            ? [
+                {
+                  id: student.id,
+                  name: student.name ?? "",
+                  address: student.address ?? null,
+                  latitude: student.latitude ?? null,
+                  longitude: student.longitude ?? null,
+                },
+              ]
+            : []
+      );
+
       setStudents(linkedStudents);
       setStudentId(linkedStudents[0]?.id ?? null);
       setSelfStudent(null);

@@ -27,13 +27,19 @@ const ProfileDropdownMenu = () => {
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={() => setIsOpen((prev) => !prev)}>
-      <PopoverTrigger>
-        <Avatar>
+    <Popover open={isOpen} onOpenChange={setIsOpen}>
+      <PopoverTrigger asChild>
+        <button
+          type="button"
+          aria-label={ar ? "الملف الشخصي" : "Profile"}
+          className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+        >
+          <Avatar>
           <AvatarFallback className="bg-[#F2F2F2] text-black-blue text-2xl flex justify-center items-center border border-muted">
             <i className="fi fi-sr-user text-black-blue text-2xl flex justify-center items-center" />
           </AvatarFallback>
-        </Avatar>
+          </Avatar>
+        </button>
       </PopoverTrigger>
       <PopoverContent className="p-2 max-w-fit min-w-52">
         <div className="space-y-1">

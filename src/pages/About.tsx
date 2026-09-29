@@ -30,7 +30,7 @@ const About = () => {
       >
         <h1
           id="about-page-title"
-          className="uppercase text-4xl md:text-6xl font-bold leading-[74px]"
+          className="text-4xl font-bold leading-tight uppercase md:text-6xl md:leading-[74px]"
         >
           {t("about.hero.title")}
         </h1>

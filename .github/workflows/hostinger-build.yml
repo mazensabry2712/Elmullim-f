@@ -28,6 +28,9 @@ jobs:
         run: npm ci
 
       - name: Build production bundle
+        env:
+          VITE_API: https://api.elmullim.com
+          VITE_ENV: production
         run: npm run build
 
       - name: Prepare static deployment

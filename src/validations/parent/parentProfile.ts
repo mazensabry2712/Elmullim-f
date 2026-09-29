@@ -1,4 +1,4 @@
-import { ACCEPTED_IMAGE_TYPES } from "@/utils/file";
+import { ACCEPTED_IMAGE_TYPES, MAX_IMAGE_SIZE } from "@/utils/file";
 import { z } from "zod";
 
 const validationMessage = (english: string, arabic: string) => {
@@ -87,6 +87,12 @@ export const updateParentProfileSchema = z.object({
         message: validationMessage(
           "The type must be a image type",
           "يجب أن يكون الملف من نوع صورة"
+        ),
+      })
+      .refine((file) => file.size <= MAX_IMAGE_SIZE, {
+        message: validationMessage(
+          "The max file size is 5MB",
+          "الحد الأقصى لحجم الصورة هو 5 ميجابايت"
         ),
       })
       .refine((file) => ACCEPTED_IMAGE_TYPES.includes(file.type), {

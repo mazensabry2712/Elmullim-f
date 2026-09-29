@@ -26,6 +26,17 @@ const isoWeekday = (dateString: string) => {
   return day === 0 ? 7 : day;
 };
 
+const activeBookingStatuses = [
+  "booking_requested",
+  "pending_teacher_approval",
+  "accepted",
+  "confirmed",
+  "upcoming",
+  "in_progress",
+  "rescheduled",
+];
+
+
 test.skip(
   !apiBaseURL,
   "Configure E2E_API_BASE_URL to run the real booking E2E against a dedicated test/staging API."
@@ -61,6 +72,47 @@ test("student can create and cancel a booking through the real API", async ({ pa
 
     expect(bookableLessons.length).toBeGreaterThan(0);
 
+    const activeLessonIds = new Set<number>();
+    for (const status of activeBookingStatuses) {
+      let page = 1;
+
+      while (true) {
+        const bookingsResponse = await api.get("/api/bookings", {
+          headers: { Authorization: "Bearer " + token },
+          params: { status, page },
+        });
+
+        if (!bookingsResponse.ok()) {
+          break;
+        }
+
+        const bookingsBody = await bookingsResponse.json();
+        const pageBookings = Array.isArray(bookingsBody.data) ? bookingsBody.data : [];
+
+        for (const booking of pageBookings) {
+          if (typeof booking.lesson_id === "number") {
+            activeLessonIds.add(booking.lesson_id);
+          }
+        }
+
+        const meta = bookingsBody.meta;
+        if (!meta || page >= Number(meta.last_page ?? page)) {
+          break;
+        }
+
+        page += 1;
+      }
+    }
+
+    const candidateLessons = bookableLessons.filter(
+      (lesson: { id: number }) => !activeLessonIds.has(lesson.id)
+    );
+
+    expect(candidateLessons.length).toBeGreaterThan(
+      0,
+      "No published bookable lesson is available without an existing active booking for the E2E student."
+    );
+
     let candidate: {
       lesson: { id: number; booking_type: "private" | "group" };
       date: string;
@@ -72,7 +124,7 @@ test("student can create and cancel a booking through the real API", async ({ pa
       };
     } | null = null;
 
-    for (const lesson of bookableLessons) {
+    for (const lesson of candidateLessons) {
       const availabilityResponse = await api.get(
         "/api/lessons/" + lesson.id + "/availability"
       );
@@ -130,21 +182,6 @@ test("student can create and cancel a booking through the real API", async ({ pa
 
     expect(candidate).not.toBeNull();
 
-    const bookingsResponse = await api.get("/api/bookings", {
-      headers: { Authorization: "Bearer " + token },
-      params: { per_page: 100 },
-    });
-    expect(bookingsResponse.ok()).toBeTruthy();
-
-    const bookingsBody = await bookingsResponse.json();
-    const existingExactBooking = (Array.isArray(bookingsBody.data) ? bookingsBody.data : []).find(
-      (booking: { lesson_id: number; requested_start_at?: string }) =>
-        booking.lesson_id === candidate!.lesson.id &&
-        booking.requested_start_at === candidate!.option.requested_start_at
-    );
-
-    expect(existingExactBooking).toBeFalsy();
-
     await page.context().addCookies([
       {
         name: "t_n",
@@ -193,7 +230,13 @@ test("student can create and cancel a booking through the real API", async ({ pa
     await page.getByRole("button", { name: /Submit booking/i }).click();
 
     const bookingResponse = await bookingResponsePromise;
-    expect(bookingResponse.ok()).toBeTruthy();
+
+    if (!bookingResponse.ok()) {
+      const errorBody = await bookingResponse.text();
+      throw new Error(
+        "Booking API returned HTTP " + bookingResponse.status() + ": " + errorBody
+      );
+    }
 
     const bookingBody = await bookingResponse.json();
     expect(bookingBody.status).toBe(true);

@@ -1,6 +1,7 @@
 import { Bell, Check, Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
+import { formatDateTime } from "@/utils/dateTime";
 import cookieService from "@/utils/cookieService";
 import {
   useGetNotifications,
@@ -121,7 +122,7 @@ const Notifications = () => {
                     </div>
                     <p className="mt-2 font-sora text-sm text-[#4D5756]">{body}</p>
                     <p className="mt-2 text-xs text-gray-400">
-                      {new Date(notification.created_at).toLocaleString()}
+                      {formatDateTime(notification.created_at, language)}
                     </p>
                   </div>
                   {!notification.read_at && (

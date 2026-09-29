@@ -11,7 +11,6 @@ export const ACCEPTED_CV_TYPES = [
   "application/pdf", // pdf
   "application/msword", // .doc
   "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // .docx
-  "text/plain", // .txt
 ];
 
 export const isValidFileType = (file: File, acceptedTypes: string[]): boolean =>

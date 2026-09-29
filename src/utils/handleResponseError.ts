@@ -1,22 +1,40 @@
+import axios from "axios";
 import { toast } from "react-toastify";
-import Swal from "sweetalert2";
 
-const handleResError = (error: any) => {
-  if (error?.response?.data.errors) {
-    Object.keys(error.response.data.errors).forEach((key) => {
-      error?.response?.data.errors[key].forEach((error: string) =>
-        toast.error(error, {
-          autoClose: 5000,
-        })
-      );
-    });
+interface IApiErrorResponse {
+  message?: string | null;
+  errors?: Record<string, string | string[]>;
+}
+
+const handleResError = (error: unknown) => {
+  if (!axios.isAxiosError<IApiErrorResponse>(error)) {
+    return;
   }
-  if (error?.response?.data.message && !error?.response?.data.errors) {
-    Swal.fire({
-      icon: "error",
-      title: "Oops...",
-      text: error?.response?.data.message,
+
+  const data = error.response?.data;
+
+  if (!data) {
+    return;
+  }
+
+  if (data.errors) {
+    Object.values(data.errors).forEach((messages) => {
+      const normalizedMessages = Array.isArray(messages)
+        ? messages
+        : [messages];
+
+      normalizedMessages.forEach((message) => {
+        if (message) {
+          toast.error(message, { autoClose: 5000 });
+        }
+      });
     });
+
+    return;
+  }
+
+  if (data.message) {
+    toast.error(data.message, { autoClose: 5000 });
   }
 };
 

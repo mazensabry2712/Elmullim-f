@@ -4,10 +4,12 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
 interface IAuthState {
   isAuthenticated: boolean;
+  role: TRole | null;
 }
 
 const initialState: IAuthState = {
   isAuthenticated: !!cookieService.getToken(),
+  role: cookieService.getRole() ?? null,
 };
 
 const authSlice = createSlice({
@@ -22,17 +24,25 @@ const authSlice = createSlice({
       }>
     ) => {
       state.isAuthenticated = true;
+      state.role = action.payload.role;
       // Set the token and role in cookies
       cookieService.setToken(action.payload.token, 3);
       cookieService.setRole(action.payload.role, 3);
     },
 
+    syncSession: (state, action: PayloadAction<{ role: TRole }>) => {
+      state.isAuthenticated = true;
+      state.role = action.payload.role;
+      cookieService.setRole(action.payload.role, 3);
+    },
+
     logout: (state) => {
       state.isAuthenticated = false;
+      state.role = null;
       cookieService.clearAllCookies();
     },
   },
 });
 
-export const { login, logout } = authSlice.actions;
+export const { login, syncSession, logout } = authSlice.actions;
 export default authSlice.reducer;

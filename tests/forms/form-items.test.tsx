@@ -60,12 +60,10 @@ describe("form item controls", () => {
 
     fireEvent.click(screen.getByRole("combobox", { name: "Country Name" }));
 
-    const popover = document.querySelector("[data-radix-popper-content-wrapper]");
-    expect(popover).not.toBeNull();
-    expect(popover?.querySelector('[role="dialog"]')).not.toBeNull();
-    expect(
-      popover?.firstElementChild?.className.toString()
-    ).toContain("w-[calc(100vw-2rem)]");
+    const popoverContent = screen.getByPlaceholderText("Choose...");
+    expect(popoverContent.parentElement?.parentElement?.parentElement?.className.toString()).toContain(
+      "w-[calc(100vw-2rem)]"
+    );
   });
 
   it("keeps multiselect trigger safe and localizes its search copy", () => {
@@ -106,7 +104,11 @@ describe("form item controls", () => {
 
     fireEvent.click(trigger);
 
-    expect(screen.getByPlaceholderText("Choose...")).toBeInTheDocument();
+    const searchInput = screen.getByPlaceholderText("Choose...");
+    expect(searchInput).toBeInTheDocument();
+
+    fireEvent.change(searchInput, { target: { value: "does-not-exist" } });
+
     expect(screen.getByText("Not found")).toBeInTheDocument();
   });
 });

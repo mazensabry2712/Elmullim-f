@@ -3,6 +3,7 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import { toast } from "react-toastify";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
+import { formatDateTime } from "@/utils/dateTime";
 import {
   useCreateTeacherAvailabilityBlock,
   useDeleteTeacherAvailabilityBlock,
@@ -77,7 +78,7 @@ const TeacherAvailabilityBlocks = () => {
       <div className="mt-6 space-y-3">
         {isLoading ? <div className="flex items-center justify-center py-5"><Loader2 className="h-5 w-5 animate-spin" /></div> : blocks.length === 0 ? <p className="rounded-md border border-dashed px-4 py-5 text-sm text-muted-foreground">{copy.empty}</p> : blocks.map((block) => (
           <div key={block.id} className="flex flex-col gap-3 rounded-md border p-4 md:flex-row md:items-center md:justify-between">
-            <div className="text-sm text-black-blue"><div className="font-semibold">{new Date(block.starts_at).toLocaleString()} → {new Date(block.ends_at).toLocaleString()}</div>{block.reason && <div className="mt-1 text-muted-foreground">{block.reason}</div>}</div>
+            <div className="text-sm text-black-blue"><div className="font-semibold">{formatDateTime(block.starts_at, language)} → {formatDateTime(block.ends_at, language)}</div>{block.reason && <div className="mt-1 text-muted-foreground">{block.reason}</div>}</div>
             <button type="button" onClick={() => void removeBlock(block.id)} aria-label={`${copy.remove}: ${block.id}`} title={copy.remove} disabled={deleteMutation.isPending} className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-red-200 text-red-600 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
           </div>
         ))}

@@ -9,23 +9,26 @@ import {
 import { ICreateLesson, IUpdateLesson } from "@/interfaces/teachers/teacherLessons";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetTeacherLessons = (token: string) =>
+export const useGetTeacherLessons = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_LESSONS],
     queryFn: () => getTeacherLessons(token),
+    enabled: enabled && !!token,
   });
 
 export const useGetTeacherLessonById = ({
   token,
   id,
+  enabled = true,
 }: {
   token: string;
   id: string;
+  enabled?: boolean;
 }) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_LESSON, id],
     queryFn: () => getTeacherLessonById({ token, id }),
-    enabled: !!id,
+    enabled: enabled && !!id && !!token,
   });
 
 export const useCreateTeacherLesson = () => {

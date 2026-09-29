@@ -1,4 +1,5 @@
 export const MAX_IMAGE_SIZE = 5000000; // 5MB
+export const MAX_CV_SIZE = 10000000; // 10MB
 
 export const ACCEPTED_IMAGE_TYPES = [
   "image/jpeg",

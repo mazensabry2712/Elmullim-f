@@ -6,6 +6,8 @@ import {
   useGetConversationById,
 } from "@/lib/react-query/chat/chat";
 import cookieService from "@/utils/cookieService";
+import { useI18n } from "@/i18n";
+import { formatTime } from "@/utils/dateTime";
 import { MoreVertical, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
@@ -20,6 +22,7 @@ function ChatWindow({
   const [messageText, setMessageText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { language } = useI18n();
 
   const { mutate: sendMessage, isPending: isSending } = useCreateMessage();
   const { mutate: deleteConversation } = useDeleteConversation();
@@ -68,12 +71,12 @@ function ChatWindow({
 
       echo
         .private(channelName)
-        .listen("ConversationEvent", (data: any) => {
-          if (data.conversation_id === conversationId) {
-            refetchConversation();
+        .listen("ConversationEvent", (data: { conversation_id?: string | number }) => {
+          if (String(data.conversation_id) === String(conversationId)) {
+            void refetchConversation();
           }
         })
-        .error((error: any) => {
+        .error((error: unknown) => {
           console.error("Pusher channel error:", error);
         });
     };
@@ -202,7 +205,7 @@ function ChatWindow({
     );
 
   return (
-    <div className="relative col-span-1 min-w-0 rounded-md bg-white shadow-md md:col-span-2">
+    <div className="relative col-span-1 flex min-h-[520px] min-w-0 flex-col rounded-md bg-white shadow-md md:col-span-2">
       {/* chat header */}
       <div className="flex min-w-0 flex-row items-center justify-between gap-3 px-3 py-4 sm:px-6 md:px-8">
         <div className="flex flex-row items-center gap-4">
@@ -251,7 +254,7 @@ function ChatWindow({
       {/* chat messages */}
       <div
         ref={messagesContainerRef}
-        className="flex min-h-[280px] w-full flex-1 flex-col overflow-y-auto px-3 py-4 sm:px-6 md:px-10 md:py-5"
+        className="min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-6 md:px-10 md:py-5"
       >
         {allMessages.map((msg, index) => (
           <div
@@ -287,11 +290,7 @@ function ChatWindow({
               </div>
               <div className="flex justify-end items-center gap-2">
                 <span>
-                  {new Date(msg.created_at).toLocaleTimeString([], {
-                    hour: "numeric",
-                    minute: "2-digit",
-                    hour12: true,
-                  })}
+{formatTime(msg.created_at, language)}
                 </span>
               </div>
             </div>
@@ -299,9 +298,9 @@ function ChatWindow({
         ))}
       </div>
       {/* send */}
-      <div className="flex justify-center items-center gap-4 absolute bottom-5 left-1/2 transform -translate-x-1/2">
+      <div className="flex w-full shrink-0 flex-wrap items-center justify-center gap-2 border-t border-gray-100 px-3 py-3 sm:gap-3 sm:px-6">
         <div
-          className="border border-main p-2 cursor-pointer rounded-lg"
+          className="order-2 shrink-0 border border-main p-2 cursor-pointer rounded-lg sm:order-none"
           onClick={() => document.getElementById("hiddenFileInput")?.click()}
         >
           <svg
@@ -344,9 +343,10 @@ function ChatWindow({
           onKeyPress={(e) => e.key === "Enter" && handleSend()}
         />
         <button
+          type="button"
           onClick={handleSend}
           disabled={isSending || (!messageText.trim() && !imageFile)}
-          className="bg-main text-white font-sora text-[16px] flex items-center gap-2 px-3 py-1 rounded-lg disabled:opacity-50"
+          className="order-2 shrink-0 bg-main text-white font-sora text-[16px] flex items-center gap-2 px-3 py-2 rounded-lg disabled:opacity-50 sm:order-none"
         >
           {isSending ? "Sending..." : "Send"} <Send size={18} />
         </button>

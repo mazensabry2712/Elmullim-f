@@ -19,6 +19,12 @@ const axiosAPI = axios.create({
   },
 });
 
+axiosAPI.interceptors.request.use((config) => {
+  const language = getLanguage();
+  config.headers.set("Accept-Language", language);
+  return config;
+});
+
 axiosAPI.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -40,18 +46,15 @@ axiosAPI.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    if (response?.status === 401) {
+    const authHeader = response?.config?.headers?.Authorization ?? response?.config?.headers?.authorization;
+    const isAuthenticatedRequest = typeof authHeader === "string" && authHeader.trim() !== "";
+
+    if (response?.status === 401 && isAuthenticatedRequest) {
       store.dispatch(logout());
       toast.warn(
         language === "ar"
-          ? "يرجى تسجيل الدخول للمتابعة"
-          : "Please login to continue"
-      );
-    } else if (response?.status === 500) {
-      toast.error(
-        language === "ar"
-          ? "يرجى المحاولة مرة أخرى لاحقًا"
-          : "Try again later"
+          ? "انتهت جلستك، يرجى تسجيل الدخول مرة أخرى"
+          : "Your session has expired. Please log in again."
       );
     }
 

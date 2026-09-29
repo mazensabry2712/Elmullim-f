@@ -4,6 +4,7 @@ import {
   formatDate,
   formatDateTime,
   formatDateTimeLocalInput,
+  formatWeekday,
   formatTime,
 } from "@/utils/dateTime";
 
@@ -21,6 +22,11 @@ describe("dateTime utilities", () => {
   it("formats a date-only value without timezone day shifting", () => {
     expect(formatDate("2099-01-10", "en")).not.toBe("");
     expect(formatDate("2099-01-10", "ar")).not.toBe("");
+  });
+
+  it("formats a date-only value with a timezone-safe localized weekday", () => {
+    expect(formatWeekday("2099-01-10", "en")).toBe("Sat");
+    expect(formatWeekday("2099-01-10", "ar")).not.toBe("");
   });
 
   it("formats an instant as a localized time", () => {

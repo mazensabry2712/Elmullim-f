@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import cookieService from "@/utils/cookieService";
 import { useGetStudentQuizzes } from "@/lib/react-query/student/quizzes";
 import { useI18n } from "@/i18n";
+import { formatDate, formatWeekday } from "@/utils/dateTime";
 
 type QuizScheduleCopy = {
   title: string;
@@ -43,9 +44,7 @@ const copy: Record<"en" | "ar", QuizScheduleCopy> = {
 };
 
 const getDayName = (date: string | null | undefined, language: "en" | "ar") =>
-  date
-    ? new Intl.DateTimeFormat(language, { weekday: "short" }).format(new Date(date))
-    : "—";
+  date ? formatWeekday(date, language) || "—" : "—";
 
 const QuizSchedules = () => {
   const { language } = useI18n();
@@ -125,7 +124,7 @@ const QuizSchedules = () => {
               <h3 className="text-lg font-bold text-[#194D80] mt-1">{quiz.title || "—"}</h3>
               <p className="text-sm text-[#194D80] flex items-center gap-2 mt-2"><User size={16} aria-hidden="true" />{quiz.teacher?.name || "—"}</p>
               <p className="text-sm text-[#194D80] flex items-center gap-2"><Clock size={16} aria-hidden="true" />{quiz.start_time || "—"} – {quiz.end_time || "—"}</p>
-              <p className="text-sm text-[#194D80] mt-1">{quiz.date ? new Date(quiz.date).toLocaleDateString(language) : "—"}</p>
+              <p className="text-sm text-[#194D80] mt-1">{quiz.date ? formatDate(quiz.date, language) : "—"}</p>
               <button
                 type="button"
                 onClick={() => navigate(`/view-quiz?quiz=${quiz.id}`)}

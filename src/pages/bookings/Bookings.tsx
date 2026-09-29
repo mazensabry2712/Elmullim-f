@@ -7,6 +7,7 @@ import { useCancelBooking, useGetBookings, useRespondToBookingProposal } from "@
 import { IBooking } from "@/interfaces/bookings/booking";
 import BookingPaymentDialog from "@/components/bookings/BookingPaymentDialog";
 import { getBookingCopy } from "@/pages/bookings/bookingCopy";
+import { formatDateTime } from "@/utils/dateTime";
 
 const canCancel = (status: IBooking["status"]) =>
   ["booking_requested", "pending_teacher_approval", "accepted", "rescheduled"].includes(status);
@@ -96,9 +97,9 @@ const Bookings = () => {
 
               <div className="mt-5 space-y-2 font-sora text-sm text-[#4D5756]">
                 <p>{copy.type}: {booking.booking_type === "private" ? copy.private : copy.group}</p>
-                <p>{copy.requested}: {new Date(booking.requested_start_at).toLocaleString()}</p>
-                {booking.proposed_start_at && <p>{copy.proposed}: {new Date(booking.proposed_start_at).toLocaleString()}</p>}
-                {booking.confirmed_start_at && <p>{copy.confirmed}: {new Date(booking.confirmed_start_at).toLocaleString()}</p>}
+                <p>{copy.requested}: {formatDateTime(booking.requested_start_at, language)}</p>
+                {booking.proposed_start_at && <p>{copy.proposed}: {formatDateTime(booking.proposed_start_at, language)}</p>}
+                {booking.confirmed_start_at && <p>{copy.confirmed}: {formatDateTime(booking.confirmed_start_at, language)}</p>}
                 <p>{copy.price}: {booking.price} {copy.currency}</p>
                 {booking.teacher_note && <p>{copy.teacherNote}: {booking.teacher_note}</p>}
               </div>

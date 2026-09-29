@@ -16,23 +16,26 @@ import {
 } from "@/services/chat/chat";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetAllConversations = (token: string) =>
+export const useGetAllConversations = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.CONVERSATIONS],
     queryFn: () => getAllConversations(token),
+    enabled: enabled && !!token,
   });
 
 export const useGetConversationById = ({
   token,
   id,
+  enabled = true,
 }: {
   token: string;
   id: string;
+  enabled?: boolean;
 }) =>
   useQuery({
     queryKey: [QueryKeys.CONVERSATION, id],
     queryFn: () => getConversationById({ token, id }),
-    enabled: !!id,
+    enabled: enabled && !!id && !!token,
   });
 
 export const useCreateConversation = () => {
@@ -109,10 +112,11 @@ export const useDeleteMessage = () => {
   });
 };
 
-export const useGetFlaggedMessages = (token: string) =>
+export const useGetFlaggedMessages = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.FLAGGED_MESSAGES],
     queryFn: () => flaggedMessages(token),
+    enabled: enabled && !!token,
   });
 
 export const useFlagMessage = () => {

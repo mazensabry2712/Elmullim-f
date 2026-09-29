@@ -7,10 +7,11 @@ import {
 } from "@/services/teacher/teacherProfile";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetTeacherProfile = (token: string) =>
+export const useGetTeacherProfile = (token: string, enabled = true) =>
   useQuery({
-    queryKey: [QueryKeys.PROFILE],
+    queryKey: [QueryKeys.PROFILE, "teacher"],
     queryFn: () => getTeacherProfile(token),
+    enabled: enabled && !!token,
   });
 
 export const useUpdateTeacherProfile = () => {
@@ -26,8 +27,9 @@ export const useUpdateTeacherProfile = () => {
   });
 };
 
-export const useGetTeacherRatings = (token: string) =>
+export const useGetTeacherRatings = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_RATINGS],
     queryFn: () => getTeacherRatings(token),
+    enabled: enabled && !!token,
   });

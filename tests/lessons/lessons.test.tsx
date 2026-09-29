@@ -2,7 +2,7 @@ import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, useLocation } from "react-router-dom";
 import Lessons from "@/pages/lessons/Lessons";
 import { I18nProvider, useI18n } from "@/i18n";
 
@@ -38,6 +38,11 @@ vi.mock("framer-motion", () => ({
 const LanguageToggle = () => {
   const { toggleLanguage } = useI18n();
   return <button type="button" onClick={toggleLanguage}>toggle</button>;
+};
+
+const LocationProbe = () => {
+  const location = useLocation();
+  return <output data-testid="location-search">{location.search}</output>;
 };
 
 const renderPage = (children: React.ReactNode) =>
@@ -139,10 +144,10 @@ describe("Lessons", () => {
     const search = screen.getByRole("searchbox", { name: /search lessons/i });
     await user.type(search, "math");
 
-    const currentUrl = window.location.href;
-    expect(currentUrl).toContain("delivery_mode=offline");
-    expect(currentUrl).toContain("subject_id=11");
-    expect(currentUrl).toContain("q=math");
+    const currentSearch = screen.getByTestId("location-search").textContent ?? "";
+    expect(currentSearch).toContain("delivery_mode=offline");
+    expect(currentSearch).toContain("subject_id=11");
+    expect(currentSearch).toContain("q=math");
   });
 
   it("removes offline location when switching discovery to online", async () => {
@@ -165,8 +170,9 @@ describe("Lessons", () => {
     const delivery = screen.getByRole("combobox", { name: "Delivery mode" });
     await user.selectOptions(delivery, "online");
 
-    expect(window.location.href).toContain("delivery_mode=online");
-    expect(window.location.href).not.toContain("location=Cairo");
+    const currentSearch = screen.getByTestId("location-search").textContent ?? "";
+    expect(currentSearch).toContain("delivery_mode=online");
+    expect(currentSearch).not.toContain("location=Cairo");
   });
 
   it("supports Arabic and RTL", async () => {

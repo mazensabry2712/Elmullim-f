@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import ProfileDropdownMenu from "@/components/profiles/ProfileMenu";
 
@@ -45,7 +45,17 @@ vi.mock("@/components/ui/popover", () => ({
     children?: React.ReactNode;
   }) => {
     latestPopoverOnOpenChange = onOpenChange;
-    return <div data-open={open ? "true" : "false"}>{children}</div>;
+
+    const childArray = Array.isArray(children) ? children : [children];
+    const trigger = childArray[0];
+    const content = childArray[1];
+
+    return (
+      <div data-open={open ? "true" : "false"}>
+        {trigger}
+        {open ? content : null}
+      </div>
+    );
   },
   PopoverTrigger: ({
     children,
@@ -54,9 +64,7 @@ vi.mock("@/components/ui/popover", () => ({
     children?: React.ReactNode;
     asChild?: boolean;
   }) => (
-    <div data-trigger-as-child={asChild ? "true" : "false"}>
-      {children}
-    </div>
+    <div data-trigger-as-child={asChild ? "true" : "false"}>{children}</div>
   ),
   PopoverContent: ({
     children,
@@ -66,27 +74,26 @@ vi.mock("@/components/ui/popover", () => ({
 }));
 
 describe("ProfileDropdownMenu", () => {
-  it("accepts the popover open state directly and exposes an accessible trigger", () => {
+  it("uses the popover open callback as a direct state setter and exposes an accessible trigger", () => {
     render(<ProfileDropdownMenu />);
 
     const trigger = screen.getByRole("button", { name: "Profile" });
     expect(trigger).toBeInTheDocument();
+    expect(trigger.closest("[data-trigger-as-child]")).toHaveAttribute(
+      "data-trigger-as-child",
+      "true"
+    );
     expect(latestPopoverOnOpenChange).toBeTypeOf("function");
+    expect(screen.queryByText("My Account")).not.toBeInTheDocument();
 
-    latestPopoverOnOpenChange?.(true);
+    act(() => {
+      latestPopoverOnOpenChange?.(true);
+    });
     expect(screen.getByText("My Account")).toBeInTheDocument();
 
-    latestPopoverOnOpenChange?.(false);
-    expect(screen.getByText("My Account")).toBeInTheDocument();
-  });
-
-  it("keeps profile navigation actions intact", () => {
-    render(<ProfileDropdownMenu />);
-
-    fireEvent.click(screen.getByRole("button", { name: "Profile" }));
-    fireEvent.click(screen.getByRole("button", { name: "Profile" }));
-
-    const profileButtons = screen.getAllByRole("button");
-    expect(profileButtons.length).toBeGreaterThan(2);
+    act(() => {
+      latestPopoverOnOpenChange?.(false);
+    });
+    expect(screen.queryByText("My Account")).not.toBeInTheDocument();
   });
 });

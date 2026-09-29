@@ -1,6 +1,7 @@
 import {
   ACCEPTED_CV_TYPES,
   ACCEPTED_IMAGE_TYPES,
+  MAX_CV_SIZE,
   MAX_IMAGE_SIZE,
 } from "@/utils/file";
 import { z } from "zod";
@@ -114,8 +115,14 @@ export const updateTeacherProfileSchema = z.object({
     z
       .instanceof(File, {
         message: validationMessage(
-          "The type must be a file pdf or docx type",
-          "يجب أن يكون الملف من نوع PDF أو DOCX"
+          "The type must be a PDF, DOC, or DOCX file",
+          "يجب أن يكون الملف من نوع PDF أو DOC أو DOCX"
+        ),
+      })
+      .refine((file) => file.size <= MAX_CV_SIZE, {
+        message: validationMessage(
+          "The maximum CV size is 10MB",
+          "الحد الأقصى لحجم السيرة الذاتية هو 10 ميجابايت"
         ),
       })
       .refine((file) => ACCEPTED_CV_TYPES.includes(file.type), {

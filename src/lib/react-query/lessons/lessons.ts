@@ -16,11 +16,14 @@ export const useGetLessonFilterOptions = () =>
     queryFn: getLessonFilterOptions,
   });
 
-export const useGetLessons = (filters: ILessonFilters & { token?: string }) =>
-  useQuery({
-    queryKey: [QueryKeys.LESSONS, filters],
-    queryFn: () => getAllLessons(filters),
+export const useGetLessons = (filters: ILessonFilters & { token?: string }) => {
+  const { token, ...queryFilters } = filters;
+
+  return useQuery({
+    queryKey: [QueryKeys.LESSONS, queryFilters],
+    queryFn: () => getAllLessons({ ...queryFilters, token }),
   });
+};
 
 export const useGetLessonById = ({
   token,

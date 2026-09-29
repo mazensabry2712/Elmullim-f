@@ -325,17 +325,17 @@ function ChatWindow({
               fill="#0AB99D"
             />
           </svg>
-          <input
-            type="file"
-            id="hiddenFileInput"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0] || null;
-              setImageFile(file);
-            }}
-          />
         </button>
+        <input
+          type="file"
+          id="hiddenFileInput"
+          className="hidden"
+          accept="image/*"
+          onChange={(e) => {
+            const file = e.target.files?.[0] || null;
+            setImageFile(file);
+          }}
+        />
         <input
           type="text"
           placeholder={language === "ar" ? "اكتب رسالتك....." : "Type your message....."}

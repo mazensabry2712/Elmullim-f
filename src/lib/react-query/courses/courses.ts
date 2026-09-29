@@ -8,11 +8,18 @@ import {
 } from "@/services/courses/courses";
 import { useQuery } from "@tanstack/react-query";
 
-export const useGetCourses = ({ token, q }: { token?: string; q?: string }) =>
-  useQuery({
+export const useGetCourses = ({
+  token,
+  q,
+}: {
+  token?: string;
+  q?: string;
+}) => {
+  return useQuery({
     queryKey: [QueryKeys.COURSES, q],
     queryFn: () => getAllCourses({ token, q }),
   });
+};
 
 export const useGetCourseById = ({
   token,

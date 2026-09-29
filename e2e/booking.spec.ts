@@ -1,6 +1,6 @@
 import { expect, request as playwrightRequest, test } from "@playwright/test";
 
-const apiBaseURL = process.env.E2E_API_BASE_URL || "http://127.0.0.1:8000";
+const apiBaseURL = process.env.E2E_API_BASE_URL || "http://Elmullim-b.test";
 const browserBaseURL = process.env.E2E_BASE_URL || "http://127.0.0.1:5173";
 const studentEmail = process.env.E2E_STUDENT_EMAIL || "student@elmullim.test";
 const studentPassword = process.env.E2E_STUDENT_PASSWORD || "Student@12345";
@@ -167,10 +167,7 @@ test("student can create and cancel a booking through the real API", async ({ pa
 
     await page.locator('input[type="date"]').fill(candidate!.date);
 
-    const timeValue =
-      candidate!.lesson.booking_type === "group"
-        ? candidate!.option.requested_start_at
-        : candidate!.option.local_time + "|" + candidate!.option.timezone;
+    const timeValue = candidate!.option.requested_start_at;
 
     await page
       .locator('select[aria-label="Choose available time"]')

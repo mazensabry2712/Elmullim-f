@@ -8,10 +8,11 @@ import {
 } from "@/services/student/studentProfile";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetStudentProfile = (token: string) =>
+export const useGetStudentProfile = (token: string, enabled = true) =>
   useQuery({
-    queryKey: [QueryKeys.PROFILE],
+    queryKey: [QueryKeys.PROFILE, "student"],
     queryFn: () => getStudentProfile(token),
+    enabled: enabled && !!token,
   });
 
 export const useUpdateStudentProfile = () => {

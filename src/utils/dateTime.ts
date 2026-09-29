@@ -20,11 +20,13 @@ export const formatDateTime = (
 export const formatDateTimeLocalInput = (date: Date = new Date()) => {
   const pad = (value: number) => String(value).padStart(2, "0");
 
-  return [
-    date.getFullYear(),
-    pad(date.getMonth() + 1),
-    pad(date.getDate()),
-  ].join("-") + "T" + [pad(date.getHours()), pad(date.getMinutes())].join(":");
+  return (
+    [date.getFullYear(), pad(date.getMonth() + 1), pad(date.getDate())].join(
+      "-"
+    ) +
+    "T" +
+    [pad(date.getHours()), pad(date.getMinutes())].join(":")
+  );
 };
 
 export const dateTimeLocalToIso = (value: string) => {

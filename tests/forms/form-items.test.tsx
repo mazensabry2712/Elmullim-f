@@ -52,6 +52,7 @@ describe("form item controls", () => {
 
     const trigger = screen.getByRole("combobox", { name: "Country Name" });
     expect(trigger).toHaveAttribute("type", "button");
+    expect(trigger).toHaveAttribute("aria-invalid", "false");
   });
 
   it("constrains select popovers to the viewport on small screens", () => {
@@ -103,6 +104,7 @@ describe("form item controls", () => {
 
     const trigger = screen.getByRole("combobox", { name: "Subjects" });
     expect(trigger).toHaveAttribute("type", "button");
+    expect(trigger).toHaveAttribute("aria-invalid", "false");
 
     fireEvent.click(trigger);
 

@@ -10,6 +10,7 @@ import {
 } from "@/lib/react-query/booking";
 import { IBooking } from "@/interfaces/bookings/booking";
 import { getBookingCopy } from "@/pages/bookings/bookingCopy";
+import { dateTimeLocalToIso, formatDateTime, formatDateTimeLocalInput } from "@/utils/dateTime";
 
 const TeacherBookings = () => {
   const { language } = useI18n();
@@ -27,6 +28,7 @@ const TeacherBookings = () => {
   const bookings = data?.data ?? [];
   const pagination = data?.meta;
   const isPaginating = isFetching && !isLoading;
+  const minimumProposalTime = formatDateTimeLocalInput();
 
   const run = async (action: () => Promise<unknown>) => {
     setError("");
@@ -71,7 +73,7 @@ const TeacherBookings = () => {
                   <div>
                     <h2 className="text-xl font-bold text-black-blue">{booking.lesson?.title ?? `${getBookingCopy(language).bookings.lesson} #${booking.lesson_id}`}</h2>
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.student}: {booking.student?.name ?? `#${booking.student_id}`}</p>
-                    <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.requested}: {new Date(booking.requested_start_at).toLocaleString()}</p>
+                    <p className="mt-1 font-sora text-sm text-[#4D5756]">{copy.requested}: {formatDateTime(booking.requested_start_at, language)}</p>
                   </div>
                   <span className="w-fit rounded-full bg-white px-3 py-1 text-xs font-semibold text-main">{getBookingCopy(language).bookings.status[booking.status]}</span>
                 </div>
@@ -85,7 +87,7 @@ const TeacherBookings = () => {
                       id={`proposed-${booking.id}`}
                       type="datetime-local"
                       value={proposedTime[booking.id] ?? ""}
-                      min={new Date().toISOString().slice(0, 16)}
+                      min={minimumProposalTime}
                       onChange={(event) => setProposedTime((current) => ({ ...current, [booking.id]: event.target.value }))}
                       className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2"
                     />
@@ -132,10 +134,15 @@ const TeacherBookings = () => {
                         setError(copy.chooseTime);
                         return;
                       }
+                      const proposedStartAt = dateTimeLocalToIso(value);
+                      if (!proposedStartAt) {
+                        setError(copy.chooseTime);
+                        return;
+                      }
                       void run(() => proposeMutation.mutateAsync({
                         token,
                         bookingId: booking.id,
-                        proposedStartAt: new Date(value).toISOString(),
+                        proposedStartAt,
                         teacherNote: note[booking.id],
                       }));
                     }}

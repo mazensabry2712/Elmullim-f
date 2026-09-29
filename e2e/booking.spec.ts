@@ -164,6 +164,10 @@ test("student can create and cancel a booking through the real API", async ({ pa
       },
     ]);
 
+    await page.addInitScript(() => {
+      localStorage.setItem("elmullim-language", "en");
+    });
+
     await page.goto(
       new URL("/lessons/" + candidate!.lesson.id, browserBaseURL).toString()
     );

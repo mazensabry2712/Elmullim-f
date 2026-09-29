@@ -64,6 +64,9 @@ describe("form item controls", () => {
     expect(popoverContent.parentElement?.parentElement?.parentElement?.className.toString()).toContain(
       "w-[calc(100vw-2rem)]"
     );
+
+    fireEvent.change(popoverContent, { target: { value: "Egypt" } });
+    expect(screen.getByText("Egypt")).toBeInTheDocument();
   });
 
   it("keeps multiselect trigger safe and localizes its search copy", () => {

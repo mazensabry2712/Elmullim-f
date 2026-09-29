@@ -38,13 +38,11 @@ jobs:
         run: npm run build
 
       - name: Install Playwright browser
-        if: ${{ env.E2E_API_BASE_URL != '' }}
         run: npx playwright install --with-deps chromium
 
-      - name: Run E2E against staging API
-        if: env.E2E_API_BASE_URL != ''
+      - name: Run Playwright E2E
         run: npm run test:e2e
 
-      - name: E2E status
+      - name: Real booking E2E note
         if: ${{ env.E2E_API_BASE_URL == '' }}
-        run: echo "E2E skipped - configure the E2E_API_BASE_URL repository secret for a dedicated staging/test API."
+        run: echo "Real booking E2E skipped - configure E2E_API_BASE_URL and dedicated test credentials to enable it."

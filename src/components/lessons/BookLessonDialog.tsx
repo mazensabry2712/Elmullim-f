@@ -5,10 +5,7 @@ import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import { useCreateBooking } from "@/lib/react-query/booking";
 import { BookingStatus } from "@/interfaces/bookings/booking";
-import {
-  useGetLessonAvailability,
-  useGetLessonBookingOptions,
-} from "@/lib/react-query/lessons/lessons";
+import { useGetLessonBookingOptions } from "@/lib/react-query/lessons/lessons";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 
 interface IProps {
@@ -35,6 +32,11 @@ interface IProfileResponse {
   };
 }
 
+const getTodayInputValue = () => {
+  const now = new Date();
+  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+};
+
 const BookLessonDialog = ({
   lessonId,
   bookingType,
@@ -56,7 +58,6 @@ const BookLessonDialog = ({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [customerNote, setCustomerNote] = useState("");
-  const { data: availability, isLoading: loadingAvailability, isError: availabilityError } = useGetLessonAvailability(lessonId);
   const {
     data: bookingOptions,
     isLoading: loadingBookingOptions,
@@ -223,28 +224,20 @@ const BookLessonDialog = ({
                 </label>
               )}
 
-              {loadingAvailability && !selectedDate ? (
-                <div className="rounded-md bg-gray-100 px-3 py-3 text-gray-600" role="status">{bookingCopy.availabilityLoading}</div>
-              ) : availabilityError ? (
-                <div className="rounded-md border border-red-200 bg-red-50 px-3 py-3 text-red-700" role="alert">{bookingCopy.availabilityError}</div>
-              ) : (
-                <>
-                  <label className="block text-sm font-medium">
-                    {bookingCopy.date}
-                    <input type="date" min={minimumDate} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main" />
-                  </label>
-                  <label className="block text-sm font-medium">
-                    {bookingCopy.time}
-                    <select aria-label={bookingCopy.time} disabled={!selectedDate || timesForDate.length === 0 || loadingBookingOptions || bookingOptionsError} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
-                      <option value="">{bookingCopy.time}</option>
-                      {timesForDate.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
-                    </select>
-                    {selectedDate && loadingBookingOptions && <p className="mt-1 text-sm text-gray-600">{bookingCopy.availabilityLoading}</p>}
-                    {selectedDate && bookingOptionsError && <p className="mt-1 text-sm text-red-700" role="alert">{bookingCopy.availabilityError}</p>}
-                    {selectedDate && !loadingBookingOptions && !bookingOptionsError && timesForDate.length === 0 && <p className="mt-1 text-sm text-gray-600">{bookingCopy.noTimes}</p>}
-                  </label>
-                </>
-              )}
+              <label className="block text-sm font-medium">
+                {bookingCopy.date}
+                <input type="date" min={minimumDate} value={selectedDate} onChange={(event) => setSelectedDate(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main" />
+              </label>
+              <label className="block text-sm font-medium">
+                {bookingCopy.time}
+                <select aria-label={bookingCopy.time} disabled={!selectedDate || timesForDate.length === 0 || loadingBookingOptions || bookingOptionsError} value={selectedTime} onChange={(event) => setSelectedTime(event.target.value)} className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2 outline-none focus:border-main">
+                  <option value="">{bookingCopy.time}</option>
+                  {timesForDate.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
+                </select>
+                {selectedDate && loadingBookingOptions && <p className="mt-1 text-sm text-gray-600" role="status">{bookingCopy.availabilityLoading}</p>}
+                {selectedDate && bookingOptionsError && <p className="mt-1 text-sm text-red-700" role="alert">{bookingCopy.availabilityError}</p>}
+                {selectedDate && !loadingBookingOptions && !bookingOptionsError && timesForDate.length === 0 && <p className="mt-1 text-sm text-gray-600">{bookingCopy.noTimes}</p>}
+              </label>
 
               {deliveryMode === "offline" && offlineVisitType === "teacher_to_student" && (
                 <label className="block text-sm font-medium">
@@ -266,7 +259,6 @@ const BookLessonDialog = ({
                 <button type="button" onClick={submit} disabled={
                     isPending ||
                     loadingStudents ||
-                    loadingAvailability ||
                     loadingBookingOptions ||
                     (role === "parent" && students.length === 0) ||
                     !selectedDate ||

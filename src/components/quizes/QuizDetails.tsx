@@ -91,7 +91,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
     <>
       <div className="px-6 py-4 bg-[#F0FEFC] rounded-md">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
             <label
               htmlFor="quizTitle"
               className="block text-base font-bold text-[#194D80] capitalize"
@@ -104,11 +104,11 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
               name="title"
               value={quizDetails.title}
               onChange={handleChange}
-              className="mt-1 flex-shrink-0 block w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full min-w-0 flex-1 border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
             <label
               htmlFor="education_level_id"
               className="block text-base font-bold text-[#194D80] capitalize"
@@ -120,7 +120,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
               name="education_level_id"
               value={quizDetails.education_level_id}
               onChange={handleChange}
-              className="mt-1 text-center flex-shrink-0 block w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full min-w-0 flex-1 border border-[#194D80] rounded-md shadow-sm p-2 text-center focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="">{copy.selectSystem}</option>
               <option
@@ -132,7 +132,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
             </select>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
             <label
               htmlFor="subject_id"
               className="block text-base font-bold text-[#194D80] capitalize"
@@ -144,7 +144,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
               name="subject_id"
               value={quizDetails.subject_id}
               onChange={handleChange}
-              className="mt-1 text-center flex-shrink-0 block w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full min-w-0 flex-1 border border-[#194D80] rounded-md shadow-sm p-2 text-center focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="">{copy.selectSubject}</option>
               {subjectOptions.map((option) => (
@@ -155,7 +155,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
             </select>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
             <label
               htmlFor="academic_year"
               className="block text-base font-bold text-[#194D80] capitalize"
@@ -167,7 +167,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
               name="academic_year"
               value={quizDetails.academic_year}
               onChange={handleChange}
-              className="mt-1 text-center flex-shrink-0 block w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full min-w-0 flex-1 border border-[#194D80] rounded-md shadow-sm p-2 text-center focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="">{copy.selectLevel}</option>
               <option value={teacherData?.data.education_level.id}>
@@ -176,7 +176,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
             </select>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
             <label
               htmlFor="start_time"
               className="block text-base font-bold text-[#194D80] capitalize"
@@ -189,11 +189,11 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
               name="start_time"
               value={quizDetails.start_time}
               onChange={handleChange}
-              className="mt-1 flex-shrink-0 block w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full min-w-0 flex-1 border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
             <label
               htmlFor="end_time"
               className="block text-base font-bold text-[#194D80] capitalize"
@@ -206,11 +206,11 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
               name="end_time"
               value={quizDetails.end_time}
               onChange={handleChange}
-              className="mt-1 flex-shrink-0 block w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full min-w-0 flex-1 border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             />
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
             <label
               htmlFor="time_limit"
               className="block text-base font-bold text-[#194D80] capitalize"
@@ -222,7 +222,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
               name="time_limit"
               value={quizDetails.time_limit}
               onChange={handleChange}
-              className="mt-1 text-center flex-shrink-0 block w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full min-w-0 flex-1 border border-[#194D80] rounded-md shadow-sm p-2 text-center focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
             >
               <option value="">{copy.selectLimit}</option>
               {timeLimitOptions.map((option) => (
@@ -233,18 +233,17 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
             </select>
           </div>
 
-          <br />
-          <div className="flex items-center gap-5">
-            <label className="block text-base font-bold text-[#194D80] capitalize">
+          <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:gap-5">
+            <label className="block shrink-0 text-base font-bold text-[#194D80] capitalize sm:pt-2">
               {copy.quizDate}
             </label>
-            <div className="flex gap-5">
+            <div className="grid min-w-0 flex-1 grid-cols-1 gap-2 xs:grid-cols-3 sm:flex sm:gap-3">
               <select
                 id="quizDay"
                 name="quizDay"
                 value={quizDetails.quizDay}
                 onChange={handleChange}
-                className="mt-1 text-center flex-shrink-0 block w-[30%] md:w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full min-w-0 border border-[#194D80] rounded-md shadow-sm p-2 text-center focus:ring-blue-500 focus:border-blue-500 sm:flex-1 sm:text-sm"
               >
                 <option value="">{copy.day}</option>
                 {days.map((day) => (
@@ -258,7 +257,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
                 name="quizMonth"
                 value={quizDetails.quizMonth}
                 onChange={handleChange}
-                className="mt-1 text-center flex-shrink-0 block w-[30%] md:w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full min-w-0 border border-[#194D80] rounded-md shadow-sm p-2 text-center focus:ring-blue-500 focus:border-blue-500 sm:flex-1 sm:text-sm"
               >
                 <option value="">{copy.month}</option>
                 {months.map((month) => (
@@ -272,7 +271,7 @@ const QuizDeatails: React.FC<QuizDetailsProps> = ({
                 name="quizYear"
                 value={quizDetails.quizYear}
                 onChange={handleChange}
-                className="mt-1 text-center flex-shrink-0 block w-[30%] md:w-[50%] border border-[#194D80] rounded-md shadow-sm p-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                className="mt-1 block w-full min-w-0 border border-[#194D80] rounded-md shadow-sm p-2 text-center focus:ring-blue-500 focus:border-blue-500 sm:flex-1 sm:text-sm"
               >
                 <option value="">{copy.year}</option>
                 {years.map((year) => (

@@ -43,7 +43,7 @@ export const useCreateBooking = () => {
 
 export const useGetBookings = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
   useQuery({
-    queryKey: [...bookingKeys.mine(token), page],
+    queryKey: [...bookingKeys.mine(), page],
     queryFn: () => getBookings({ token, page }),
     enabled: enabled && !!token,
     placeholderData: (previous) => previous,
@@ -66,7 +66,7 @@ export const useGetBooking = ({ token, bookingId, enabled = true }: { token: str
 
 export const useGetSchedule = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
   useQuery({
-    queryKey: [...bookingKeys.schedule(token), page],
+    queryKey: [...bookingKeys.schedule(), page],
     queryFn: () => getSchedule({ token, page }),
     enabled: enabled && !!token,
     placeholderData: (previous) => previous,
@@ -74,7 +74,7 @@ export const useGetSchedule = ({ token, page = 1, enabled = true }: { token: str
 
 export const useGetTeacherSchedule = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
   useQuery({
-    queryKey: [...bookingKeys.teacherSchedule(token), page],
+    queryKey: [...bookingKeys.teacherSchedule(), page],
     queryFn: () => getTeacherSchedule({ token, page }),
     enabled: enabled && !!token,
     placeholderData: (previous) => previous,
@@ -127,7 +127,7 @@ export const useMarkSessionAttendance = () => {
   return useMutation({
     mutationFn: markSessionAttendance,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule(variables.token) });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
       queryClient.invalidateQueries({ queryKey: bookingKeys.schedule(variables.token) });
     },
   });
@@ -140,7 +140,7 @@ export const useUpdateSessionStatus = () => {
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: bookingKeys.mine(variables.token) });
       queryClient.invalidateQueries({ queryKey: bookingKeys.schedule(variables.token) });
-      queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule(variables.token) });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
     },
   });
 };
@@ -151,7 +151,7 @@ export const useUpdateSessionMeetingLink = () => {
     mutationFn: updateSessionMeetingLink,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: bookingKeys.schedule(variables.token) });
-      queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule(variables.token) });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
     },
   });
 };

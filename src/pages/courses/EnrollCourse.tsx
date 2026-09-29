@@ -8,6 +8,7 @@ import EnrollFreeCourse from "@/components/courses/EnrollFreeCourse";
 import { RootState } from "@/store/store";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
+import { formatDate } from "@/utils/dateTime";
 import { getCoursesCopy } from "./courseCopy";
 import { useInitiatePayment } from "@/lib/react-query/student/enrolling";
 
@@ -79,7 +80,7 @@ function EnrollCourse() {
                 <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.coursePrice}</dt><dd>{courseData.price} L.E</dd></div>
                 <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.trainerName}</dt><dd>{courseData.teacher?.name ?? "—"}</dd></div>
                 <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.level}</dt><dd>{courseData.level}</dd></div>
-                <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.startDate}</dt><dd>{courseData.created_at ? new Date(courseData.created_at).toLocaleDateString(language) : "—"}</dd></div>
+                <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.startDate}</dt><dd>{courseData.created_at ? formatDate(courseData.created_at, language) : "—"}</dd></div>
                 <div className="flex justify-between gap-4"><dt className="font-semibold">{copy.attendance}</dt><dd>{copy.online}</dd></div>
               </dl>
             </article>

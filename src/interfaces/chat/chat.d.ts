@@ -20,7 +20,7 @@ export interface IMessage {
     body: string;
     image?: IImage;
   };
-  side: "left" | "right";
+  side: "left" | "right" | null;
   flagged: boolean;
   created_at: string;
   deleted_at: null | string;
@@ -36,7 +36,7 @@ export interface ICreateMessage {
 export interface IConversation {
   id: string;
   participant: ISender;
-  last_seen: string;
+  last_seen: string | null;
   created_at: string;
   messages: IMessage[];
 }

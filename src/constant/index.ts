@@ -127,7 +127,7 @@ export const STUDENT_SIGNUP_FORM_INPUTS: IFormInput[] = [
   {
     name: "gender",
     type: "select",
-    label: "Gender",
+    label: "Gender *",
   },
   {
     name: "password",
@@ -137,13 +137,13 @@ export const STUDENT_SIGNUP_FORM_INPUTS: IFormInput[] = [
 
   {
     name: "address",
-    type: "select",
-    placeholder: "Your address",
+    type: "text",
+    placeholder: "Address *",
   },
   {
     name: "country_id",
     type: "select",
-    label: "Country Name",
+    label: "Country *",
   },
   {
     name: "phone",
@@ -153,12 +153,12 @@ export const STUDENT_SIGNUP_FORM_INPUTS: IFormInput[] = [
   {
     name: "education_system_id",
     type: "select",
-    label: "Education System",
+    label: "Education System *",
   },
   {
     name: "education_level_id",
     type: "select",
-    label: "Education Level",
+    label: "Education Level *",
   },
 ];
 

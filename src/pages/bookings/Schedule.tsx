@@ -13,6 +13,7 @@ import {
 import { IBookingSession } from "@/interfaces/bookings/session";
 import { joinBookingSession } from "@/services/booking";
 import { getBookingCopy } from "@/pages/bookings/bookingCopy";
+import { formatDateTime } from "@/utils/dateTime";
 
 const Schedule = () => {
   const { language } = useI18n();
@@ -35,6 +36,7 @@ const Schedule = () => {
   const loading = isTeacher ? teacherSchedule.isLoading : studentSchedule.isLoading;
   const fetching = isTeacher ? teacherSchedule.isFetching : studentSchedule.isFetching;
   const error = isTeacher ? teacherSchedule.isError : studentSchedule.isError;
+  const refetch = isTeacher ? teacherSchedule.refetch : studentSchedule.refetch;
   const isPaginating = fetching && !loading;
 
   const openMeeting = (meetingUrl?: string | null) => {
@@ -118,13 +120,23 @@ const Schedule = () => {
           </p>
         </div>
 
-        {(loading || fetching) && (
+        {loading && (
           <div className="py-16 text-center" role="status"><Loader className="mx-auto animate-spin" size={36} /></div>
+        )}
+
+        {isPaginating && (
+          <div className="mb-4 inline-flex items-center gap-2 rounded-md bg-[#F0F1F1] px-3 py-2 font-sora text-sm text-[#4D5756]" role="status">
+            <Loader className="animate-spin" size={16} />
+            {copy.opening}
+          </div>
         )}
 
         {error && !loading && (
           <div className="rounded-lg border border-red-200 bg-red-50 p-6" role="alert">
-            {copy.couldNotLoad}
+            <p>{copy.couldNotLoad}</p>
+            <button type="button" onClick={() => void refetch()} className="mt-3 rounded-md bg-main px-4 py-2 text-white">
+              {copy.retry}
+            </button>
           </div>
         )}
 
@@ -144,14 +156,14 @@ const Schedule = () => {
                     <h2 className="text-xl font-bold text-black-blue">{session.lesson?.title ?? `${getBookingCopy(language).bookings.lesson} #${session.lesson_id}`}</h2>
                   </div>
                   <p className="mt-2 font-sora text-sm text-[#4D5756]">
-                    {new Date(session.start_at).toLocaleString()} → {new Date(session.end_at).toLocaleTimeString()}
+                    {formatDateTime(session.start_at, language)} → {new Date(session.end_at).toLocaleTimeString(language === "ar" ? "ar-EG" : "en-EG", { hour: "2-digit", minute: "2-digit" })}
                   </p>
-                  {session.bookings?.length && (
+                  {session.bookings?.length > 0 && (
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">
                       {copy.students}: {session.bookings.map((item) => item.student?.name ?? `#${item.student_id}`).join(", ")}
                     </p>
                   )}
-                  {!isTeacher && session.attendances?.length && (
+                  {!isTeacher && session.attendances?.length > 0 && (
                     <p className="mt-2 font-sora text-sm text-[#4D5756]">
                       {copy.attendance}: {session.attendances.map((item) => `${item.student?.name ?? `#${item.student_id}`}: ${copy[item.status === "no_show" ? "noShow" : item.status]}`).join(", ")}
                     </p>

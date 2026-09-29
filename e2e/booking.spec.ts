@@ -1,6 +1,8 @@
 import { expect, request as playwrightRequest, test } from "@playwright/test";
 
-const apiBaseURL = process.env.E2E_API_BASE_URL || "http://Elmullim-b.test";
+const apiBaseURL =
+  process.env.E2E_API_BASE_URL ||
+  (process.env.CI ? "" : "http://Elmullim-b.test");
 const browserBaseURL = process.env.E2E_BASE_URL || "http://127.0.0.1:5173";
 const studentEmail = process.env.E2E_STUDENT_EMAIL || "student@elmullim.test";
 const studentPassword = process.env.E2E_STUDENT_PASSWORD || "Student@12345";
@@ -23,6 +25,11 @@ const isoWeekday = (dateString: string) => {
   const day = date.getUTCDay();
   return day === 0 ? 7 : day;
 };
+
+test.skip(
+  !apiBaseURL,
+  "Configure E2E_API_BASE_URL to run the real booking E2E against a dedicated test/staging API."
+);
 
 test("student can create and cancel a booking through the real API", async ({ page }) => {
   const api = await playwrightRequest.newContext({ baseURL: apiBaseURL });

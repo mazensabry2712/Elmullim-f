@@ -54,8 +54,28 @@ const Lessons = () => {
 
   const updateFilter = (key: string, value: string) => {
     const next = new URLSearchParams(searchParams);
+
     if (value) next.set(key, value);
     else next.delete(key);
+
+    if (key === "delivery_mode" && value === "online") {
+      next.delete("location");
+    }
+
+    if (key === "min_price" && value !== "") {
+      const max = next.get("max_price");
+      if (max !== null && max !== "" && Number(value) > Number(max)) {
+        next.delete("max_price");
+      }
+    }
+
+    if (key === "max_price" && value !== "") {
+      const min = next.get("min_price");
+      if (min !== null && min !== "" && Number(value) < Number(min)) {
+        next.delete("min_price");
+      }
+    }
+
     setSearchParams(next);
   };
 

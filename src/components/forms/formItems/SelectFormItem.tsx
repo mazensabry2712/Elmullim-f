@@ -20,7 +20,6 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-  useFormField,
 } from "@/components/ui/form";
 import { IFormInput } from "@/interfaces";
 import { useMemo, useState } from "react";
@@ -39,7 +38,6 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
   const [searchValue, setSearchValue] = useState("");
   const { language } = useI18n();
   const translatedLabel = translateFormText(language, input.label) ?? input.label ?? "";
-  const { formItemId } = useFormField();
 
   const filteredOptions = useMemo(() => {
     if (!searchValue) return options;
@@ -58,26 +56,14 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
           {translatedLabel}
         </FormLabel>
       )}
-      <FormControl>
-        <Popover open={open} onOpenChange={setOpen}>
-          <PopoverTrigger
-            asChild
-            onClick={(e) => {
-              e.stopPropagation();
-              e.preventDefault();
-            }}
-          >
+      <Popover open={open} onOpenChange={setOpen}>
+        <FormControl>
+          <PopoverTrigger asChild>
             <button
               type="button"
-              id={formItemId}
               role="combobox"
               aria-expanded={open}
               className="border border-input inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] px-4 py-2 has-[>svg]:px-3 w-full !h-12 text-black-blue justify-between overflow-hidden bg-white hover:bg-white font-sora capitalize"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                setOpen(!open);
-              }}
             >
               {field.value
                 ? options.find((option) => option.value === field.value)?.label || `${translateFormText(language, "Choose")} ${translatedLabel}...`
@@ -85,10 +71,11 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </button>
           </PopoverTrigger>
-          <PopoverContent
-            className="w-[calc(100vw-2rem)] max-w-[420px] p-0 z-[1000] border-none sm:w-[min(400px,calc(100vw-2rem))] md:w-[min(370px,calc(100vw-2rem))] xl:w-[min(420px,calc(100vw-2rem))]"
-            onWheel={(e) => e.stopPropagation()}
-          >
+        </FormControl>
+        <PopoverContent
+          className="w-[calc(100vw-2rem)] max-w-[420px] p-0 z-[1000] border-none sm:w-[min(400px,calc(100vw-2rem))] md:w-[min(370px,calc(100vw-2rem))] xl:w-[min(420px,calc(100vw-2rem))]"
+          onWheel={(e) => e.stopPropagation()}
+        >
             <Command shouldFilter={false} className="text-black-blue">
               <CommandInput
                 placeholder={translateFormText(language, "choose")}
@@ -127,8 +114,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
               </CommandList>
             </Command>
           </PopoverContent>
-        </Popover>
-      </FormControl>
+      </Popover>
       <FormMessage />
     </FormItem>
   );

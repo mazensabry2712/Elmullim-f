@@ -148,7 +148,7 @@ function ChatWindow({
 
   if (!conversationId)
     return (
-      <div className="bg-white col-span-2 rounded-md shadow-md text-lg font-sora font-bold text-black py-10 lg:py-0">
+      <div className="col-span-1 min-w-0 rounded-md bg-white py-10 text-lg font-sora font-bold text-black shadow-md md:col-span-2 lg:py-0">
         <div className="flex flex-col  justify-center items-center">
           <svg
             width="300"
@@ -202,9 +202,9 @@ function ChatWindow({
     );
 
   return (
-    <div className="bg-white col-span-2 rounded-md shadow-md relative h-[500px]">
+    <div className="relative col-span-1 min-w-0 rounded-md bg-white shadow-md md:col-span-2">
       {/* chat header */}
-      <div className="flex flex-row justify-between items-center my-5 px-8">
+      <div className="flex min-w-0 flex-row items-center justify-between gap-3 px-3 py-4 sm:px-6 md:px-8">
         <div className="flex flex-row items-center gap-4">
           <div className="w-8 h-8 rounded-full">
             <img
@@ -251,7 +251,7 @@ function ChatWindow({
       {/* chat messages */}
       <div
         ref={messagesContainerRef}
-        className="w-full h-[70%] overflow-y-auto px-10 py-5 flex flex-col"
+        className="flex min-h-[280px] w-full flex-1 flex-col overflow-y-auto px-3 py-4 sm:px-6 md:px-10 md:py-5"
       >
         {allMessages.map((msg, index) => (
           <div
@@ -261,7 +261,7 @@ function ChatWindow({
             } mb-4`}
           >
             <div
-              className={`font-sora text-xs md:text-sm w-[50%] rounded-lg p-2 ${
+              className={`max-w-[85%] rounded-lg p-2 font-sora text-xs sm:max-w-[70%] md:text-sm ${
                 msg.side === "left"
                   ? "bg-main text-white"
                   : "bg-white border border-main text-main"
@@ -338,7 +338,7 @@ function ChatWindow({
         <input
           type="text"
           placeholder="Type your message....."
-          className="w-[300px] border border-main focus:outline-none text-sm rounded-2xl px-3 py-1 placeholder:text-sm"
+          className="w-full min-w-0 flex-1 rounded-2xl border border-main px-3 py-2 text-sm placeholder:text-sm focus:outline-none sm:max-w-[300px]"
           value={messageText}
           onChange={(e) => setMessageText(e.target.value)}
           onKeyPress={(e) => e.key === "Enter" && handleSend()}

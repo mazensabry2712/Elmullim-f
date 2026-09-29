@@ -52,10 +52,14 @@ export const useGetSubCategory = (categoryId: string) =>
     enabled: !!categoryId,
   });
 // users search
-export const useGetUserSearch=(token:string,searchParam:string)=>{
+export const useGetUserSearch = (
+  token: string,
+  searchParam: string,
+  enabled = true
+) => {
   return useQuery<IUserSearch[]>({
-    queryKey:["search-user",searchParam],
-    queryFn:()=>getUserSearch(token,searchParam),
-    enabled:!!searchParam
-  })
-}  
+    queryKey: ["search-user", searchParam],
+    queryFn: () => getUserSearch(token, searchParam),
+    enabled: enabled && !!token && !!searchParam,
+  });
+};  

@@ -17,8 +17,12 @@ const queryClient = new QueryClient({
 });
 
 const QueryProvider = ({ children }: { children: ReactNode }) => {
-  const { isAuthenticated, role } = useSelector((state: RootState) => state.auth);
-  const authCacheKey = isAuthenticated ? `user:${role ?? "unknown"}` : "guest";
+  const { isAuthenticated, role, sessionVersion } = useSelector(
+    (state: RootState) => state.auth
+  );
+  const authCacheKey = isAuthenticated
+    ? `user:${role ?? "unknown"}:session:${sessionVersion}`
+    : `guest:session:${sessionVersion}`;
   const previousAuthCacheKey = useRef(authCacheKey);
 
   useEffect(() => {

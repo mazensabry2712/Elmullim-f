@@ -1,4 +1,5 @@
 import { ICreateMessage, IMessage } from "@/interfaces/chat/chat";
+import QueryKeys from "@/enums";
 import getEcho from "@/lib/echo/echo";
 import {
   useCreateMessage,
@@ -10,6 +11,7 @@ import { useI18n } from "@/i18n";
 import { formatTime } from "@/utils/dateTime";
 import { MoreVertical, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
 
 function ChatWindow({
@@ -24,6 +26,7 @@ function ChatWindow({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language } = useI18n();
+  const queryClient = useQueryClient();
 
   const { mutate: sendMessage, isPending: isSending } = useCreateMessage();
   const { mutate: deleteConversation } = useDeleteConversation();
@@ -68,13 +71,15 @@ function ChatWindow({
       if (cancelled || !instance) return;
 
       echo = instance;
-      echo.leaveAllChannels();
 
       echo
         .private(channelName)
         .listen("ConversationEvent", (data: { conversation_id?: string | number }) => {
           if (String(data.conversation_id) === String(conversationId)) {
             void refetchConversation();
+            void queryClient.invalidateQueries({
+              queryKey: [QueryKeys.CONVERSATIONS],
+            });
           }
         })
         .error((error: unknown) => {
@@ -90,7 +95,7 @@ function ChatWindow({
         echo.leave(channelName);
       }
     };
-  }, [conversationId, refetchConversation]);
+  }, [conversationId, refetchConversation, queryClient]);
 
   useEffect(() => {
     scrollToBottom();

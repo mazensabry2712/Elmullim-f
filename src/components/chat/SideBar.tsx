@@ -4,7 +4,7 @@ import {
 } from "@/lib/react-query/chat/chat";
 import cookieService from "@/utils/cookieService";
 import { ChevronDown, ChevronLeft, ChevronRight, MoreHorizontal, Plus, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-toastify";
 import { IUserSearch } from "@/interfaces/main";
 import { useGetUserSearch } from "@/lib/react-query/main";
@@ -31,6 +31,8 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
         noUsers: "لم يتم العثور على مستخدمين.",
         startTyping: "ابدأ بكتابة اسم للبحث عن المستخدمين.",
         closeNewChat: "إغلاق بدء محادثة جديدة",
+        previousConversations: "المحادثات السابقة",
+        nextConversations: "المحادثات التالية",
       }
     : {
         search: "🔍 Search Here...",
@@ -45,6 +47,8 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
         noUsers: "No users found.",
         startTyping: "Start typing to search for users.",
         closeNewChat: "Close new chat",
+        previousConversations: "Previous conversations",
+        nextConversations: "Next conversations",
       };
   const userTypeLabel = (type: IUserSearch["type"]) =>
     type === "teachers"
@@ -68,10 +72,6 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
   });
   const [isAddingChat, setIsAddingChat] = useState(false);
   const { mutate: createNewConversation } = useCreateConversation();
-
-  useEffect(() => {
-    setConversationPage(1);
-  }, [debouncedConversationSearch]);
 
   // State and hook for searching new users
   const [userSearchQuery, setUserSearchQuery] = useState("");
@@ -125,7 +125,10 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
             placeholder={text.search}
             className="w-full p-3 bg-[#F0FEFC] shadow-sm rounded-md text-center focus:outline-none placeholder:text-black placeholder:text-center"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setConversationPage(1);
+            }}
             aria-label={text.search}
           />
         </div>

@@ -61,7 +61,7 @@ describe("TeacherBookings", () => {
   it("submits a teacher proposal as the browser-local datetime converted to ISO", async () => {
     render(<I18nProvider><TeacherBookings /></I18nProvider>);
 
-    const input = screen.getByLabelText("New time");
+    const input = screen.getByLabelText(/New time|موعد جديد/);
     const proposedValue = "2099-01-10T18:30";
     fireEvent.change(input, { target: { value: proposedValue } });
     fireEvent.click(screen.getByRole("button", { name: "Propose time" }));
@@ -77,7 +77,7 @@ describe("TeacherBookings", () => {
   it("uses a local datetime minimum rather than a UTC ISO minimum", () => {
     render(<I18nProvider><TeacherBookings /></I18nProvider>);
 
-    const input = screen.getByLabelText("New time") as HTMLInputElement;
+    const input = screen.getByLabelText(/New time|موعد جديد/) as HTMLInputElement;
     expect(input.min).toMatch(/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}$/);
     expect(input.min).not.toContain("Z");
   });

@@ -29,8 +29,10 @@ export interface IStudentRegister {
   name: string;
   address: string;
   phone: string;
+  country_id: string;
+  education_system_id: string;
   education_level_id: string;
-  gender: string;
+  gender: "male" | "female";
 }
 
 export interface IParentRegister {

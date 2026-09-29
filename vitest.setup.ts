@@ -38,3 +38,8 @@ Object.defineProperty(window, "ResizeObserver", {
   configurable: true,
   value: ResizeObserverMock,
 });
+
+Object.defineProperty(Element.prototype, "scrollIntoView", {
+  configurable: true,
+  value: () => undefined,
+});

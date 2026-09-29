@@ -65,7 +65,7 @@ export interface ICategoriesRes {
 
 export interface ISubCategory {
   id: number;
-  name: strings;
+  name: string;
   description: string;
   image: null | string;
   category: ICategory;

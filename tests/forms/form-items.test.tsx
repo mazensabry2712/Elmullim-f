@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { Form, FormField } from "@/components/ui/form";
 import SelectFormItem from "@/components/forms/formItems/SelectFormItem";
 import MultiSelectFormItem from "@/components/forms/formItems/MultiSelectFormItem";
+import { I18nProvider } from "@/i18n";
 
 const selectInput = {
   name: "country_id",
@@ -18,7 +19,8 @@ const renderSelect = (language: "en" | "ar" = "en") => {
     });
 
     return (
-      <Form {...form}>
+      <I18nProvider>
+        <Form {...form}>
         <FormField
           control={form.control}
           name="country_id"
@@ -38,12 +40,10 @@ const renderSelect = (language: "en" | "ar" = "en") => {
     );
   };
 
-  if (language === "en") {
-    return render(<Wrapper />);
-  }
-
   return render(
-    <Wrapper />
+    <I18nProvider>
+      <Wrapper />
+    </I18nProvider>
   );
 };
 

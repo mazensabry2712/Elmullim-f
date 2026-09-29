@@ -17,6 +17,7 @@ vi.mock("@/store/store", () => ({
 }));
 vi.mock("@/store/features/auth/authSlice", () => ({
   logout: () => ({ type: "auth/logout" }),
+  syncSession: (payload: unknown) => ({ type: "auth/syncSession", payload }),
 }));
 vi.mock("@/utils/cookieService", () => ({
   default: {

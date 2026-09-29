@@ -26,7 +26,7 @@ export const bookingKeys = {
   teacherSchedule: () => ["schedule", "teacher"] as const,
 };
 
-const invalidateBookingViews = (queryClient: ReturnType<typeof useQueryClient>, token: string, bookingId?: number) => {
+const invalidateBookingViews = (queryClient: ReturnType<typeof useQueryClient>, _token: string, bookingId?: number) => {
   queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
   queryClient.invalidateQueries({ queryKey: bookingKeys.detail(bookingId) });
   queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
@@ -128,7 +128,7 @@ export const useMarkSessionAttendance = () => {
     mutationFn: markSessionAttendance,
     onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
-      queryClient.invalidateQueries({ queryKey: bookingKeys.schedule(variables.token) });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
     },
   });
 };
@@ -138,8 +138,8 @@ export const useUpdateSessionStatus = () => {
   return useMutation({
     mutationFn: updateSessionStatus,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: bookingKeys.mine(variables.token) });
-      queryClient.invalidateQueries({ queryKey: bookingKeys.schedule(variables.token) });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
       queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
     },
   });
@@ -150,7 +150,7 @@ export const useUpdateSessionMeetingLink = () => {
   return useMutation({
     mutationFn: updateSessionMeetingLink,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: bookingKeys.schedule(variables.token) });
+      queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
       queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
     },
   });

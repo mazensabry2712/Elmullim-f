@@ -26,7 +26,7 @@ const Header = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="container relative z-50 lg:px-20 2xl:px-32"
+        className="container relative z-50 lg:px-4 xl:px-8 2xl:px-12"
       >
         <div className="relative z-50 px-2 pt-1 sm:px-4 md:pt-0 md:space-y-2">
           <motion.div

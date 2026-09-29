@@ -22,6 +22,8 @@ import {
 } from "@/components/ui/form";
 import { IFormInput } from "@/interfaces";
 import { useMemo, useState } from "react";
+import { useI18n } from "@/i18n";
+import { translateFormText } from "@/i18n/formCopy";
 
 interface Option {
   value: string;
@@ -43,6 +45,8 @@ const MultiSelectFormItem: React.FC<MultiSelectProps> = ({
 }) => {
   const [open, setOpen] = useState<boolean>(false);
   const [searchValue, setSearchValue] = useState<string>("");
+  const { language } = useI18n();
+  const translatedLabel = translateFormText(language, input.label) ?? input.label ?? "";
 
   const filteredOptions = useMemo<Option[]>(() => {
     if (!searchValue) return options;
@@ -74,6 +78,7 @@ const MultiSelectFormItem: React.FC<MultiSelectProps> = ({
         <Popover open={open} onOpenChange={setOpen}>
           <PopoverTrigger asChild>
             <button
+              type="button"
               id={input.name}
               role="combobox"
               aria-expanded={open}
@@ -93,22 +98,22 @@ const MultiSelectFormItem: React.FC<MultiSelectProps> = ({
                       <X size={14} className="text-[#2F927E]" />
                     </span>
                   ))
-                : `Choose ${input.label}...`}
+                : `${translateFormText(language, "Choose")} ${translatedLabel}...`}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50 absolute top-1/2 -translate-y-1/2 right-3" />
             </button>
           </PopoverTrigger>
           <PopoverContent
             id={input.name}
-            className="w-[300px] sm:w-[400px] md:w-[370px] xl:w-[420px] p-0 z-[1000] border-none"
+            className="w-[calc(100vw-2rem)] max-w-[420px] p-0 z-[1000] sm:w-[min(400px,calc(100vw-2rem))] md:w-[min(370px,calc(100vw-2rem))] xl:w-[min(420px,calc(100vw-2rem))] border-none"
           >
             <Command id={input.name} className="text-black-blue">
               <CommandInput
-                placeholder="Search..."
+                placeholder={translateFormText(language, "choose")}
                 value={searchValue}
                 onValueChange={setSearchValue}
               />
               <CommandList id={input.name}>
-                <CommandEmpty>No options found</CommandEmpty>
+                <CommandEmpty>{translateFormText(language, "Not found")}</CommandEmpty>
                 <CommandGroup id={input.name}>
                   {filteredOptions.map((option) => (
                     <CommandItem

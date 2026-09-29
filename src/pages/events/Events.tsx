@@ -18,7 +18,7 @@ const Events = () => {
         transition={{ duration: 0.8 }}
         className="container text-center text-white space-y-4 md:space-y-6 pt-20 md:pt-32 pb-16 md:pb-24"
       >
-        <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
+        <h1 className="text-4xl font-bold leading-tight uppercase md:text-6xl md:leading-[74px]">
           {copy.title}
         </h1>
         <p

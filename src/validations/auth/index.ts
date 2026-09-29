@@ -102,12 +102,14 @@ export const studentSignUpSchema = z.object({
         "يرجى اختيار النوع."
       ),
     })
-    .refine((value) => value === "male" || value === "female", {
-      message: validationMessage(
-        "Please select a valid gender.",
-        "يرجى اختيار نوع صحيح."
-      ),
-    }),
+    .pipe(
+      z.enum(["male", "female"], {
+        invalid_type_error: validationMessage(
+          "Please select a valid gender.",
+          "يرجى اختيار نوع صحيح."
+        ),
+      })
+    ),
   address: z
     .string()
     .trim()

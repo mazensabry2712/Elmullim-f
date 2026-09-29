@@ -41,8 +41,11 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
 
   const filteredOptions = useMemo(() => {
     if (!searchValue) return options;
-    return options.filter((option) =>
-      option.value.toLowerCase().includes(searchValue.toLowerCase())
+    const query = searchValue.toLowerCase();
+    return options.filter(
+      (option) =>
+        option.label.toLowerCase().includes(query) ||
+        option.value.toLowerCase().includes(query)
     );
   }, [options, searchValue]);
 
@@ -84,7 +87,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
             className="w-[calc(100vw-2rem)] max-w-[420px] p-0 z-[1000] border-none sm:w-[min(400px,calc(100vw-2rem))] md:w-[min(370px,calc(100vw-2rem))] xl:w-[min(420px,calc(100vw-2rem))]"
             onWheel={(e) => e.stopPropagation()}
           >
-            <Command className="text-black-blue">
+            <Command shouldFilter={false} className="text-black-blue">
               <CommandInput
                 placeholder={translateFormText(language, "choose")}
                 value={searchValue}

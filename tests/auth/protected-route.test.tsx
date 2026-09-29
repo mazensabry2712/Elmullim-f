@@ -26,7 +26,7 @@ describe("ProtectedRoute", () => {
     vi.clearAllMocks();
     getTokenMock.mockReturnValue("student-token");
     getRoleMock.mockReturnValue("student");
-    useSelectorMock.mockReturnValue({ isAuthenticated: true });
+    useSelectorMock.mockReturnValue({ isAuthenticated: true, role: "student" });
   });
 
   it("redirects unauthenticated users to login", () => {
@@ -44,7 +44,8 @@ describe("ProtectedRoute", () => {
   });
 
   it("redirects an authenticated user with the wrong role to unauthorized", () => {
-    getRoleMock.mockReturnValue("teacher");
+    getRoleMock.mockReturnValue("student");
+    useSelectorMock.mockReturnValue({ isAuthenticated: true, role: "teacher" });
 
     render(
       <ProtectedRoute requiredRole="student">

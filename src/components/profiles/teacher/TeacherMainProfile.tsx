@@ -2,6 +2,7 @@ import Loader from "@/components/Loader";
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { useI18n } from "@/i18n";
+import { ISubject } from "@/interfaces/main";
 
 import {
   useGetTeacherProfile,
@@ -61,7 +62,7 @@ const TeacherMainProfile = () => {
   }[language];
 
   const groupedSubjects =
-    subjects?.reduce((acc: any, subject: any) => {
+    subjects?.reduce<Record<string, ISubject[]>>((acc, subject) => {
       const levelName = subject.education_level?.name || copy.notFound;
       if (!acc[levelName]) acc[levelName] = [];
       acc[levelName].push(subject);
@@ -92,7 +93,7 @@ const TeacherMainProfile = () => {
               <img
                 src={profile_image ? profile_image : "/images/profile-avatar.webp"}
                 className="w-full h-full object-contain bg-white rounded-lg"
-                alt="profile"
+                alt={language === "ar" ? "صورة الملف الشخصي" : "Profile"}
               />
             </div>
             <div className="space-y-2">
@@ -148,8 +149,8 @@ const TeacherMainProfile = () => {
                   <h3 className="bg-[#F0FEFC] text-[#194D80] shadow-md rounded-md border text-xl border-[#194D80] font-bold font-sora py-3 px-12 inline-block my-5">
                     {copy.cv}
                   </h3>
-                  <img src="/images/pdf.png" className="w-24 h-24" alt="my-cv" />
-                  <div className="flex items-center justify-center gap-2 border border-[#08917B] rounded-md shadow-md px-2 min-w-64">
+                  <img src="/images/pdf.png" className="w-24 h-24" alt={language === "ar" ? "السيرة الذاتية" : "CV"} />
+                  <div className="flex items-center justify-center gap-2 border border-[#08917B] rounded-md shadow-md px-2 w-full max-w-64 min-w-0">
                     <img src="/images/pdf.png" className="w-16 h-16" alt="my-cv" />
                     <span className="capitalize font-sora text-xs text-[#194D80]">{name}</span>
                   </div>
@@ -168,11 +169,11 @@ const TeacherMainProfile = () => {
           {subjects && subjects.length > 0 ? (
             <div className="space-y-8">
               {Object.entries(groupedSubjects).map(
-                ([levelName, levelSubjects]: [string, any]) => (
+                ([levelName, levelSubjects]) => (
                   <div key={levelName} className="flex flex-col items-center lg:items-start">
                     <h2 className="capitalize font-bold text-xl md:text-2xl text-main mb-4">{levelName}</h2>
                     <div className="flex flex-wrap justify-center lg:justify-start gap-4">
-                      {levelSubjects.map((subject: { name: string }, idx: number) => (
+                      {levelSubjects.map((subject, idx) => (
                         <div className="flex justify-center" key={idx}>
                           <h3 className="bg-[#F0FEFC] text-[#194D80] shadow-md rounded-md border text-lg border-[#194D80] font-bold font-sora px-3 py-5 inline-block">
                             {subject.name}

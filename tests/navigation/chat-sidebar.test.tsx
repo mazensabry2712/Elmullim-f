@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 import SideBar from "@/components/chat/SideBar";
 
@@ -23,7 +24,27 @@ let conversationData: {
       sender: null;
     } | null;
   }>;
-} = { data: [] };
+  meta: {
+    current_page: number;
+    last_page: number;
+    per_page: number;
+    total: number;
+    from: number | null;
+    to: number | null;
+    has_more_pages: boolean;
+  };
+} = {
+  data: [],
+  meta: {
+    current_page: 1,
+    last_page: 1,
+    per_page: 25,
+    total: 0,
+    from: null,
+    to: null,
+    has_more_pages: false,
+  },
+};
 
 vi.mock("@/utils/cookieService", () => ({
   default: {
@@ -41,6 +62,7 @@ vi.mock("@/lib/react-query/chat/chat", () => ({
   useGetAllConversations: () => ({
     data: conversationData,
     isLoading: false,
+    isFetching: false,
     refetch: vi.fn(),
   }),
   useCreateConversation: () => ({
@@ -56,6 +78,21 @@ vi.mock("@/lib/react-query/main", () => ({
 }));
 
 describe("Chat sidebar", () => {
+  beforeEach(() => {
+    conversationData = {
+      data: [],
+      meta: {
+        current_page: 1,
+        last_page: 1,
+        per_page: 25,
+        total: 0,
+        from: null,
+        to: null,
+        has_more_pages: false,
+      },
+    };
+    setSelectedConversationIdMock.mockReset();
+  });
   it("exposes accessible new-chat controls and a way back", () => {
     render(
       <SideBar setSelectedConversationId={setSelectedConversationIdMock} />
@@ -108,6 +145,15 @@ describe("Chat sidebar", () => {
           },
         },
       ],
+      meta: {
+        current_page: 1,
+        last_page: 2,
+        per_page: 1,
+        total: 2,
+        from: 1,
+        to: 1,
+        has_more_pages: true,
+      },
     };
 
     render(
@@ -120,5 +166,32 @@ describe("Chat sidebar", () => {
     fireEvent.click(conversation);
 
     expect(setSelectedConversationIdMock).toHaveBeenCalledWith("42");
+  });
+
+  it("renders pagination controls when the API reports multiple pages", () => {
+    conversationData = {
+      data: [],
+      meta: {
+        current_page: 1,
+        last_page: 3,
+        per_page: 1,
+        total: 3,
+        from: null,
+        to: null,
+        has_more_pages: true,
+      },
+    };
+
+    render(
+      <SideBar setSelectedConversationId={setSelectedConversationIdMock} />
+    );
+
+    expect(screen.getByRole("button", { name: "Previous conversations" })).toBeDisabled();
+    const next = screen.getByRole("button", { name: "Next conversations" });
+    expect(next).toBeEnabled();
+
+    fireEvent.click(next);
+
+    expect(next).toBeInTheDocument();
   });
 });

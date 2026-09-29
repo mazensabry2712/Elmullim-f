@@ -34,23 +34,26 @@ import {
 } from "@/services/teacher/courses";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetTeacherCourses = (token: string) =>
+export const useGetTeacherCourses = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_COURSES],
     queryFn: () => getTeacherCourses(token),
+    enabled: enabled && !!token,
   });
 
 export const useGetTeacherCourseById = ({
   token,
   id,
+  enabled = true,
 }: {
   token: string;
   id: string;
+  enabled?: boolean;
 }) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_COURSE, id],
     queryFn: () => getTeacherCourseById({ token, id }),
-    enabled: !!id,
+    enabled: enabled && !!id && !!token,
   });
 
 export const useCreateTeacherCourse = () => {
@@ -96,29 +99,33 @@ export const useDeleteTeacherCourse = () => {
 export const useGetTeacherCourseContents = ({
   token,
   courseId,
+  enabled = true,
 }: {
   token: string;
   courseId: string;
+  enabled?: boolean;
 }) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS, courseId],
     queryFn: () => getTeacherCourseContents({ token, courseId }),
-    enabled: !!courseId,
+    enabled: enabled && !!courseId && !!token,
   });
 
 export const useGetTeacherCourseContentById = ({
   token,
   id,
   courseId,
+  enabled = true,
 }: {
   token: string;
   id: string;
   courseId: string;
+  enabled?: boolean;
 }) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_COURSE_CONTENT, id, courseId],
     queryFn: () => getTeacherCourseContentById({ token, courseId, id }),
-    enabled: !!id && !!courseId,
+    enabled: enabled && !!id && !!courseId && !!token,
   });
 
 export const useCreateTeacherCourseContent = () => {
@@ -185,11 +192,12 @@ export const useGetTeacherCourseLectures = ({
   token,
   contentId,
   courseId,
-}: IGetCourseLecture) =>
+  enabled = true,
+}: IGetCourseLecture & { enabled?: boolean }) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, contentId, courseId],
     queryFn: () => getTeacherCourseLectures({ token, contentId, courseId }),
-    enabled: !!contentId && !!courseId,
+    enabled: enabled && !!contentId && !!courseId && !!token,
   });
 
 export const useGetTeacherCourseLectureById = ({
@@ -197,12 +205,13 @@ export const useGetTeacherCourseLectureById = ({
   contentId,
   courseId,
   id,
-}: IGetCourseLecture) =>
+  enabled = true,
+}: IGetCourseLecture & { enabled?: boolean }) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, id, contentId, courseId],
     queryFn: () =>
       getTeacherCourseLectureById({ token, contentId, courseId, id }),
-    enabled: !!id && !!contentId && !!courseId,
+    enabled: enabled && !!id && !!contentId && !!courseId && !!token,
   });
 
 export const useCreateTeacherCourseLecture = () => {

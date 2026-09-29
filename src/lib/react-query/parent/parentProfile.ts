@@ -6,10 +6,11 @@ import {
 } from "@/services/parent/parentProfile";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetParentProfile = (token: string) =>
+export const useGetParentProfile = (token: string, enabled = true) =>
   useQuery({
-    queryKey: [QueryKeys.PROFILE],
+    queryKey: [QueryKeys.PROFILE, "parent"],
     queryFn: () => getParentProfile(token),
+    enabled: enabled && !!token,
   });
 
 export const useUpdateParentProfile = () => {

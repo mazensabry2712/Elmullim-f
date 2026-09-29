@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { Loader2, X } from "lucide-react";
 import { toast } from "react-toastify";
-import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 import { useCreateBooking } from "@/lib/react-query/booking";
+import { useGetStudentProfile } from "@/lib/react-query/student/studentProfile";
+import { useGetParentProfile } from "@/lib/react-query/parent/parentProfile";
 import { BookingStatus } from "@/interfaces/bookings/booking";
 import { useGetLessonBookingOptions } from "@/lib/react-query/lessons/lessons";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
@@ -24,12 +25,6 @@ interface IStudentOption {
   address?: string | null;
   latitude?: string | number | null;
   longitude?: string | number | null;
-}
-
-interface IProfileResponse {
-  data?: IStudentOption & {
-    students?: IStudentOption[];
-  };
 }
 
 const getTodayInputValue = () => {
@@ -54,7 +49,6 @@ const BookLessonDialog = ({
   const [studentId, setStudentId] = useState<number | null>(null);
   const [students, setStudents] = useState<IStudentOption[]>([]);
   const [selfStudent, setSelfStudent] = useState<IStudentOption | null>(null);
-  const [loadingStudents, setLoadingStudents] = useState(false);
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [customerNote, setCustomerNote] = useState("");
@@ -63,37 +57,61 @@ const BookLessonDialog = ({
     isLoading: loadingBookingOptions,
     isError: bookingOptionsError,
   } = useGetLessonBookingOptions(lessonId, selectedDate);
+  const studentProfileQuery = useGetStudentProfile(token, open && role === "student");
+  const parentProfileQuery = useGetParentProfile(token, open && role === "parent");
   const { mutateAsync, isPending } = useCreateBooking();
+
+  const loadingStudents =
+    (role === "student" && studentProfileQuery.isLoading) ||
+    (role === "parent" && parentProfileQuery.isLoading);
 
   useEffect(() => {
     if (!open || !token || (role !== "student" && role !== "parent")) return;
 
-    setLoadingStudents(true);
-    const endpoint = role === "student" ? "/student/me" : "/parent/me";
-    axiosAPI
-      .get<IProfileResponse>(endpoint, { headers: { Authorization: `Bearer ${token}` } })
-      .then(({ data }) => {
-        if (role === "student") {
-          if (data.data?.id) {
-            setStudentId(data.data.id);
-            setSelfStudent({
-              id: data.data.id,
-              name: data.data.name ?? "",
-              address: data.data.address ?? null,
-              latitude: data.data.latitude ?? null,
-              longitude: data.data.longitude ?? null,
-            });
-          }
-          return;
-        }
-        const linkedStudents = data.data?.students ?? [];
-        setStudents(linkedStudents);
-        setStudentId(linkedStudents[0]?.id ?? null);
-        setSelfStudent(null);
-      })
-      .catch(() => toast.error(bookingCopy.failed))
-      .finally(() => setLoadingStudents(false));
-  }, [open, role, token, language, bookingCopy.failed]);
+    if (role === "student" && studentProfileQuery.data?.data) {
+      const profile = studentProfileQuery.data.data;
+      setStudentId(profile.id ?? null);
+      setSelfStudent({
+        id: profile.id ?? 0,
+        name: profile.name ?? "",
+        address: profile.address ?? null,
+        latitude: profile.latitude ?? null,
+        longitude: profile.longitude ?? null,
+      });
+      setStudents([]);
+      return;
+    }
+
+    if (role === "parent" && parentProfileQuery.data?.data) {
+      const linkedStudents = parentProfileQuery.data.data.students ?? [];
+      setStudents(linkedStudents);
+      setStudentId(linkedStudents[0]?.id ?? null);
+      setSelfStudent(null);
+    }
+  }, [
+    open,
+    role,
+    token,
+    studentProfileQuery.data,
+    parentProfileQuery.data,
+  ]);
+
+  useEffect(() => {
+    if (!open || !token) return;
+    if (
+      (role === "student" && studentProfileQuery.isError) ||
+      (role === "parent" && parentProfileQuery.isError)
+    ) {
+      toast.error(bookingCopy.failed);
+    }
+  }, [
+    open,
+    role,
+    token,
+    studentProfileQuery.isError,
+    parentProfileQuery.isError,
+    bookingCopy.failed,
+  ]);
 
   const minimumDate = getTodayInputValue();
 

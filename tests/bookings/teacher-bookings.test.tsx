@@ -64,7 +64,7 @@ describe("TeacherBookings", () => {
     const input = screen.getByLabelText(/New time|موعد جديد/);
     const proposedValue = "2099-01-10T18:30";
     fireEvent.change(input, { target: { value: proposedValue } });
-    fireEvent.click(screen.getByRole("button", { name: "Propose time" }));
+    fireEvent.click(screen.getByRole("button", { name: /Propose time|اقتراح موعد جديد/ }));
 
     await waitFor(() => expect(mocks.proposeBookingTime).toHaveBeenCalledWith({
       token: "token",

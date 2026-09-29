@@ -126,7 +126,7 @@ export const useMarkSessionAttendance = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: markSessionAttendance,
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
       queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
     },
@@ -137,7 +137,7 @@ export const useUpdateSessionStatus = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateSessionStatus,
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
       queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
       queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
@@ -149,7 +149,7 @@ export const useUpdateSessionMeetingLink = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: updateSessionMeetingLink,
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
       queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });
     },

@@ -1,5 +1,5 @@
-import Echo from "laravel-echo";
-import Pusher from "pusher-js";
+import type Echo from "laravel-echo";
+import type Pusher from "pusher-js";
 import axiosAPI from "@/config/axios.config";
 import cookieService from "@/utils/cookieService";
 
@@ -77,7 +77,10 @@ export const getEcho = async (): Promise<Echo<any> | null> => {
     echoInstance.disconnect();
   }
 
-  window.Pusher = Pusher;
+  const [{ default: EchoConstructor }, { default: PusherConstructor }] =
+    await Promise.all([import("laravel-echo"), import("pusher-js")]);
+
+  window.Pusher = PusherConstructor;
 
   const hostOptions = runtimeConfig.host
     ? {
@@ -93,7 +96,7 @@ export const getEcho = async (): Promise<Echo<any> | null> => {
         wssPort: 443,
       };
 
-  echoInstance = new Echo({
+  echoInstance = new EchoConstructor({
     broadcaster: "pusher",
     key: runtimeConfig.key,
     cluster: runtimeConfig.cluster,

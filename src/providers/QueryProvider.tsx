@@ -1,5 +1,7 @@
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useRef } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 
 const queryClient = new QueryClient({
   defaultOptions: {

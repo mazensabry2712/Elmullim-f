@@ -20,6 +20,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  useFormField,
 } from "@/components/ui/form";
 import { IFormInput } from "@/interfaces";
 import { useMemo, useState } from "react";
@@ -38,6 +39,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
   const [searchValue, setSearchValue] = useState("");
   const { language } = useI18n();
   const translatedLabel = translateFormText(language, input.label) ?? input.label ?? "";
+  const { formItemId } = useFormField();
 
   const filteredOptions = useMemo(() => {
     if (!searchValue) return options;
@@ -67,7 +69,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
           >
             <button
               type="button"
-              id={input.name}
+              id={formItemId}
               role="combobox"
               aria-expanded={open}
               className="border border-input inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] px-4 py-2 has-[>svg]:px-3 w-full !h-12 text-black-blue justify-between overflow-hidden bg-white hover:bg-white font-sora capitalize"

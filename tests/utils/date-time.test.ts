@@ -4,6 +4,7 @@ import {
   formatDate,
   formatDateTime,
   formatDateTimeLocalInput,
+  formatTime,
 } from "@/utils/dateTime";
 
 describe("dateTime utilities", () => {
@@ -20,6 +21,12 @@ describe("dateTime utilities", () => {
   it("formats a date-only value without timezone day shifting", () => {
     expect(formatDate("2099-01-10", "en")).not.toBe("");
     expect(formatDate("2099-01-10", "ar")).not.toBe("");
+  });
+
+  it("formats an instant as a localized time", () => {
+    const value = new Date("2099-01-10T16:07:00.000Z");
+    expect(formatTime(value, "en")).not.toBe("");
+    expect(formatTime(value, "ar")).not.toBe("");
   });
 
   it("returns an empty string for invalid display dates", () => {

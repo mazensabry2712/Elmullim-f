@@ -106,7 +106,7 @@ const MultiSelectFormItem: React.FC<MultiSelectProps> = ({
             id={input.name}
             className="w-[calc(100vw-2rem)] max-w-[420px] p-0 z-[1000] sm:w-[min(400px,calc(100vw-2rem))] md:w-[min(370px,calc(100vw-2rem))] xl:w-[min(420px,calc(100vw-2rem))] border-none"
           >
-            <Command id={input.name} className="text-black-blue">
+            <Command id={input.name} shouldFilter={false} className="text-black-blue">
               <CommandInput
                 placeholder={translateFormText(language, "choose")}
                 value={searchValue}

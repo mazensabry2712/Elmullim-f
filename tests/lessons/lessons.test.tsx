@@ -137,6 +137,7 @@ describe("Lessons", () => {
       <MemoryRouter initialEntries={["/lessons?delivery_mode=offline&subject_id=11"]}>
         <I18nProvider>
           <Lessons />
+          <LocationProbe />
         </I18nProvider>
       </MemoryRouter>
     );
@@ -167,7 +168,7 @@ describe("Lessons", () => {
       </MemoryRouter>
     );
 
-    const delivery = screen.getByRole("combobox", { name: "Delivery mode" });
+    const delivery = screen.getByRole("combobox", { name: "Delivery" });
     await user.selectOptions(delivery, "online");
 
     const currentSearch = screen.getByTestId("location-search").textContent ?? "";

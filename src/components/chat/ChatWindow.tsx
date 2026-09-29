@@ -10,6 +10,7 @@ import { useI18n } from "@/i18n";
 import { formatTime } from "@/utils/dateTime";
 import { MoreVertical, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { toast } from "react-toastify";
 
 function ChatWindow({
   conversationId,
@@ -116,7 +117,11 @@ function ChatWindow({
         },
         onError: (error) => {
           console.error("Failed to send message:", error);
-          alert("Failed to send message. Please try again.");
+          toast.error(
+            language === "ar"
+              ? "تعذر إرسال الرسالة. يرجى المحاولة مرة أخرى."
+              : "Failed to send message. Please try again."
+          );
         },
       }
     );

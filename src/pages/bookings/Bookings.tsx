@@ -12,8 +12,6 @@ import { formatDateTime } from "@/utils/dateTime";
 const canCancel = (status: IBooking["status"]) =>
   ["booking_requested", "pending_teacher_approval", "accepted", "rescheduled"].includes(status);
 
-const isParentBooker = (booking: IBooking) => booking.booked_by_type?.endsWith("\\Family") ?? false;
-
 const canPay = (booking: IBooking) =>
   Number(booking.price) > 0 &&
   (booking.status === "accepted" || (booking.booking_type === "group" && booking.status === "booking_requested"));
@@ -112,7 +110,7 @@ const Bookings = () => {
                   </>
                 )}
 
-                {canPay(booking) && (role === "student" || (role === "parent" && isParentBooker(booking))) && (
+                {canPay(booking) && (role === "student" || role === "parent") && (
                   <BookingPaymentDialog bookingId={booking.id} price={booking.price} isParent={role === "parent"} />
                 )}
 

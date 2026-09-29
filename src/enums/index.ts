@@ -30,6 +30,7 @@ enum QueryKeys {
   TEACHER_LESSONS = "teacherLessons",
   TEACHER_LESSON = "teacherLesson",
   TEACHER_SERVICE_AREAS = "teacherServiceAreas",
+  TEACHER_AVAILABILITY_BLOCKS = "teacherAvailabilityBlocks",
   TEACHER_LESSON_SERVICE_AREAS = "teacherLessonServiceAreas",
   STUDENT_LOCATION = "studentLocation",
   PARENT_STUDENT_LOCATION = "parentStudentLocation",

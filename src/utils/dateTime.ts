@@ -3,6 +3,31 @@ export type AppLanguage = "ar" | "en";
 const localeFor = (language: AppLanguage) =>
   language === "ar" ? "ar-EG" : "en-EG";
 
+const parseDate = (value: string | Date) => {
+  if (value instanceof Date) return value;
+
+  const dateOnlyMatch = /^\d{4}-\d{2}-\d{2}$/.test(value);
+  if (dateOnlyMatch) {
+    const [year, month, day] = value.split("-").map(Number);
+    return new Date(year, month - 1, day);
+  }
+
+  return new Date(value);
+};
+
+export const formatDate = (
+  value: string | Date,
+  language: AppLanguage = "en"
+) => {
+  const date = parseDate(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat(localeFor(language), {
+    dateStyle: "medium",
+  }).format(date);
+};
+
 export const formatDateTime = (
   value: string | Date,
   language: AppLanguage = "en"

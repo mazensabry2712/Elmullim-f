@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import ChatWindow from "@/components/chat/ChatWindow";
 
 const onCloseMock = vi.fn();
+const sendMessageMock = vi.fn();
 
 vi.mock("@/lib/echo/echo", () => ({
   default: vi.fn(async () => null),
@@ -22,7 +23,7 @@ vi.mock("@/i18n", () => ({
 
 vi.mock("@/lib/react-query/chat/chat", () => ({
   useCreateMessage: () => ({
-    mutate: vi.fn(),
+    mutate: sendMessageMock,
     isPending: false,
   }),
   useDeleteConversation: () => ({
@@ -78,5 +79,28 @@ describe("ChatWindow accessibility", () => {
     fireEvent.click(closeButton);
 
     expect(onCloseMock).toHaveBeenCalledOnce();
+  });
+
+  it("sends an image even when the message body is empty", () => {
+    render(<ChatWindow conversationId="1" onClose={onCloseMock} />);
+
+    const fileInput = document.getElementById("hiddenFileInput");
+    expect(fileInput).toBeInTheDocument();
+
+    const image = new File(["image"], "lesson.png", { type: "image/png" });
+    fireEvent.change(fileInput as HTMLInputElement, {
+      target: { files: [image] },
+    });
+
+    const sendButton = screen.getByRole("button", { name: "Send" });
+    expect(sendButton).toBeEnabled();
+
+    fireEvent.click(sendButton);
+
+    expect(sendMessageMock).toHaveBeenCalledOnce();
+    expect(sendMessageMock.mock.calls[0][0].message).toEqual({
+      body: "",
+      image,
+    });
   });
 });

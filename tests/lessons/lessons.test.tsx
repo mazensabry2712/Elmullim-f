@@ -164,6 +164,7 @@ describe("Lessons", () => {
       <MemoryRouter initialEntries={["/lessons?delivery_mode=offline&location=Cairo"]}>
         <I18nProvider>
           <Lessons />
+          <LocationProbe />
         </I18nProvider>
       </MemoryRouter>
     );

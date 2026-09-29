@@ -42,6 +42,20 @@ export const formatDateTime = (
   }).format(date);
 };
 
+export const formatTime = (
+  value: string | Date,
+  language: AppLanguage = "en"
+) => {
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) return "";
+
+  return new Intl.DateTimeFormat(localeFor(language), {
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
+};
+
 export const formatDateTimeLocalInput = (date: Date = new Date()) => {
   const pad = (value: number) => String(value).padStart(2, "0");
 

@@ -1,5 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { useForm } from "react-hook-form";
 import { Form, FormField } from "@/components/ui/form";
 import SelectFormItem from "@/components/forms/formItems/SelectFormItem";
@@ -44,6 +44,9 @@ const renderSelect = () => {
 };
 
 describe("form item controls", () => {
+  beforeEach(() => {
+    localStorage.setItem("elmullim-language", "en");
+  });
   it("keeps select triggers from submitting their parent form", () => {
     renderSelect();
 

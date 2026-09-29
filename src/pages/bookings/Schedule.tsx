@@ -13,7 +13,7 @@ import {
 import { IBookingSession } from "@/interfaces/bookings/session";
 import { joinBookingSession } from "@/services/booking";
 import { getBookingCopy } from "@/pages/bookings/bookingCopy";
-import { formatDateTime } from "@/utils/dateTime";
+import { formatDateTime, formatTime } from "@/utils/dateTime";
 
 const Schedule = () => {
   const { language } = useI18n();
@@ -160,7 +160,7 @@ const Schedule = () => {
                     <h2 className="text-xl font-bold text-black-blue">{session.lesson?.title ?? `${getBookingCopy(language).bookings.lesson} #${session.lesson_id}`}</h2>
                   </div>
                   <p className="mt-2 font-sora text-sm text-[#4D5756]">
-                    {formatDateTime(session.start_at, language)} → {new Date(session.end_at).toLocaleTimeString(language === "ar" ? "ar-EG" : "en-EG", { hour: "2-digit", minute: "2-digit" })}
+                    {formatDateTime(session.start_at, language)} → {formatTime(session.end_at, language)}
                   </p>
                   {bookings.length > 0 && (
                     <p className="mt-1 font-sora text-sm text-[#4D5756]">

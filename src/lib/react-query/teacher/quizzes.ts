@@ -4,7 +4,7 @@ import { QuizDetails, Question } from "@/interfaces/quizzes/quiz";
 
 interface UseUploadQuizOptions {
   onSuccess?: () => void;
-  onError?: (error: any) => void;
+  onError?: (error: unknown) => void;
 }
 
 interface UploadQuizData {

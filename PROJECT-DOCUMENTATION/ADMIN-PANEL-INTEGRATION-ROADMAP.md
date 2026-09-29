@@ -1,7 +1,7 @@
 # Elmullim — Admin Panel / Frontend Integration Roadmap
 
 **Status:** Active companion document  
-**Last reviewed:** 2026-09-18  
+**Last reviewed:** 2026-09-29  
 **Backend:** `mazensabry2712/Elmullim-b`  
 **Frontend:** `mazensabry2712/Elmullim-f`
 
@@ -296,11 +296,12 @@ Do not patch only one side.
 
 ## 8. Current public frontend verification baseline
 
-Current documented local baseline:
+Latest local verification on 2026-09-29:
 
-- 36 test files / 88 tests passed.
+- 52 test files / 131 tests passed.
 - Lint passed.
 - Production build passed.
+- Playwright E2E: 2 tests passed.
 
 A later Admin change must not silently reduce this baseline.
 

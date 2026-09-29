@@ -119,6 +119,56 @@ describe("Lessons", () => {
     expect(mockRefetch).toHaveBeenCalledTimes(1);
   });
 
+  it("preserves existing discovery filters while changing search", async () => {
+    const user = userEvent.setup();
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/lessons?delivery_mode=offline&subject_id=11"]}>
+        <I18nProvider>
+          <Lessons />
+        </I18nProvider>
+      </MemoryRouter>
+    );
+
+    const search = screen.getByRole("searchbox", { name: /search lessons/i });
+    await user.type(search, "math");
+
+    const currentUrl = window.location.href;
+    expect(currentUrl).toContain("delivery_mode=offline");
+    expect(currentUrl).toContain("subject_id=11");
+    expect(currentUrl).toContain("q=math");
+  });
+
+  it("removes offline location when switching discovery to online", async () => {
+    const user = userEvent.setup();
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/lessons?delivery_mode=offline&location=Cairo"]}>
+        <I18nProvider>
+          <Lessons />
+        </I18nProvider>
+      </MemoryRouter>
+    );
+
+    const delivery = screen.getByRole("combobox", { name: "Delivery mode" });
+    await user.selectOptions(delivery, "online");
+
+    expect(window.location.href).toContain("delivery_mode=online");
+    expect(window.location.href).not.toContain("location=Cairo");
+  });
+
   it("supports Arabic and RTL", async () => {
     const user = userEvent.setup();
     mockUseGetLessons.mockReturnValue({

@@ -95,7 +95,7 @@ describe("ChatWindow accessibility", () => {
   });
 
   it("sends an image even when the message body is empty", () => {
-    render(<ChatWindow conversationId="1" onClose={onCloseMock} />);
+    renderChatWindow();
 
     const fileInput = document.getElementById("hiddenFileInput");
     expect(fileInput).toBeInTheDocument();

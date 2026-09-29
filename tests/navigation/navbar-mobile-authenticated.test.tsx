@@ -1,4 +1,4 @@
-import { render, screen, within } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -88,16 +88,18 @@ describe("Navbar mobile authenticated actions", () => {
 
     const menuButton = screen.getByRole("button", { name: "Toggle Menu" });
 
-    menuButton.click();
+    fireEvent.click(menuButton);
 
-    const mobileNavigation = document.getElementById("mobile-navigation");
-    expect(mobileNavigation).not.toBeNull();
+    await waitFor(() => {
+      const mobileNavigation = document.getElementById("mobile-navigation");
+      expect(mobileNavigation).not.toBeNull();
 
-    const mobileMenu = within(mobileNavigation as HTMLElement);
-    expect(mobileMenu.getByRole("link", { name: "Notifications" })).toHaveAttribute(
-      "href",
-      "/notifications"
-    );
-    expect(mobileMenu.getByRole("button", { name: "Profile" })).toBeInTheDocument();
+      const mobileMenu = within(mobileNavigation as HTMLElement);
+      expect(mobileMenu.getByRole("link", { name: "Notifications" })).toHaveAttribute(
+        "href",
+        "/notifications"
+      );
+      expect(mobileMenu.getByRole("button", { name: "Profile" })).toBeInTheDocument();
+    });
   });
 });

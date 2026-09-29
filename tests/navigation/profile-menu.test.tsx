@@ -2,11 +2,10 @@ import { act, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import ProfileDropdownMenu from "@/components/profiles/ProfileMenu";
 
-const navigateMock = vi.fn();
 let latestPopoverOnOpenChange: ((open: boolean) => void) | undefined;
 
 vi.mock("react-router-dom", () => ({
-  useNavigate: () => navigateMock,
+  useNavigate: () => vi.fn(),
 }));
 
 vi.mock("@/utils/cookieService", () => ({

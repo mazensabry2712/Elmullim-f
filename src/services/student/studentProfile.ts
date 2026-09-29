@@ -28,7 +28,7 @@ export const updateStudentProfile = async ({
   formData.append("gender", dataForm.gender);
 
   if (dataForm.profile_image) formData.append("profile_image", dataForm.profile_image);
-  if (dataForm.description) formData.append("description", dataForm.description);
+  formData.append("description", dataForm.description ?? "");
   if (dataForm.favourite_subjects) {
     dataForm.favourite_subjects.forEach((subject, idx) =>
       formData.append("favourite_subjects[" + idx + "]", subject)

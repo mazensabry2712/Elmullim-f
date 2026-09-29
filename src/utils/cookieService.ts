@@ -15,7 +15,7 @@ class CookieService {
     return {
       expires,
       path: "/",
-      secure: import.meta.env.VITE_ENV === "production",
+      secure: import.meta.env.PROD,
       sameSite: "strict" as const,
     };
   }

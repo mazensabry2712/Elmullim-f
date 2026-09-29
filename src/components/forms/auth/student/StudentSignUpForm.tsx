@@ -47,7 +47,11 @@ const StudentSignUpForm = () => {
 
   const { mutateAsync: studentRegister, isPending } = useStudentRegister();
 
-  const form = useForm<z.infer<typeof studentSignUpSchema>>({
+  const form = useForm<
+    z.input<typeof studentSignUpSchema>,
+    undefined,
+    z.output<typeof studentSignUpSchema>
+  >({
     resolver: zodResolver(studentSignUpSchema),
     defaultValues: {
       name: "",
@@ -61,7 +65,7 @@ const StudentSignUpForm = () => {
       address: "",
     },
   });
-  const onSubmit = async (user: z.infer<typeof studentSignUpSchema>) => {
+  const onSubmit = async (user: z.output<typeof studentSignUpSchema>) => {
     try {
       const { data, message, status } = await studentRegister(user);
       // ! Register Failed

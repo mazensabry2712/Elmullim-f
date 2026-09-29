@@ -237,7 +237,7 @@ function ChatWindow({
             <MoreVertical size={20} aria-hidden="true" />
           </button>
           {isMenuOpen && (
-            <div className="absolute right-0 top-full z-10 mt-2 w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+            <div role="menu" className="absolute right-0 top-full z-10 mt-2 w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
               <button
                 type="button"
                 role="menuitem"
@@ -299,10 +299,11 @@ function ChatWindow({
       </div>
       {/* send */}
       <div className="flex w-full shrink-0 flex-wrap items-center justify-center gap-2 border-t border-gray-100 px-3 py-3 sm:gap-3 sm:px-6">
-        <label
-          htmlFor="hiddenFileInput"
-          className="order-2 inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-main p-2 focus-within:outline-none focus-within:ring-2 focus-within:ring-main focus-within:ring-offset-2 sm:order-none"
+        <button
+          type="button"
           aria-label={language === "ar" ? "إرفاق صورة" : "Attach image"}
+          onClick={() => document.getElementById("hiddenFileInput")?.click()}
+          className="order-2 inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-main p-2 transition-colors hover:bg-white-gray focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 sm:order-none"
         >
           <svg
             width="24"
@@ -334,7 +335,7 @@ function ChatWindow({
               setImageFile(file);
             }}
           />
-        </label>
+        </button>
         <input
           type="text"
           placeholder={language === "ar" ? "اكتب رسالتك....." : "Type your message....."}

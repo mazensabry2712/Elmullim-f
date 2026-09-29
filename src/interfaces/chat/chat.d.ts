@@ -47,27 +47,40 @@ export interface IConversationRes {
   data: IConversation;
 }
 
+export interface IConversationListItem {
+  conversation_id: string;
+  unread_count: number;
+  participant: ISender;
+  last_message: {
+    id: number;
+    data: {
+      body: string;
+      image?: IImage;
+    } | null;
+    created_at: string;
+    deleted_at: null | string;
+    read: {
+      status: boolean;
+    } | null;
+    sender: ISender | null;
+  } | null;
+}
+
+export interface IChatPaginationMeta {
+  current_page: number;
+  last_page: number;
+  per_page: number;
+  total: number;
+  from: number | null;
+  to: number | null;
+  has_more_pages: boolean;
+}
+
 export interface IConversationsRes {
   status: boolean;
-  message: null | boolean;
-  data: {
-    conversation_id: string;
-    unread_count: number;
-    participant: ISender;
-    last_message: {
-      id: number;
-      data: {
-        body: string;
-        image?: IImage;
-      } | null;
-      created_at: string;
-      deleted_at: null | string;
-      read: {
-        status: boolean;
-      } | null;
-      sender: ISender | null;
-    } | null;
-  }[];
+  message: null | string;
+  data: IConversationListItem[];
+  meta: IChatPaginationMeta;
 }
 
 export interface ICreateConversation {

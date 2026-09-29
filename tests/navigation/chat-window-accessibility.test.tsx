@@ -1,9 +1,22 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import ChatWindow from "@/components/chat/ChatWindow";
 
 const onCloseMock = vi.fn();
 const sendMessageMock = vi.fn();
+
+const renderChatWindow = () => {
+  const client = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return render(
+    <QueryClientProvider client={client}>
+      <ChatWindow conversationId="1" onClose={onCloseMock} />
+    </QueryClientProvider>
+  );
+};
 
 vi.mock("@/lib/echo/echo", () => ({
   default: vi.fn(async () => null),
@@ -61,7 +74,7 @@ vi.mock("@/lib/react-query/chat/chat", () => ({
 
 describe("ChatWindow accessibility", () => {
   it("provides keyboard-accessible chat controls and closes from the menu", () => {
-    render(<ChatWindow conversationId="1" onClose={onCloseMock} />);
+    renderChatWindow();
 
     const optionsButton = screen.getByRole("button", { name: "Chat options" });
     expect(optionsButton).toHaveAttribute("aria-haspopup", "menu");

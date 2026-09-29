@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const toastError = vi.fn();
+const { toastError } = vi.hoisted(() => ({
+  toastError: vi.fn(),
+}));
 
 vi.mock("react-toastify", () => ({
   toast: {

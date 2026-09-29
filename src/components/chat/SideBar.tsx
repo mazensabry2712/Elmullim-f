@@ -35,11 +35,11 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
         search: "🔍 Search Here...",
         allChats: "All Chats",
         loading: "Loading...",
-        noConversations: "{text.noConversations}",
-        noMatches: "{text.noMatches}",
+        noConversations: "No Conversation .... Yet",
+        noMatches: "No Matching Conversations.",
         newChat: "Start a new chat",
         searchPerson: "🔍 Search For The Name....",
-        contact: "{text.contact}",
+        contact: "Contact them on chat...",
         searching: "Searching...",
         noUsers: "No users found.",
         startTyping: "Start typing to search for users.",
@@ -106,6 +106,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
     <div className="relative col-span-1 min-h-[360px] overflow-hidden rounded-md bg-[#FFFFFF] shadow-md md:h-[500px]">
       {/* Main View: Conversation List */}
       <div
+        aria-label={text.newChat}
         className={`h-full flex flex-col transform transition-transform duration-300 ease-in-out ${
           isAddingChat ? (language === "ar" ? "translate-x-full" : "-translate-x-full") : "translate-x-0"
         }`}
@@ -125,7 +126,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
             {conversations && conversations.data.length>0 &&(
               <>
               <h3 className="font-bold font-sora text-[#194C80] text-lg">
-              All Chats
+              {text.allChats}
             </h3>
             <ChevronDown size={25} className="text-[#194C80]" aria-hidden="true" />
               </>
@@ -237,7 +238,7 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
         <hr />
         <div className="flex justify-center items-center p-4">
           <h3 className="font-bold font-sora text-[#194C80] text-lg capitalize">
-            Contact them on chat...
+            {text.contact}
           </h3>
         </div>
         <div className="flex-grow overflow-y-auto px-2">

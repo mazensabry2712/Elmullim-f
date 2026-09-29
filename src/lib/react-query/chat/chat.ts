@@ -16,11 +16,22 @@ import {
 } from "@/services/chat/chat";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetAllConversations = (token: string, enabled = true) =>
+export const useGetAllConversations = ({
+  token,
+  page = 1,
+  search = "",
+  enabled = true,
+}: {
+  token: string;
+  page?: number;
+  search?: string;
+  enabled?: boolean;
+}) =>
   useQuery({
-    queryKey: [QueryKeys.CONVERSATIONS],
-    queryFn: () => getAllConversations(token),
+    queryKey: [QueryKeys.CONVERSATIONS, page, search],
+    queryFn: () => getAllConversations({ token, page, search }),
     enabled: enabled && !!token,
+    placeholderData: (previous) => previous,
   });
 
 export const useGetConversationById = ({

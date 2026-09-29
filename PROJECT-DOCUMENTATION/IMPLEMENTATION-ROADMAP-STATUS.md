@@ -157,6 +157,7 @@ Implemented current administration modules include:
 Remaining administrative completion:
 - Final browser verification for Admin and Super Admin flows.
 - Additional approval/reporting/dispute workflows where required.
+- Teacher Plans and Teacher Subscriptions are not implemented yet and remain a financial-scope item.
 
 ### Reviews & academic domains
 
@@ -177,11 +178,11 @@ Latest local automated verification on 2026-09-29:
 - Frontend lint passed.
 - Frontend production build passed.
 - Frontend Playwright E2E: 2 tests passed.
-- Backend: 414 tests / 2059 assertions passed.
+- Backend: 418 tests / 2076 assertions passed.
 
 The frontend Playwright E2E suite is implemented against the booking/availability flow. CI keeps destructive booking tests isolated from production unless a dedicated staging/test API is configured.
 
-The latest local verification is green; GitHub commit status for the current main commits did not expose completed workflow statuses through the connected GitHub API at review time.
+The latest local verification is green. Backend CI for the latest backend main commit `7df3ee8` completed successfully; the latest frontend CI/Hostinger build for `9d047da` also completed successfully.
 
 Separate release gates:
 - Real API/browser verification for Student, Parent and Teacher.

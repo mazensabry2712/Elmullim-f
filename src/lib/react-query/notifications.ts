@@ -21,7 +21,7 @@ export const useMarkNotificationRead = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: markNotificationRead,
-    onSuccess: (_data, variables) => {
+    onSuccess: (_data) => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.mine() });
     },
   });
@@ -32,7 +32,7 @@ export const useMarkAllNotificationsRead = () => {
   return useMutation({
     mutationFn: markAllNotificationsRead,
     onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({ queryKey: notificationKeys.mine(variables.token) });
+      queryClient.invalidateQueries({ queryKey: notificationKeys.mine() });
     },
   });
 };

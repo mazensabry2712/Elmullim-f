@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { dateTimeLocalToIso, formatDateTime, formatDateTimeLocalInput } from "@/utils/dateTime";
+import {
+  dateTimeLocalToIso,
+  formatDate,
+  formatDateTime,
+  formatDateTimeLocalInput,
+} from "@/utils/dateTime";
 
 describe("dateTime utilities", () => {
   it("formats a Date for datetime-local without converting it to UTC", () => {
@@ -12,7 +17,13 @@ describe("dateTime utilities", () => {
     expect(dateTimeLocalToIso(value)).toBe(new Date(value).toISOString());
   });
 
+  it("formats a date-only value without timezone day shifting", () => {
+    expect(formatDate("2099-01-10", "en")).not.toBe("");
+    expect(formatDate("2099-01-10", "ar")).not.toBe("");
+  });
+
   it("returns an empty string for invalid display dates", () => {
     expect(formatDateTime("not-a-date")).toBe("");
+    expect(formatDate("not-a-date")).toBe("");
   });
 });

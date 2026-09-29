@@ -5,9 +5,10 @@ import BookLessonDialog from "@/components/lessons/BookLessonDialog";
 const mocks = vi.hoisted(() => ({
   role: "student" as "student" | "parent",
   mutateAsync: vi.fn(),
-  get: vi.fn(),
   availability: vi.fn(),
   bookingOptions: vi.fn(),
+  studentProfile: vi.fn(),
+  parentProfile: vi.fn(),
 }));
 
 vi.mock("@/lib/react-query/booking", () => ({
@@ -19,16 +20,18 @@ vi.mock("@/lib/react-query/lessons/lessons", () => ({
   useGetLessonBookingOptions: () => mocks.bookingOptions(),
 }));
 
+vi.mock("@/lib/react-query/student/studentProfile", () => ({
+  useGetStudentProfile: () => mocks.studentProfile(),
+}));
+
+vi.mock("@/lib/react-query/parent/parentProfile", () => ({
+  useGetParentProfile: () => mocks.parentProfile(),
+}));
+
 vi.mock("@/utils/cookieService", () => ({
   default: {
     getToken: () => "test-token",
     getRole: () => mocks.role,
-  },
-}));
-
-vi.mock("@/config/axios.config", () => ({
-  default: {
-    get: mocks.get,
   },
 }));
 
@@ -41,8 +44,10 @@ describe("BookLessonDialog", () => {
       message: "Booking created successfully.",
       data: { status: "pending_teacher_approval" },
     });
-    mocks.get.mockReset();
-    mocks.get.mockResolvedValue({
+    mocks.studentProfile.mockReset();
+    mocks.studentProfile.mockReturnValue({
+      isLoading: false,
+      isError: false,
       data: {
         data: {
           id: 42,
@@ -50,6 +55,16 @@ describe("BookLessonDialog", () => {
           address: "Nasr City, Cairo",
           latitude: 30.0444,
           longitude: 31.2357,
+        },
+      },
+    });
+    mocks.parentProfile.mockReset();
+    mocks.parentProfile.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        data: {
+          students: [],
         },
       },
     });
@@ -146,7 +161,9 @@ describe("BookLessonDialog", () => {
 
   it("loads linked students and submits the selected child for a parent", async () => {
     mocks.role = "parent";
-    mocks.get.mockResolvedValueOnce({
+    mocks.parentProfile.mockReturnValue({
+      isLoading: false,
+      isError: false,
       data: {
         data: {
           students: [

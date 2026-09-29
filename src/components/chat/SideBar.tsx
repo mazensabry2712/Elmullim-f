@@ -64,7 +64,6 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
     data: conversations,
     isLoading,
     isFetching,
-    refetch: refetchConversations,
   } = useGetAllConversations({
     token,
     page: conversationPage,
@@ -90,9 +89,9 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
       createNewConversation(
         { token, role: user.type, userId: user.details.id },
         {
-          onSuccess: async (newConversation) => {
-            await refetchConversations();
-
+          onSuccess: (newConversation) => {
+            setConversationPage(1);
+            setSearchQuery("");
             setSelectedConversationId(newConversation.data.id);
           },
           onError: (error) => {

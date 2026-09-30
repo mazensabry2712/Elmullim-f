@@ -69,9 +69,6 @@ export const updateStudentProfileSchema = z.object({
   country_id: z.string().nonempty({
     message: validationMessage("Please select a country", "يرجى اختيار الدولة"),
   }),
-  address: z.string().nonempty({
-    message: validationMessage("Address is required", "العنوان مطلوب"),
-  }),
   phone: z
     .string()
     .min(10, {

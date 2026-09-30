@@ -359,17 +359,6 @@ const Schedule = () => {
                   </span>
                 )}
 
-                {isTeacher && session.meeting_url && (
-                  <button
-                    type="button"
-                    onClick={() => openMeeting(session.meeting_url)}
-                    className="inline-flex items-center gap-2 rounded-md border border-main bg-white px-4 py-2 text-main"
-                  >
-                    <ExternalLink size={17} />
-                    {copy.openMeeting}
-                  </button>
-                )}
-
                 {isTeacher && session.status === "upcoming" && (
                   <button type="button" onClick={() => void update(session, "in_progress")} disabled={updateStatus.isPending} className="rounded-md bg-main px-4 py-2 text-white disabled:opacity-50">
                     {copy.start}

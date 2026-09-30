@@ -40,15 +40,19 @@ export interface IUpdateStudentProfile {
   };
 }
 
+export interface IRatingActor {
+  id: number;
+  type: string;
+  name: string;
+  image: string | null;
+}
+
 export interface IRating {
-  rateable: {
-    id: number;
-    type: string;
-    name: string;
-    image: string | null;
-  };
+  rateable: IRatingActor;
+  reply: IRatingActor;
   rate: number;
   description: string;
+  booking_id?: number | null;
   created_at: string;
 }
 

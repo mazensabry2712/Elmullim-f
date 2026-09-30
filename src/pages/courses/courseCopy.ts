@@ -78,7 +78,6 @@ const copy = {
     paymentFailed: "The payment was not completed. You can try again from the course page.",
     paymentUnknown: "We could not verify this payment right now.",
     viewCourse: "Open course",
-    returnToCourse: "Return to course",
     returnToBookings: "Return to bookings",
   },
   ar: {
@@ -158,7 +157,6 @@ const copy = {
     paymentFailed: "لم تكتمل عملية الدفع. يمكنك المحاولة مرة أخرى من صفحة الكورس.",
     paymentUnknown: "تعذر التحقق من حالة عملية الدفع حاليًا.",
     viewCourse: "فتح الكورس",
-    returnToCourse: "العودة إلى الكورس",
     returnToBookings: "العودة إلى الحجوزات",
   },
 } as const;

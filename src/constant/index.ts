@@ -136,11 +136,6 @@ export const STUDENT_SIGNUP_FORM_INPUTS: IFormInput[] = [
   },
 
   {
-    name: "address",
-    type: "text",
-    placeholder: "Address *",
-  },
-  {
     name: "country_id",
     type: "select",
     label: "Country *",

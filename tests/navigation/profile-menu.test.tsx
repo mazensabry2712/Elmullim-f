@@ -185,7 +185,14 @@ describe("ProfileDropdownMenu", () => {
     await user.click(screen.getByRole("button", { name: /Sign out/i }));
 
     await waitFor(() => {
-      expect(swalFireMock).toHaveBeenCalledTimes(1);
+      expect(swalFireMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          title: "Logout Confirmation",
+          showCancelButton: true,
+          confirmButtonText: "Logout",
+          cancelButtonText: "Cancel",
+        })
+      );
     });
 
     await waitFor(() => {

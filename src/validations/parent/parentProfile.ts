@@ -20,62 +20,84 @@ export const updateParentProfileSchema = z.object({
         "Full name must be at least 2 characters.",
         "يجب أن يتكون الاسم الكامل من حرفين على الأقل."
       ),
-    }),
+    })
     .max(255, {
-      message: validationMessage("Full name must be 255 characters or fewer.", "يجب ألا يزيد الاسم الكامل عن 255 حرفًا."),
+      message: validationMessage(
+        "Full name must be 255 characters or fewer.",
+        "يجب ألا يزيد الاسم الكامل عن 255 حرفًا."
+      ),
     }),
-  description: z.string().max(250, { message: validationMessage("Description must be 250 characters or fewer.", "يجب ألا يزيد الوصف عن 250 حرفًا.") }).optional(),
+  description: z
+    .string()
+    .max(250, {
+      message: validationMessage(
+        "Description must be 250 characters or fewer.",
+        "يجب ألا يزيد الوصف عن 250 حرفًا."
+      ),
+    })
+    .optional(),
   email: z.string().email({
-    message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
+    message: validationMessage(
+      "Please enter a valid email.",
+      "يرجى إدخال بريد إلكتروني صحيح."
+    ),
   }),
   gender: z.string().nonempty({
     message: validationMessage("Please select a gender.", "يرجى اختيار النوع."),
   }),
-  country_id: z.string().nonempty({
-    message: validationMessage("Please select a country", "يرجى اختيار الدولة"),
-  }).regex(/^\d+$/, { message: validationMessage("Please select a valid country.", "يرجى اختيار دولة صحيحة.") }),
-  phone: z
+  country_id: z
     .string()
-    .regex(/^\d{10,20}$/, { message: validationMessage("Phone number must contain 10 to 20 digits.", "يجب أن يحتوي رقم الهاتف على 10 إلى 20 رقمًا.") })
+    .nonempty({
+      message: validationMessage("Please select a country", "يرجى اختيار الدولة"),
+    })
+    .regex(/^\d+$/, {
       message: validationMessage(
-        "Phone number must be at least 10 digits.",
-        "يجب أن يتكون رقم الهاتف من 10 أرقام على الأقل."
+        "Please select a valid country.",
+        "يرجى اختيار دولة صحيحة."
+      ),
+    }),
+  phone: z.string().regex(/^\d{10,20}$/, {
+    message: validationMessage(
+      "Phone number must contain 10 to 20 digits.",
+      "يجب أن يحتوي رقم الهاتف على 10 إلى 20 رقمًا."
+    ),
+  }),
+  education_system_id: z
+    .string()
+    .nonempty({
+      message: validationMessage(
+        "Please select an education system.",
+        "يرجى اختيار نظام التعليم."
       ),
     })
     .regex(/^\d+$/, {
       message: validationMessage(
-        "Phone number must contain only digits.",
-        "يجب أن يحتوي رقم الهاتف على أرقام فقط."
+        "Please select a valid education system.",
+        "يرجى اختيار نظام تعليم صحيح."
       ),
     }),
-  education_system_id: z.string().nonempty({
-    message: validationMessage(
-      "Please select an education system.",
-      "يرجى اختيار نظام التعليم."
-    ),
-  }).regex(/^\d+$/, { message: validationMessage("Please select a valid education system.", "يرجى اختيار نظام تعليم صحيح.") }),
-  education_level_id: z.string().nonempty({
-    message: validationMessage(
-      "Please select an education level.",
-      "يرجى اختيار المرحلة التعليمية."
-    ),
-  }),
+  education_level_id: z
+    .string()
+    .nonempty({
+      message: validationMessage(
+        "Please select an education level.",
+        "يرجى اختيار المرحلة التعليمية."
+      ),
+    })
+    .regex(/^\d+$/, {
+      message: validationMessage(
+        "Please select a valid education level.",
+        "يرجى اختيار مرحلة تعليمية صحيحة."
+      ),
+    }),
   students: z
     .array(
-      z
-        .string()
-        .min(10, {
-          message: validationMessage(
-            "Each student number must be at least 10 digits long",
-            "يجب أن يتكون رقم كل طالب من 10 أرقام على الأقل"
-          ),
-        })
-        .regex(/^\d+$/, {
-          message: validationMessage(
-            "Each student number must contain only digits",
-            "يجب أن يحتوي رقم كل طالب على أرقام فقط"
-          ),
-        })
+      z.string().regex(/^\d{10,20}$/, {
+        message: validationMessage(
+          "Each student number must contain 10 to 20 digits.",
+          "يجب أن يحتوي رقم كل طالب على 10 إلى 20 رقمًا."
+        ),
+      })
     )
     .min(1, {
       message: validationMessage(

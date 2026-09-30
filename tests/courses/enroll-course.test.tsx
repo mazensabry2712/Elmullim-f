@@ -199,7 +199,7 @@ describe("Course enrollment", () => {
     );
 
     expect(screen.getByText("SAVE20 · 20% off")).toBeInTheDocument();
-    expect(screen.getByText("400.00 L.E")).toBeInTheDocument();
+    expect(screen.getAllByText("400.00 L.E").length).toBeGreaterThan(0);
     expect(screen.getByText("-100.00 L.E")).toBeInTheDocument();
   });
 

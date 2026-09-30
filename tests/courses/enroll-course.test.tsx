@@ -161,6 +161,9 @@ describe("Course enrollment", () => {
     expect(screen.getByText("Mobile Wallets")).toBeInTheDocument();
     expect(screen.queryByText(/paymob/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();
+    const fawry = screen.getByRole("radio", { name: /fawry/i });
+    fireEvent.click(fawry);
+    expect(fawry).toHaveAttribute("aria-checked", "true");
 
     fireEvent.click(screen.getByRole("radio", { name: /mobile wallets/i }));
     fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));

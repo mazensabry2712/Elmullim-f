@@ -1,5 +1,7 @@
 import { render, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
+
+const cookieState = vi.hoisted(() => ({ token: undefined as string | undefined }));
 import { I18nProvider } from "@/i18n";
 import RootLayout from "@/layout/RootLayout";
 
@@ -21,7 +23,7 @@ vi.mock("@/store/features/auth/authSlice", () => ({
 }));
 vi.mock("@/utils/cookieService", () => ({
   default: {
-    getToken: () => undefined,
+    getToken: () => cookieState.token,
   },
 }));
 vi.mock("react-router-dom", () => ({
@@ -33,9 +35,56 @@ vi.mock("react-router-dom", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
+  cookieState.token = undefined;
 });
 
 describe("RootLayout authentication bootstrap", () => {
+  it("revalidates authentication when the tab regains focus", async () => {
+    cookieState.token = "student-token";
+    checkAuth.mockResolvedValue({
+      status: true,
+      message: null,
+      data: { auth: true, role: "student", "email-verified": true },
+    });
+
+    render(
+      <I18nProvider>
+        <RootLayout />
+      </I18nProvider>
+    );
+
+    await waitFor(() => {
+      expect(checkAuth).toHaveBeenCalledWith("student-token");
+    });
+
+    const initialCalls = checkAuth.mock.calls.length;
+    window.dispatchEvent(new Event("focus"));
+
+    await waitFor(() => {
+      expect(checkAuth.mock.calls.length).toBeGreaterThan(initialCalls);
+    });
+  });
+
+  it("logs the user out when a revalidation detects an invalid session", async () => {
+    cookieState.token = "revoked-token";
+    checkAuth.mockResolvedValue({
+      status: false,
+      message: "Unauthenticated.",
+      data: { auth: false },
+    });
+
+    render(
+      <I18nProvider>
+        <RootLayout />
+      </I18nProvider>
+    );
+
+    await waitFor(() => {
+      expect(dispatch).toHaveBeenCalledWith({ type: "auth/logout" });
+      expect(navigate).toHaveBeenCalledWith("/login", { replace: true });
+    });
+  });
+
   it("does not call checkAuth when there is no authentication token", async () => {
     render(
       <I18nProvider>

@@ -11,12 +11,36 @@ vi.mock("react-router-dom", () => ({
 vi.mock("@/utils/cookieService", () => ({
   default: {
     getRole: () => "student",
+    getToken: () => "student-token",
   },
 }));
 
 vi.mock("@/i18n", () => ({
   useI18n: () => ({
     language: "en",
+  }),
+}));
+
+vi.mock("@/lib/react-query/student/studentProfile", () => ({
+  useGetStudentProfile: () => ({
+    data: {
+      data: {
+        name: "Ahmed Student",
+        profile_image: "data:image/webp;base64,profile-image",
+      },
+    },
+  }),
+}));
+
+vi.mock("@/lib/react-query/parent/parentProfile", () => ({
+  useGetParentProfile: () => ({
+    data: undefined,
+  }),
+}));
+
+vi.mock("@/lib/react-query/teacher/teacherProfile", () => ({
+  useGetTeacherProfile: () => ({
+    data: undefined,
   }),
 }));
 
@@ -29,7 +53,20 @@ vi.mock("@/components/LogoutModal", () => ({
 }));
 
 vi.mock("@/components/ui/avatar", () => ({
-  Avatar: ({ children }: { children?: React.ReactNode }) => <span>{children}</span>,
+  Avatar: ({
+    children,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => <span {...props}>{children}</span>,
+  AvatarImage: ({
+    src,
+    alt,
+  }: {
+    src?: string;
+    alt?: string;
+  }) => <img src={src} alt={alt} />,
   AvatarFallback: ({ children }: { children?: React.ReactNode }) => <span>{children}</span>,
 }));
 
@@ -73,6 +110,15 @@ vi.mock("@/components/ui/popover", () => ({
 }));
 
 describe("ProfileDropdownMenu", () => {
+  it("renders the authenticated user's profile image in the navbar trigger", () => {
+    render(<ProfileDropdownMenu />);
+
+    expect(screen.getByRole("img", { name: "Ahmed Student" })).toHaveAttribute(
+      "src",
+      "data:image/webp;base64,profile-image"
+    );
+  });
+
   it("uses the popover open callback as a direct state setter and exposes an accessible trigger", () => {
     render(<ProfileDropdownMenu />);
 

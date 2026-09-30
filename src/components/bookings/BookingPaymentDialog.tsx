@@ -167,7 +167,7 @@ const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => 
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-main px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(25,77,80,0.16)] transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {paymentMutation.isPending ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : null}
-                {paymentMutation.isPending ? copy.initialized : copy.continue}
+                {paymentMutation.isPending ? copy.processing : copy.continue}
               </button>
             </div>
           </div>

@@ -31,7 +31,7 @@ const ParentStudentLocation = ({ student }: IProps) => {
   const text = isArabic
     ? {
         location: "موقع الطالب",
-        hint: "اختر موقع الطالب من البحث أو استخدم موقعك الحالي. لن تحتاج لإدخال إحداثيات يدويًا.",
+        hint: "اختر موقع الطالب من البحث. لا تستخدم موقع جهازك إلا إذا كنت موجودًا فعليًا في عنوان الطالب.",
         save: "حفظ موقع الطالب",
         saved: "تم تحديث موقع الطالب.",
         invalid: "اختر موقعًا صحيحًا قبل الحفظ.",
@@ -39,7 +39,7 @@ const ParentStudentLocation = ({ student }: IProps) => {
       }
     : {
         location: "Student location",
-        hint: "Search for the student's place or use your current location. You do not need to enter coordinates manually.",
+        hint: "Search for the student's place. Do not use your device location unless you are physically at the student's address.",
         save: "Save student location",
         saved: "Student location was updated.",
         invalid: "Choose a valid location before saving.",
@@ -84,6 +84,7 @@ const ParentStudentLocation = ({ student }: IProps) => {
           latitude={latitude}
           longitude={longitude}
           disabled={!student.id || mutation.isPending}
+          allowCurrentLocation={false}
           onChange={({ address: nextAddress, latitude: nextLatitude, longitude: nextLongitude }) => {
             setAddress(nextAddress);
             setLatitude(nextLatitude);

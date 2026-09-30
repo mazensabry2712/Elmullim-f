@@ -2,10 +2,23 @@ import axiosAPI from "@/config/axios.config";
 import { IStatusMsg } from "@/interfaces";
 import { ICoursesRes } from "@/interfaces/courses/courses";
 
+export interface IPaymentPricing {
+  code: string;
+  discount_percent: number;
+  original_amount: number;
+  discount_amount: number;
+  final_amount: number;
+}
+
 export interface IPaymentInitiateResponse extends IStatusMsg {
-  data?: {
+  data?: IPaymentPricing & {
     redirect_url?: string | null;
+    payment_required?: boolean;
   } | null;
+}
+
+export interface IPromoCodeResponse extends IStatusMsg {
+  data?: IPaymentPricing | null;
 }
 
 export const getMyCourses = async (token: string): Promise<ICoursesRes> => {
@@ -54,16 +67,35 @@ export const getPaymentStatus = async ({
   return data;
 };
 
-export const initiatePayment = async ({
+export const validatePromoCode = async ({
   token,
   courseId,
+  code,
 }: {
   token: string;
   courseId: number;
+  code: string;
+}): Promise<IPromoCodeResponse> => {
+  const { data } = await axiosAPI.post(
+    "/student/payment/course/coupon/validate",
+    { course_id: courseId, code },
+    { headers: { Authorization: "Bearer " + token } }
+  );
+  return data;
+};
+
+export const initiatePayment = async ({
+  token,
+  courseId,
+  promoCode,
+}: {
+  token: string;
+  courseId: number;
+  promoCode?: string;
 }): Promise<IPaymentInitiateResponse> => {
   const { data } = await axiosAPI.post(
     "/student/payment/course/initiate",
-    { course_id: courseId },
+    { course_id: courseId, ...(promoCode?.trim() ? { promo_code: promoCode.trim() } : {}) },
     { headers: { Authorization: "Bearer " + token } }
   );
   return data;

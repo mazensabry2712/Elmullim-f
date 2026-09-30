@@ -63,7 +63,11 @@ const UpdateStudentProfileForm = () => {
 
   const { mutateAsync: updateStudentProfile, isPending } =
     useUpdateStudentProfile();
-  const form = useForm<z.infer<typeof updateStudentProfileSchema>>({
+  const form = useForm<
+    z.input<typeof updateStudentProfileSchema>,
+    undefined,
+    z.output<typeof updateStudentProfileSchema>
+  >({
     resolver: zodResolver(updateStudentProfileSchema),
     defaultValues: {
       name: "",
@@ -92,7 +96,7 @@ const UpdateStudentProfileForm = () => {
     favourite_subjects,
     profile_image,
     description,
-  }: z.infer<typeof updateStudentProfileSchema>) => {
+  }: z.output<typeof updateStudentProfileSchema>) => {
     try {
       const { status, message } = await updateStudentProfile({
         token,

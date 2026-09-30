@@ -31,21 +31,12 @@ const Schedule = () => {
   const ratingRole: RatingActorRole = isTeacher ? "teacher" : isParent ? "parent" : "student";
   const studentProfile = useGetStudentProfile(token, isStudent);
   const parentProfile = useGetParentProfile(token, isParent);
-  const linkedStudentIds = new Set((parentProfile.data?.data?.students ?? []).map((student) => student.id).filter((id): id is number => typeof id === "number"));
-  const givenRatings = useGetGivenRatings(token, ratingRole, !!token && (isTeacher || isStudent || isParent));
+  const linkedStudentIds = new Set(
+    (parentProfile.data?.data?.students ?? [])
+      .map((student) => student.id)
+      .filter((id): id is number => typeof id === "number"),
+  );
   const ownStudentId = studentProfile.data?.data?.id;
-  const ratingsReady = givenRatings.isFetched || givenRatings.isError;
-  const hasRated = (targetType: RatingTargetType, targetId: number, bookingId: number) =>
-    (givenRatings.data?.data ?? []).some((rating) => {
-      const type = rating.rateable?.type?.toLowerCase() ?? "";
-      const targetMatches = targetType === "teacher"
-        ? type.includes("teacher")
-        : type.includes("student");
-
-      return targetMatches &&
-        Number(rating.rateable?.id) === targetId &&
-        Number(rating.booking_id) === bookingId;
-    });
   const [page, setPage] = useState(1);
   const studentSchedule = useGetSchedule({ token, page, enabled: !!token && !isTeacher });
   const teacherSchedule = useGetTeacherSchedule({ token, page, enabled: !!token && isTeacher });
@@ -57,6 +48,27 @@ const Schedule = () => {
   const [meetingLinks, setMeetingLinks] = useState<Record<number, string>>({});
 
   const data = (isTeacher ? teacherSchedule.data?.data : studentSchedule.data?.data) ?? [];
+  const visibleBookingIds = Array.from(
+    new Set(
+      data.flatMap((session) =>
+        (session.bookings ?? [])
+          .filter((booking) => {
+            if (isTeacher) return true;
+            if (isStudent) return booking.student_id === ownStudentId;
+            return linkedStudentIds.has(booking.student_id);
+          })
+          .map((booking) => booking.id),
+      ),
+    ),
+  );
+  const givenRatings = useGetGivenRatings(
+    token,
+    ratingRole,
+    !!token && (isTeacher || isStudent || isParent),
+    visibleBookingIds,
+  );
+  const ratingsReady =
+    visibleBookingIds.length === 0 || givenRatings.isFetched || givenRatings.isError;
   const pagination = (isTeacher ? teacherSchedule.data?.meta : studentSchedule.data?.meta);
   const loading = isTeacher ? teacherSchedule.isLoading : studentSchedule.isLoading;
   const fetching = isTeacher ? teacherSchedule.isFetching : studentSchedule.isFetching;

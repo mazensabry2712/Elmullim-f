@@ -109,7 +109,7 @@ describe("Course enrollment", () => {
     expect(screen.getByRole("button", { name: /enroll free course 7/i })).toBeInTheDocument();
   });
 
-  it("uses the real Paymob wallet payment flow for paid courses", () => {
+  it("shows the unified Paymob checkout payment methods for paid courses", () => {
     mockUseGetCourseById.mockReturnValue({
       data: {
         data: {
@@ -131,12 +131,11 @@ describe("Course enrollment", () => {
 
     renderPage();
 
-    expect(screen.getByRole("heading", { name: /pay securely with your wallet/i, level: 3 })).toBeInTheDocument();
-    expect(screen.getByLabelText(/wallet number/i)).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: /choose how you want to pay/i, level: 3 })).toBeInTheDocument();
+    expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
+    expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
+    expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();
-    expect(screen.queryByLabelText(/card number/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/cvv/i)).not.toBeInTheDocument();
-    expect(screen.queryByLabelText(/email/i)).not.toBeInTheDocument();
   });
 
   it("renders a retryable error state when the course cannot be loaded", () => {

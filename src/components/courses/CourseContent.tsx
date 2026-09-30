@@ -34,6 +34,7 @@ const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
     token,
     courseId,
     contentId: contentId!,
+    enabled: isAuthenticated && hasEnrolled,
   });
 
   return (
@@ -66,13 +67,13 @@ const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
                   >
                     <AccordionTrigger
                       className="font-bold text-black-blue text-xl data-[state=open]:bg-[#eaeaea] px-4 data-[state=open]:mb-2 rounded-t-[5px] hover:no-underline"
-                      onClick={() => isAuthenticated && setContentId(id)}
+                      onClick={() => isAuthenticated && hasEnrolled && setContentId(id)}
                     >
                       {title}
                     </AccordionTrigger>
                     <AccordionContent className="pb-0 pt-2 text-[#333931] font-sora">
                       <p className="text-sm px-4">{description}</p>
-                      {isAuthenticated && (
+                      {isAuthenticated && hasEnrolled && (
                         <div className="space-y-1 mt-3">
                           {isLoadingLectures ? (
                             <div className="py-5" role="status" aria-live="polite">

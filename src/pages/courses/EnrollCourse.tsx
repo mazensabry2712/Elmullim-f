@@ -419,6 +419,7 @@ function EnrollCourse() {
                         <p className="text-xs text-[#7B8583]">{copy.promoCodeDescription}</p>
                       </div>
                       <span className="rounded-full bg-[#F4F8F7] px-2.5 py-1 text-[11px] font-medium text-[#6E7977]">{copy.optional}</span>
+                      </div>
                     </div>
 
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row">

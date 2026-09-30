@@ -10,6 +10,8 @@ export interface IPaymentPricing {
   final_amount: number;
 }
 
+export type PaymentMethod = "card" | "fawry" | "wallet";
+
 export interface IPaymentInitiateResponse extends IStatusMsg {
   data?: IPaymentPricing & {
     redirect_url?: string | null;
@@ -92,10 +94,15 @@ export const initiatePayment = async ({
   token: string;
   courseId: number;
   promoCode?: string;
+  paymentMethod: PaymentMethod;
 }): Promise<IPaymentInitiateResponse> => {
   const { data } = await axiosAPI.post(
     "/student/payment/course/initiate",
-    { course_id: courseId, ...(promoCode?.trim() ? { promo_code: promoCode.trim() } : {}) },
+    {
+      course_id: courseId,
+      payment_method: paymentMethod,
+      ...(promoCode?.trim() ? { promo_code: promoCode.trim() } : {}),
+    },
     { headers: { Authorization: "Bearer " + token } }
   );
   return data;

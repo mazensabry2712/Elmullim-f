@@ -35,16 +35,16 @@ export const updateTeacherProfileSchema = z.object({
   }),
   experince: z.coerce.number({
     message: validationMessage("Experience is required", "الخبرة مطلوبة"),
-  }),
+  }).min(0, { message: validationMessage("Experience cannot be negative.", "لا يمكن أن تكون الخبرة سالبة.") }),
   qualification: z.string().nonempty({
     message: validationMessage("Qualification is required", "المؤهل مطلوب"),
   }),
   country_id: z.string().nonempty({
     message: validationMessage("Please select a country", "يرجى اختيار الدولة"),
-  }),
+  }).regex(/^\d+$/, { message: validationMessage("Please select a valid country.", "يرجى اختيار دولة صحيحة.") }),
   phone: z
     .string()
-    .min(10, {
+    .regex(/^\d{10,20}$/, { message: validationMessage("Phone number must contain 10 to 20 digits.", "يجب أن يحتوي رقم الهاتف على 10 إلى 20 رقمًا.") })
       message: validationMessage(
         "Phone number must be at least 10 digits.",
         "يجب أن يتكون رقم الهاتف من 10 أرقام على الأقل."
@@ -61,7 +61,7 @@ export const updateTeacherProfileSchema = z.object({
       "Please select an education system.",
       "يرجى اختيار نظام التعليم."
     ),
-  }),
+  }).regex(/^\d+$/, { message: validationMessage("Please select a valid education system.", "يرجى اختيار نظام تعليم صحيح.") }),
   education_level_id: z.string().nonempty({
     message: validationMessage(
       "Please select an education level.",

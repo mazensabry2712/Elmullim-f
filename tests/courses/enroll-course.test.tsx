@@ -213,7 +213,36 @@ describe("Course enrollment", () => {
       refetch: vi.fn(),
     });
 
+    const initiatePayment = vi.fn().mockResolvedValue({
+      status: true,
+      data: {
+        redirect_url: "https://example.test/checkout",
+        payment_required: true,
+        original_amount: 500,
+        discount_amount: 0,
+        final_amount: 500,
+        coupon_code: null,
+      },
+    });
+
+    mockUseInitiatePayment.mockReturnValue({
+      mutateAsync: initiatePayment,
+      isPending: false,
+      isError: false,
+    });
+
     renderPage();
+
+    fireEvent.click(screen.getByRole("radio", { name: /mobile wallets/i }));
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
+
+    await waitFor(() =>
+      expect(initiatePayment).toHaveBeenCalledWith(expect.objectContaining({
+        token: "token",
+        courseId: 8,
+        paymentMethod: "wallet",
+      }))
+    );
 
     fireEvent.change(screen.getByLabelText("Promo code"), {
       target: { value: "save20" },

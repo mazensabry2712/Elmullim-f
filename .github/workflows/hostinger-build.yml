@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: elmullim-hostinger-deploy
+  cancel-in-progress: true
+
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest

@@ -29,14 +29,37 @@ class ResizeObserverMock {
   disconnect() {}
 }
 
+class IntersectionObserverMock {
+  root = null;
+  rootMargin = "";
+  thresholds = [0];
+
+  disconnect() {}
+  observe() {}
+  takeRecords(): IntersectionObserverEntry[] {
+    return [];
+  }
+  unobserve() {}
+}
+
 Object.defineProperty(globalThis, "ResizeObserver", {
   configurable: true,
   value: ResizeObserverMock,
 });
 
+Object.defineProperty(globalThis, "IntersectionObserver", {
+  configurable: true,
+  value: IntersectionObserverMock,
+});
+
 Object.defineProperty(window, "ResizeObserver", {
   configurable: true,
   value: ResizeObserverMock,
+});
+
+Object.defineProperty(window, "IntersectionObserver", {
+  configurable: true,
+  value: IntersectionObserverMock,
 });
 
 Object.defineProperty(Element.prototype, "scrollIntoView", {

@@ -1,6 +1,7 @@
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { lazy } from "react";
+import ChangePasswordForm from "@/components/profiles/ChangePasswordForm";
 import { useI18n } from "@/i18n";
 const UpdateStudentProfileForm = lazy(
   () => import("@/components/forms/profiles/UpdateStudentProfileForm")
@@ -37,6 +38,8 @@ const UpdateProfile = () => {
             ) : (
               <UpdateStudentProfileForm />
             )}
+
+            <ChangePasswordForm />
           </div>
         </div>
       </div>

@@ -45,15 +45,17 @@ export const useGetCourseLectures = ({
   token,
   courseId,
   contentId,
+  enabled = true,
 }: {
   token: string;
   courseId: number;
   contentId: number;
+  enabled?: boolean;
 }) =>
   useQuery({
     queryKey: [QueryKeys.COURSE_CONTENTS, courseId, contentId],
     queryFn: () => getCourseLectures({ token, courseId, contentId }),
-    enabled: !!courseId && !!contentId && !!token,
+    enabled: enabled && !!courseId && !!contentId && !!token,
   });
 
 export const useGetRelatedCourses = ({

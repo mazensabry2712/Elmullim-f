@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { BookOpen, MapPin, MessageCircleMore, Upload, User, UserPen } from "lucide-react";
+import { BookOpen, KeyRound, MapPin, MessageCircleMore, Upload, User, UserPen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ChangePasswordModal from "./ChangePasswordModal";
 import { useState } from "react";
@@ -83,7 +83,7 @@ const ProfileDropdownMenu = () => {
                 setIsOpen(false);
               }}
             >
-              <UserPen className="h-4 w-4" /> {ar ? "تغيير كلمة المرور" : "Change Password"}
+              <KeyRound className="h-4 w-4" /> {ar ? "تغيير كلمة المرور" : "Change Password"}
             </button>
             <button className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out" onClick={() => { navigate("/profile/update"); setIsOpen(false); }}>
               <UserPen className="h-4 w-4" /> {text.edit}
@@ -118,11 +118,10 @@ const ProfileDropdownMenu = () => {
       </PopoverContent>
     </Popover>
 
-      <ChangePasswordModal
-        isOpen={isChangePasswordOpen}
-        onRequestClose={() => setIsChangePasswordOpen(false)}
-        showTrigger={false}
-      />
+    <ChangePasswordModal
+      isOpen={isChangePasswordOpen}
+      onOpenChange={setIsChangePasswordOpen}
+    />
   );
 };
 

@@ -53,20 +53,14 @@ export const getPaymentStatus = async ({
 
 export const initiatePayment = async ({
   token,
-  walletNumber,
   courseId,
 }: {
   token: string;
-  walletNumber: string;
   courseId: number;
 }): Promise<IPaymentInitiateResponse> => {
   const { data } = await axiosAPI.post(
-    "/student/payment/intiate",
-    {
-      wallet_number: walletNumber,
-      orderable_type: "courses",
-      orderable_id: courseId,
-    },
+    "/student/payment/course/initiate",
+    { course_id: courseId },
     { headers: { Authorization: "Bearer " + token } }
   );
   return data;

@@ -9,11 +9,6 @@ const validationMessage = (english: string, arabic: string) => {
 export const signInSchema = z.object({
   password: z.string().nonempty({
     message: validationMessage("Password is required.", "كلمة المرور مطلوبة."),
-  }).max(255, {
-    message: validationMessage(
-      "Email must be 255 characters or fewer.",
-      "يجب ألا يزيد البريد الإلكتروني عن 255 حرفًا."
-    ),
   }),
   email: z.string().trim().email({
     message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
@@ -38,7 +33,7 @@ export const resetPasswordSchema = z
     }),
     code: z.string({
       message: validationMessage("Invalid verification code", "رمز التحقق غير صحيح"),
-    }).length(6, {
+    }).regex(/^\d{6}$/, {
       message: validationMessage(
         "Enter the 6-digit verification code",
         "أدخل رمز التحقق المكون من 6 أرقام"

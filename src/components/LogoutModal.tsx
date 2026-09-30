@@ -3,7 +3,6 @@ import { useState } from "react";
 import Modal from "./shared/Modal";
 import useLogout from "@/hooks/useLogout";
 import Swal from "sweetalert2";
-import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import { getAuthCopy } from "@/i18n/authCopy";
 

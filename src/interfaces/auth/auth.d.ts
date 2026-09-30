@@ -27,7 +27,6 @@ export interface IStudentRegister {
   email: string;
   password: string;
   name: string;
-  address: string;
   phone: string;
   country_id: string;
   education_system_id: string;

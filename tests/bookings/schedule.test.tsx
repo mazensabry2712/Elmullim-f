@@ -4,7 +4,7 @@ import Schedule from "@/pages/bookings/Schedule";
 import { I18nProvider } from "@/i18n";
 
 const mocks = vi.hoisted(() => ({
-  role: "student" as "student" | "teacher",
+  role: "student" as "student" | "parent" | "teacher",
   getSchedule: vi.fn(),
   getTeacherSchedule: vi.fn(),
   updateStatus: vi.fn(),
@@ -19,6 +19,19 @@ vi.mock("@/utils/cookieService", () => ({
     getToken: () => mocks.getToken(),
     getRole: () => mocks.role,
   },
+}));
+
+vi.mock("@/lib/react-query/student/studentProfile", () => ({
+  useGetStudentProfile: () => ({ data: { data: { id: 42 } }, isLoading: false }),
+}));
+
+vi.mock("@/lib/react-query/parent/parentProfile", () => ({
+  useGetParentProfile: () => ({ data: { data: { students: [{ id: 42, name: "Student" }] } }, isLoading: false }),
+}));
+
+vi.mock("@/lib/react-query/rating", () => ({
+  useGetGivenRatings: () => ({ data: { data: [] }, isFetched: true, isError: false, isLoading: false }),
+  useSubmitRating: () => ({ mutateAsync: vi.fn(), isPending: false }),
 }));
 
 vi.mock("@/lib/react-query/booking", () => ({

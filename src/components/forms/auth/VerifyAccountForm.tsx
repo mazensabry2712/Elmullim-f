@@ -208,29 +208,31 @@ const VerifyAccountForm = () => {
               className="w-full sm:flex-1"
             />
 
-            <Button
-              type="button"
-              variant="outline"
-              className="min-h-12 w-full border-main px-3 text-sm font-sora font-light text-main hover:bg-main/5 sm:flex-1"
-              onClick={resendOtpCode}
-              disabled={
-                resendCooldown > 0 || resendIsPending || isVerifying
-              }
-              aria-live="polite"
-            >
-              <span className="truncate">
-                {resendIsPending
-                  ? copy.sending
-                  : resendCooldown > 0
-                    ? `${copy.resendIn} ${resendCooldown} ${copy.seconds}`
-                    : copy.resendCode}
+            <div className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-md border border-main/20 px-3 py-2 sm:min-h-12 sm:flex-nowrap">
+              <span className="shrink-0 text-xs font-sora text-black-blue/75 sm:text-sm">
+                {copy.didNotReceiveCode}
               </span>
-            </Button>
-          </div>
 
-          <p className="text-center text-xs font-sora text-black-blue/70 sm:text-start rtl:sm:text-end">
-            {copy.didNotReceiveCode}
-          </p>
+              <Button
+                type="button"
+                variant="link"
+                className="h-auto min-h-0 min-w-0 p-0 text-xs font-sora font-semibold text-main hover:bg-transparent hover:text-main sm:text-sm"
+                onClick={resendOtpCode}
+                disabled={
+                  resendCooldown > 0 || resendIsPending || isVerifying
+                }
+                aria-live="polite"
+              >
+                <span className="truncate">
+                  {resendIsPending
+                    ? copy.sending
+                    : resendCooldown > 0
+                      ? `${copy.resendIn} ${resendCooldown} ${copy.seconds}`
+                      : copy.resendCode}
+                </span>
+              </Button>
+            </div>
+          </div>
         </form>
       </Form>
     </motion.div>

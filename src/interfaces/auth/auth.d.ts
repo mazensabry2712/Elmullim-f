@@ -43,6 +43,8 @@ export interface IParentRegister {
   phone: string;
   students: string[];
   gender: string;
+  country_id: string;
+  education_system_id: string;
 }
 
 export interface ITeacherRegister {

@@ -15,21 +15,24 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import LogoutModal from "../LogoutModal";
+import Swal from "sweetalert2";
+import useLogout from "@/hooks/useLogout";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
 import { useGetParentProfile } from "@/lib/react-query/parent/parentProfile";
 import { useGetStudentProfile } from "@/lib/react-query/student/studentProfile";
 import { useGetTeacherProfile } from "@/lib/react-query/teacher/teacherProfile";
+import { getAuthCopy } from "@/i18n/authCopy";
 
 const ProfileDropdownMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const navigate = useNavigate();
   const role = cookieService.getRole();
   const token = cookieService.getToken() || "";
   const { language } = useI18n();
   const ar = language === "ar";
+  const copy = getAuthCopy(language);
+  const { performLogout } = useLogout();
 
   const studentProfile = useGetStudentProfile(token, role === "student");
   const parentProfile = useGetParentProfile(token, role === "parent");
@@ -75,10 +78,65 @@ const ProfileDropdownMenu = () => {
     uploadLessons: ar ? "رفع الدروس" : "Upload Lessons",
     serviceAreas: ar ? "مناطق الخدمة" : "Service Areas",
     chat: ar ? "الدردشة" : "Chat",
-    logout: ar ? "تسجيل الخروج" : "Sign out",
+    logout: copy.logout,
     logoutHint: ar
       ? "إنهاء الجلسة الحالية"
       : "End your current session",
+    logoutLocalFallback: ar
+      ? "تم إنهاء الجلسة على هذا الجهاز، لكن تعذر تأكيد الإلغاء مع الخادم."
+      : "Your session ended on this device, but the server could not be reached to confirm revocation.",
+  };
+
+  const handleLogout = async () => {
+    const confirmation = await Swal.fire({
+      title: copy.logoutConfirmation,
+      text: copy.logoutQuestion,
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: copy.logout,
+      cancelButtonText: copy.cancel,
+      reverseButtons: ar,
+      focusCancel: true,
+      allowOutsideClick: true,
+      customClass: {
+        popup: "rounded-2xl",
+        confirmButton: "!rounded-lg !px-5 !py-2.5",
+        cancelButton: "!rounded-lg !px-5 !py-2.5",
+      },
+    });
+
+    if (!confirmation.isConfirmed) return;
+
+    const { response, error } = await performLogout();
+
+    if (response?.status) {
+      void Swal.fire({
+        title: copy.success,
+        text: response.message,
+        icon: "success",
+        confirmButtonText: "OK",
+        customClass: {
+          popup: "rounded-2xl",
+          confirmButton: "!rounded-lg !px-5 !py-2.5",
+        },
+      });
+      return;
+    }
+
+    const fallbackText = response?.message ||
+      (error ? text.logoutLocalFallback : text.logoutLocalFallback);
+
+    void Swal.fire({
+      title: error ? copy.error : copy.success,
+      text: fallbackText,
+      icon: error ? "warning" : "error",
+      confirmButtonText: "OK",
+      customClass: {
+        popup: "rounded-2xl",
+        confirmButton: "!rounded-lg !px-5 !py-2.5",
+      },
+    });
+  };
   };
 
   return (
@@ -286,7 +344,9 @@ const ProfileDropdownMenu = () => {
                 className="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                 onClick={() => {
                   setIsOpen(false);
-                  setIsLogoutOpen(true);
+                  window.setTimeout(() => {
+                    void handleLogout();
+                  }, 0);
                 }}
               >
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors group-hover:bg-red-100">
@@ -307,11 +367,6 @@ const ProfileDropdownMenu = () => {
         </PopoverContent>
       </Popover>
 
-      <LogoutModal
-        open={isLogoutOpen}
-        onOpenChange={setIsLogoutOpen}
-        showTrigger={false}
-      />
     </>
   );
 };

@@ -1,5 +1,9 @@
 import { useState } from "react";
 import { useI18n } from "@/i18n";
+import { useGetStudentProfile } from "@/lib/react-query/student/studentProfile";
+import { useGetGivenRatings } from "@/lib/react-query/rating";
+import type { RatingActorRole, RatingTargetType } from "@/services/rating";
+import RatingDialog from "@/components/ratings/RatingDialog";
 import { CalendarClock, ChevronLeft, ChevronRight, ExternalLink, Loader } from "lucide-react";
 import { toast } from "react-toastify";
 import cookieService from "@/utils/cookieService";
@@ -21,6 +25,24 @@ const Schedule = () => {
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
   const isTeacher = role === "teacher";
+  const isStudent = role === "student";
+  const isParent = role === "parent";
+  const ratingRole: RatingActorRole = isTeacher ? "teacher" : isParent ? "parent" : "student";
+  const studentProfile = useGetStudentProfile(token, isStudent);
+  const givenRatings = useGetGivenRatings(token, ratingRole, !!token && (isTeacher || isStudent || isParent));
+  const ownStudentId = studentProfile.data?.data?.id;
+  const ratingsReady = givenRatings.isFetched || givenRatings.isError;
+  const hasRated = (targetType: RatingTargetType, targetId: number, bookingId: number) =>
+    (givenRatings.data?.data ?? []).some((rating) => {
+      const type = rating.rateable?.type?.toLowerCase() ?? "";
+      const targetMatches = targetType === "teacher"
+        ? type.includes("teacher")
+        : type.includes("student");
+
+      return targetMatches &&
+        Number(rating.rateable?.id) === targetId &&
+        Number(rating.booking_id) === bookingId;
+    });
   const [page, setPage] = useState(1);
   const studentSchedule = useGetSchedule({ token, page, enabled: !!token && !isTeacher });
   const teacherSchedule = useGetTeacherSchedule({ token, page, enabled: !!token && isTeacher });
@@ -150,6 +172,7 @@ const Schedule = () => {
           {data.map((session) => {
             const bookings = session.bookings ?? [];
             const attendances = session.attendances ?? [];
+            const teacherId = session.lesson?.teacher_id;
 
             return (
             <article key={session.id} className="rounded-xl border border-gray-200 bg-[#F0F1F1] p-5 shadow-sm">
@@ -251,6 +274,87 @@ const Schedule = () => {
                   </button>
                 ))}
 
+                {isTeacher && session.meeting_url && (
+                  <button
+                    type="button"
+                    onClick={() => openMeeting(session.meeting_url)}
+                    className="inline-flex items-center gap-2 rounded-md border border-main bg-white px-4 py-2 text-main"
+                  >
+                    <ExternalLink size={17} />
+                    {copy.openMeeting}
+                  </button>
+                )}
+
+                {ratingsReady && session.status === "completed" && (
+                  <>
+                    {!isTeacher && isStudent && teacherId && ownStudentId && (
+                      (() => {
+                        const ownBooking = bookings.find((booking) => booking.student_id === ownStudentId);
+                        return ownBooking?.status === "completed" && !hasRated("teacher", teacherId, ownBooking.id) ? (
+                          <RatingDialog
+                            token={token}
+                            actorRole="student"
+                            targetType="teacher"
+                            targetId={teacherId}
+                            bookingId={ownBooking.id}
+                            triggerLabel={copy.rateTeacher}
+                          />
+                        ) : null;
+                      })()
+                    )}
+
+                    {!isTeacher && isParent && teacherId && bookings.map((booking) => (
+                      booking.status === "completed" ? (
+                        <div key={"rating-" + booking.id} className="flex flex-wrap gap-2">
+                          {!hasRated("teacher", teacherId, booking.id) && (
+                            <RatingDialog
+                              token={token}
+                              actorRole="parent"
+                              targetType="teacher"
+                              targetId={teacherId}
+                              bookingId={booking.id}
+                              triggerLabel={copy.rateTeacher}
+                            />
+                          )}
+                          {!hasRated("student", booking.student_id, booking.id) && (
+                            <RatingDialog
+                              token={token}
+                              actorRole="parent"
+                              targetType="student"
+                              targetId={booking.student_id}
+                              bookingId={booking.id}
+                              targetName={booking.student?.name}
+                              triggerLabel={copy.rateStudent}
+                            />
+                          )}
+                        </div>
+                      ) : null
+                    ))}
+
+                    {isTeacher && bookings.map((booking) => (
+                      booking.status === "completed" && !hasRated("student", booking.student_id, booking.id) ? (
+                        <RatingDialog
+                          key={"teacher-rating-" + booking.id}
+                          token={token}
+                          actorRole="teacher"
+                          targetType="student"
+                          targetId={booking.student_id}
+                          bookingId={booking.id}
+                          targetName={booking.student?.name}
+                          triggerLabel={copy.rateStudent}
+                        />
+                      ) : null
+                    ))}
+                  </>
+                )}
+
+                {!isTeacher && !ratingsReady && session.status === "completed" && (
+                  <span className="inline-flex items-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-sora text-[#697372]">
+                    {copy.ratingLoading}
+                  </span>
+                )}
+
+                {isTeacher && session.meeting_url && (
                 {isTeacher && session.meeting_url && (
                   <button
                     type="button"

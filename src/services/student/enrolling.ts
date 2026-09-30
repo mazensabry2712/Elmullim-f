@@ -30,6 +30,27 @@ export const enrollFreeCourse = async ({
   return data;
 };
 
+export interface IPaymentStatusResponse extends IStatusMsg {
+  data?: {
+    status?: "pending" | "success" | "failed";
+    transaction_id?: number | null;
+    course_id?: number | null;
+  } | null;
+}
+
+export const getPaymentStatus = async ({
+  orderId,
+  signature,
+}: {
+  orderId: number;
+  signature: string;
+}): Promise<IPaymentStatusResponse> => {
+  const { data } = await axiosAPI.get("/student/payment/status", {
+    params: { order: orderId, sig: signature },
+  });
+  return data;
+};
+
 export const initiatePayment = async ({
   token,
   walletNumber,

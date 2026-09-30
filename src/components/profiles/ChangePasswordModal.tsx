@@ -19,8 +19,20 @@ import Swal from "sweetalert2";
 import { useI18n } from "@/i18n";
 import { getAuthCopy } from "@/i18n/authCopy";
 
-const ChangePasswordModal = () => {
-  const [isOpen, setIsOpen] = useState(false);
+interface ChangePasswordModalProps {
+  isOpen?: boolean;
+  onRequestClose?: () => void;
+  showTrigger?: boolean;
+}
+
+const ChangePasswordModal = ({
+  isOpen: controlledIsOpen,
+  onRequestClose,
+  showTrigger = true,
+}: ChangePasswordModalProps) => {
+  const [internalIsOpen, setInternalIsOpen] = useState(false);
+  const isControlled = controlledIsOpen !== undefined;
+  const isOpen = isControlled ? controlledIsOpen : internalIsOpen;
   const token = cookieService.getToken()!;
   const role = cookieService.getRole()!;
   const { language } = useI18n();
@@ -48,19 +60,35 @@ const ChangePasswordModal = () => {
     }
   };
 
+  const openModal = () => {
+    if (isControlled) {
+      return;
+    }
+
+    setInternalIsOpen(true);
+  };
+
   const handleCloseModal = () => {
-    setIsOpen(false);
+    if (isControlled) {
+      onRequestClose?.();
+    } else {
+      setInternalIsOpen(false);
+    }
+
     form.reset();
   };
 
   return (
     <>
-      <button
-        className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out"
-        onClick={() => setIsOpen(true)}
-      >
-        <LockKeyhole className="h-4 w-4" /> {copy.changePassword}
-      </button>
+      {showTrigger && (
+        <button
+          type="button"
+          className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out"
+          onClick={openModal}
+        >
+          <LockKeyhole className="h-4 w-4" /> {copy.changePassword}
+        </button>
+      )}
 
       <Modal
         isOpen={isOpen}

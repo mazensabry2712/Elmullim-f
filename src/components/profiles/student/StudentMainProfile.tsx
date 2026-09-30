@@ -46,7 +46,7 @@ const StudentMainProfile = () => {
         educationLevel: "المرحلة التعليمية",
         description: "الوصف",
         favorites: "المواد المفضلة",
-        teacherRatings: "تقييمات المعلمين",
+        studentRatings: "تقييمات الطالب",
         noRatings: "لا توجد تقييمات بعد",
         nothing: "غير محدد",
         male: "ذكر",
@@ -66,7 +66,7 @@ const StudentMainProfile = () => {
         educationLevel: "Education level",
         description: "Description",
         favorites: "Favorite subjects",
-        teacherRatings: "Teacher ratings",
+        studentRatings: "Student ratings",
         noRatings: "No ratings yet",
         nothing: "Not provided",
         male: "Male",
@@ -248,7 +248,7 @@ const StudentMainProfile = () => {
           <div className="mb-4 flex items-center gap-2 text-main">
             <UserRound className="h-5 w-5" />
             <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
-              {text.teacherRatings}
+              {text.studentRatings}
             </h3>
           </div>
 

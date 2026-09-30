@@ -96,6 +96,8 @@ const UpdateTeacherProfileForm = () => {
     name,
     phone,
     education_level_id,
+    country_id,
+    education_system_id,
     subjects,
     profile_image,
     description,
@@ -109,6 +111,8 @@ const UpdateTeacherProfileForm = () => {
         token,
         dataForm: {
           subjects,
+          country_id,
+          education_system_id,
           education_level_id,
           email,
           gender,

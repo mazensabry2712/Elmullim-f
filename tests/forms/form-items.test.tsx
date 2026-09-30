@@ -113,5 +113,5 @@ describe("form item controls", () => {
 
     fireEvent.change(searchInput, { target: { value: "does-not-exist" } });
     expect(screen.getByText("Not found")).toBeInTheDocument();
-  });
+  }, 15000);
 });

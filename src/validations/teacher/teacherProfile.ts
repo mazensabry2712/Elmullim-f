@@ -25,53 +25,102 @@ export const updateTeacherProfileSchema = z.object({
         "Full name must be at least 2 characters.",
         "يجب أن يتكون الاسم الكامل من حرفين على الأقل."
       ),
+    })
+    .max(255, {
+      message: validationMessage(
+        "Full name must be 255 characters or fewer.",
+        "يجب ألا يزيد الاسم الكامل عن 255 حرفًا."
+      ),
     }),
-  description: z.string().optional(),
+  description: z
+    .string()
+    .max(250, {
+      message: validationMessage(
+        "Description must be 250 characters or fewer.",
+        "يجب ألا يزيد الوصف عن 250 حرفًا."
+      ),
+    })
+    .optional(),
   email: z.string().email({
-    message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
+    message: validationMessage(
+      "Please enter a valid email.",
+      "يرجى إدخال بريد إلكتروني صحيح."
+    ),
   }),
   gender: z.string().nonempty({
     message: validationMessage("Please select a gender.", "يرجى اختيار النوع."),
   }),
-  experince: z.coerce.number({
-    message: validationMessage("Experience is required", "الخبرة مطلوبة"),
-  }).min(0, { message: validationMessage("Experience cannot be negative.", "لا يمكن أن تكون الخبرة سالبة.") }),
-  qualification: z.string().nonempty({
-    message: validationMessage("Qualification is required", "المؤهل مطلوب"),
-  }),
-  country_id: z.string().nonempty({
-    message: validationMessage("Please select a country", "يرجى اختيار الدولة"),
-  }).regex(/^\d+$/, { message: validationMessage("Please select a valid country.", "يرجى اختيار دولة صحيحة.") }),
-  phone: z
-    .string()
-    .regex(/^\d{10,20}$/, { message: validationMessage("Phone number must contain 10 to 20 digits.", "يجب أن يحتوي رقم الهاتف على 10 إلى 20 رقمًا.") })
+  experince: z
+    .coerce
+    .number({
+      message: validationMessage("Experience is required", "الخبرة مطلوبة"),
+    })
+    .min(0, {
       message: validationMessage(
-        "Phone number must be at least 10 digits.",
-        "يجب أن يتكون رقم الهاتف من 10 أرقام على الأقل."
+        "Experience cannot be negative.",
+        "لا يمكن أن تكون الخبرة سالبة."
+      ),
+    }),
+  qualification: z.string().max(250, {
+    message: validationMessage(
+      "Qualification must be 250 characters or fewer.",
+      "يجب ألا يزيد المؤهل عن 250 حرفًا."
+    ),
+  }),
+  country_id: z
+    .string()
+    .nonempty({
+      message: validationMessage("Please select a country", "يرجى اختيار الدولة"),
+    })
+    .regex(/^\d+$/, {
+      message: validationMessage(
+        "Please select a valid country.",
+        "يرجى اختيار دولة صحيحة."
+      ),
+    }),
+  phone: z.string().regex(/^\d{10,20}$/, {
+    message: validationMessage(
+      "Phone number must contain 10 to 20 digits.",
+      "يجب أن يحتوي رقم الهاتف على 10 إلى 20 رقمًا."
+    ),
+  }),
+  education_system_id: z
+    .string()
+    .nonempty({
+      message: validationMessage(
+        "Please select an education system.",
+        "يرجى اختيار نظام التعليم."
       ),
     })
     .regex(/^\d+$/, {
       message: validationMessage(
-        "Phone number must contain only digits.",
-        "يجب أن يحتوي رقم الهاتف على أرقام فقط."
+        "Please select a valid education system.",
+        "يرجى اختيار نظام تعليم صحيح."
       ),
     }),
-  education_system_id: z.string().nonempty({
-    message: validationMessage(
-      "Please select an education system.",
-      "يرجى اختيار نظام التعليم."
-    ),
-  }).regex(/^\d+$/, { message: validationMessage("Please select a valid education system.", "يرجى اختيار نظام تعليم صحيح.") }),
-  education_level_id: z.string().nonempty({
-    message: validationMessage(
-      "Please select an education level.",
-      "يرجى اختيار المرحلة التعليمية."
-    ),
-  }),
+  education_level_id: z
+    .string()
+    .nonempty({
+      message: validationMessage(
+        "Please select an education level.",
+        "يرجى اختيار المرحلة التعليمية."
+      ),
+    })
+    .regex(/^\d+$/, {
+      message: validationMessage(
+        "Please select a valid education level.",
+        "يرجى اختيار مرحلة تعليمية صحيحة."
+      ),
+    }),
   subjects: z
-    .array(z.string().nonempty({
-      message: validationMessage("Please select a subject.", "يرجى اختيار مادة."),
-    }))
+    .array(
+      z.string().nonempty({
+        message: validationMessage(
+          "Please select a subject.",
+          "يرجى اختيار مادة."
+        ),
+      })
+    )
     .min(1, {
       message: validationMessage(
         "Please select at least one subject.",
@@ -79,9 +128,14 @@ export const updateTeacherProfileSchema = z.object({
       ),
     }),
   course_type: z
-    .array(z.string().nonempty({
-      message: validationMessage("Please select a course type.", "يرجى اختيار نوع الكورس."),
-    }))
+    .array(
+      z.string().nonempty({
+        message: validationMessage(
+          "Please select a course type.",
+          "يرجى اختيار نوع الكورس."
+        ),
+      })
+    )
     .min(1, {
       message: validationMessage(
         "Please select at least one course type.",
@@ -127,8 +181,8 @@ export const updateTeacherProfileSchema = z.object({
       })
       .refine((file) => ACCEPTED_CV_TYPES.includes(file.type), {
         message: validationMessage(
-          "The allowed type for cv is .pdf, .txt, .doc or .docx",
-          "أنواع الملفات المسموح بها للسيرة الذاتية هي .pdf و.txt و.doc و.docx"
+          "The allowed type for cv is .pdf, .doc, or .docx",
+          "أنواع الملفات المسموح بها للسيرة الذاتية هي .pdf و.doc و.docx"
         ),
       }),
   ]),

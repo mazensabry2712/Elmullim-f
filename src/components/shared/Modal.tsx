@@ -8,7 +8,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
+import { Loader2, X } from "lucide-react";
 import { useI18n } from "@/i18n";
 
 interface IProps {
@@ -44,7 +44,16 @@ const Modal = ({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="border-muted !z-[1000] rounded-lg">
+      <AlertDialogContent className="relative border-muted !z-[1000] rounded-lg">
+        <button
+          type="button"
+          onClick={onOpenChange}
+          aria-label={language === "ar" ? "إغلاق" : "Close"}
+          className="absolute end-4 top-4 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full text-black-blue/70 transition-colors hover:bg-black-blue/5 hover:text-black-blue focus:outline-none focus:ring-2 focus:ring-main disabled:pointer-events-none disabled:opacity-50"
+          disabled={isLoading}
+        >
+          <X className="h-5 w-5" />
+        </button>
         <AlertDialogHeader>
           <AlertDialogTitle className="text-black-blue text-center">{title}</AlertDialogTitle>
           <AlertDialogDescription className={`text-center max-w-sm mx-auto font-sora ${description.color ?? ""}`}>

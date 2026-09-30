@@ -17,6 +17,7 @@ const PaymentResult = () => {
     orderId > 0 && signature ? "pending" : "unknown"
   );
   const [courseId, setCourseId] = useState<number | null>(null);
+  const [orderableType, setOrderableType] = useState<"courses" | "bookings" | null>(null);
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
@@ -40,6 +41,7 @@ const PaymentResult = () => {
         const status = response.data?.status;
         if (response.status && status) {
           setCourseId(response.data?.course_id ?? null);
+          setOrderableType(response.data?.orderable_type ?? null);
 
           if (status === "success" || status === "failed") {
             setState(status);
@@ -74,14 +76,17 @@ const PaymentResult = () => {
     document.title = `${copy.paymentResultTitle} | Elmullim`;
   }, [copy.paymentResultTitle]);
 
-  const detailsUrl = courseId ? `/courses/${courseId}` : "/courses";
+  const isCoursePayment =
+    orderableType === "courses" || (!!courseId && orderableType !== "bookings");
+  const detailsUrl = isCoursePayment && courseId ? `/courses/${courseId}` : "/courses";
+  const successHref = isCoursePayment && courseId ? `/courses/${courseId}/view` : "/bookings";
 
   const contentByState = {
     success: {
       icon: <CheckCircle2 className="mx-auto h-16 w-16 text-main" aria-hidden="true" />,
       title: copy.paymentSuccess,
-      action: courseId ? copy.viewCourse : copy.returnToCourse,
-      href: courseId ? `/courses/${courseId}/view` : detailsUrl,
+      action: isCoursePayment && courseId ? copy.viewCourse : copy.returnToBookings,
+      href: successHref,
     },
     failed: {
       icon: <XCircle className="mx-auto h-16 w-16 text-red-500" aria-hidden="true" />,

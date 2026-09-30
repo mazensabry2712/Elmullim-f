@@ -39,9 +39,17 @@ vi.mock("@/components/courses/EnrollFreeCourse", () => ({
 vi.mock("framer-motion", () => ({
   motion: {
     div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
-    section: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
-      const { initial, whileInView, viewport, transition, ...rest } = props;
+    article: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
+      const { initial, animate, transition, ...rest } = props;
       void initial;
+      void animate;
+      void transition;
+      return <article {...rest}>{children}</article>;
+    },
+    section: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => {
+      const { initial, animate, whileInView, viewport, transition, ...rest } = props;
+      void initial;
+      void animate;
       void whileInView;
       void viewport;
       void transition;

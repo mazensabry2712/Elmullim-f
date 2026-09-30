@@ -29,20 +29,19 @@ describe("BookingPaymentDialog", () => {
     mocks.mutateAsync.mockResolvedValue({ status: true, message: null, data: {} });
   });
 
-  it("submits the wallet payment request with the authenticated token", async () => {
+  it("submits the unified payment request with the authenticated token", async () => {
     render(<I18nProvider><BookingPaymentDialog bookingId={15} price="250.00" /></I18nProvider>);
 
     fireEvent.click(screen.getByRole("button", { name: "Pay 250.00" }));
-    fireEvent.change(screen.getByLabelText("Wallet number"), {
-      target: { value: "01012345678" },
-    });
+    expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
+    expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
+    expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() =>
       expect(mocks.mutateAsync).toHaveBeenCalledWith({
         token: "student-token",
         bookingId: 15,
-        walletNumber: "01012345678",
         isParent: false,
       })
     );
@@ -60,6 +59,8 @@ describe("BookingPaymentDialog", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "ادفع 250.00" })).toBeInTheDocument());
     fireEvent.click(screen.getByRole("button", { name: "ادفع 250.00" }));
     expect(screen.getByRole("heading", { name: "دفع الحجز" })).toBeInTheDocument();
-    expect(screen.getByLabelText("رقم المحفظة")).toBeInTheDocument();
+    expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
+    expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
+    expect(screen.getByText("المحافظ الإلكترونية المصرية")).toBeInTheDocument();
   });
 });

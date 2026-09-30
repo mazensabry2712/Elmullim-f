@@ -34,7 +34,10 @@ export interface IPaymentStatusResponse extends IStatusMsg {
   data?: {
     status?: "pending" | "success" | "failed";
     transaction_id?: number | null;
+    orderable_type?: "courses" | "bookings" | null;
+    orderable_id?: number | null;
     course_id?: number | null;
+    booking_id?: number | null;
   } | null;
 }
 

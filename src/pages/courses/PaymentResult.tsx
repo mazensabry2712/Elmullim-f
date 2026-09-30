@@ -80,8 +80,6 @@ const PaymentResult = () => {
 
   const isCoursePayment =
     orderableType === "courses" || (!!courseId && orderableType !== "bookings");
-  const detailsUrl =
-    isCoursePayment && courseId ? `/courses/${courseId}` : "/bookings";
   const successHref =
     isCoursePayment && courseId ? `/courses/${courseId}/view` : "/bookings";
   const retryHref =

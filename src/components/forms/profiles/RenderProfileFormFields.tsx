@@ -4,6 +4,7 @@ import { z, ZodSchema } from "zod";
 import { ControllerRenderProps, UseFormReturn } from "react-hook-form";
 import { GENDERS } from "@/constant";
 import { useUploadFileHandler } from "@/hooks/useUploadFileHandler";
+import { useI18n } from "@/i18n";
 import { ACCEPTED_CV_TYPES, ACCEPTED_IMAGE_TYPES } from "@/utils/file";
 import MultiSelectFormItem from "../formItems/MultiSelectFormItem";
 import SelectFormItem from "../formItems/SelectFormItem";
@@ -32,6 +33,16 @@ const RenderProfileFormFields = ({
   schema,
   options,
 }: IProps) => {
+  const { language } = useI18n();
+
+  const genderOptions =
+    language === "ar"
+      ? [
+          { value: "male", label: "ذكر" },
+          { value: "female", label: "أنثى" },
+        ]
+      : GENDERS;
+
   const { handleFileChange: handleCVFileChange } = useUploadFileHandler(
     form,
     ACCEPTED_CV_TYPES
@@ -104,7 +115,14 @@ const RenderProfileFormFields = ({
         );
 
       case input.name === "gender":
-        return <SelectFormItem field={field} input={input} options={GENDERS} />;
+        return (
+          <SelectFormItem
+            field={field}
+            input={input}
+            options={genderOptions}
+            label
+          />
+        );
 
       case input.name === "students":
         return <MultiInputForm input={input} field={field} form={form} label />;

@@ -29,7 +29,10 @@ function ChatWindow({
   const queryClient = useQueryClient();
 
   const { mutate: sendMessage, isPending: isSending } = useCreateMessage();
-  const { mutate: deleteConversation } = useDeleteConversation();
+  const {
+    mutate: deleteConversation,
+    isPending: isDeletingConversation,
+  } = useDeleteConversation();
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const menuRef = useRef<HTMLDivElement | null>(null);
 
@@ -134,7 +137,11 @@ function ChatWindow({
 
   const handleMenuOptionClick = (option: string) => {
     if (option === "remove") {
-      const confirmDelete = window.confirm("Delete Conversation?");
+      const confirmDelete = window.confirm(
+        language === "ar"
+          ? "هل تريد إزالة المحادثة من قائمتك؟"
+          : "Remove this conversation from your list?"
+      );
       if (confirmDelete) {
         deleteConversation(
           {
@@ -148,6 +155,11 @@ function ChatWindow({
             },
             onError: (error) => {
               console.error("Error deleting conversation:", error);
+              toast.error(
+                language === "ar"
+                  ? "تعذر إزالة المحادثة. حاول مرة أخرى."
+                  : "Failed to remove the conversation. Please try again."
+              );
             },
           }
         );
@@ -217,6 +229,15 @@ function ChatWindow({
           </button>
           {isMenuOpen && (
             <div role="menu" className="absolute right-0 top-full z-10 mt-2 w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+              <button
+                type="button"
+                role="menuitem"
+                onClick={() => handleMenuOptionClick("remove")}
+                disabled={isDeletingConversation}
+                className="w-full rounded-md px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+              >
+                {language === "ar" ? "إزالة المحادثة" : "Remove Conversation"}
+              </button>
               <button
                 type="button"
                 role="menuitem"
@@ -313,8 +334,26 @@ function ChatWindow({
           onChange={(e) => {
             const file = e.target.files?.[0] || null;
             setImageFile(file);
+            e.currentTarget.value = "";
           }}
         />
+        {imageFile && (
+          <div className="order-3 flex w-full items-center justify-between gap-2 rounded-lg border border-main/20 bg-[#F0FEFC] px-3 py-2 text-xs text-black-blue sm:order-none sm:w-auto sm:min-w-0 sm:max-w-[220px]">
+            <span className="min-w-0 truncate">{imageFile.name}</span>
+            <button
+              type="button"
+              onClick={() => setImageFile(null)}
+              aria-label={
+                language === "ar"
+                  ? "إزالة الصورة المرفقة"
+                  : "Remove attached image"
+              }
+              className="shrink-0 rounded p-1 text-red-500 hover:bg-white focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+            >
+              ×
+            </button>
+          </div>
+        )}
         <input
           type="text"
           placeholder={language === "ar" ? "اكتب رسالتك....." : "Type your message....."}

@@ -29,7 +29,6 @@ export interface IUpdateStudentProfile {
     email: string;
     name: string;
     phone: string;
-    address: string;
     country_id: string;
     education_system_id: string;
     education_level_id: string;

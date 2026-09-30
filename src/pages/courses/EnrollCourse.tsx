@@ -1,4 +1,4 @@
-import { ArrowLeft, Loader, Smartphone } from "lucide-react";
+import { ArrowLeft, Banknote, CreditCard, Loader } from "lucide-react";
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -21,7 +21,6 @@ function EnrollCourse() {
   const { courseId } = useParams<{ courseId: string }>();
   const numericCourseId = Number(courseId);
   const validCourseId = Number.isInteger(numericCourseId) && numericCourseId > 0;
-  const [walletNumber, setWalletNumber] = useState("");
   const payment = useInitiatePayment();
 
   const { data: course, isLoading, isError, refetch } = useGetCourseById({
@@ -38,7 +37,6 @@ function EnrollCourse() {
     if (!token || !validCourseId) return;
     const response = await payment.mutateAsync({
       token,
-      walletNumber,
       courseId: numericCourseId,
     });
     if (response.data?.redirect_url) {
@@ -93,13 +91,41 @@ function EnrollCourse() {
               ) : !isAuthenticated || !isStudent ? (
                 <div className="space-y-5 text-center"><h3 className="text-2xl font-bold text-black-blue">{copy.paymentUnavailable}</h3><p className="text-[#4D5756] leading-relaxed">{copy.paymentUnavailableDescription}</p><Link to="/sign-in" className="inline-flex bg-main text-white rounded-[5px] px-6 py-3 font-sora">{copy.enroll}</Link></div>
               ) : (
-                <form onSubmit={(event) => void handlePayment(event)} className="space-y-5">
-                  <div><h3 className="text-2xl font-bold text-black-blue">{copy.paymentAvailableTitle}</h3><p className="mt-2 text-[#4D5756]">{copy.paymentAvailableDescription}</p></div>
-                  <label htmlFor="wallet-number" className="block font-semibold text-black-blue">{copy.walletNumber}</label>
-                  <div className="relative"><Smartphone className="absolute start-3 top-1/2 -translate-y-1/2 text-[#194D80]" size={18} aria-hidden="true" /><input id="wallet-number" type="tel" inputMode="numeric" autoComplete="tel" value={walletNumber} onChange={(event) => setWalletNumber(event.target.value)} pattern="01[0125][0-9]{8}" maxLength={11} required placeholder="01012345678" className="w-full border border-[#194D80] rounded-md py-3 ps-10 pe-3" /></div>
+                <div className="space-y-6">
+                  <div>
+                    <h3 className="text-2xl font-bold text-black-blue">{copy.paymentAvailableTitle}</h3>
+                    <p className="mt-2 text-[#4D5756]">{copy.paymentAvailableDescription}</p>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label={copy.paymentMethods}>
+                    <div className="rounded-xl border border-[#E3E8E7] bg-[#F8FBFB] p-4 text-center">
+                      <CreditCard className="mx-auto mb-2 text-[#194D80]" size={28} aria-hidden="true" />
+                      <p className="font-semibold text-black-blue">{copy.cardPayment}</p>
+                      <p className="mt-1 text-xs text-[#4D5756]">Visa / Mastercard</p>
+                    </div>
+                    <div className="rounded-xl border border-[#E3E8E7] bg-[#F8FBFB] p-4 text-center">
+                      <Banknote className="mx-auto mb-2 text-[#194D80]" size={28} aria-hidden="true" />
+                      <p className="font-semibold text-black-blue">{copy.fawryPayment}</p>
+                      <p className="mt-1 text-xs text-[#4D5756]">Fawry / Kiosk</p>
+                    </div>
+                    <div className="rounded-xl border border-[#E3E8E7] bg-[#F8FBFB] p-4 text-center">
+                      <span className="mx-auto mb-2 flex h-7 w-7 items-center justify-center rounded-full border-2 border-[#194D80] text-xs font-bold text-[#194D80]" aria-hidden="true">M</span>
+                      <p className="font-semibold text-black-blue">{copy.walletPayment}</p>
+                      <p className="mt-1 text-xs text-[#4D5756]">{copy.mobileWallets}</p>
+                    </div>
+                  </div>
+
                   {payment.isError && <p role="alert" className="text-sm text-red-600">{copy.paymentError}</p>}
-                  <button type="submit" disabled={payment.isPending} className="w-full inline-flex items-center justify-center gap-2 bg-main disabled:opacity-60 text-white rounded-[5px] px-6 py-3 font-sora">{payment.isPending && <Loader size={18} className="animate-spin" aria-hidden="true" />}{payment.isPending ? copy.paymentLoading : copy.payNow}</button>
-                </form>
+                  <button
+                    type="button"
+                    onClick={(event) => void handlePayment(event as unknown as FormEvent)}
+                    disabled={payment.isPending}
+                    className="w-full inline-flex items-center justify-center gap-2 bg-main disabled:opacity-60 text-white rounded-[5px] px-6 py-3 font-sora"
+                  >
+                    {payment.isPending && <Loader size={18} className="animate-spin" aria-hidden="true" />}
+                    {payment.isPending ? copy.paymentLoading : copy.payNow}
+                  </button>
+                </div>
               )}
             </section>
           </div>

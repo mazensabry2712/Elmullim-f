@@ -62,7 +62,8 @@ const ProfileDropdownMenu = () => {
   };
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
+    <>
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <button
           type="button"
@@ -218,13 +219,14 @@ const ProfileDropdownMenu = () => {
           </div>
         </div>
       </PopoverContent>
-    </Popover>
+      </Popover>
 
-    <LogoutModal
+      <LogoutModal
       open={isLogoutOpen}
       onOpenChange={setIsLogoutOpen}
       showTrigger={false}
-    />
+      />
+    </>
   );
 };
 

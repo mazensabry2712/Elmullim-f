@@ -23,7 +23,7 @@ import { useI18n } from "@/i18n";
 import { formatDate } from "@/utils/dateTime";
 import { getCoursesCopy } from "./courseCopy";
 import { useInitiatePayment, useValidatePromoCode } from "@/lib/react-query/student/enrolling";
-import type { IPaymentPricing } from "@/services/student/enrolling";
+import type { IPaymentPricing, PaymentMethod } from "@/services/student/enrolling";
 
 function EnrollCourse() {
   const { language } = useI18n();
@@ -38,6 +38,7 @@ function EnrollCourse() {
   const promoValidation = useValidatePromoCode();
   const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState("");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [appliedPromo, setAppliedPromo] = useState<IPaymentPricing | null>(null);
   const [promoError, setPromoError] = useState("");
 
@@ -57,6 +58,7 @@ function EnrollCourse() {
       token,
       courseId: numericCourseId,
       promoCode: appliedPromo?.code || promoCode.trim() || undefined,
+      paymentMethod,
     });
 
     if (response.data?.payment_required === false) {
@@ -353,40 +355,51 @@ function EnrollCourse() {
                       <ShieldCheck className="shrink-0 text-main" size={24} aria-hidden="true" />
                     </div>
 
-                    <div className="mt-4 space-y-2" aria-label={copy.paymentMethods}>
-                      <div className="flex items-center gap-3 rounded-xl border border-[#DFE8E6] bg-white px-4 py-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#EEF5F6]">
-                          <CreditCard className="text-main" size={20} aria-hidden="true" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-black-blue">{copy.cardPayment}</p>
-                          <p className="text-xs text-[#7B8583]">Visa / Mastercard</p>
-                        </div>
-                        <Check className="shrink-0 text-main" size={18} aria-hidden="true" />
-                      </div>
+                    <div className="mt-4 space-y-3" role="radiogroup" aria-label={copy.paymentMethods}>
+                    {([
+                      { id: "card" as PaymentMethod, icon: CreditCard, title: copy.cardPayment, description: copy.cardPaymentDescription },
+                      { id: "fawry" as PaymentMethod, icon: Banknote, title: copy.fawryPayment, description: copy.fawryPaymentDescription },
+                      { id: "wallet" as PaymentMethod, icon: Smartphone, title: copy.walletPayment, description: copy.walletPaymentDescription },
+                    ]).map(({ id, icon: Icon, title, description }) => {
+                      const selected = paymentMethod === id;
 
-                      <div className="flex items-center gap-3 rounded-xl border border-[#DFE8E6] bg-white px-4 py-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#EEF5F6]">
-                          <Banknote className="text-main" size={20} aria-hidden="true" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-black-blue">{copy.fawryPayment}</p>
-                          <p className="text-xs text-[#7B8583]">Fawry / Kiosk</p>
-                        </div>
-                        <Check className="shrink-0 text-main" size={18} aria-hidden="true" />
-                      </div>
+                      return (
+                        <button
+                          key={id}
+                          type="button"
+                          role="radio"
+                          aria-checked={selected}
+                          onClick={() => setPaymentMethod(id)}
+                          disabled={payment.isPending}
+                          className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition ${
+                            selected
+                              ? "border-main bg-[#F0FAF8] ring-2 ring-main/10"
+                              : "border-[#DFE8E6] bg-white hover:border-main/40 hover:bg-[#FBFDFC]"
+                          }`}
+                        >
+                          <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
+                            selected ? "bg-main text-white" : "bg-[#EEF5F6] text-main"
+                          }`}>
+                            <Icon size={20} aria-hidden="true" />
+                          </span>
 
-                      <div className="flex items-center gap-3 rounded-xl border border-[#DFE8E6] bg-white px-4 py-3">
-                        <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[#EEF5F6]">
-                          <Smartphone className="text-main" size={20} aria-hidden="true" />
-                        </span>
-                        <div className="min-w-0 flex-1">
-                          <p className="text-sm font-semibold text-black-blue">{copy.walletPayment}</p>
-                          <p className="text-xs text-[#7B8583]">{copy.mobileWallets}</p>
-                        </div>
-                        <Check className="shrink-0 text-main" size={18} aria-hidden="true" />
-                      </div>
-                    </div>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-sm font-semibold text-black-blue">{title}</span>
+                            <span className="mt-1 block text-xs leading-5 text-[#7B8583]">{description}</span>
+                          </span>
+
+                          <span
+                            className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
+                              selected ? "border-main bg-main text-white" : "border-[#C9D5D2] bg-white"
+                            }`}
+                            aria-hidden="true"
+                          >
+                            {selected ? <Check size={13} strokeWidth={3} /> : null}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
                   </div>
 
                   {payment.isError ? (
@@ -396,7 +409,8 @@ function EnrollCourse() {
                   ) : null}
 
                   <div className="mt-5 rounded-2xl border border-[#DFE8E6] bg-white p-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
                       <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EEF5F6]">
                         <Tag className="text-main" size={18} aria-hidden="true" />
                       </span>
@@ -404,6 +418,7 @@ function EnrollCourse() {
                         <p className="text-sm font-bold text-black-blue">{copy.promoCodeTitle}</p>
                         <p className="text-xs text-[#7B8583]">{copy.promoCodeDescription}</p>
                       </div>
+                      <span className="rounded-full bg-[#F4F8F7] px-2.5 py-1 text-[11px] font-medium text-[#6E7977]">{copy.optional}</span>
                     </div>
 
                     <div className="mt-3 flex flex-col gap-2 sm:flex-row">

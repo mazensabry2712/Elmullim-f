@@ -98,14 +98,13 @@ export const proposeBookingTime = async ({ token, bookingId, proposedStartAt, te
   return data;
 };
 
-export const initiateBookingPayment = async ({ token, bookingId, walletNumber, isParent = false }: {
+export const initiateBookingPayment = async ({ token, bookingId, isParent = false }: {
   token: string;
   bookingId: number;
-  walletNumber: string;
   isParent?: boolean;
 }) => {
   const endpoint = isParent ? "/parent/payment/booking/initiate" : "/student/payment/booking/initiate";
-  const { data } = await axiosAPI.post(endpoint, { booking_id: bookingId, wallet_number: walletNumber }, { headers: authHeaders(token) });
+  const { data } = await axiosAPI.post(endpoint, { booking_id: bookingId }, { headers: authHeaders(token) });
   return data as { status: boolean; message: string | null; data?: { redirect_url?: string | null } };
 };
 

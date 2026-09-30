@@ -292,6 +292,11 @@ export const teacherSignUpSchema = z.object({
   }),
   email: z.string().trim().email({
     message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
+  }).max(255, {
+    message: validationMessage(
+      "Email must be 255 characters or fewer.",
+      "يجب ألا يزيد البريد الإلكتروني عن 255 حرفًا."
+    ),
   }),
   password: z.string().min(8, {
     message: validationMessage(

@@ -113,12 +113,12 @@ const LocationPicker = ({
     const maxLat = Math.min(85, lat + deltaLat);
 
     const params = new URLSearchParams({
-      bbox: \`${minLon},${minLat},${maxLon},${maxLat}\`,
+      bbox: `${minLon},${minLat},${maxLon},${maxLat}`,
       layer: "mapnik",
-      marker: \`${lat},${lon}\`,
+      marker: `${lat},${lon}`,
     });
 
-    return \`https://www.openstreetmap.org/export/embed.html?${params.toString()}\`;
+    return `https://www.openstreetmap.org/export/embed.html?${params.toString()}`;
   }, [hasCoordinates, latitude, longitude]);
 
   const applyResult = (result: LocationResult) => {
@@ -152,7 +152,7 @@ const LocationPicker = ({
     try {
       await waitForRateLimit();
 
-      const url = new URL(\`${NOMINATIM_URL}/search\`);
+      const url = new URL(`${NOMINATIM_URL}/search`);
       url.searchParams.set("q", normalizedQuery);
       url.searchParams.set("format", "jsonv2");
       url.searchParams.set("limit", "5");
@@ -185,7 +185,7 @@ const LocationPicker = ({
     try {
       await waitForRateLimit();
 
-      const url = new URL(\`${NOMINATIM_URL}/reverse\`);
+      const url = new URL(`${NOMINATIM_URL}/reverse`);
       url.searchParams.set("lat", String(lat));
       url.searchParams.set("lon", String(lon));
       url.searchParams.set("format", "jsonv2");
@@ -356,7 +356,7 @@ const LocationPicker = ({
           <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
             {results.map((result, index) => (
               <button
-                key={\`${result.lat}-${result.lon}-${index}\`}
+                key={`${result.lat}-${result.lon}-${index}`}
                 type="button"
                 onClick={() => applyResult(result)}
                 className="flex w-full items-start gap-3 border-b border-gray-200 p-3 text-start transition hover:bg-white last:border-b-0"

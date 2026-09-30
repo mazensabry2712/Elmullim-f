@@ -20,11 +20,36 @@ export const updateStudentProfileSchema = z.object({
         "Full name must be at least 2 characters.",
         "يجب أن يتكون الاسم الكامل من حرفين على الأقل."
       ),
+    })
+    .max(255, {
+      message: validationMessage(
+        "Full name must be at most 255 characters.",
+        "يجب ألا يزيد الاسم الكامل عن 255 حرفًا."
+      ),
     }),
-  description: z.string().optional(),
-  email: z.string().email({
-    message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
-  }),
+  description: z
+    .string()
+    .max(250, {
+      message: validationMessage(
+        "Description must be at most 250 characters.",
+        "يجب ألا يزيد الوصف عن 250 حرفًا."
+      ),
+    })
+    .optional(),
+  email: z
+    .string()
+    .email({
+      message: validationMessage(
+        "Please enter a valid email.",
+        "يرجى إدخال بريد إلكتروني صحيح."
+      ),
+    })
+    .max(255, {
+      message: validationMessage(
+        "Email must be at most 255 characters.",
+        "يجب ألا يزيد البريد الإلكتروني عن 255 حرفًا."
+      ),
+    }),
   gender: z.string().nonempty({
     message: validationMessage("Please select a gender.", "يرجى اختيار النوع."),
   }),

@@ -28,6 +28,8 @@ export interface IUpdateParentProfile {
     phone: string;
     students: string[];
     profile_image?: File;
+    country_id: string;
+    education_system_id: string;
     education_level_id: string;
   };
 }

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2, MapPin, Search } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 
@@ -15,9 +15,10 @@ interface IProps {
   value: string;
   latitude?: number | null;
   longitude?: number | null;
-  onChange: (location: { address: string; latitude: number; longitude: number }) => void;
+  onChange: (location: { address: string; latitude: number | null; longitude: number | null }) => void;
   disabled?: boolean;
   placeholder?: string;
+  allowCurrentLocation?: boolean;
 }
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org";
@@ -29,6 +30,7 @@ const LocationPicker = ({
   onChange,
   disabled = false,
   placeholder,
+  allowCurrentLocation = true,
 }: IProps) => {
   const { language } = useI18n();
   const isArabic = language === "ar";
@@ -38,6 +40,10 @@ const LocationPicker = ({
   const [isSearching, setIsSearching] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const lastLookupAt = useRef(0);
+
+  useEffect(() => {
+    setQuery(value || "");
+  }, [value]);
 
   const text = isArabic
     ? {
@@ -160,7 +166,7 @@ const LocationPicker = ({
         const nextLatitude = position.coords.latitude;
         const nextLongitude = position.coords.longitude;
         const address = await reverseGeocode(nextLatitude, nextLongitude);
-        const nextAddress = address || query || (isArabic ? "موقعي الحالي" : "Current location");
+        const nextAddress = address || (isArabic ? "موقعي الحالي" : "Current location");
         setQuery(nextAddress);
         setResults([]);
         setHasSearched(false);
@@ -187,9 +193,11 @@ const LocationPicker = ({
         <Input
           value={query}
           onChange={(event) => {
-            setQuery(event.target.value);
+            const nextQuery = event.target.value;
+            setQuery(nextQuery);
             setResults([]);
             setHasSearched(false);
+            onChange({ address: nextQuery, latitude: null, longitude: null });
           }}
           disabled={disabled || isSearching || isLocating}
           placeholder={placeholder || text.placeholder}
@@ -199,10 +207,12 @@ const LocationPicker = ({
           {isSearching ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <Search className="me-2 h-4 w-4" />}
           {isSearching ? text.searching : text.search}
         </Button>
-        <Button type="button" variant="outline" onClick={useCurrentLocation} disabled={disabled || isSearching || isLocating}>
-          {isLocating ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <MapPin className="me-2 h-4 w-4" />}
-          {isLocating ? text.locating : text.current}
-        </Button>
+        {allowCurrentLocation && (
+          <Button type="button" variant="outline" onClick={useCurrentLocation} disabled={disabled || isSearching || isLocating}>
+            {isLocating ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : <MapPin className="me-2 h-4 w-4" />}
+            {isLocating ? text.locating : text.current}
+          </Button>
+        )}
       </div>
 
       {latitude != null && longitude != null && query.trim() && results.length === 0 && !hasSearched && (

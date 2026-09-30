@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useI18n } from "@/i18n";
 import { useGetStudentProfile } from "@/lib/react-query/student/studentProfile";
+import { useGetParentProfile } from "@/lib/react-query/parent/parentProfile";
 import { useGetGivenRatings } from "@/lib/react-query/rating";
 import type { RatingActorRole, RatingTargetType } from "@/services/rating";
 import RatingDialog from "@/components/ratings/RatingDialog";
@@ -29,6 +30,8 @@ const Schedule = () => {
   const isParent = role === "parent";
   const ratingRole: RatingActorRole = isTeacher ? "teacher" : isParent ? "parent" : "student";
   const studentProfile = useGetStudentProfile(token, isStudent);
+  const parentProfile = useGetParentProfile(token, isParent);
+  const linkedStudentIds = new Set((parentProfile.data?.data?.students ?? []).map((student) => student.id).filter((id): id is number => typeof id === "number"));
   const givenRatings = useGetGivenRatings(token, ratingRole, !!token && (isTeacher || isStudent || isParent));
   const ownStudentId = studentProfile.data?.data?.id;
   const ratingsReady = givenRatings.isFetched || givenRatings.isError;
@@ -303,7 +306,9 @@ const Schedule = () => {
                       })()
                     )}
 
-                    {!isTeacher && isParent && teacherId && bookings.map((booking) => (
+                    {!isTeacher && isParent && teacherId && bookings
+                      .filter((booking) => linkedStudentIds.has(booking.student_id))
+                      .map((booking) => (
                       booking.status === "completed" ? (
                         <div key={"rating-" + booking.id} className="flex flex-wrap gap-2">
                           {!hasRated("teacher", teacherId, booking.id) && (

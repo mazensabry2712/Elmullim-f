@@ -23,6 +23,8 @@ export type PaginatedResponse<T> = {
   meta: PaginationMeta;
 };
 
+export type BookingPaymentMethod = "card" | "fawry" | "wallet";
+
 const pageConfig = (token: string, page: number) => ({
   headers: authHeaders(token),
   ...(page > 1 ? { params: { page } } : {}),
@@ -98,14 +100,29 @@ export const proposeBookingTime = async ({ token, bookingId, proposedStartAt, te
   return data;
 };
 
-export const initiateBookingPayment = async ({ token, bookingId, isParent = false }: {
+export const initiateBookingPayment = async ({ token, bookingId, paymentMethod, isParent = false }: {
   token: string;
   bookingId: number;
+  paymentMethod: BookingPaymentMethod;
   isParent?: boolean;
 }) => {
   const endpoint = isParent ? "/parent/payment/booking/initiate" : "/student/payment/booking/initiate";
-  const { data } = await axiosAPI.post(endpoint, { booking_id: bookingId }, { headers: authHeaders(token) });
-  return data as { status: boolean; message: string | null; data?: { redirect_url?: string | null } };
+  const { data } = await axiosAPI.post(
+    endpoint,
+    { booking_id: bookingId, payment_method: paymentMethod },
+    { headers: authHeaders(token) }
+  );
+  return data as {
+    status: boolean;
+    message: string | null;
+    data?: {
+      redirect_url?: string | null;
+      original_amount?: number;
+      discount_amount?: number;
+      final_amount?: number;
+      coupon_code?: string | null;
+    };
+  };
 };
 
 export const getSchedule = async ({ token, page = 1 }: { token: string; page?: number }): Promise<PaginatedResponse<IBookingSession>> => {

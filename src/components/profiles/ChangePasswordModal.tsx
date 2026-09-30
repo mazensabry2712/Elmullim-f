@@ -36,12 +36,14 @@ const ChangePasswordModal = () => {
   const onSubmit = async ({ password, password_confirmation }: z.infer<typeof changePasswordSchema>) => {
     try {
       const { message, status } = await updatePassword({ password, password_confirmation, token, role });
-      if (!status) return Swal.fire({ icon: "error", title: copy.error, text: message });
-      Swal.fire({ icon: "success", title: copy.success, text: message });
+      if (!status) {
+        await Swal.fire({ icon: "error", title: copy.error, text: message });
+        return;
+      }
+      await Swal.fire({ icon: "success", title: copy.success, text: message });
+      handleCloseModal();
     } catch (error) {
       handleResError(error);
-    } finally {
-      handleCloseModal();
     }
   };
 

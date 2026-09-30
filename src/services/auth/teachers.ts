@@ -14,6 +14,8 @@ export const teacherRegister = async (
   formData.append("email", user.email);
   formData.append("password", user.password);
   formData.append("gender", user.gender);
+  formData.append("country_id", user.country_id);
+  formData.append("education_system_id", user.education_system_id);
   formData.append("phone", user.phone);
   formData.append("education_level_id", user.education_level_id);
   user.subjects.map((subject, idx) =>

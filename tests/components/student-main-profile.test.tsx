@@ -58,7 +58,44 @@ vi.mock("@/lib/react-query/student/studentProfile", () => ({
   }),
   useGetStudentRatings: () => ({
     data: {
-      data: [],
+      data: [
+        {
+          rateable: {
+            id: 7,
+            type: "students",
+            name: "Ahmed Student",
+            image: null,
+          },
+          reply: {
+            id: 22,
+            type: "teachers",
+            name: "Teacher Reviewer",
+            image: null,
+          },
+          rate: 4,
+          description: "Great participation.",
+          booking_id: 101,
+          created_at: "2026-09-28T10:00:00Z",
+        },
+        {
+          rateable: {
+            id: 7,
+            type: "students",
+            name: "Ahmed Student",
+            image: null,
+          },
+          reply: {
+            id: 31,
+            type: "familes",
+            name: "Parent Reviewer",
+            image: null,
+          },
+          rate: 5,
+          description: "Very responsible student.",
+          booking_id: 102,
+          created_at: "2026-09-29T10:00:00Z",
+        },
+      ],
     },
   }),
 }));
@@ -86,7 +123,9 @@ vi.mock("@/components/profiles/student/StudentLocation", () => ({
 }));
 
 vi.mock("@/components/profiles/student/StudentRating", () => ({
-  default: () => <div data-testid="student-rating" />,
+  default: ({ rate }: { rate: { reply: { name: string } } }) => (
+    <div data-testid="student-rating">{rate.reply.name}</div>
+  ),
 }));
 
 vi.mock("@/components/Loader", () => ({
@@ -130,6 +169,9 @@ describe("StudentMainProfile", () => {
       ""
     );
     expect(screen.getByTestId("student-location")).toBeInTheDocument();
+    expect(screen.getByText("Student ratings")).toBeInTheDocument();
+    expect(screen.getByText("Teacher Reviewer")).toBeInTheDocument();
+    expect(screen.getByText("Parent Reviewer")).toBeInTheDocument();
   });
 
   it("localizes the gender value in Arabic", () => {
@@ -140,5 +182,6 @@ describe("StudentMainProfile", () => {
     expect(screen.getByText("ذكر")).toBeInTheDocument();
     expect(screen.getByText("البيانات الشخصية")).toBeInTheDocument();
     expect(screen.getByText("تعديل الملف الشخصي")).toBeInTheDocument();
+    expect(screen.getByText("تقييمات الطالب")).toBeInTheDocument();
   });
 });

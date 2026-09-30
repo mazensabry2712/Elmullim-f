@@ -36,6 +36,7 @@ describe("BookingPaymentDialog", () => {
     expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
     expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
     expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
+    expect(screen.queryByText(/paymob/i)).not.toBeInTheDocument();
 
     const fawryOption = screen.getByRole("radio", { name: /Fawry/i });
     fireEvent.click(fawryOption);

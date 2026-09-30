@@ -190,6 +190,73 @@ describe("Schedule", () => {
     );
   });
 
+  it("shows a student a teacher rating action after a completed booking", () => {
+    mocks.role = "student";
+    mocks.getSchedule.mockReturnValue({
+      status: true,
+      message: null,
+      data: [{
+        id: 7,
+        lesson_id: 15,
+        start_at: "2099-01-10T20:00:00Z",
+        end_at: "2099-01-10T21:00:00Z",
+        status: "completed",
+        bookings: [{ id: 707, student_id: 42, student: { id: 42, name: "Student" }, status: "completed" }],
+        lesson: { id: 15, title: "Completed lesson", teacher_id: 9 },
+      }],
+    });
+
+    render(<I18nProvider><Schedule /></I18nProvider>);
+
+    expect(screen.getByRole("button", { name: "Rate teacher" })).toBeInTheDocument();
+  });
+
+  it("shows a teacher a student rating action after a completed booking", () => {
+    mocks.role = "teacher";
+    mocks.getTeacherSchedule.mockReturnValue({
+      status: true,
+      message: null,
+      data: [{
+        id: 8,
+        lesson_id: 15,
+        start_at: "2099-01-10T20:00:00Z",
+        end_at: "2099-01-10T21:00:00Z",
+        status: "completed",
+        bookings: [{ id: 808, student_id: 42, student: { id: 42, name: "Student" }, status: "completed" }],
+        lesson: { id: 15, title: "Completed lesson", teacher_id: 9 },
+      }],
+    });
+
+    render(<I18nProvider><Schedule /></I18nProvider>);
+
+    expect(screen.getByRole("button", { name: "Rate student" })).toBeInTheDocument();
+  });
+
+  it("shows a parent both rating actions only for a linked student", () => {
+    mocks.role = "parent";
+    mocks.getSchedule.mockReturnValue({
+      status: true,
+      message: null,
+      data: [{
+        id: 9,
+        lesson_id: 15,
+        start_at: "2099-01-10T20:00:00Z",
+        end_at: "2099-01-10T21:00:00Z",
+        status: "completed",
+        bookings: [
+          { id: 909, student_id: 42, student: { id: 42, name: "Linked student" }, status: "completed" },
+          { id: 910, student_id: 99, student: { id: 99, name: "Other student" }, status: "completed" },
+        ],
+        lesson: { id: 15, title: "Group lesson", teacher_id: 9 },
+      }],
+    });
+
+    render(<I18nProvider><Schedule /></I18nProvider>);
+
+    expect(screen.getAllByRole("button", { name: "Rate teacher" })).toHaveLength(1);
+    expect(screen.getAllByRole("button", { name: "Rate student" })).toHaveLength(1);
+  });
+
   it("renders the student schedule in Arabic", () => {
     localStorage.setItem("elmullim-language", "ar");
     render(<I18nProvider><Schedule /></I18nProvider>);

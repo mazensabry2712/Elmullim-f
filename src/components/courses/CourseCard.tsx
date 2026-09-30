@@ -74,7 +74,9 @@ const CourseCard = ({ course, copy }: IProps) => {
             {Number(course.price) === 0 ? (
               <span className="text-xl">{copy.free}</span>
             ) : (
-              <span className="text-main font-exo text-xl">${course.price}</span>
+              <span className="text-main font-exo text-xl">
+                {course.price} L.E
+              </span>
             )}
           </div>
 

@@ -98,24 +98,6 @@ describe("Course enrollment", () => {
   });
 
   it("shows a real free-course enrollment action", () => {
-    const startPayment = vi.fn().mockResolvedValue({
-      status: true,
-      data: {
-        payment_required: true,
-        redirect_url: "https://example.test/checkout",
-        original_amount: 500,
-        discount_amount: 0,
-        final_amount: 500,
-        coupon_code: null,
-      },
-    });
-
-    mockUseInitiatePayment.mockReturnValue({
-      mutateAsync: startPayment,
-      isPending: false,
-      isError: false,
-    });
-
     mockUseGetCourseById.mockReturnValue({
       data: {
         data: {

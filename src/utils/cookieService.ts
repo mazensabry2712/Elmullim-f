@@ -38,8 +38,21 @@ class CookieService {
   }
 
   getRole(): TRole | undefined {
-    const role = this.cookies.get("r_l");
-    return role && role.trim() !== "" ? role : undefined;
+    const storedRole = this.cookies.get("r_l");
+
+    if (storedRole === "family") {
+      return "parent";
+    }
+
+    if (
+      storedRole !== "student" &&
+      storedRole !== "parent" &&
+      storedRole !== "teacher"
+    ) {
+      return undefined;
+    }
+
+    return storedRole;
   }
 
   clearAllCookies() {

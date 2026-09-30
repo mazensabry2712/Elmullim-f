@@ -85,6 +85,8 @@ const UpdateParentProfileForm = () => {
     name,
     phone,
     education_level_id,
+    country_id,
+    education_system_id,
     profile_image,
     description,
     students,
@@ -93,6 +95,8 @@ const UpdateParentProfileForm = () => {
       const { status, message } = await updateParentProfile({
         token,
         dataForm: {
+          country_id,
+          education_system_id,
           education_level_id,
           email,
           gender,

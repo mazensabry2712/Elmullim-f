@@ -24,6 +24,8 @@ export const updateTeacherProfile = async ({
   formData.append("email", dataForm.email);
   formData.append("name", dataForm.name);
   formData.append("phone", dataForm.phone);
+  formData.append("country_id", dataForm.country_id);
+  formData.append("education_system_id", dataForm.education_system_id);
   formData.append("education_level_id", dataForm.education_level_id);
   formData.append("gender", dataForm.gender);
   formData.append("experince", dataForm.experince.toString());

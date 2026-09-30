@@ -34,6 +34,8 @@ export interface IUpdateTeacherProfile {
     email: string;
     phone: string;
     course_type: string[];
+    country_id: string;
+    education_system_id: string;
     education_level_id: string;
     subjects: string[];
     gender: string;

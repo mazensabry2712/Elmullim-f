@@ -62,7 +62,6 @@ const StudentSignUpForm = () => {
       phone: "",
       education_system_id: "",
       education_level_id: "",
-      address: "",
     },
   });
   const onSubmit = async (user: z.output<typeof studentSignUpSchema>) => {

@@ -342,7 +342,14 @@ function EnrollCourse() {
                     </div>
                     <div className="rounded-2xl border border-[#DFE8E6] bg-[#FBFDFC] px-4 py-2 text-right">
                       <p className="text-xs text-[#7B8583]">{copy.total}</p>
-                      <p className="mt-0.5 text-xl font-bold text-black-blue">{courseData.price} L.E</p>
+                      {appliedPromo ? (
+                        <p className="mt-0.5 text-xs text-[#9AA5A2] line-through">
+                          {Number(courseData.price).toFixed(2)} L.E
+                        </p>
+                      ) : null}
+                      <p className="mt-0.5 text-xl font-bold text-black-blue">
+                        {(appliedPromo?.final_amount ?? Number(courseData.price)).toFixed(2)} L.E
+                      </p>
                     </div>
                   </div>
 

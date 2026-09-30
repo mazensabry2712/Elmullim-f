@@ -1,12 +1,8 @@
 import { LogOut } from "lucide-react";
 import { useState } from "react";
 import Modal from "./shared/Modal";
-import cookieService from "@/utils/cookieService";
-import { useAppDispatch } from "@/store/store";
-import { useUserLogout } from "@/lib/react-query/auth";
-import handleResError from "@/utils/handleResponseError";
+import useLogout from "@/hooks/useLogout";
 import Swal from "sweetalert2";
-import { logout } from "@/store/features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import { getAuthCopy } from "@/i18n/authCopy";
@@ -23,11 +19,7 @@ const LogoutModal = ({
   showTrigger = true,
 }: LogoutModalProps) => {
   const [internalOpen, setInternalOpen] = useState(false);
-  const token = cookieService.getToken();
-  const role = cookieService.getRole();
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const { mutateAsync: logoutUser, isPending } = useUserLogout();
+  const { performLogout, isPending } = useLogout();
   const { language } = useI18n();
   const copy = getAuthCopy(language);
 
@@ -43,43 +35,28 @@ const LogoutModal = ({
   };
 
   const handleLogout = async () => {
-    try {
-      if (!token || !role) {
-        dispatch(logout());
-        setOpen(false);
-        navigate("/login", { replace: true });
-        return;
-      }
+    const { response, error } = await performLogout();
+    setOpen(false);
 
-      const { message, status } = await logoutUser({ role, token });
-
-      if (!status) {
-        dispatch(logout());
-        setOpen(false);
-        navigate("/login", { replace: true });
-        return Swal.fire({
-          title: copy.error,
-          text: message,
-          icon: "error",
-        });
-      }
-
-      dispatch(logout());
-      setOpen(false);
-      navigate("/login", { replace: true });
-
+    if (response?.status) {
       void Swal.fire({
         title: copy.success,
-        text: message,
+        text: response.message,
         icon: "success",
       });
-    } catch (error) {
-      // A logout request failing should never keep the user trapped in an
-      // authenticated UI. Revoke the local session and return to login.
-      dispatch(logout());
-      setOpen(false);
-      navigate("/login", { replace: true });
-      handleResError(error);
+      return;
+    }
+
+    if (error || response) {
+      void Swal.fire({
+        title: copy.error,
+        text: response?.message ?? (
+          language === "ar"
+            ? "تم إنهاء الجلسة على هذا الجهاز، لكن تعذر التواصل مع الخادم."
+            : "Your session ended on this device, but the server could not be reached."
+        ),
+        icon: "warning",
+      });
     }
   };
 

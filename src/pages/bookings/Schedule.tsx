@@ -355,7 +355,6 @@ const Schedule = () => {
                 )}
 
                 {isTeacher && session.meeting_url && (
-                {isTeacher && session.meeting_url && (
                   <button
                     type="button"
                     onClick={() => openMeeting(session.meeting_url)}

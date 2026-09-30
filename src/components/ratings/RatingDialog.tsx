@@ -1,5 +1,5 @@
 import { useEffect, useId, useState } from "react";
-import { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 import { Loader2, Star, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
@@ -18,7 +18,7 @@ interface Props {
 }
 
 const getErrorMessage = (error: unknown, fallback: string) => {
-  if (!AxiosError.isAxiosError(error)) return fallback;
+  if (!isAxiosError(error)) return fallback;
 
   const responseData = error.response?.data as
     | { message?: string; errors?: Record<string, string[] | string> }

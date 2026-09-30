@@ -9,6 +9,11 @@ const validationMessage = (english: string, arabic: string) => {
 export const signInSchema = z.object({
   password: z.string().nonempty({
     message: validationMessage("Password is required.", "كلمة المرور مطلوبة."),
+  }).max(255, {
+    message: validationMessage(
+      "Email must be 255 characters or fewer.",
+      "يجب ألا يزيد البريد الإلكتروني عن 255 حرفًا."
+    ),
   }),
   email: z.string().trim().email({
     message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
@@ -21,13 +26,8 @@ export const signInSchema = z.object({
 });
 
 export const forgotPasswordSchema = z.object({
-  email: z.string().trim().email({
+  email: z.string().email({
     message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
-  }).max(255, {
-    message: validationMessage(
-      "Email must be 255 characters or fewer.",
-      "يجب ألا يزيد البريد الإلكتروني عن 255 حرفًا."
-    ),
   }),
 });
 
@@ -240,7 +240,10 @@ export const parentSignUpSchema = z.object({
   country_id: z.string().nonempty({
     message: validationMessage("Please select a country", "يرجى اختيار الدولة"),
   }).regex(/^\d+$/, {
-    message: validationMessage("Please select a valid country.", "يرجى اختيار دولة صحيحة."),
+    message: validationMessage(
+      "Please select a valid country.",
+      "يرجى اختيار دولة صحيحة."
+    ),
   }),
   education_system_id: z.string().nonempty({
     message: validationMessage(
@@ -272,17 +275,6 @@ export const parentSignUpSchema = z.object({
         "Phone number must contain 10 to 20 digits.",
         "يجب أن يحتوي رقم الهاتف على 10 إلى 20 رقمًا."
       ),
-    })
-      message: validationMessage(
-        "Phone number must be at least 10 digits.",
-        "يجب أن يتكون رقم الهاتف من 10 أرقام على الأقل."
-      ),
-    })
-    .regex(/^\d+$/, {
-      message: validationMessage(
-        "Phone number must contain only digits.",
-        "يجب أن يحتوي رقم الهاتف على أرقام فقط."
-      ),
     }),
 });
 
@@ -292,8 +284,13 @@ export const teacherSignUpSchema = z.object({
       "Full name must be at least 2 characters.",
       "يجب أن يتكون الاسم الكامل من حرفين على الأقل."
     ),
+  }).max(255, {
+    message: validationMessage(
+      "Full name must be 255 characters or fewer.",
+      "يجب ألا يزيد الاسم الكامل عن 255 حرفًا."
+    ),
   }),
-  email: z.string().email({
+  email: z.string().trim().email({
     message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
   }),
   password: z.string().min(8, {
@@ -315,7 +312,10 @@ export const teacherSignUpSchema = z.object({
   country_id: z.string().nonempty({
     message: validationMessage("Please select a country", "يرجى اختيار الدولة"),
   }).regex(/^\d+$/, {
-    message: validationMessage("Please select a valid country.", "يرجى اختيار دولة صحيحة."),
+    message: validationMessage(
+      "Please select a valid country.",
+      "يرجى اختيار دولة صحيحة."
+    ),
   }),
   phone: z
     .string()
@@ -324,17 +324,6 @@ export const teacherSignUpSchema = z.object({
       message: validationMessage(
         "Phone number must contain 10 to 20 digits.",
         "يجب أن يحتوي رقم الهاتف على 10 إلى 20 رقمًا."
-      ),
-    })
-      message: validationMessage(
-        "Phone number must be at least 10 digits.",
-        "يجب أن يتكون رقم الهاتف من 10 أرقام على الأقل."
-      ),
-    })
-    .regex(/^\d+$/, {
-      message: validationMessage(
-        "Phone number must contain only digits.",
-        "يجب أن يحتوي رقم الهاتف على أرقام فقط."
       ),
     }),
   education_system_id: z.string().nonempty({

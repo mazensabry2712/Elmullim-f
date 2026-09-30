@@ -8,8 +8,8 @@ export const getAuthCopy = (language: Language) =>
         verificationCode: "رمز التحقق",
         chooseSignIn: "اختر طريقة تسجيل الدخول",
         signInAsStudent: "تسجيل الدخول كطالب",
-        signInAsTeacher: "تسجيل الدخول كمعلم",
-        signInAsParent: "تسجيل الدخول كولي أمر",
+        signInAsTeacher: "تسجيل دخول المعلم",
+        signInAsParent: "تسجيل دخول ولي الأمر",
         login: "تسجيل الدخول",
         studentLogin: "تسجيل دخول الطالب",
         teacherLogin: "تسجيل دخول المعلم",
@@ -29,6 +29,10 @@ export const getAuthCopy = (language: Language) =>
         cancel: "إلغاء",
         updateInfo: "تحديث البيانات",
         pleaseLogin: "يرجى تسجيل الدخول للمتابعة",
+        resendCode: "إعادة إرسال الرمز",
+        resendIn: "إعادة الإرسال خلال",
+        seconds: "ثانية",
+        verificationCodeSent: "تم إرسال رمز تحقق جديد إلى بريدك الإلكتروني",
       }
     : {
         discover: "discover",
@@ -57,4 +61,8 @@ export const getAuthCopy = (language: Language) =>
         cancel: "Cancel",
         updateInfo: "Update Info",
         pleaseLogin: "Please login to continue",
+        resendCode: "Resend code",
+        resendIn: "Resend in",
+        seconds: "seconds",
+        verificationCodeSent: "A new verification code has been sent to your email",
       };

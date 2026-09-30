@@ -18,6 +18,7 @@ const PaymentResult = () => {
   );
   const [courseId, setCourseId] = useState<number | null>(null);
   const [orderableType, setOrderableType] = useState<"courses" | "bookings" | null>(null);
+  const [bookingId, setBookingId] = useState<number | null>(null);
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
@@ -42,6 +43,7 @@ const PaymentResult = () => {
         if (response.status && status) {
           setCourseId(response.data?.course_id ?? null);
           setOrderableType(response.data?.orderable_type ?? null);
+          setBookingId(response.data?.booking_id ?? null);
 
           if (status === "success" || status === "failed") {
             setState(status);
@@ -78,8 +80,16 @@ const PaymentResult = () => {
 
   const isCoursePayment =
     orderableType === "courses" || (!!courseId && orderableType !== "bookings");
-  const detailsUrl = isCoursePayment && courseId ? `/courses/${courseId}` : "/courses";
-  const successHref = isCoursePayment && courseId ? `/courses/${courseId}/view` : "/bookings";
+  const detailsUrl =
+    isCoursePayment && courseId ? `/courses/${courseId}` : "/bookings";
+  const successHref =
+    isCoursePayment && courseId ? `/courses/${courseId}/view` : "/bookings";
+  const retryHref =
+    isCoursePayment && courseId
+      ? `/courses/${courseId}`
+      : bookingId
+        ? "/bookings"
+        : "/courses";
 
   const contentByState = {
     success: {
@@ -91,20 +101,20 @@ const PaymentResult = () => {
     failed: {
       icon: <XCircle className="mx-auto h-16 w-16 text-red-500" aria-hidden="true" />,
       title: copy.paymentFailed,
-      action: copy.returnToCourse,
-      href: detailsUrl,
+      action: isCoursePayment ? copy.returnToCourse : copy.returnToBookings,
+      href: retryHref,
     },
     pending: {
       icon: <Clock3 className="mx-auto h-16 w-16 text-main" aria-hidden="true" />,
       title: copy.paymentPending,
-      action: copy.returnToCourse,
-      href: detailsUrl,
+      action: isCoursePayment ? copy.returnToCourse : copy.returnToBookings,
+      href: retryHref,
     },
     unknown: {
       icon: <XCircle className="mx-auto h-16 w-16 text-amber-500" aria-hidden="true" />,
       title: copy.paymentUnknown,
-      action: copy.returnToCourse,
-      href: detailsUrl,
+      action: isCoursePayment ? copy.returnToCourse : copy.returnToBookings,
+      href: retryHref,
     },
   }[state];
 

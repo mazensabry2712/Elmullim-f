@@ -90,6 +90,7 @@ export const initiatePayment = async ({
   token,
   courseId,
   promoCode,
+  paymentMethod,
 }: {
   token: string;
   courseId: number;

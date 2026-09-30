@@ -71,7 +71,7 @@ const ParentResetPassword = () => {
     <>
       <AuthHeader
         title="Forgot password"
-        linkPath="/login"
+        linkPath="/parent/sign-in"
         linkTitle="login"
         description={"Don't worry, we will help you recover your account!"}
         discover={false}
@@ -140,7 +140,7 @@ const ParentResetPassword = () => {
                         <LoaderCircle className="animate-spin !w-6 !h-6" />
                       </span>
                     )}
-                    Send reset code
+                    Reset password
                   </Button>
                 </form>
               </Form>

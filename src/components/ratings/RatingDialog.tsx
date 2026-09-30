@@ -114,6 +114,10 @@ const RatingDialog = ({
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !submitMutation.isPending) {
         setOpen(false);
+        setError("");
+        setRating(0);
+        setHoverRating(0);
+        setDescription("");
       }
     };
 

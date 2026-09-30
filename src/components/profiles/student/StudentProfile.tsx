@@ -38,10 +38,30 @@ const StudentProfile = () => {
         >
           <TabsList className="!mx-auto w-full h-auto p-0 px-4 justify-center rounded-lg overflow-hidden bg-[#21374B]">
             <div className="max-w-2xl mx-auto space-x-4 sm:space-x-16">
-              <TabsTrigger value="main-profile">{text.main}</TabsTrigger>
-              <TabsTrigger value="courses">{text.courses}</TabsTrigger>
-              <TabsTrigger value="chat">{text.chat}</TabsTrigger>
-              <TabsTrigger value="quiz">{text.quizzes}</TabsTrigger>
+              <TabsTrigger
+                value="main-profile"
+                className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-lg font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B]"
+              >
+                {text.main}
+              </TabsTrigger>
+              <TabsTrigger
+                value="courses"
+                className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-lg font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B]"
+              >
+                {text.courses}
+              </TabsTrigger>
+              <TabsTrigger
+                value="chat"
+                className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-lg font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B]"
+              >
+                {text.chat}
+              </TabsTrigger>
+              <TabsTrigger
+                value="quiz"
+                className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-lg font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B]"
+              >
+                {text.quizzes}
+              </TabsTrigger>
             </div>
           </TabsList>
 

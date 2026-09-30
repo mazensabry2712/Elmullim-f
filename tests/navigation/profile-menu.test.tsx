@@ -1,6 +1,12 @@
-import { act, render, screen } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import ProfileDropdownMenu from "@/components/profiles/ProfileMenu";
+
+const { performLogoutMock, swalFireMock } = vi.hoisted(() => ({
+  performLogoutMock: vi.fn(),
+  swalFireMock: vi.fn(),
+}));
 
 let latestPopoverOnOpenChange: ((open: boolean) => void) | undefined;
 
@@ -10,9 +16,15 @@ vi.mock("react-router-dom", () => ({
 
 vi.mock("@/hooks/useLogout", () => ({
   default: () => ({
-    performLogout: vi.fn(),
+    performLogout: performLogoutMock,
     isPending: false,
   }),
+}));
+
+vi.mock("sweetalert2", () => ({
+  default: {
+    fire: swalFireMock,
+  },
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -117,6 +129,17 @@ vi.mock("@/components/ui/popover", () => ({
 }));
 
 describe("ProfileDropdownMenu", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    swalFireMock.mockResolvedValue({ isConfirmed: false });
+    performLogoutMock.mockResolvedValue({
+      response: {
+        status: true,
+        message: "success logout",
+      },
+    });
+  });
+
   it("renders the authenticated user's profile image in the navbar trigger", () => {
     render(<ProfileDropdownMenu />);
 
@@ -147,5 +170,26 @@ describe("ProfileDropdownMenu", () => {
       latestPopoverOnOpenChange?.(false);
     });
     expect(screen.queryByText("My Account")).not.toBeInTheDocument();
+  });
+
+  it("confirms and executes logout from the profile menu", async () => {
+    const user = userEvent.setup();
+    swalFireMock.mockResolvedValueOnce({ isConfirmed: true });
+
+    render(<ProfileDropdownMenu />);
+
+    act(() => {
+      latestPopoverOnOpenChange?.(true);
+    });
+
+    await user.click(screen.getByRole("button", { name: /Sign out/i }));
+
+    await waitFor(() => {
+      expect(swalFireMock).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(performLogoutMock).toHaveBeenCalledTimes(1);
+    });
   });
 });

@@ -47,7 +47,23 @@ const ProfileDropdownMenu = () => {
   const profileImage = profile?.profile_image?.trim() || undefined;
   const profileName =
     profile?.name?.trim() || (ar ? "الملف الشخصي" : "Profile");
+  const profileEmail = profile?.email?.trim() || "";
   const fallbackLetter = profileName.charAt(0).toUpperCase();
+
+  const roleLabel =
+    role === "student"
+      ? ar
+        ? "طالب"
+        : "Student"
+      : role === "parent"
+        ? ar
+          ? "ولي أمر"
+          : "Parent"
+        : role === "teacher"
+          ? ar
+            ? "معلم"
+            : "Teacher"
+          : "";
 
   const text = {
     account: ar ? "حسابي" : "My Account",
@@ -59,172 +75,242 @@ const ProfileDropdownMenu = () => {
     uploadLessons: ar ? "رفع الدروس" : "Upload Lessons",
     serviceAreas: ar ? "مناطق الخدمة" : "Service Areas",
     chat: ar ? "الدردشة" : "Chat",
+    logout: ar ? "تسجيل الخروج" : "Sign out",
+    logoutHint: ar
+      ? "إنهاء الجلسة الحالية"
+      : "End your current session",
   };
 
   return (
     <>
       <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <button
-          type="button"
-          aria-label={ar ? "الملف الشخصي" : "Profile"}
-          className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            aria-label={ar ? "الملف الشخصي" : "Profile"}
+            className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+          >
+            <Avatar className="h-10 w-10 border border-black-blue/10 bg-white shadow-sm">
+              <AvatarImage
+                src={profileImage}
+                alt={profileName}
+                className="object-cover"
+              />
+              <AvatarFallback className="bg-[#F2F2F2] text-black-blue text-sm font-bold">
+                {fallbackLetter}
+              </AvatarFallback>
+            </Avatar>
+          </button>
+        </PopoverTrigger>
+
+        <PopoverContent
+          align={ar ? "start" : "end"}
+          sideOffset={10}
+          className="w-[min(320px,calc(100vw-24px))] rounded-2xl border border-black-blue/10 bg-white p-2.5 shadow-xl"
         >
-          <Avatar className="h-10 w-10 border border-black-blue/10">
-            <AvatarImage
-              src={profileImage}
-              alt={profileName}
-              className="object-cover"
-            />
-            <AvatarFallback className="bg-[#F2F2F2] text-black-blue text-sm font-bold">
-              {fallbackLetter}
-            </AvatarFallback>
-          </Avatar>
-        </button>
-      </PopoverTrigger>
+          <div className="overflow-hidden rounded-xl">
+            <div className="border-b border-black-blue/10 bg-white px-3 py-3">
+              <div className="flex items-center gap-3">
+                <Avatar className="h-11 w-11 shrink-0 border border-black-blue/10">
+                  <AvatarImage
+                    src={profileImage}
+                    alt={profileName}
+                    className="object-cover"
+                  />
+                  <AvatarFallback className="bg-[#F2F2F2] text-black-blue text-sm font-bold">
+                    {fallbackLetter}
+                  </AvatarFallback>
+                </Avatar>
 
-      <PopoverContent className="max-w-fit min-w-52 p-2">
-        <div className="space-y-1">
-          <div className="px-2 py-1.5 text-sm font-semibold font-sora text-black-blue">
-            {text.account}
-          </div>
-          <div className="border-b border-black-blue" />
+                <div className="min-w-0 flex-1 text-start">
+                  <p className="truncate font-sora text-sm font-bold text-black-blue">
+                    {profileName}
+                  </p>
+                  {profileEmail && (
+                    <p className="mt-0.5 truncate font-sora text-xs text-black-blue/55">
+                      {profileEmail}
+                    </p>
+                  )}
+                  {roleLabel && (
+                    <span className="mt-1 inline-flex rounded-full bg-main/10 px-2 py-0.5 font-sora text-[10px] font-semibold text-black-blue">
+                      {roleLabel}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
 
-          <div className="space-y-1 text-black-blue">
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
-              onClick={() => {
-                navigate("/profile");
-                setIsOpen(false);
-              }}
-            >
-              <User className="h-4 w-4" />
-              {text.profile}
-            </button>
+            <div className="px-1.5 py-2">
+              <div className="px-2 pb-1 text-[11px] font-bold uppercase tracking-[0.12em] text-black-blue/45">
+                {text.account}
+              </div>
 
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
-              onClick={() => {
-                navigate("/profile/update");
-                setIsOpen(false);
-              }}
-            >
-              <UserPen className="h-4 w-4" />
-              {text.edit}
-            </button>
+              <div className="space-y-0.5">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                  onClick={() => {
+                    navigate("/profile");
+                    setIsOpen(false);
+                  }}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                    <User className="h-4 w-4" />
+                  </span>
+                  {text.profile}
+                </button>
 
-            {role === "student" && (
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                  onClick={() => {
+                    navigate("/profile/update");
+                    setIsOpen(false);
+                  }}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                    <UserPen className="h-4 w-4" />
+                  </span>
+                  {text.edit}
+                </button>
+
+                {role === "student" && (
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                    onClick={() => {
+                      navigate("/profile", { state: { myCourses: true } });
+                      setIsOpen(false);
+                    }}
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                      <BookOpen className="h-4 w-4" />
+                    </span>
+                    {text.courses}
+                  </button>
+                )}
+
+                {role === "teacher" && (
+                  <>
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                      onClick={() => {
+                        navigate("/profile", { state: { myCourses: true } });
+                        setIsOpen(false);
+                      }}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                        <BookOpen className="h-4 w-4" />
+                      </span>
+                      {text.courses}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                      onClick={() => {
+                        navigate("/profile", { state: { myLessons: true } });
+                        setIsOpen(false);
+                      }}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                        <BookOpen className="h-4 w-4" />
+                      </span>
+                      {text.lessons}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                      onClick={() => {
+                        navigate("/profile/teacher/courses/upload");
+                        setIsOpen(false);
+                      }}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                        <Upload className="h-4 w-4" />
+                      </span>
+                      {text.uploadCourses}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                      onClick={() => {
+                        navigate("/profile/teacher/lessons/upload");
+                        setIsOpen(false);
+                      }}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                        <Upload className="h-4 w-4" />
+                      </span>
+                      {text.uploadLessons}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                      onClick={() => {
+                        navigate("/profile/teacher/service-areas");
+                        setIsOpen(false);
+                      }}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                        <MapPin className="h-4 w-4" />
+                      </span>
+                      {text.serviceAreas}
+                    </button>
+                  </>
+                )}
+
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                  onClick={() => {
+                    navigate("/profile", { state: { chat: true } });
+                    setIsOpen(false);
+                  }}
+                >
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                    <MessageCircleMore className="h-4 w-4" />
+                  </span>
+                  {text.chat}
+                </button>
+              </div>
+            </div>
+
+            <div className="border-t border-black-blue/10 px-1.5 pt-1.5 pb-1">
               <button
                 type="button"
-                className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
+                className="group flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400"
                 onClick={() => {
-                  navigate("/profile", { state: { myCourses: true } });
                   setIsOpen(false);
+                  setIsLogoutOpen(true);
                 }}
               >
-                <BookOpen className="h-4 w-4" />
-                {text.courses}
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-red-50 text-red-600 transition-colors group-hover:bg-red-100">
+                  <LogOut className="h-4 w-4" />
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="block text-sm font-semibold text-red-600">
+                    {text.logout}
+                  </span>
+                  <span className="block truncate text-[11px] font-medium text-black-blue/45">
+                    {text.logoutHint}
+                  </span>
+                </span>
               </button>
-            )}
-
-            {role === "teacher" && (
-              <>
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
-                  onClick={() => {
-                    navigate("/profile", { state: { myCourses: true } });
-                    setIsOpen(false);
-                  }}
-                >
-                  <BookOpen className="h-4 w-4" />
-                  {text.courses}
-                </button>
-
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
-                  onClick={() => {
-                    navigate("/profile", { state: { myLessons: true } });
-                    setIsOpen(false);
-                  }}
-                >
-                  <BookOpen className="h-4 w-4" />
-                  {text.lessons}
-                </button>
-
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
-                  onClick={() => {
-                    navigate("/profile/teacher/courses/upload");
-                    setIsOpen(false);
-                  }}
-                >
-                  <Upload className="h-4 w-4" />
-                  {text.uploadCourses}
-                </button>
-
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
-                  onClick={() => {
-                    navigate("/profile/teacher/lessons/upload");
-                    setIsOpen(false);
-                  }}
-                >
-                  <Upload className="h-4 w-4" />
-                  {text.uploadLessons}
-                </button>
-
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
-                  onClick={() => {
-                    navigate("/profile/teacher/service-areas");
-                    setIsOpen(false);
-                  }}
-                >
-                  <MapPin className="h-4 w-4" />
-                  {text.serviceAreas}
-                </button>
-              </>
-            )}
-
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out hover:bg-white-gray"
-              onClick={() => {
-                navigate("/profile", { state: { chat: true } });
-                setIsOpen(false);
-              }}
-            >
-              <MessageCircleMore className="h-4 w-4" />
-              {text.chat}
-            </button>
-
-            <button
-              type="button"
-              className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out text-destructive hover:bg-white-gray"
-              onClick={() => {
-                setIsOpen(false);
-                setIsLogoutOpen(true);
-              }}
-            >
-              <LogOut className="h-4 w-4" />
-              {language === "ar" ? "تسجيل الخروج" : "Logout"}
-            </button>
+            </div>
           </div>
-        </div>
-      </PopoverContent>
+        </PopoverContent>
       </Popover>
 
       <LogoutModal
-      open={isLogoutOpen}
-      onOpenChange={setIsLogoutOpen}
-      showTrigger={false}
+        open={isLogoutOpen}
+        onOpenChange={setIsLogoutOpen}
+        showTrigger={false}
       />
     </>
   );

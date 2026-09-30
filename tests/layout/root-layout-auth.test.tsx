@@ -54,14 +54,15 @@ describe("RootLayout authentication bootstrap", () => {
     );
 
     await waitFor(() => {
-      expect(checkAuth).toHaveBeenCalledWith("student-token");
+      expect(checkAuth).toHaveBeenCalledTimes(1);
     });
 
-    const initialCalls = checkAuth.mock.calls.length;
-    window.dispatchEvent(new Event("focus"));
+    await act(async () => {
+      window.dispatchEvent(new Event("focus"));
+    });
 
     await waitFor(() => {
-      expect(checkAuth.mock.calls.length).toBeGreaterThan(initialCalls);
+      expect(checkAuth).toHaveBeenCalledTimes(2);
     });
   });
 
@@ -78,6 +79,10 @@ describe("RootLayout authentication bootstrap", () => {
         <RootLayout />
       </I18nProvider>
     );
+
+    await waitFor(() => {
+      expect(checkAuth).toHaveBeenCalledWith("revoked-token");
+    });
 
     await waitFor(() => {
       expect(dispatch).toHaveBeenCalledWith({ type: "auth/logout" });

@@ -1,12 +1,8 @@
-import cookieService from "@/utils/cookieService";
 import { LoaderCircle, LogOut } from "lucide-react";
 import Modal from "../shared/Modal";
 import { HTMLAttributes, useState } from "react";
 import { toast } from "react-toastify";
-import handleResError from "@/utils/handleResponseError";
-import { logout } from "@/store/features/auth/authSlice";
-import { useUserLogout } from "@/lib/react-query/auth";
-import { useAppDispatch } from "@/store/store";
+import useLogout from "@/hooks/useLogout";
 import { useI18n } from "@/i18n";
 
 type TProps = HTMLAttributes<HTMLButtonElement>;
@@ -14,23 +10,7 @@ type TProps = HTMLAttributes<HTMLButtonElement>;
 const LogoutAuthButton = ({ ...rest }: TProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useI18n();
-
-  const token = cookieService.getToken()!;
-  const role = cookieService.getRole()!;
-
-  const dispatch = useAppDispatch();
-  const { mutateAsync: logoutUser, isPending } = useUserLogout();
-
-  const handleLogout = async () => {
-    try {
-      const { message, status } = await logoutUser({ role, token });
-      if (!status) return toast.error(message);
-      toast.success(message);
-      dispatch(logout());
-    } catch (error) {
-      handleResError(error);
-    }
-  };
+  const { performLogout, isPending } = useLogout();
 
   const copy = {
     en: {
@@ -44,6 +24,25 @@ const LogoutAuthButton = ({ ...rest }: TProps) => {
       confirmMessage: "هل أنت متأكد أنك تريد تسجيل الخروج؟",
     },
   }[language];
+
+  const handleLogout = async () => {
+    const { response, error } = await performLogout();
+    setIsOpen(false);
+
+    if (response?.status) {
+      toast.success(response.message);
+      return;
+    }
+
+    if (error || response) {
+      toast.warning(
+        response?.message ||
+          (language === "ar"
+            ? "تم إنهاء الجلسة محليًا، لكن تعذر تأكيد الإلغاء مع الخادم."
+            : "Your session ended locally, but the server could not confirm revocation.")
+      );
+    }
+  };
 
   return (
     <>
@@ -79,7 +78,7 @@ const LogoutAuthButton = ({ ...rest }: TProps) => {
         confirmText={copy.logout}
         isLoading={isPending}
         title={copy.confirmation}
-        onOpenChange={() => setIsOpen(!isOpen)}
+        onOpenChange={() => setIsOpen(false)}
         variant="destructive"
       />
     </>

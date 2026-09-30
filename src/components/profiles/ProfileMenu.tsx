@@ -13,6 +13,7 @@ import { useGetTeacherProfile } from "@/lib/react-query/teacher/teacherProfile";
 
 const ProfileDropdownMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
   const navigate = useNavigate();
   const role = cookieService.getRole();
   const token = cookieService.getToken() || "";
@@ -74,7 +75,16 @@ const ProfileDropdownMenu = () => {
             <button className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out" onClick={() => { navigate("/profile"); setIsOpen(false); }}>
               <User className="h-4 w-4" /> {text.profile}
             </button>
-            <ChangePasswordModal />
+            <button
+              type="button"
+              className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out"
+              onClick={() => {
+                setIsChangePasswordOpen(true);
+                setIsOpen(false);
+              }}
+            >
+              <UserPen className="h-4 w-4" /> {ar ? "تغيير كلمة المرور" : "Change Password"}
+            </button>
             <button className="flex items-center gap-2 hover:bg-white-gray w-full px-2 py-1.5 text-sm font-sora font-medium rounded-[5px] transition-all duration-300 ease-in-out" onClick={() => { navigate("/profile/update"); setIsOpen(false); }}>
               <UserPen className="h-4 w-4" /> {text.edit}
             </button>
@@ -107,6 +117,12 @@ const ProfileDropdownMenu = () => {
         </div>
       </PopoverContent>
     </Popover>
+
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onRequestClose={() => setIsChangePasswordOpen(false)}
+        showTrigger={false}
+      />
   );
 };
 

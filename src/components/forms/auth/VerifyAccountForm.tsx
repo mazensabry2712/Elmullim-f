@@ -212,7 +212,7 @@ const VerifyAccountForm = () => {
         </form>
 
         <div className="mt-2 flex flex-wrap items-center gap-1 text-black-blue">
-          <span>Didn't receive your code?</span>
+          <span>{copy.didNotReceiveCode}</span>
 
           <Button
             type="button"
@@ -223,7 +223,7 @@ const VerifyAccountForm = () => {
             aria-live="polite"
           >
             {resendIsPending
-              ? "Sending..."
+              ? copy.sending
               : resendCooldown > 0
                 ? `${copy.resendIn} ${resendCooldown} ${copy.seconds}`
                 : copy.resendCode}

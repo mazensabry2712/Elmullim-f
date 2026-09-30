@@ -124,7 +124,7 @@ describe("Course enrollment", () => {
     expect(screen.getByRole("button", { name: /enroll free course 7/i })).toBeInTheDocument();
   });
 
-  it("shows the unified Paymob checkout payment methods for paid courses", () => {
+  it("shows the payment methods for paid courses and sends the selected one", () => {
     mockUseGetCourseById.mockReturnValue({
       data: {
         data: {

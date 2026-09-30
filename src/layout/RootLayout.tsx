@@ -27,7 +27,10 @@ const RootLayout = () => {
     const validateAuthentication = async () => {
       try {
         const { data, message, status } = await checkAuth(token);
-        if (cancelled) return;
+
+        // Ignore a stale auth-check response after a logout has already
+        // cleared the session token.
+        if (cancelled || cookieService.getToken() !== token) return;
 
         if (!status || !data?.auth) {
           dispatch(logout());

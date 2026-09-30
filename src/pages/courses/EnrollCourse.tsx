@@ -6,11 +6,13 @@ import {
   CreditCard,
   Loader,
   LockKeyhole,
+  Tag,
+  X,
   ShieldCheck,
   Smartphone,
 } from "lucide-react";
-import { useEffect } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import { useGetCourseById } from "@/lib/react-query/courses/courses";
@@ -20,7 +22,8 @@ import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
 import { formatDate } from "@/utils/dateTime";
 import { getCoursesCopy } from "./courseCopy";
-import { useInitiatePayment } from "@/lib/react-query/student/enrolling";
+import { useInitiatePayment, useValidatePromoCode } from "@/lib/react-query/student/enrolling";
+import type { IPaymentPricing } from "@/services/student/enrolling";
 
 function EnrollCourse() {
   const { language } = useI18n();
@@ -32,6 +35,11 @@ function EnrollCourse() {
   const numericCourseId = Number(courseId);
   const validCourseId = Number.isInteger(numericCourseId) && numericCourseId > 0;
   const payment = useInitiatePayment();
+  const promoValidation = useValidatePromoCode();
+  const navigate = useNavigate();
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromo, setAppliedPromo] = useState<IPaymentPricing | null>(null);
+  const [promoError, setPromoError] = useState("");
 
   const { data: course, isLoading, isError, refetch } = useGetCourseById({
     courseId: numericCourseId,
@@ -48,11 +56,54 @@ function EnrollCourse() {
     const response = await payment.mutateAsync({
       token,
       courseId: numericCourseId,
+      promoCode: appliedPromo?.code || promoCode.trim() || undefined,
     });
+
+    if (response.data?.payment_required === false) {
+      navigate("/profile", { state: { myCourses: true }, replace: true });
+      return;
+    }
 
     if (response.data?.redirect_url) {
       window.location.assign(response.data.redirect_url);
     }
+  };
+
+  const handleApplyPromo = async () => {
+    const code = promoCode.trim();
+
+    if (!code || !token || !validCourseId) {
+      setPromoError(copy.enterPromoCode);
+      return;
+    }
+
+    setPromoError("");
+    setAppliedPromo(null);
+
+    try {
+      const response = await promoValidation.mutateAsync({
+        token,
+        courseId: numericCourseId,
+        code,
+      });
+
+      if (!response.status || !response.data) {
+        setPromoError(response.message || copy.invalidPromoCode);
+        return;
+      }
+
+      setAppliedPromo(response.data);
+      setPromoCode(response.data.code);
+    } catch {
+      setPromoError(copy.invalidPromoCode);
+    }
+  };
+
+  const clearPromo = () => {
+    setPromoCode("");
+    setAppliedPromo(null);
+    setPromoError("");
+    promoValidation.reset();
   };
 
   if (!validCourseId) {
@@ -343,6 +394,105 @@ function EnrollCourse() {
                       {copy.paymentError}
                     </p>
                   ) : null}
+
+                  <div className="mt-5 rounded-2xl border border-[#DFE8E6] bg-white p-4">
+                    <div className="flex items-center gap-2">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#EEF5F6]">
+                        <Tag className="text-main" size={18} aria-hidden="true" />
+                      </span>
+                      <div>
+                        <p className="text-sm font-bold text-black-blue">{copy.promoCodeTitle}</p>
+                        <p className="text-xs text-[#7B8583]">{copy.promoCodeDescription}</p>
+                      </div>
+                    </div>
+
+                    <div className="mt-3 flex flex-col gap-2 sm:flex-row">
+                      <div className="relative flex-1">
+                        <input
+                          type="text"
+                          value={promoCode}
+                          onChange={(event) => {
+                            setPromoCode(event.target.value.toUpperCase());
+                            if (appliedPromo) {
+                              setAppliedPromo(null);
+                            }
+                            if (promoError) {
+                              setPromoError("");
+                            }
+                          }}
+                          placeholder={copy.promoCodePlaceholder}
+                          aria-label={copy.promoCodeTitle}
+                          disabled={promoValidation.isPending || payment.isPending}
+                          className="h-12 w-full rounded-xl border border-[#DDE6E4] bg-[#FAFCFB] px-4 pr-10 text-sm font-semibold tracking-wide text-black-blue outline-none transition placeholder:font-normal placeholder:tracking-normal focus:border-main focus:ring-2 focus:ring-main/10 disabled:opacity-60"
+                        />
+                        {promoCode ? (
+                          <button
+                            type="button"
+                            onClick={clearPromo}
+                            aria-label={copy.clearPromoCode}
+                            className="absolute right-2 top-1/2 -translate-y-1/2 rounded-lg p-2 text-[#7B8583] transition hover:bg-[#EDF3F1] hover:text-black-blue"
+                          >
+                            <X size={16} aria-hidden="true" />
+                          </button>
+                        ) : null}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => void handleApplyPromo()}
+                        disabled={!promoCode.trim() || promoValidation.isPending || payment.isPending}
+                        className="inline-flex h-12 items-center justify-center gap-2 rounded-xl border border-main px-5 text-sm font-semibold text-main transition hover:bg-[#EEF8F6] disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        {promoValidation.isPending ? (
+                          <Loader size={17} className="animate-spin" aria-hidden="true" />
+                        ) : null}
+                        {promoValidation.isPending ? copy.applyingPromoCode : copy.applyPromoCode}
+                      </button>
+                    </div>
+
+                    {promoError ? (
+                      <p role="alert" className="mt-2 text-xs font-medium text-red-600">{promoError}</p>
+                    ) : null}
+
+                    {appliedPromo ? (
+                      <div className="mt-3 rounded-xl border border-[#CDEADF] bg-[#F0FAF5] px-4 py-3">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-2">
+                            <Check className="text-main" size={17} aria-hidden="true" />
+                            <span className="text-sm font-semibold text-black-blue">
+                              {appliedPromo.code} · {appliedPromo.discount_percent}% {copy.off}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={clearPromo}
+                            className="text-xs font-semibold text-[#66716F] underline underline-offset-2 hover:text-black-blue"
+                          >
+                            {copy.removePromoCode}
+                          </button>
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+
+                  <div className="mt-4 rounded-2xl border border-[#DFE8E6] bg-[#FAFCFB] px-4 py-1">
+                    <div className="flex items-center justify-between border-b border-[#E8EEEC] py-3 text-sm">
+                      <span className="text-[#697572]">{copy.subtotal}</span>
+                      <span className="font-semibold text-black-blue">{Number(courseData.price).toFixed(2)} L.E</span>
+                    </div>
+                    {appliedPromo ? (
+                      <div className="flex items-center justify-between border-b border-[#E8EEEC] py-3 text-sm">
+                        <span className="text-[#697572]">{copy.discount}</span>
+                        <span className="font-semibold text-main">-{appliedPromo.discount_amount.toFixed(2)} L.E</span>
+                      </div>
+                    ) : null}
+                    <div className="flex items-center justify-between py-4">
+                      <span className="text-base font-bold text-black-blue">{copy.total}</span>
+                      <span className="text-xl font-extrabold text-black-blue">
+                        {(appliedPromo?.final_amount ?? Number(courseData.price)).toFixed(2)} L.E
+                      </span>
+                    </div>
+                  </div>
 
                   <button
                     type="button"

@@ -1,5 +1,5 @@
 import { ArrowLeft, Banknote, CreditCard, Loader } from "lucide-react";
-import { FormEvent, useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
@@ -32,8 +32,7 @@ function EnrollCourse() {
     document.title = `${copy.enrollmentTitle} | Elmullim`;
   }, [copy.enrollmentTitle]);
 
-  const handlePayment = async (event: FormEvent) => {
-    event.preventDefault();
+  const handlePayment = async () => {
     if (!token || !validCourseId) return;
     const response = await payment.mutateAsync({
       token,
@@ -118,7 +117,7 @@ function EnrollCourse() {
                   {payment.isError && <p role="alert" className="text-sm text-red-600">{copy.paymentError}</p>}
                   <button
                     type="button"
-                    onClick={(event) => void handlePayment(event as unknown as FormEvent)}
+                    onClick={() => void handlePayment()}
                     disabled={payment.isPending}
                     className="w-full inline-flex items-center justify-center gap-2 bg-main disabled:opacity-60 text-white rounded-[5px] px-6 py-3 font-sora"
                   >

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Loader2, X } from "lucide-react";
+import { Banknote, CreditCard, Loader2, Smartphone, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { useInitiateBookingPayment } from "@/lib/react-query/booking";
 import cookieService from "@/utils/cookieService";
@@ -14,23 +14,16 @@ interface Props {
 
 const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => {
   const [open, setOpen] = useState(false);
-  const [walletNumber, setWalletNumber] = useState("");
   const paymentMutation = useInitiateBookingPayment();
   const token = cookieService.getToken() || "";
   const { language } = useI18n();
   const copy = getBookingCopy(language).bookings.payment;
 
   const submit = async () => {
-    if (!/^01[0125][0-9]{8}$/.test(walletNumber)) {
-      toast.error(copy.validWallet);
-      return;
-    }
-
     try {
       const response = await paymentMutation.mutateAsync({
         token,
         bookingId,
-        walletNumber,
         isParent,
       });
 
@@ -46,7 +39,6 @@ const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => 
 
       toast.success(copy.initialized);
       setOpen(false);
-      setWalletNumber("");
     } catch {
       toast.error(copy.couldNotInitialize);
     }
@@ -69,19 +61,23 @@ const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => 
               <button type="button" onClick={() => setOpen(false)} aria-label={copy.close}><X /></button>
             </div>
 
-            <label className="mt-6 block text-sm font-medium" htmlFor={`wallet-${bookingId}`}>
-              {copy.walletNumber}
-              <input
-                id={`wallet-${bookingId}`}
-                value={walletNumber}
-                onChange={(event) => setWalletNumber(event.target.value)}
-                inputMode="numeric"
-                autoComplete="tel"
-                placeholder="01012345678"
-                maxLength={11}
-                className="mt-2 w-full rounded-md border border-gray-300 px-3 py-2"
-              />
-            </label>
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label={copy.paymentMethods}>
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
+                <CreditCard className="mx-auto mb-2 text-[#194D80]" size={24} aria-hidden="true" />
+                <p className="text-sm font-semibold text-black-blue">{copy.cardPayment}</p>
+                <p className="mt-1 text-xs text-gray-500">Visa / Mastercard</p>
+              </div>
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
+                <Banknote className="mx-auto mb-2 text-[#194D80]" size={24} aria-hidden="true" />
+                <p className="text-sm font-semibold text-black-blue">{copy.fawryPayment}</p>
+                <p className="mt-1 text-xs text-gray-500">Fawry / Kiosk</p>
+              </div>
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3 text-center">
+                <Smartphone className="mx-auto mb-2 text-[#194D80]" size={24} aria-hidden="true" />
+                <p className="text-sm font-semibold text-black-blue">{copy.walletPayment}</p>
+                <p className="mt-1 text-xs text-gray-500">{copy.mobileWallets}</p>
+              </div>
+            </div>
 
             <div className="mt-5 flex justify-end gap-2">
               <button type="button" onClick={() => setOpen(false)} className="rounded-md border px-4 py-2">

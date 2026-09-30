@@ -96,6 +96,8 @@ const UpdateStudentProfileForm = () => {
         token,
         dataForm: {
           address,
+          country_id: form.getValues("country_id"),
+          education_system_id: form.getValues("education_system_id"),
           education_level_id,
           email,
           gender,

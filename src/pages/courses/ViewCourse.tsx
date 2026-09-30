@@ -44,6 +44,7 @@ const ViewCourse = () => {
     token,
     courseId: numericCourseId,
     contentId: firstContentId as number,
+    enabled: !!course?.data?.hasEnrolled,
   });
   const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
 

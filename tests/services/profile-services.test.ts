@@ -65,6 +65,8 @@ describe("profile service requests", () => {
         name: "Demo Student",
         phone: "201001234567",
         address: "Cairo, Egypt",
+        country_id: "1",
+        education_system_id: "2",
         education_level_id: "12",
         gender: "male",
         description: "Profile description",
@@ -86,6 +88,8 @@ describe("profile service requests", () => {
     expect(body.get("name")).toBe("Demo Student");
     expect(body.get("phone")).toBe("201001234567");
     expect(body.get("address")).toBe("Cairo, Egypt");
+    expect(body.get("country_id")).toBe("1");
+    expect(body.get("education_system_id")).toBe("2");
     expect(body.get("education_level_id")).toBe("12");
     expect(body.get("gender")).toBe("male");
     expect(body.get("description")).toBe("Profile description");

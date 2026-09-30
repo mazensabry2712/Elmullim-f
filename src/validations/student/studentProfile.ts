@@ -50,8 +50,11 @@ export const updateStudentProfileSchema = z.object({
         "يجب ألا يزيد البريد الإلكتروني عن 255 حرفًا."
       ),
     }),
-  gender: z.string().nonempty({
-    message: validationMessage("Please select a gender.", "يرجى اختيار النوع."),
+  gender: z.enum(["male", "female"], {
+    message: validationMessage(
+      "Please select a valid gender.",
+      "يرجى اختيار نوع صحيح."
+    ),
   }),
   country_id: z.string().nonempty({
     message: validationMessage("Please select a country", "يرجى اختيار الدولة"),

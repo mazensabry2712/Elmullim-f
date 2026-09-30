@@ -71,7 +71,6 @@ const UpdateStudentProfileForm = () => {
     resolver: zodResolver(updateStudentProfileSchema),
     defaultValues: {
       name: "",
-      address: "",
       education_system_id: "",
       education_level_id: "",
       email: "",
@@ -85,7 +84,6 @@ const UpdateStudentProfileForm = () => {
   });
 
   const onSubmit = async ({
-    address,
     email,
     gender,
     name,
@@ -101,7 +99,6 @@ const UpdateStudentProfileForm = () => {
       const { status, message } = await updateStudentProfile({
         token,
         dataForm: {
-          address,
           country_id,
           education_system_id,
           education_level_id,
@@ -147,7 +144,6 @@ const UpdateStudentProfileForm = () => {
       name: student?.name || "",
       phone: student?.phone || "",
       email: student?.email || "",
-      address: student?.address || "",
       gender: student?.gender || "",
       description: student?.description || "",
       country_id:

@@ -10,6 +10,7 @@ import {
   FileText,
   GraduationCap,
   Mail,
+  MapPin,
   Pencil,
   Phone,
   UserRound,

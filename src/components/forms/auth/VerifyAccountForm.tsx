@@ -51,7 +51,11 @@ const VerifyAccountForm = () => {
     isPending: resendIsPending,
   } = useSendVerificationEmail();
 
-  const [resendCooldown, setResendCooldown] = useState(0);
+  // The initial verification email is valid for one minute, so keep
+  // the resend action disabled for the same initial window.
+  const [resendCooldown, setResendCooldown] = useState(
+    RESEND_COOLDOWN_SECONDS
+  );
 
   const form = useForm<z.infer<typeof verifyAccountSchema>>({
     resolver: zodResolver(verifyAccountSchema),
@@ -135,68 +139,60 @@ const VerifyAccountForm = () => {
       initial={{ opacity: 0, x: -40 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
       animate={{ opacity: 1, x: 0 }}
-      className="lg:w-3/4 order-2 lg:order-1 max-w-[550px] space-y-6"
+      className="w-full max-w-[550px] space-y-6 lg:w-3/4 order-2 lg:order-1"
     >
-      <div className="w-full lg:py-8 flex flex-col lg:flex-row items-center">
-        <h2 className="text-5xl font-bold text-black-blue uppercase text-nowrap">
+      <div className="flex w-full flex-col items-center gap-1 lg:flex-row lg:py-8">
+        <h2 className="text-center text-4xl font-bold uppercase text-black-blue sm:text-5xl">
           OTP CODE
         </h2>
-        <h2 className="h-[120px] w-[270px] md:w-[320px] flex items-center justify-center text-4xl font-bold text-main font-exo bg-[url('/icons/verification-code-circle.svg')] bg-contain bg-no-repeat bg-center">
+        <h2 className="flex h-[100px] w-[240px] items-center justify-center bg-[url('/icons/verification-code-circle.svg')] bg-contain bg-center bg-no-repeat text-center font-exo text-3xl font-bold text-main sm:h-[120px] sm:w-[270px] sm:text-4xl md:w-[320px]">
           Verification
         </h2>
       </div>
 
       <Form {...form}>
         <form
-          className="mx-auto md:ml-0 space-y-6 max-w-min"
+          className="w-full space-y-6"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField
             control={form.control}
             name="code"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormControl>
-                  <div>
-                    <InputOTP
-                      maxLength={6}
-                      value={field.value}
-                      onChange={field.onChange}
-                      autoFocus
-                      disabled={isVerifying}
-                    >
-                      <InputOTPGroup className="space-x-1">
-                        <InputOTPSlot
-                          index={0}
-                          className="rounded-md border-2 w-10 h-10 md:w-16 md:h-16 border-main focus-visible:border-main md:text-xl"
-                        />
-                        <InputOTPSlot
-                          index={1}
-                          className="rounded-md border-2 w-10 h-10 md:w-16 md:h-16 border-main focus-visible:border-main md:text-xl"
-                        />
-                        <InputOTPSlot
-                          index={2}
-                          className="rounded-md border-2 w-10 h-10 md:w-16 md:h-16 border-main focus-visible:border-main md:text-xl"
-                        />
-                      </InputOTPGroup>
+                  <div className="w-full overflow-x-auto pb-1">
+                    <div className="mx-auto flex w-fit justify-center">
+                      <InputOTP
+                        maxLength={6}
+                        value={field.value}
+                        onChange={field.onChange}
+                        autoFocus
+                        disabled={isVerifying}
+                      >
+                        <InputOTPGroup className="space-x-1">
+                          {Array.from({ length: 3 }, (_, index) => (
+                            <InputOTPSlot
+                              key={index}
+                              index={index}
+                              className="h-10 w-10 rounded-md border-2 border-main focus-visible:border-main sm:h-12 sm:w-12 md:h-16 md:w-16 md:text-xl"
+                            />
+                          ))}
+                        </InputOTPGroup>
 
-                      <InputOTPSeparator />
+                        <InputOTPSeparator />
 
-                      <InputOTPGroup className="space-x-1">
-                        <InputOTPSlot
-                          index={3}
-                          className="rounded-md border-2 w-10 h-10 md:w-16 md:h-16 border-main focus-visible:border-main md:text-xl"
-                        />
-                        <InputOTPSlot
-                          index={4}
-                          className="rounded-md border-2 w-10 h-10 md:w-16 md:h-16 border-main focus-visible:border-main md:text-xl"
-                        />
-                        <InputOTPSlot
-                          index={5}
-                          className="rounded-md border-2 w-10 h-10 md:w-16 md:h-16 border-main focus-visible:border-main md:text-xl"
-                        />
-                      </InputOTPGroup>
-                    </InputOTP>
+                        <InputOTPGroup className="space-x-1">
+                          {Array.from({ length: 3 }, (_, index) => (
+                            <InputOTPSlot
+                              key={index + 3}
+                              index={index + 3}
+                              className="h-10 w-10 rounded-md border-2 border-main focus-visible:border-main sm:h-12 sm:w-12 md:h-16 md:w-16 md:text-xl"
+                            />
+                          ))}
+                        </InputOTPGroup>
+                      </InputOTP>
+                    </div>
                   </div>
                 </FormControl>
 
@@ -205,30 +201,37 @@ const VerifyAccountForm = () => {
             )}
           />
 
-          <SubmitAuthButton
-            title="verify"
-            isLoading={isVerifying}
-          />
+          <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-stretch">
+            <SubmitAuthButton
+              title="verify"
+              isLoading={isVerifying}
+              className="w-full sm:flex-1"
+            />
+
+            <Button
+              type="button"
+              variant="outline"
+              className="min-h-12 w-full border-main px-3 text-sm font-sora font-light text-main hover:bg-main/5 sm:flex-1"
+              onClick={resendOtpCode}
+              disabled={
+                resendCooldown > 0 || resendIsPending || isVerifying
+              }
+              aria-live="polite"
+            >
+              <span className="truncate">
+                {resendIsPending
+                  ? copy.sending
+                  : resendCooldown > 0
+                    ? `${copy.resendIn} ${resendCooldown} ${copy.seconds}`
+                    : copy.resendCode}
+              </span>
+            </Button>
+          </div>
+
+          <p className="text-center text-xs font-sora text-black-blue/70 sm:text-start rtl:sm:text-end">
+            {copy.didNotReceiveCode}
+          </p>
         </form>
-
-        <div className="mt-2 flex flex-wrap items-center gap-1 text-black-blue">
-          <span>{copy.didNotReceiveCode}</span>
-
-          <Button
-            type="button"
-            variant="link"
-            className="text-main px-0"
-            onClick={resendOtpCode}
-            disabled={resendCooldown > 0 || resendIsPending}
-            aria-live="polite"
-          >
-            {resendIsPending
-              ? copy.sending
-              : resendCooldown > 0
-                ? `${copy.resendIn} ${resendCooldown} ${copy.seconds}`
-                : copy.resendCode}
-          </Button>
-        </div>
       </Form>
     </motion.div>
   );

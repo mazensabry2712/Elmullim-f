@@ -1,4 +1,4 @@
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { BookOpen, MapPin, MessageCircleMore, Upload, User, UserPen } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import ChangePasswordModal from "./ChangePasswordModal";
@@ -7,13 +7,37 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import LogoutModal from "../LogoutModal";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
+import { useGetParentProfile } from "@/lib/react-query/parent/parentProfile";
+import { useGetStudentProfile } from "@/lib/react-query/student/studentProfile";
+import { useGetTeacherProfile } from "@/lib/react-query/teacher/teacherProfile";
 
 const ProfileDropdownMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
   const role = cookieService.getRole();
+  const token = cookieService.getToken() || "";
   const { language } = useI18n();
   const ar = language === "ar";
+
+  // Keep a single profile source for the navbar avatar and only enable the
+  // request that matches the authenticated actor.
+  const studentProfile = useGetStudentProfile(token, role === "student");
+  const parentProfile = useGetParentProfile(token, role === "parent");
+  const teacherProfile = useGetTeacherProfile(token, role === "teacher");
+
+  const profile =
+    role === "student"
+      ? studentProfile.data?.data
+      : role === "parent"
+        ? parentProfile.data?.data
+        : role === "teacher"
+          ? teacherProfile.data?.data
+          : undefined;
+
+  const profileImage = profile?.profile_image?.trim() || undefined;
+  const profileName = profile?.name?.trim() || (ar ? "الملف الشخصي" : "Profile");
+  const fallbackLetter = profileName.charAt(0).toUpperCase();
+
   const text = {
     account: ar ? "حسابي" : "My Account",
     profile: ar ? "الملف الشخصي" : "Profile",
@@ -34,10 +58,11 @@ const ProfileDropdownMenu = () => {
           aria-label={ar ? "الملف الشخصي" : "Profile"}
           className="rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
         >
-          <Avatar>
-          <AvatarFallback className="bg-[#F2F2F2] text-black-blue text-2xl flex justify-center items-center border border-muted">
-            <i className="fi fi-sr-user text-black-blue text-2xl flex justify-center items-center" />
-          </AvatarFallback>
+          <Avatar className="h-10 w-10 border border-black-blue/10">
+            <AvatarImage src={profileImage} alt={profileName} className="object-cover" />
+            <AvatarFallback className="bg-[#F2F2F2] text-black-blue text-sm font-bold">
+              {fallbackLetter}
+            </AvatarFallback>
           </Avatar>
         </button>
       </PopoverTrigger>

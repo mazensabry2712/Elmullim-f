@@ -74,14 +74,14 @@ const PaymentResult = () => {
     document.title = `${copy.paymentResultTitle} | Elmullim`;
   }, [copy.paymentResultTitle]);
 
-  const detailsUrl = courseId ? `/courses/\${courseId}` : "/courses";
+  const detailsUrl = courseId ? `/courses/${courseId}` : "/courses";
 
   const contentByState = {
     success: {
       icon: <CheckCircle2 className="mx-auto h-16 w-16 text-main" aria-hidden="true" />,
       title: copy.paymentSuccess,
       action: courseId ? copy.viewCourse : copy.returnToCourse,
-      href: courseId ? `/courses/\${courseId}/view` : detailsUrl,
+      href: courseId ? `/courses/${courseId}/view` : detailsUrl,
     },
     failed: {
       icon: <XCircle className="mx-auto h-16 w-16 text-red-500" aria-hidden="true" />,

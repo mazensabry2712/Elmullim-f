@@ -3,6 +3,7 @@ import {
   enrollFreeCourse,
   getMyCourses,
   initiatePayment,
+  validatePromoCode,
 } from "@/services/student/enrolling";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -29,3 +30,7 @@ export const useEnrollFreeCourse = () => {
 
 export const useInitiatePayment = () =>
   useMutation({ mutationFn: initiatePayment });
+
+
+export const useValidatePromoCode = () =>
+  useMutation({ mutationFn: validatePromoCode });

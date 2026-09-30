@@ -57,11 +57,12 @@ const copy = {
     freeEnrollmentPrompt: "This course is free. You can enroll directly from the course details page.",
     paymentResultTitle: "Payment result",
     paymentPending: "Your payment is still being processed. We will update this page automatically.",
-    paymentSuccess: "Payment completed and your course is now available.",
+    paymentSuccess: "Payment completed successfully and your purchase is now available.",
     paymentFailed: "The payment was not completed. You can try again from the course page.",
     paymentUnknown: "We could not verify this payment right now.",
     viewCourse: "Open course",
     returnToCourse: "Return to course",
+    returnToBookings: "Return to bookings",
   },
   ar: {
     title: "الكورسات",
@@ -119,11 +120,12 @@ const copy = {
     freeEnrollmentPrompt: "هذا الكورس مجاني. يمكنك الاشتراك فيه مباشرة من صفحة تفاصيل الكورس.",
     paymentResultTitle: "نتيجة الدفع",
     paymentPending: "عملية الدفع ما زالت قيد المعالجة. سيتم تحديث الصفحة تلقائيًا.",
-    paymentSuccess: "تم الدفع بنجاح وأصبح الكورس متاحًا لك الآن.",
+    paymentSuccess: "تم الدفع بنجاح وأصبح ما اشتريته متاحًا لك الآن.",
     paymentFailed: "لم تكتمل عملية الدفع. يمكنك المحاولة مرة أخرى من صفحة الكورس.",
     paymentUnknown: "تعذر التحقق من حالة عملية الدفع حاليًا.",
     viewCourse: "فتح الكورس",
     returnToCourse: "العودة إلى الكورس",
+    returnToBookings: "العودة إلى الحجوزات",
   },
 } as const;
 

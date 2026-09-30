@@ -22,6 +22,7 @@ const Testimonials = lazy(() => import("@/pages/testimonials/Testimonials"));
 const Courses = lazy(() => import("@/pages/courses/Courses"));
 const CourseDetails = lazy(() => import("@/pages/courses/CourseDetails"));
 const CourseEnroll = lazy(() => import("@/pages/courses/EnrollCourse"));
+const PaymentResult = lazy(() => import("@/pages/courses/PaymentResult"));
 const ViewCourse = lazy(() => import("@/pages/courses/ViewCourse"));
 const Lessons = lazy(() => import("@/pages/lessons/Lessons"));
 const LessonDetails = lazy(() => import("@/pages/lessons/LessonDetails"));
@@ -51,6 +52,7 @@ export const routes = createRoutesFromElements(
       <Route path="/courses/:courseId" element={<CourseDetails />} id="course-details" />
       <Route path="/courses/:courseId/view" element={<ProtectedRoute requiredRole="student"><ViewCourse /></ProtectedRoute>} id="view-course" />
       <Route path="/course/:courseId/enroll" element={<CourseEnroll />} id="courseId" />
+      <Route path="/payment/result" element={<PaymentResult />} id="payment-result" />
       <Route path="/lessons" element={<Lessons />} id="lessons" />
       <Route path="/lessons/:lessonId" element={<LessonDetails />} id="lesson-details" />
       <Route path="/view-quiz" element={<ProtectedRoute requiredRole="student"><ViewQuiz /></ProtectedRoute>} />

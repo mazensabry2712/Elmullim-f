@@ -157,8 +157,9 @@ describe("Course enrollment", () => {
 
     expect(screen.getByRole("heading", { name: /choose how you want to pay/i, level: 3 })).toBeInTheDocument();
     expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
-    expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
-    expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
+    expect(screen.getByText("Fawry")).toBeInTheDocument();
+    expect(screen.getByText("Mobile wallets")).toBeInTheDocument();
+    expect(screen.queryByText(/paymob/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("radio", { name: /mobile wallets/i }));

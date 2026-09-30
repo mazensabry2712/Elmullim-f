@@ -144,14 +144,6 @@ describe("Course enrollment", () => {
       refetch: vi.fn(),
     });
 
-    renderPage();
-
-    expect(screen.getByRole("heading", { name: /choose how you want to pay/i, level: 3 })).toBeInTheDocument();
-    expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
-    expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
-    expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();
-
     const startPayment = vi.fn().mockResolvedValue({
       data: { payment_required: true, redirect_url: "https://example.test/checkout" },
     });
@@ -160,6 +152,14 @@ describe("Course enrollment", () => {
       isPending: false,
       isError: false,
     });
+
+    renderPage();
+
+    expect(screen.getByRole("heading", { name: /choose how you want to pay/i, level: 3 })).toBeInTheDocument();
+    expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
+    expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
+    expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("radio", { name: /mobile wallets/i }));
     fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));

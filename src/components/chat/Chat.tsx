@@ -16,11 +16,18 @@ const Chat = () => {
       dir={language === "ar" ? "rtl" : "ltr"}
       className="grid min-w-0 grid-cols-1 gap-4 rounded-lg bg-white px-3 py-6 sm:gap-6 sm:px-6 sm:py-8 md:grid-cols-3 md:gap-8 md:px-8 md:py-10"
     >
-      <SideBar setSelectedConversationId={setSelectedConversationId} />
-      <ChatWindow
-        conversationId={selectedConversationId}
-        onClose={handleCloseChat}
-      />
+      <div className={selectedConversationId ? "hidden md:block" : "block"}>
+        <SideBar
+          selectedConversationId={selectedConversationId}
+          setSelectedConversationId={setSelectedConversationId}
+        />
+      </div>
+      <div className={selectedConversationId ? "block" : "hidden md:block"}>
+        <ChatWindow
+          conversationId={selectedConversationId}
+          onClose={handleCloseChat}
+        />
+      </div>
     </div>
   );
 };

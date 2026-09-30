@@ -269,17 +269,20 @@ export const TEACHER_SIGNUP_FORM_INPUTS: IFormInput[] = [
 export const UPDATE_STUDENT_PROFILE: IFormInput[] = [
   {
     name: "name",
+    label: "Full Name *",
     type: "text",
     placeholder: "Full Name *",
   },
   {
     name: "description",
+    label: "Description",
     type: "text",
-    placeholder: "Description *",
+    placeholder: "Description",
   },
   {
     name: "email",
-    type: "text",
+    label: "Email *",
+    type: "email",
     placeholder: "Email *",
   },
   {
@@ -289,7 +292,8 @@ export const UPDATE_STUDENT_PROFILE: IFormInput[] = [
   },
   {
     name: "address",
-    type: "select",
+    label: "Address",
+    type: "text",
     placeholder: "Your address",
   },
   {
@@ -299,7 +303,8 @@ export const UPDATE_STUDENT_PROFILE: IFormInput[] = [
   },
   {
     name: "phone",
-    type: "text",
+    label: "Phone Number *",
+    type: "tel",
     placeholder: "Phone Number *",
   },
   {
@@ -312,7 +317,6 @@ export const UPDATE_STUDENT_PROFILE: IFormInput[] = [
     type: "select",
     label: "Education Level",
   },
-
   {
     name: "favourite_subjects",
     type: "select",

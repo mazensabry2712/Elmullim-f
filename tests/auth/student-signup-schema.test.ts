@@ -6,7 +6,6 @@ const validStudent = {
   email: "new-student@example.test",
   password: "Student@12345",
   gender: "male",
-  address: "Cairo, Egypt",
   phone: "201001234567",
   country_id: "1",
   education_system_id: "2",
@@ -40,12 +39,7 @@ describe("studentSignUpSchema", () => {
     expect(result.success).toBe(false);
   });
 
-  it("rejects a missing required address", () => {
-    expect(
-      studentSignUpSchema.safeParse({
-        ...validStudent,
-        address: "",
-      }).success
-    ).toBe(false);
+  it("does not require a location during registration", () => {
+    expect(studentSignUpSchema.safeParse(validStudent).success).toBe(true);
   });
 });

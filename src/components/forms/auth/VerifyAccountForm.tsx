@@ -26,11 +26,18 @@ import { useTeacherVerifyAccount } from "@/lib/react-query/auth/teacher";
 import handleResError from "@/utils/handleResponseError";
 import { toast } from "react-toastify";
 import { useSendVerificationEmail } from "@/lib/react-query/auth";
+import { useEffect, useState } from "react";
+import { useI18n } from "@/i18n";
+import { getAuthCopy } from "@/i18n/authCopy";
+
+const RESEND_COOLDOWN_SECONDS = 60;
 
 const VerifyAccountForm = () => {
   const role = cookieService.getRole()!;
   const token = cookieService.getToken()!;
   const navigate = useNavigate();
+  const { language } = useI18n();
+  const copy = getAuthCopy(language);
 
   const { mutateAsync: studentVerifyAccount, isPending: studentIsPending } =
     useStudentVerifyAccount();
@@ -39,13 +46,29 @@ const VerifyAccountForm = () => {
   const { mutateAsync: teacherVerifyAccount, isPending: teacherIsPending } =
     useTeacherVerifyAccount();
 
-  const { mutateAsync: resendCode } = useSendVerificationEmail();
+  const {
+    mutateAsync: resendCode,
+    isPending: resendIsPending,
+  } = useSendVerificationEmail();
+
+  const [resendCooldown, setResendCooldown] = useState(0);
+
   const form = useForm<z.infer<typeof verifyAccountSchema>>({
     resolver: zodResolver(verifyAccountSchema),
     defaultValues: {
       code: "",
     },
   });
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+
+    const timer = window.setInterval(() => {
+      setResendCooldown((current) => (current > 0 ? current - 1 : 0));
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [resendCooldown]);
 
   const onSubmit = async ({ code }: z.infer<typeof verifyAccountSchema>) => {
     if (role === "student") {
@@ -59,6 +82,7 @@ const VerifyAccountForm = () => {
         handleResError(error);
       }
     }
+
     if (role === "parent") {
       try {
         const { message, status } = await parentVerifyAccount({ code, token });
@@ -70,6 +94,7 @@ const VerifyAccountForm = () => {
         handleResError(error);
       }
     }
+
     if (role === "teacher") {
       try {
         const { message, status } = await teacherVerifyAccount({ code, token });
@@ -84,14 +109,27 @@ const VerifyAccountForm = () => {
   };
 
   const resendOtpCode = async () => {
+    if (resendCooldown > 0 || resendIsPending) return;
+
     try {
       const { message, status } = await resendCode(token);
-      if (!status) return toast.error(message);
-      return toast.success(message);
+
+      if (!status) {
+        toast.error(message);
+        return;
+      }
+
+      form.setValue("code", "");
+      setResendCooldown(RESEND_COOLDOWN_SECONDS);
+      toast.success(message || copy.verificationCodeSent);
     } catch (error) {
       handleResError(error);
     }
   };
+
+  const isVerifying =
+    studentIsPending || parentIsPending || teacherIsPending;
+
   return (
     <motion.div
       initial={{ opacity: 0, x: -40 }}
@@ -107,6 +145,7 @@ const VerifyAccountForm = () => {
           Verification
         </h2>
       </div>
+
       <Form {...form}>
         <form
           className="mx-auto md:ml-0 space-y-6 max-w-min"
@@ -124,6 +163,7 @@ const VerifyAccountForm = () => {
                       value={field.value}
                       onChange={field.onChange}
                       autoFocus
+                      disabled={isVerifying}
                     >
                       <InputOTPGroup className="space-x-1">
                         <InputOTPSlot
@@ -139,7 +179,9 @@ const VerifyAccountForm = () => {
                           className="rounded-md border-2 w-10 h-10 md:w-16 md:h-16 border-main focus-visible:border-main md:text-xl"
                         />
                       </InputOTPGroup>
+
                       <InputOTPSeparator />
+
                       <InputOTPGroup className="space-x-1">
                         <InputOTPSlot
                           index={3}
@@ -157,25 +199,36 @@ const VerifyAccountForm = () => {
                     </InputOTP>
                   </div>
                 </FormControl>
+
                 <FormMessage className="text-center" />
               </FormItem>
             )}
           />
+
           <SubmitAuthButton
             title="verify"
-            isLoading={studentIsPending || parentIsPending || teacherIsPending}
+            isLoading={isVerifying}
           />
         </form>
-        <p className="text-black-blue !mt-2">
-          Not received your code?{" "}
+
+        <div className="mt-2 flex flex-wrap items-center gap-1 text-black-blue">
+          <span>Didn't receive your code?</span>
+
           <Button
-            variant={"link"}
+            type="button"
+            variant="link"
             className="text-main px-0"
             onClick={resendOtpCode}
+            disabled={resendCooldown > 0 || resendIsPending}
+            aria-live="polite"
           >
-            Resend code
+            {resendIsPending
+              ? "Sending..."
+              : resendCooldown > 0
+                ? `${copy.resendIn} ${resendCooldown} ${copy.seconds}`
+                : copy.resendCode}
           </Button>
-        </p>
+        </div>
       </Form>
     </motion.div>
   );

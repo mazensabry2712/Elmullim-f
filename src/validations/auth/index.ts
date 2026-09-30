@@ -115,21 +115,6 @@ export const studentSignUpSchema = z.object({
         ),
       })
     ),
-  address: z
-    .string()
-    .trim()
-    .min(1, {
-      message: validationMessage(
-        "Address is required",
-        "العنوان مطلوب"
-      ),
-    })
-    .max(255, {
-      message: validationMessage(
-        "Address must be 255 characters or fewer.",
-        "يجب ألا يزيد العنوان عن 255 حرفًا."
-      ),
-    }),
   country_id: z
     .string()
     .nonempty({

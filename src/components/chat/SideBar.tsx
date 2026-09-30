@@ -12,9 +12,10 @@ import { useI18n } from "@/i18n";
 import useDebounce from "@/hooks/useDebounce";
 
 interface SideBarProps {
+  selectedConversationId: string | null;
   setSelectedConversationId: (id: string) => void;
 }
-function SideBar({ setSelectedConversationId }: SideBarProps) {
+function SideBar({ selectedConversationId, setSelectedConversationId }: SideBarProps) {
   const token = cookieService.getToken()!;
   const { language } = useI18n();
   const text = language === "ar"
@@ -109,6 +110,16 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
 
   const displayedConversations = conversations?.data ?? [];
   const pagination = conversations?.meta;
+
+  const formatConversationTime = (value: string | null | undefined) => {
+    if (!value) return "";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "";
+    return new Intl.DateTimeFormat(language === "ar" ? "ar-EG" : "en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    }).format(date);
+  };
   const isPaginating = isFetching && !isLoading;
 
   return (
@@ -180,7 +191,11 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
                     setSelectedConversationId(conv.conversation_id)
                   }
                   aria-label={conv.participant?.name || text.allChats}
-                  className="flex w-full flex-row items-center gap-4 rounded-md px-3 py-2 text-start transition-colors duration-200 hover:bg-[#F0FEFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                  className={`flex w-full flex-row items-center gap-3 rounded-md px-3 py-2 text-start transition-colors duration-200 hover:bg-[#F0FEFC] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main ${
+                    String(selectedConversationId) === String(conv.conversation_id)
+                      ? "bg-[#F0FEFC]"
+                      : ""
+                  }`}
                 >
                   <div className="w-10 h-10 rounded-full flex-shrink-0">
                     <img
@@ -192,18 +207,33 @@ function SideBar({ setSelectedConversationId }: SideBarProps) {
                       alt={conv.participant?.name || text.allChats}
                     />
                   </div>
-                  <div className="flex flex-col justify-center gap-1">
-                    <div className="flex flex-row items-start gap-5">
-                      <h4 className="font-sora font-semibold text-[16px] text-black capitalize">
-                        {conv.participant?.name}
+                  <div className="min-w-0 flex flex-1 flex-col justify-center gap-1">
+                    <div className="flex min-w-0 items-center justify-between gap-2">
+                      <h4 className="min-w-0 truncate font-sora font-semibold text-[15px] text-black capitalize">
+                        {conv.participant?.name || text.allChats}
                       </h4>
-                      <div>
-                        <MoreHorizontal size={22} aria-hidden="true" />
-                      </div>
+                      <span className="shrink-0 font-sora text-[10px] text-gray-400">
+                        {formatConversationTime(conv.last_message?.created_at)}
+                      </span>
                     </div>
-                    <p className="font-sora text-sm">
-                      {conv.last_message?.data?.body || ""}
-                    </p>
+                    <div className="flex min-w-0 items-center justify-between gap-2">
+                      <p className="min-w-0 truncate font-sora text-xs text-gray-500">
+                        {conv.last_message?.data?.body ||
+                          (conv.last_message?.data?.image
+                            ? (language === "ar" ? "صورة" : "Image")
+                            : "")}
+                      </p>
+                      {conv.unread_count > 0 && (
+                        <span
+                          className="inline-flex min-w-5 h-5 shrink-0 items-center justify-center rounded-full bg-main px-1.5 text-[10px] font-bold text-white"
+                          aria-label={language === "ar"
+                            ? `${conv.unread_count} رسالة غير مقروءة`
+                            : `${conv.unread_count} unread messages`}
+                        >
+                          {conv.unread_count > 99 ? "99+" : conv.unread_count}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 </button>
               ))}

@@ -36,12 +36,18 @@ describe("BookingPaymentDialog", () => {
     expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
     expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
     expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
+
+    const fawryOption = screen.getByRole("radio", { name: /Fawry/i });
+    fireEvent.click(fawryOption);
+    expect(fawryOption).toHaveAttribute("aria-checked", "true");
+
     fireEvent.click(screen.getByRole("button", { name: "Continue" }));
 
     await waitFor(() =>
       expect(mocks.mutateAsync).toHaveBeenCalledWith({
         token: "student-token",
         bookingId: 15,
+        paymentMethod: "fawry",
         isParent: false,
       })
     );

@@ -25,6 +25,7 @@ const ChangePasswordModal = () => {
   const role = cookieService.getRole()!;
   const { language } = useI18n();
   const copy = getAuthCopy(language);
+  const cancelText = language === "ar" ? "إلغاء" : "Cancel";
 
   const form = useForm<z.infer<typeof changePasswordSchema>>({
     resolver: zodResolver(changePasswordSchema),
@@ -63,7 +64,7 @@ const ChangePasswordModal = () => {
 
       <Modal
         isOpen={isOpen}
-        onOpenChange={handleCloseModal}
+        onOpenChange={isPending ? () => undefined : handleCloseModal}
         title={copy.changePassword}
         description={{ text: copy.changePasswordDescription }}
         showFooter={false}
@@ -85,9 +86,23 @@ const ChangePasswordModal = () => {
                 />
               </motion.div>
             ))}
-            <AlertDialogFooter className="text-start gap-2">
-              <Button type="submit" disabled={isPending} className="py-2.5 h-auto bg-main hover:bg-main/90">
-                {copy.changePassword}{isPending && <Loader2 className="animate-spin ml-2" />}
+            <AlertDialogFooter className="mt-2 flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleCloseModal}
+                disabled={isPending}
+                className="h-auto py-2.5 text-black-blue"
+              >
+                {cancelText}
+              </Button>
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="h-auto py-2.5 bg-main hover:bg-main/90"
+              >
+                {isPending && <Loader2 className="animate-spin mr-2" />}
+                {copy.changePassword}
               </Button>
             </AlertDialogFooter>
           </motion.form>

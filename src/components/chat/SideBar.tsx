@@ -3,7 +3,7 @@ import {
   useGetAllConversations,
 } from "@/lib/react-query/chat/chat";
 import cookieService from "@/utils/cookieService";
-import { ChevronDown, ChevronLeft, ChevronRight, MessageCircle, MoreHorizontal, Plus, X } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, MessageCircle, Plus, X } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { IUserSearch } from "@/interfaces/main";
@@ -12,10 +12,10 @@ import { useI18n } from "@/i18n";
 import useDebounce from "@/hooks/useDebounce";
 
 interface SideBarProps {
-  selectedConversationId: string | null;
+  selectedConversationId?: string | null;
   setSelectedConversationId: (id: string) => void;
 }
-function SideBar({ selectedConversationId, setSelectedConversationId }: SideBarProps) {
+function SideBar({ selectedConversationId = null, setSelectedConversationId }: SideBarProps) {
   const token = cookieService.getToken()!;
   const { language } = useI18n();
   const text = language === "ar"

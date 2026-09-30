@@ -261,10 +261,10 @@ export const teacherSignUpSchema = z.object({
   email: z.string().email({
     message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
   }),
-  password: z.string().min(6, {
+  password: z.string().min(8, {
     message: validationMessage(
-      "Password must be at least 6 characters.",
-      "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل."
+      "Password must be at least 8 characters.",
+      "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل."
     ),
   }),
   gender: z.string().nonempty({
@@ -340,8 +340,8 @@ export const changePasswordSchema = z
       message: validationMessage("Enter the new password", "أدخل كلمة المرور الجديدة"),
     }).min(8, {
       message: validationMessage(
-        "Password must be at least 6 characters long",
-        "يجب أن تتكون كلمة المرور من 6 أحرف على الأقل"
+        "Password must be at least 8 characters long",
+        "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل"
       ),
     }),
     password_confirmation: z.string({

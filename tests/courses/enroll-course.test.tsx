@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
@@ -8,6 +8,7 @@ import { I18nProvider } from "@/i18n";
 
 const mockUseGetCourseById = vi.fn();
 const mockUseInitiatePayment = vi.fn();
+const mockUseValidatePromoCode = vi.fn();
 
 vi.mock("@/lib/react-query/courses/courses", () => ({
   useGetCourseById: (...args: unknown[]) => mockUseGetCourseById(...args),
@@ -15,6 +16,7 @@ vi.mock("@/lib/react-query/courses/courses", () => ({
 
 vi.mock("@/lib/react-query/student/enrolling", () => ({
   useInitiatePayment: (...args: unknown[]) => mockUseInitiatePayment(...args),
+  useValidatePromoCode: (...args: unknown[]) => mockUseValidatePromoCode(...args),
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -80,6 +82,11 @@ describe("Course enrollment", () => {
       isPending: false,
       isError: false,
     });
+    mockUseValidatePromoCode.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+      reset: vi.fn(),
+    });
   });
 
   it("shows a real free-course enrollment action", () => {
@@ -136,6 +143,64 @@ describe("Course enrollment", () => {
     expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
     expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();
+  });
+
+  it("applies a promo code and updates the checkout total", async () => {
+    const applyPromo = vi.fn().mockResolvedValue({
+      status: true,
+      message: "promo code applied",
+      data: {
+        code: "SAVE20",
+        discount_percent: 20,
+        original_amount: 500,
+        discount_amount: 100,
+        final_amount: 400,
+      },
+    });
+
+    mockUseValidatePromoCode.mockReturnValue({
+      mutateAsync: applyPromo,
+      isPending: false,
+      reset: vi.fn(),
+    });
+
+    mockUseGetCourseById.mockReturnValue({
+      data: {
+        data: {
+          id: 8,
+          title: "Advanced Mathematics",
+          description: "Advanced mathematics course.",
+          price: 500,
+          level: "Advanced",
+          created_at: "2026-01-10T00:00:00.000Z",
+          hasEnrolled: false,
+          teacher: { name: "Teacher Two" },
+          image: "/course.jpg",
+        },
+      },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText("Promo code"), {
+      target: { value: "save20" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+
+    await waitFor(() =>
+      expect(applyPromo).toHaveBeenCalledWith({
+        token: "token",
+        courseId: 8,
+        code: "SAVE20",
+      })
+    );
+
+    expect(screen.getByText("SAVE20 · 20% off")).toBeInTheDocument();
+    expect(screen.getByText("400.00 L.E")).toBeInTheDocument();
+    expect(screen.getByText("-100.00 L.E")).toBeInTheDocument();
   });
 
   it("renders a retryable error state when the course cannot be loaded", () => {

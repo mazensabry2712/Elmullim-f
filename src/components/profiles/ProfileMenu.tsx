@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BookOpen,
+  LogOut,
   MapPin,
   MessageCircleMore,
   Upload,
@@ -23,6 +24,7 @@ import { useGetTeacherProfile } from "@/lib/react-query/teacher/teacherProfile";
 
 const ProfileDropdownMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isLogoutOpen, setIsLogoutOpen] = useState(false);
   const navigate = useNavigate();
   const role = cookieService.getRole();
   const token = cookieService.getToken() || "";
@@ -202,11 +204,27 @@ const ProfileDropdownMenu = () => {
               {text.chat}
             </button>
 
-            <LogoutModal />
+            <button
+              type="button"
+              className="flex w-full items-center gap-2 rounded-[5px] px-2 py-1.5 text-sm font-sora font-medium transition-all duration-300 ease-in-out text-destructive hover:bg-white-gray"
+              onClick={() => {
+                setIsOpen(false);
+                setIsLogoutOpen(true);
+              }}
+            >
+              <LogOut className="h-4 w-4" />
+              {language === "ar" ? "تسجيل الخروج" : "Logout"}
+            </button>
           </div>
         </div>
       </PopoverContent>
     </Popover>
+
+    <LogoutModal
+      open={isLogoutOpen}
+      onOpenChange={setIsLogoutOpen}
+      showTrigger={false}
+    />
   );
 };
 

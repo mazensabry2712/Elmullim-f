@@ -43,7 +43,10 @@ const ParentSignUpForm = () => {
     value: `${level.id}`,
   }));
   const { mutateAsync: registerParent, isPending } = useParentRegister();
-  const form = useForm<z.infer<typeof parentSignUpSchema>>({
+  type ParentSignUpInput = z.input<typeof parentSignUpSchema>;
+  type ParentSignUpOutput = z.output<typeof parentSignUpSchema>;
+
+  const form = useForm<ParentSignUpInput, unknown, ParentSignUpOutput>({
     resolver: zodResolver(parentSignUpSchema),
     defaultValues: {
       email: "",
@@ -57,7 +60,7 @@ const ParentSignUpForm = () => {
       education_level_id: "",
     },
   });
-  const onSubmit = async (user: z.infer<typeof parentSignUpSchema>) => {
+  const onSubmit = async (user: ParentSignUpOutput) => {
     try {
       const { data, message, status } = await registerParent(user);
       // ! Register Failed

@@ -14,7 +14,6 @@ vi.mock("@/lib/react-query/student/studentProfile", () => ({
         id: 7,
         name: "Ahmed Student",
         phone: "201001234567",
-        address: "Cairo, Egypt",
         email: "ahmed@example.com",
         gender: "male",
         profile_image: "",
@@ -158,7 +157,6 @@ describe("StudentMainProfile", () => {
     expect(screen.getByText("ahmed@example.com")).toBeInTheDocument();
     expect(screen.getByText("201001234567")).toBeInTheDocument();
     expect(screen.getByText("Male")).toBeInTheDocument();
-    expect(screen.getByText("Cairo, Egypt")).toBeInTheDocument();
     expect(screen.getByText("Egypt")).toBeInTheDocument();
     expect(screen.getByText("Egyptian Education")).toBeInTheDocument();
     expect(screen.getByText("Secondary")).toBeInTheDocument();

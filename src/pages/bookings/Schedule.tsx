@@ -69,6 +69,18 @@ const Schedule = () => {
   );
   const ratingsReady =
     visibleBookingIds.length === 0 || givenRatings.isFetched || givenRatings.isError;
+  const hasRated = (targetType: RatingTargetType, targetId: number, bookingId: number) =>
+    (givenRatings.data?.data ?? []).some((rating) => {
+      const type = rating.rateable?.type?.toLowerCase() ?? "";
+      const targetMatches =
+        targetType === "teacher" ? type.includes("teacher") : type.includes("student");
+
+      return (
+        targetMatches &&
+        Number(rating.rateable?.id) === targetId &&
+        Number(rating.booking_id) === bookingId
+      );
+    });
   const pagination = (isTeacher ? teacherSchedule.data?.meta : studentSchedule.data?.meta);
   const loading = isTeacher ? teacherSchedule.isLoading : studentSchedule.isLoading;
   const fetching = isTeacher ? teacherSchedule.isFetching : studentSchedule.isFetching;

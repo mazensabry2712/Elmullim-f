@@ -35,15 +35,9 @@ const UpdateStudentProfileForm = () => {
   const copy = getAuthCopy(language);
   const { data, isLoading } = useGetStudentProfile(token);
   const student = data?.data;
-  const [countryId, setCountryId] = useState(
-    student?.education_level.education_system.country.id.toString() || ""
-  );
-  const [educationSystemId, setEducationSystemId] = useState(
-    student?.education_level.education_system.id.toString() || ""
-  );
-  const [educationLevelId, setEducationLevelId] = useState(
-    student?.education_level.id.toString() || ""
-  );
+  const [countryId, setCountryId] = useState("");
+  const [educationSystemId, setEducationSystemId] = useState("");
+  const [educationLevelId, setEducationLevelId] = useState("");
 
   const { data: countries } = useGetAllCountries();
   const { data: educationSystems } = useGetAllEducationSystems(countryId);
@@ -135,6 +129,12 @@ const UpdateStudentProfileForm = () => {
   };
 
   useEffect(() => {
+    if (!student) return;
+
+    setCountryId(student.education_level.education_system.country.id.toString());
+    setEducationSystemId(student.education_level.education_system.id.toString());
+    setEducationLevelId(student.education_level.id.toString());
+
     form.reset({
       name: student?.name || "",
       phone: student?.phone || "",

@@ -182,7 +182,7 @@ describe("ProfileDropdownMenu", () => {
       latestPopoverOnOpenChange?.(true);
     });
 
-    await user.click(screen.getByRole("button", { name: /Sign out/i }));
+    await user.click(screen.getByRole("button", { name: /Logout.*End your current session/i }));
 
     await waitFor(() => {
       expect(swalFireMock).toHaveBeenCalledWith(

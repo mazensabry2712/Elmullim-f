@@ -56,12 +56,15 @@ const getRatingEndpoint = (
 export const getGivenRatings = async ({
   token,
   role,
+  bookingIds = [],
 }: {
   token: string;
   role: RatingActorRole;
+  bookingIds?: number[];
 }): Promise<IRatingRes> => {
   const { data } = await axiosAPI.get(getGivenRatingsEndpoint(role), {
     headers: authHeaders(token),
+    params: bookingIds.length > 0 ? { booking_ids: bookingIds } : undefined,
   });
 
   return data;

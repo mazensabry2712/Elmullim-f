@@ -56,7 +56,7 @@ const ForgotPassword = () => {
     <>
       <AuthHeader
         title="Forgot password"
-        linkPath="/login"
+        linkPath="/parent/sign-in"
         linkTitle="login"
         description={"Don't worry, we will help you recover your account!"}
         discover={false}

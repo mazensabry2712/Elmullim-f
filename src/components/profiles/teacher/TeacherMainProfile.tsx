@@ -9,11 +9,15 @@ import {
   useGetTeacherRatings,
 } from "@/lib/react-query/teacher/teacherProfile";
 import StudentRating from "../student/StudentRating";
+import { Button } from "@/components/ui/button";
+import { Pencil } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const TeacherMainProfile = () => {
-  const token = cookieService.getToken()!;
+  const token = cookieService.getToken() || "";
   const { language } = useI18n();
-  const { data: teacher, isLoading } = useGetTeacherProfile(token);
+  const navigate = useNavigate();
+  const { data: teacher, isLoading, isError, refetch } = useGetTeacherProfile(token);
   const {
     name,
     profile_image,
@@ -78,6 +82,25 @@ const TeacherMainProfile = () => {
       </div>
     );
 
+  if (isError || !teacher?.data) {
+    return (
+      <div className="container py-20 text-center" role="alert">
+        <p className="font-sora text-lg text-black-blue">
+          {language === "ar"
+            ? "تعذر تحميل بيانات الملف الشخصي للمعلم."
+            : "Unable to load teacher profile information."}
+        </p>
+        <Button
+          type="button"
+          onClick={() => void refetch()}
+          className="mt-5 bg-main text-white hover:bg-main/90"
+        >
+          {language === "ar" ? "حاول مرة أخرى" : "Try again"}
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="pb-10 mt-4 overflow-hidden bg-white rounded-lg">
       <motion.div
@@ -87,7 +110,18 @@ const TeacherMainProfile = () => {
         viewport={{ once: true }}
         className="px-2 text-center md:px-20 md:text-left"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-4 mt-5 lg:mt-20">
+        <div className="mb-5 flex justify-end">
+          <Button
+            type="button"
+            onClick={() => navigate("/profile/update")}
+            className="bg-main font-sora text-white hover:bg-main/90"
+          >
+            <Pencil className="me-2 h-4 w-4" />
+            {language === "ar" ? "تعديل الملف الشخصي" : "Edit Profile"}
+          </Button>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-4 mt-5 lg:mt-10">
           <div className="bg-white flex flex-col items-center lg:items-start shadow-md p-2 rounded-md">
             <div className="lg:aspect-square">
               <img

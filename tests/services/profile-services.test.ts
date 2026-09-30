@@ -1,6 +1,9 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import axiosAPI from "@/config/axios.config";
-import { getStudentProfile } from "@/services/student/studentProfile";
+import {
+  getStudentProfile,
+  updateStudentProfile,
+} from "@/services/student/studentProfile";
 import { getTeacherProfile, getTeacherRatings } from "@/services/teacher/teacherProfile";
 import { getParentProfile } from "@/services/parent/parentProfile";
 
@@ -41,8 +44,6 @@ describe("profile service requests", () => {
       headers: { Authorization: "Bearer student-token" },
     });
   });
-
-
 
   it("submits every editable student profile field to the update endpoint", async () => {
     const postMock = vi.mocked(axiosAPI.post);

@@ -151,6 +151,27 @@ describe("Course enrollment", () => {
     expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
     expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();
+
+    const startPayment = vi.fn().mockResolvedValue({
+      data: { payment_required: true, redirect_url: "https://example.test/checkout" },
+    });
+    mockUseInitiatePayment.mockReturnValue({
+      mutateAsync: startPayment,
+      isPending: false,
+      isError: false,
+    });
+
+    fireEvent.click(screen.getByRole("radio", { name: /mobile wallets/i }));
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
+
+    await waitFor(() =>
+      expect(startPayment).toHaveBeenCalledWith({
+        token: "token",
+        courseId: 8,
+        paymentMethod: "wallet",
+        promoCode: undefined,
+      })
+    );
   });
 
   it("applies a promo code and updates the checkout total", async () => {

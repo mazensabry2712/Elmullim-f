@@ -123,8 +123,7 @@ const ProfileDropdownMenu = () => {
       return;
     }
 
-    const fallbackText = response?.message ||
-      (error ? text.logoutLocalFallback : text.logoutLocalFallback);
+    const fallbackText = response?.message || text.logoutLocalFallback;
 
     void Swal.fire({
       title: error ? copy.error : copy.success,
@@ -136,7 +135,6 @@ const ProfileDropdownMenu = () => {
         confirmButton: "!rounded-lg !px-5 !py-2.5",
       },
     });
-  };
   };
 
   return (

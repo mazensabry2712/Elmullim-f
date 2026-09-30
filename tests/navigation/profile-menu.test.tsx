@@ -8,6 +8,13 @@ vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
 }));
 
+vi.mock("@/hooks/useLogout", () => ({
+  default: () => ({
+    performLogout: vi.fn(),
+    isPending: false,
+  }),
+}));
+
 vi.mock("@/utils/cookieService", () => ({
   default: {
     getRole: () => "student",

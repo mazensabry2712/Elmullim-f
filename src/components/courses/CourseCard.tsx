@@ -4,7 +4,6 @@ import { useSelector } from "react-redux";
 import { RootState } from "@/store/store";
 import cookieService from "@/utils/cookieService";
 import truncateTxt from "@/utils/truncateTxt";
-import EnrollFreeCourse from "./EnrollFreeCourse";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
 
 interface IProps {
@@ -80,11 +79,7 @@ const CourseCard = ({ course, copy }: IProps) => {
             )}
           </div>
 
-          {isAuthenticated && role === "student" && !course.hasEnrolled && Number(course.price) === 0 && (
-            <EnrollFreeCourse courseId={course.id} copy={copy} />
-          )}
-
-          {isAuthenticated && role === "student" && !course.hasEnrolled && Number(course.price) > 0 && (
+          {isAuthenticated && role === "student" && !course.hasEnrolled && (
             <button
               type="button"
               onClick={() => navigate(`/course/${course.id}/enroll`)}
@@ -93,7 +88,6 @@ const CourseCard = ({ course, copy }: IProps) => {
               {copy.enroll}
             </button>
           )}
-
           {isAuthenticated && role === "student" && course.hasEnrolled && (
             <Link
               to={`/courses/${course.id}/view`}

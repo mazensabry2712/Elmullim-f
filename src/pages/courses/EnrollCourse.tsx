@@ -224,7 +224,7 @@ function EnrollCourse() {
                 {courseData.title}
               </h1>
               <p className="mt-3 max-w-2xl font-sora text-sm leading-7 text-white/70 md:text-base">
-                {copy.paymentAvailableDescription}
+                {isFree ? copy.freeEnrollmentPrompt : copy.paymentAvailableDescription}
               </p>
             </div>
           </div>
@@ -351,7 +351,19 @@ function EnrollCourse() {
                     </div>
                   </div>
 
-                  {!isFree ? (
+                  {isFree ? (
+                    <div className="mt-6 rounded-2xl border border-[#CDEADF] bg-[#F0FAF5] p-4">
+                      <div className="flex items-start gap-3">
+                        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-main text-white">
+                          <Check size={20} aria-hidden="true" />
+                        </span>
+                        <div className="min-w-0">
+                          <p className="text-sm font-bold text-black-blue">{copy.free}</p>
+                          <p className="mt-1 text-xs leading-5 text-[#65716E]">{copy.freeEnrollmentPrompt}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
                   <div className="mt-6 rounded-2xl border border-[#DFE8E6] bg-[#FBFDFC] p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div>
@@ -408,7 +420,7 @@ function EnrollCourse() {
                   </div>
                   </div>
 
-                  ) : null}
+                  )}
 
                   {!isFree && payment.isError ? (
                     <p role="alert" className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm leading-6 text-red-600">

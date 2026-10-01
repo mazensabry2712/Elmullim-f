@@ -82,23 +82,28 @@ function EnrollCourse() {
       return;
     }
 
-    const response = await payment.mutateAsync({
-      token,
-      courseId: numericCourseId,
-      promoCode: appliedPromo?.code || undefined,
-      paymentMethod,
-    });
+    setPromoError("");
 
-    if (response.data?.payment_required === false) {
-      navigate(`/courses/${numericCourseId}/view`, { replace: true });
-      return;
-    }
+    try {
+      const response = await payment.mutateAsync({
+        token,
+        courseId: numericCourseId,
+        promoCode: appliedPromo?.code || undefined,
+        paymentMethod,
+      });
 
-    if (response.data?.redirect_url) {
-      window.location.assign(response.data.redirect_url);
+      if (response.data?.payment_required === false) {
+        navigate(`/courses/${numericCourseId}/view`, { replace: true });
+        return;
+      }
+
+      if (response.data?.redirect_url) {
+        window.location.assign(response.data.redirect_url);
+      }
+    } catch {
+      // React Query exposes the failure through payment.isError.
     }
   };
-
   const handleApplyPromo = async () => {
     const code = promoCode.trim();
 

@@ -82,12 +82,24 @@ Frontend integration is implemented:
 
 ## Payment
 
-Frontend:
-- Starts the booking payment flow.
-- Opens the returned payment URL when available.
-- Displays payment outcome.
+Customer-facing payment is unified across all paid products.
 
-Backend remains authoritative for payment confirmation.
+Frontend:
+- Course purchases and lesson bookings use the same payment method contract: Card, Fawry/Kiosk, Mobile Wallets.
+- Both flows use the same shared payment method selector component.
+- Both flows send the selected method to the backend.
+- Course promo pricing is shown before payment and the applied code is the only code sent to checkout.
+- Payment result handling is shared for course and booking orders.
+- Parent and Student booking payments use the same checkout contract.
+
+Backend:
+- Course and booking orders use the same `orders` financial record shape.
+- A shared `PaymentCheckoutService` initializes provider checkout for both resources.
+- A centralized `PaymentMethodEnums` validates the supported payment methods.
+- Provider callbacks remain the source of truth for payment confirmation.
+- Payment reconciliation confirms the underlying course enrollment or booking and creates the teacher transaction atomically.
+
+The provider name is not exposed in the customer-facing payment UI.
 
 ## Environment
 

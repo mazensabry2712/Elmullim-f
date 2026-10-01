@@ -66,8 +66,8 @@ describe("BookingPaymentDialog", () => {
     await waitFor(() => expect(screen.getByRole("button", { name: "ادفع 250.00" })).toBeInTheDocument());
     fireEvent.click(screen.getByRole("button", { name: "ادفع 250.00" }));
     expect(screen.getByRole("heading", { name: "دفع الحجز" })).toBeInTheDocument();
-    expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
-    expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
+    expect(screen.getByText("فيزا / ماستركارد")).toBeInTheDocument();
+    expect(screen.getByText("فوري / كشك")).toBeInTheDocument();
     expect(screen.getByText("المحافظ الإلكترونية المصرية")).toBeInTheDocument();
   });
 });

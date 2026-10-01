@@ -19,6 +19,7 @@ const PaymentResult = () => {
   const [courseId, setCourseId] = useState<number | null>(null);
   const [orderableType, setOrderableType] = useState<"courses" | "bookings" | null>(null);
   const [bookingId, setBookingId] = useState<number | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<"card" | "fawry" | "wallet" | null>(null);
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {
@@ -44,6 +45,7 @@ const PaymentResult = () => {
           setCourseId(response.data?.course_id ?? null);
           setOrderableType(response.data?.orderable_type ?? null);
           setBookingId(response.data?.booking_id ?? null);
+          setPaymentMethod(response.data?.payment_method ?? null);
 
           if (status === "success" || status === "failed") {
             setState(status);
@@ -51,13 +53,13 @@ const PaymentResult = () => {
           }
         }
       } catch {
-        if (!cancelled) setState("unknown");
+        // Keep the current state during transient network errors and continue polling.
       }
 
       if (cancelled) return;
 
       attempts += 1;
-      if (attempts >= 15) {
+      if (attempts >= 30) {
         setTimedOut(true);
         return;
       }
@@ -66,11 +68,17 @@ const PaymentResult = () => {
       timer = window.setTimeout(check, 2000);
     };
 
+    const handleFocus = () => {
+      if (!cancelled) void check();
+    };
+
     void check();
+    window.addEventListener("focus", handleFocus);
 
     return () => {
       cancelled = true;
       if (timer) window.clearTimeout(timer);
+      window.removeEventListener("focus", handleFocus);
     };
   }, [orderId, signature]);
 
@@ -89,6 +97,10 @@ const PaymentResult = () => {
         ? "/bookings"
         : "/courses";
 
+  const pendingTitle = paymentMethod === "fawry"
+    ? copy.paymentPendingFawry
+    : copy.paymentPending;
+
   const contentByState = {
     success: {
       icon: <CheckCircle2 className="mx-auto h-16 w-16 text-main" aria-hidden="true" />,
@@ -104,7 +116,7 @@ const PaymentResult = () => {
     },
     pending: {
       icon: <Clock3 className="mx-auto h-16 w-16 text-main" aria-hidden="true" />,
-      title: copy.paymentPending,
+      title: pendingTitle,
       action: isCoursePayment ? copy.returnToCourse : copy.returnToBookings,
       href: retryHref,
     },
@@ -136,6 +148,10 @@ const PaymentResult = () => {
               <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
               {copy.paymentPending}
             </div>
+          ) : null}
+
+          {state === "pending" && timedOut ? (
+            <p className="mt-6 text-sm leading-6 text-[#66716F]">{copy.paymentPendingAfterTimeout}</p>
           ) : null}
 
           <Link

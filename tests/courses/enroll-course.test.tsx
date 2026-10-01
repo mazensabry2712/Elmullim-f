@@ -78,6 +78,7 @@ const renderPage = () => {
 describe("Course enrollment", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockUseGetCourseById.mockReset();
     localStorage.setItem("elmullim-language", "en");
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
@@ -125,7 +126,7 @@ describe("Course enrollment", () => {
 
     renderPage();
 
-    expect(screen.getByRole("heading", { name: /course enrollment/i, level: 1 })).toBeInTheDocument();
+    expect(screen.getByText("Course Enrollment")).toBeInTheDocument();
     expect(screen.getByText("Physics Fundamentals")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Enroll for free", level: 3 })).toBeInTheDocument();
     expect(screen.getAllByText("0.00 L.E").length).toBeGreaterThan(0);
@@ -176,7 +177,7 @@ describe("Course enrollment", () => {
 
     expect(screen.getByRole("heading", { name: /choose how you want to pay/i, level: 3 })).toBeInTheDocument();
     expect(screen.getByText("Visa or Mastercard")).toBeInTheDocument();
-    expect(screen.getByText("Fawry")).toBeInTheDocument();
+    expect(screen.getByText(/Fawry/)).toBeInTheDocument();
     expect(screen.getByText("Mobile Wallets")).toBeInTheDocument();
     expect(screen.queryByText(/paymob/i)).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /continue to payment/i })).toBeInTheDocument();

@@ -1,7 +1,7 @@
 import axiosAPI from "@/config/axios.config";
 import { IBooking, IBookingResponse, ICreateBooking } from "@/interfaces/bookings/booking";
 import { IBookingSession } from "@/interfaces/bookings/session";
-import type { PaymentMethod } from "@/interfaces/payment/payment";
+import type { PaymentMethod, PaymentResponse } from "@/interfaces/payment/payment";
 
 const authHeaders = (token: string) => ({
   Authorization: `Bearer ${token}`,
@@ -101,30 +101,28 @@ export const proposeBookingTime = async ({ token, bookingId, proposedStartAt, te
   return data;
 };
 
-export const initiateBookingPayment = async ({ token, bookingId, paymentMethod, isParent = false }: {
+export const initiateBookingPayment = async ({
+  token,
+  bookingId,
+  paymentMethod,
+  isParent = false,
+}: {
   token: string;
   bookingId: number;
-  paymentMethod: BookingPaymentMethod;
+  paymentMethod: PaymentMethod;
   isParent?: boolean;
-}) => {
-  const endpoint = isParent ? "/parent/payment/booking/initiate" : "/student/payment/booking/initiate";
+}): Promise<PaymentResponse> => {
+  const endpoint = isParent
+    ? "/parent/payment/booking/initiate"
+    : "/student/payment/booking/initiate";
+
   const { data } = await axiosAPI.post(
     endpoint,
     { booking_id: bookingId, payment_method: paymentMethod },
     { headers: authHeaders(token) }
   );
-  return data as {
-    status: boolean;
-    message: string | null;
-    data?: {
-      redirect_url?: string | null;
-      original_amount?: number;
-      discount_amount?: number;
-      final_amount?: number;
-      coupon_code?: string | null;
-      payment_method?: BookingPaymentMethod | null;
-    };
-  };
+
+  return data as PaymentResponse;
 };
 
 export const getSchedule = async ({ token, page = 1 }: { token: string; page?: number }): Promise<PaginatedResponse<IBookingSession>> => {

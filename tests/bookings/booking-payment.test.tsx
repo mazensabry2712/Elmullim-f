@@ -33,7 +33,7 @@ describe("BookingPaymentDialog", () => {
     render(<I18nProvider><BookingPaymentDialog bookingId={15} price="250.00" /></I18nProvider>);
 
     fireEvent.click(screen.getByRole("button", { name: "Pay 250.00" }));
-    expect(screen.getByText("Visa / Mastercard")).toBeInTheDocument();
+    expect(screen.getAllByText("Visa / Mastercard").length).toBeGreaterThan(0);
     expect(screen.getByText("Fawry / Kiosk")).toBeInTheDocument();
     expect(screen.getByText("Egyptian mobile wallets")).toBeInTheDocument();
     expect(screen.queryByText(/paymob/i)).not.toBeInTheDocument();

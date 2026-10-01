@@ -10,7 +10,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/react-query/booking", () => ({
-  useInitiateBookingPayment: () => ({ mutateAsync: mocks.mutateAsync, isPending: false }),
+  useInitiateBookingPayment: () => ({ mutateAsync: mocks.mutateAsync, isPending: false, reset: vi.fn() }),
 }));
 
 vi.mock("@/utils/cookieService", () => ({

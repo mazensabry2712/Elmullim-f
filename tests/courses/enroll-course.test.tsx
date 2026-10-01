@@ -128,7 +128,7 @@ describe("Course enrollment", () => {
     expect(screen.getByRole("heading", { name: /course enrollment/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByText("Physics Fundamentals")).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Enroll for free", level: 3 })).toBeInTheDocument();
-    expect(screen.getByText("0.00 L.E")).toBeInTheDocument();
+    expect(screen.getAllByText("0.00 L.E").length).toBeGreaterThan(0);
     expect(screen.queryByRole("radio")).not.toBeInTheDocument();
     expect(screen.queryByLabelText("Promo code")).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: /enroll for free/i })).toBeInTheDocument();

@@ -265,6 +265,47 @@ describe("Course enrollment", () => {
     expect(screen.getByText("-100.00 L.E")).toBeInTheDocument();
   });
 
+  it("does not submit a typed promo code until the student applies it", async () => {
+    const startPayment = vi.fn().mockResolvedValue({
+      data: { payment_required: true, redirect_url: "https://example.test/checkout" },
+    });
+
+    mockUseInitiatePayment.mockReturnValue({
+      mutateAsync: startPayment,
+      isPending: false,
+      isError: false,
+    });
+
+    mockUseGetCourseById.mockReturnValue({
+      data: {
+        data: {
+          id: 8,
+          title: "Advanced Mathematics",
+          description: "Advanced mathematics course.",
+          price: 500,
+          level: "Advanced",
+          created_at: "2026-01-10T00:00:00.000Z",
+          hasEnrolled: false,
+          teacher: { name: "Teacher Two" },
+          image: "/course.jpg",
+        },
+      },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    renderPage();
+
+    fireEvent.change(screen.getByLabelText("Promo code"), {
+      target: { value: "save20" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
+
+    expect(startPayment).not.toHaveBeenCalled();
+    expect(screen.getByText("Apply your promo code before continuing to payment.")).toBeInTheDocument();
+  });
+
   it("renders a retryable error state when the course cannot be loaded", () => {
     const refetch = vi.fn();
     mockUseGetCourseById.mockReturnValue({

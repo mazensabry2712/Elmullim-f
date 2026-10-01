@@ -121,6 +121,7 @@ export const initiateBookingPayment = async ({ token, bookingId, paymentMethod, 
       discount_amount?: number;
       final_amount?: number;
       coupon_code?: string | null;
+      payment_method?: BookingPaymentMethod | null;
     };
   };
 };

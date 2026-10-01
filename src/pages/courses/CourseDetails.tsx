@@ -5,7 +5,6 @@ import { Loader, Users } from "lucide-react";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import CourseContent from "@/components/courses/CourseContent";
-import EnrollFreeCourse from "@/components/courses/EnrollFreeCourse";
 import RelatedCourses from "@/components/courses/RelatedCourses";
 import Newsletter from "@/components/Newsletter";
 import InstructorDetails from "@/components/shared/InstructorDetails";
@@ -96,8 +95,6 @@ const CourseDetails = () => {
   }
 
   const courseData = course.data;
-  const isFree = Number(courseData.price) === 0;
-
   return (
     <main>
       <motion.div
@@ -156,10 +153,7 @@ const CourseDetails = () => {
                   </div>
 
                   <div>
-                    {isAuthenticated && role === "student" && !courseData.hasEnrolled && isFree && (
-                      <EnrollFreeCourse courseId={courseData.id} copy={copy} />
-                    )}
-                    {isAuthenticated && role === "student" && !courseData.hasEnrolled && !isFree && (
+                    {isAuthenticated && role === "student" && !courseData.hasEnrolled && (
                       <Link
                         to={`/course/${courseData.id}/enroll`}
                         className="block w-fit lg:w-full xl:w-fit bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-6 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"

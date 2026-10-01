@@ -4,6 +4,7 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import { getCoursesCopy } from "./courseCopy";
 import { getPaymentStatus } from "@/services/student/enrolling";
+import type { PaymentMethod } from "@/interfaces/payment/payment";
 
 type PaymentState = "pending" | "success" | "failed" | "unknown";
 
@@ -19,7 +20,7 @@ const PaymentResult = () => {
   const [courseId, setCourseId] = useState<number | null>(null);
   const [orderableType, setOrderableType] = useState<"courses" | "bookings" | null>(null);
   const [bookingId, setBookingId] = useState<number | null>(null);
-  const [paymentMethod, setPaymentMethod] = useState<"card" | "fawry" | "wallet" | null>(null);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | null>(null);
   const [timedOut, setTimedOut] = useState(false);
 
   useEffect(() => {

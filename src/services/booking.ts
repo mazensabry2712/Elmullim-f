@@ -1,6 +1,7 @@
 import axiosAPI from "@/config/axios.config";
 import { IBooking, IBookingResponse, ICreateBooking } from "@/interfaces/bookings/booking";
 import { IBookingSession } from "@/interfaces/bookings/session";
+import type { PaymentMethod } from "@/interfaces/payment/payment";
 
 const authHeaders = (token: string) => ({
   Authorization: `Bearer ${token}`,
@@ -23,7 +24,7 @@ export type PaginatedResponse<T> = {
   meta: PaginationMeta;
 };
 
-export type BookingPaymentMethod = "card" | "fawry" | "wallet";
+export type BookingPaymentMethod = PaymentMethod;
 
 const pageConfig = (token: string, page: number) => ({
   headers: authHeaders(token),

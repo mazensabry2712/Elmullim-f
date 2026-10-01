@@ -1,27 +1,16 @@
 import axiosAPI from "@/config/axios.config";
 import { IStatusMsg } from "@/interfaces";
 import { ICoursesRes } from "@/interfaces/courses/courses";
+import type { PaymentInitiationData, PaymentMethod, PaymentResponse, PaymentPricing } from "@/interfaces/payment/payment";
 
-export interface IPaymentPricing {
-  code: string;
-  discount_percent: number;
-  original_amount: number;
-  discount_amount: number;
-  final_amount: number;
-}
-
-export type PaymentMethod = "card" | "fawry" | "wallet";
-
-export interface IPaymentInitiateResponse extends IStatusMsg {
-  data?: IPaymentPricing & {
-    redirect_url?: string | null;
-    payment_required?: boolean;
-    payment_method?: PaymentMethod | null;
-  } | null;
-}
+export type { PaymentMethod } from "@/interfaces/payment/payment";
+export type IPaymentPricing = PaymentPricing;
+export type IPaymentInitiateResponse = PaymentResponse & {
+  data?: PaymentInitiationData | null;
+};
 
 export interface IPromoCodeResponse extends IStatusMsg {
-  data?: IPaymentPricing | null;
+  data?: PaymentPricing | null;
 }
 
 export const getMyCourses = async (token: string): Promise<ICoursesRes> => {

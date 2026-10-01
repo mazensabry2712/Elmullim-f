@@ -74,7 +74,7 @@ function EnrollCourse() {
     }
   };
 
-  const handlePayment = async () =>
+  const handlePayment = async () => {
     if (!token || !validCourseId) return;
 
     if (promoCode.trim() && !appliedPromo) {

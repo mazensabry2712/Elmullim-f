@@ -391,6 +391,7 @@ function EnrollCourse() {
                         walletPaymentDescription: copy.walletPaymentDescription,
                       }}
                     />
+                    </div>
                   )}
 
                   {!isFree && payment.isError ? (

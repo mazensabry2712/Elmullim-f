@@ -117,8 +117,6 @@ describe("Course enrollment", () => {
       refetch: vi.fn(),
     });
 
-    renderPage();
-
     const enrollFree = vi.fn().mockResolvedValue({ status: true, message: "enrolled" });
     mockUseEnrollFreeCourse.mockReturnValue({
       mutateAsync: enrollFree,

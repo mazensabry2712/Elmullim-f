@@ -9,6 +9,7 @@ import { I18nProvider } from "@/i18n";
 const mockUseGetCourseById = vi.fn();
 const mockUseInitiatePayment = vi.fn();
 const mockUseValidatePromoCode = vi.fn();
+const mockUseEnrollFreeCourse = vi.fn();
 
 vi.mock("@/lib/react-query/courses/courses", () => ({
   useGetCourseById: (...args: unknown[]) => mockUseGetCourseById(...args),
@@ -17,6 +18,7 @@ vi.mock("@/lib/react-query/courses/courses", () => ({
 vi.mock("@/lib/react-query/student/enrolling", () => ({
   useInitiatePayment: (...args: unknown[]) => mockUseInitiatePayment(...args),
   useValidatePromoCode: (...args: unknown[]) => mockUseValidatePromoCode(...args),
+  useEnrollFreeCourse: (...args: unknown[]) => mockUseEnrollFreeCourse(...args),
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -28,12 +30,6 @@ vi.mock("@/utils/cookieService", () => ({
 
 vi.mock("react-redux", () => ({
   useSelector: () => ({ isAuthenticated: true }),
-}));
-
-vi.mock("@/components/courses/EnrollFreeCourse", () => ({
-  default: ({ courseId }: { courseId: number }) => (
-    <button type="button">Enroll free course {courseId}</button>
-  ),
 }));
 
 vi.mock("framer-motion", () => ({
@@ -90,6 +86,10 @@ describe("Course enrollment", () => {
       isPending: false,
       isError: false,
     });
+    mockUseEnrollFreeCourse.mockReturnValue({
+      mutateAsync: vi.fn(),
+      isPending: false,
+    });
     mockUseValidatePromoCode.mockReturnValue({
       mutateAsync: vi.fn(),
       isPending: false,
@@ -97,7 +97,7 @@ describe("Course enrollment", () => {
     });
   });
 
-  it("shows a real free-course enrollment action", () => {
+  it("uses the same checkout structure for free courses and enrolls directly", async () => {
     mockUseGetCourseById.mockReturnValue({
       data: {
         data: {
@@ -119,9 +119,30 @@ describe("Course enrollment", () => {
 
     renderPage();
 
+    const enrollFree = vi.fn().mockResolvedValue({ status: true, message: "enrolled" });
+    mockUseEnrollFreeCourse.mockReturnValue({
+      mutateAsync: enrollFree,
+      isPending: false,
+    });
+
+    renderPage();
+
     expect(screen.getByRole("heading", { name: /course enrollment/i, level: 1 })).toBeInTheDocument();
     expect(screen.getByText("Physics Fundamentals")).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /enroll free course 7/i })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Enroll for free", level: 3 })).toBeInTheDocument();
+    expect(screen.getByText("0.00 L.E")).toBeInTheDocument();
+    expect(screen.queryByRole("radio")).not.toBeInTheDocument();
+    expect(screen.queryByLabelText("Promo code")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /enroll for free/i })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /enroll for free/i }));
+
+    await waitFor(() =>
+      expect(enrollFree).toHaveBeenCalledWith({
+        token: "token",
+        courseId: 7,
+      })
+    );
   });
 
   it("shows the payment methods for paid courses and sends the selected one", async () => {

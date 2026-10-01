@@ -54,7 +54,7 @@ vi.mock("framer-motion", () => ({
   },
 }));
 
-const renderPage = () => {
+const renderPage = (courseId = 7) => {
   const queryClient = new QueryClient({
     defaultOptions: {
       queries: { retry: false },
@@ -64,7 +64,7 @@ const renderPage = () => {
 
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={["/course/7/enroll"]}>
+      <MemoryRouter initialEntries={[`/course/${courseId}/enroll`]}>
         <I18nProvider>
           <Routes>
             <Route path="/course/:courseId/enroll" element={<EnrollCourse />} />
@@ -131,7 +131,7 @@ describe("Course enrollment", () => {
     renderPage();
 
     expect(screen.getByText("Course Enrollment")).toBeInTheDocument();
-    expect(screen.getByText("Physics Fundamentals")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "Physics Fundamentals", level: 1 })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Enroll for free", level: 3 })).toBeInTheDocument();
     expect(screen.getAllByText("0.00 L.E").length).toBeGreaterThan(0);
     expect(screen.queryByRole("radio")).not.toBeInTheDocument();
@@ -177,7 +177,7 @@ describe("Course enrollment", () => {
       isError: false,
     });
 
-    renderPage();
+    renderPage(8);
 
     expect(screen.getByRole("heading", { name: /choose how you want to pay/i, level: 3 })).toBeInTheDocument();
     expect(screen.getByText("Visa or Mastercard")).toBeInTheDocument();
@@ -258,7 +258,7 @@ describe("Course enrollment", () => {
       isError: false,
     });
 
-    renderPage();
+    renderPage(8);
 
     fireEvent.click(screen.getByRole("radio", { name: /mobile wallets/i }));
     fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));

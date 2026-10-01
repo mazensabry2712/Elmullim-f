@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Banknote, Check, CreditCard, Loader2, Smartphone, X } from "lucide-react";
+import { Loader2, X } from "lucide-react";
+import PaymentMethodSelector from "@/components/payments/PaymentMethodSelector";
 import { toast } from "react-toastify";
 import { useInitiateBookingPayment } from "@/lib/react-query/booking";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
 import { getBookingCopy } from "@/pages/bookings/bookingCopy";
-import type { BookingPaymentMethod } from "@/services/booking";
+import type { PaymentMethod } from "@/interfaces/payment/payment";
 
 interface Props {
   bookingId: number;
@@ -15,22 +16,11 @@ interface Props {
 
 const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => {
   const [open, setOpen] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<BookingPaymentMethod>("card");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const paymentMutation = useInitiateBookingPayment();
   const token = cookieService.getToken() || "";
   const { language } = useI18n();
   const copy = getBookingCopy(language).bookings.payment;
-
-  const methods: Array<{
-    id: BookingPaymentMethod;
-    icon: typeof CreditCard;
-    title: string;
-    description: string;
-  }> = [
-    { id: "card", icon: CreditCard, title: copy.cardPayment, description: "Visa / Mastercard" },
-    { id: "fawry", icon: Banknote, title: copy.fawryPayment, description: "Fawry / Kiosk" },
-    { id: "wallet", icon: Smartphone, title: copy.walletPayment, description: copy.mobileWallets },
-  ];
 
   const submit = async () => {
     try {
@@ -98,47 +88,20 @@ const BookingPaymentDialog = ({ bookingId, price, isParent = false }: Props) => 
               </button>
             </div>
 
-            <div className="mt-6 space-y-3" role="radiogroup" aria-label={copy.paymentMethods}>
-              {methods.map(({ id, icon: Icon, title, description }) => {
-                const selected = paymentMethod === id;
-
-                return (
-                  <button
-                    key={id}
-                    type="button"
-                    role="radio"
-                    aria-checked={selected}
-                    onClick={() => setPaymentMethod(id)}
-                    disabled={paymentMutation.isPending}
-                    className={`flex w-full items-center gap-3 rounded-2xl border px-4 py-4 text-left transition focus:outline-none focus:ring-2 focus:ring-main/20 disabled:cursor-not-allowed disabled:opacity-60 ${
-                      selected
-                        ? "border-main bg-[#F0FAF8] ring-2 ring-main/10"
-                        : "border-[#DFE8E6] bg-[#FBFDFC] hover:border-main/40 hover:bg-white"
-                    }`}
-                  >
-                    <span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-                      selected ? "bg-main text-white" : "bg-[#EEF5F6] text-main"
-                    }`}>
-                      <Icon size={20} aria-hidden="true" />
-                    </span>
-
-                    <span className="min-w-0 flex-1">
-                      <span className="block text-sm font-bold text-black-blue">{title}</span>
-                      <span className="mt-1 block text-xs leading-5 text-[#78827F]">{description}</span>
-                    </span>
-
-                    <span
-                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full border ${
-                        selected ? "border-main bg-main text-white" : "border-[#C8D5D2] bg-white"
-                      }`}
-                      aria-hidden="true"
-                    >
-                      {selected ? <Check size={13} strokeWidth={3} /> : null}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
+            <PaymentMethodSelector
+              value={paymentMethod}
+              onChange={setPaymentMethod}
+              disabled={paymentMutation.isPending}
+              labels={{
+                paymentMethods: copy.paymentMethods,
+                cardPayment: copy.cardPayment,
+                cardPaymentDescription: copy.cardPaymentDescription,
+                fawryPayment: copy.fawryPayment,
+                fawryPaymentDescription: copy.fawryPaymentDescription,
+                walletPayment: copy.walletPayment,
+                walletPaymentDescription: copy.walletPaymentDescription,
+              }}
+            />
 
             <div className="mt-5 flex items-center justify-between rounded-2xl bg-[#F7FAF9] px-4 py-3">
               <span className="text-sm text-[#687371]">{copy.amount}</span>

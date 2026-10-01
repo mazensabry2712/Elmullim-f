@@ -48,6 +48,7 @@ export const enrollFreeCourse = async ({
 export interface IPaymentStatusResponse extends IStatusMsg {
   data?: {
     status?: "pending" | "success" | "failed";
+    payment_method?: PaymentMethod | null;
     transaction_id?: number | null;
     orderable_type?: "courses" | "bookings" | null;
     orderable_id?: number | null;

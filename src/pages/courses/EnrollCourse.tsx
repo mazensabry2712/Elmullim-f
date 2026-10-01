@@ -16,13 +16,12 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useSelector } from "react-redux";
 import { useGetCourseById } from "@/lib/react-query/courses/courses";
-import EnrollFreeCourse from "@/components/courses/EnrollFreeCourse";
 import { RootState } from "@/store/store";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
 import { formatDate } from "@/utils/dateTime";
 import { getCoursesCopy } from "./courseCopy";
-import { useInitiatePayment, useValidatePromoCode } from "@/lib/react-query/student/enrolling";
+import { useEnrollFreeCourse, useInitiatePayment, useValidatePromoCode } from "@/lib/react-query/student/enrolling";
 import type { IPaymentPricing, PaymentMethod } from "@/services/student/enrolling";
 
 function EnrollCourse() {
@@ -35,12 +34,14 @@ function EnrollCourse() {
   const numericCourseId = Number(courseId);
   const validCourseId = Number.isInteger(numericCourseId) && numericCourseId > 0;
   const payment = useInitiatePayment();
+  const freeEnrollment = useEnrollFreeCourse();
   const promoValidation = useValidatePromoCode();
   const navigate = useNavigate();
   const [promoCode, setPromoCode] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [appliedPromo, setAppliedPromo] = useState<IPaymentPricing | null>(null);
   const [promoError, setPromoError] = useState("");
+  const [freeEnrollmentError, setFreeEnrollmentError] = useState("");
 
   const { data: course, isLoading, isError, refetch } = useGetCourseById({
     courseId: numericCourseId,
@@ -51,7 +52,29 @@ function EnrollCourse() {
     document.title = `${copy.enrollmentTitle} | Elmullim`;
   }, [copy.enrollmentTitle]);
 
-  const handlePayment = async () => {
+  const handleFreeEnrollment = async () => {
+    if (!token || !validCourseId || freeEnrollment.isPending) return;
+
+    setFreeEnrollmentError("");
+
+    try {
+      const response = await freeEnrollment.mutateAsync({
+        token,
+        courseId: numericCourseId,
+      });
+
+      if (response.status) {
+        navigate(`/courses/${numericCourseId}/view`, { replace: true });
+        return;
+      }
+
+      setFreeEnrollmentError(response.message || copy.enrollmentErrorTitle);
+    } catch {
+      setFreeEnrollmentError(copy.enrollmentErrorTitle);
+    }
+  };
+
+  const handlePayment = async () =>
     if (!token || !validCourseId) return;
 
     if (promoCode.trim() && !appliedPromo) {
@@ -176,7 +199,6 @@ function EnrollCourse() {
 
   const courseData = course.data;
   const isFree = Number(courseData.price) === 0;
-  const canEnrollFree = isAuthenticated && isStudent && !courseData.hasEnrolled;
 
   return (
     <main className="min-h-screen bg-[#F7FAF9]">
@@ -293,35 +315,6 @@ function EnrollCourse() {
                     <ArrowRight className="rtl:rotate-180" size={18} aria-hidden="true" />
                   </Link>
                 </div>
-              ) : isFree ? (
-                <div>
-                  <div className="flex items-start justify-between gap-4">
-                    <div>
-                      <p className="text-sm font-medium text-main">{copy.free}</p>
-                      <h3 className="mt-1 text-2xl font-bold text-black-blue">{copy.free}</h3>
-                    </div>
-                    <div className="rounded-2xl bg-[#E8F8F4] px-4 py-2 text-lg font-bold text-black-blue">
-                      {copy.free}
-                    </div>
-                  </div>
-
-                  <p className="mt-4 text-sm leading-7 text-[#66716F]">{copy.freeEnrollmentPrompt}</p>
-
-                  <div className="mt-6">
-                    {canEnrollFree ? (
-                      <div className="w-full">
-                        <EnrollFreeCourse courseId={courseData.id} copy={copy} />
-                      </div>
-                    ) : (
-                      <Link
-                        to="/sign-in"
-                        className="flex w-full items-center justify-center rounded-xl bg-main px-6 py-3.5 text-sm font-semibold text-white transition hover:bg-main/90"
-                      >
-                        {copy.enroll}
-                      </Link>
-                    )}
-                  </div>
-                </div>
               ) : !isAuthenticated || !isStudent ? (
                 <div>
                   <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#EDF4F5]">
@@ -343,7 +336,7 @@ function EnrollCourse() {
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="text-sm font-semibold text-main">{copy.checkout}</p>
-                      <h3 className="mt-1 text-2xl font-bold text-black-blue">{copy.paymentAvailableTitle}</h3>
+                      <h3 className="mt-1 text-2xl font-bold text-black-blue">{isFree ? copy.freeEnrollmentCheckoutTitle : copy.paymentAvailableTitle}</h3>
                     </div>
                     <div className="rounded-2xl border border-[#DFE8E6] bg-[#FBFDFC] px-4 py-2 text-right">
                       <p className="text-xs text-[#7B8583]">{copy.total}</p>
@@ -358,6 +351,7 @@ function EnrollCourse() {
                     </div>
                   </div>
 
+                  {!isFree ? (
                   <div className="mt-6 rounded-2xl border border-[#DFE8E6] bg-[#FBFDFC] p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div>
@@ -414,12 +408,15 @@ function EnrollCourse() {
                   </div>
                   </div>
 
-                  {payment.isError ? (
+                  ) : null}
+
+                  {!isFree && payment.isError ? (
                     <p role="alert" className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm leading-6 text-red-600">
                       {copy.paymentError}
                     </p>
                   ) : null}
 
+                  {!isFree ? (
                   <div className="mt-5 rounded-2xl border border-[#DFE8E6] bg-white p-4">
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
@@ -503,6 +500,8 @@ function EnrollCourse() {
                     ) : null}
                   </div>
 
+                  ) : null}
+
                   <div className="mt-4 rounded-2xl border border-[#DFE8E6] bg-[#FAFCFB] px-4 py-1">
                     <div className="flex items-center justify-between border-b border-[#E8EEEC] py-3 text-sm">
                       <span className="text-[#697572]">{copy.subtotal}</span>
@@ -522,24 +521,47 @@ function EnrollCourse() {
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => void handlePayment()}
-                    disabled={payment.isPending}
-                    className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-main px-6 py-4 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(25,77,80,0.2)] transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {payment.isPending ? (
-                      <Loader size={19} className="animate-spin" aria-hidden="true" />
-                    ) : (
-                      <LockKeyhole size={18} aria-hidden="true" />
-                    )}
-                    {payment.isPending ? copy.paymentLoading : copy.payNow}
-                    {!payment.isPending ? <ArrowRight className="rtl:rotate-180" size={18} aria-hidden="true" /> : null}
-                  </button>
+                  {freeEnrollmentError ? (
+                    <p role="alert" className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm leading-6 text-red-600">
+                      {freeEnrollmentError}
+                    </p>
+                  ) : null}
+
+                  {isFree ? (
+                    <button
+                      type="button"
+                      onClick={() => void handleFreeEnrollment()}
+                      disabled={freeEnrollment.isPending}
+                      className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-main px-6 py-4 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(25,77,80,0.2)] transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {freeEnrollment.isPending ? (
+                        <Loader size={19} className="animate-spin" aria-hidden="true" />
+                      ) : (
+                        <Check size={18} aria-hidden="true" />
+                      )}
+                      {freeEnrollment.isPending ? copy.enrollingFree : copy.enrollForFree}
+                      {!freeEnrollment.isPending ? <ArrowRight className="rtl:rotate-180" size={18} aria-hidden="true" /> : null}
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => void handlePayment()}
+                      disabled={payment.isPending}
+                      className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-main px-6 py-4 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(25,77,80,0.2)] transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {payment.isPending ? (
+                        <Loader size={19} className="animate-spin" aria-hidden="true" />
+                      ) : (
+                        <LockKeyhole size={18} aria-hidden="true" />
+                      )}
+                      {payment.isPending ? copy.paymentLoading : copy.payNow}
+                      {!payment.isPending ? <ArrowRight className="rtl:rotate-180" size={18} aria-hidden="true" /> : null}
+                    </button>
+                  )}
 
                   <div className="mt-4 flex items-center justify-center gap-2 text-center text-xs text-[#7B8583]">
                     <ShieldCheck size={15} className="text-main" aria-hidden="true" />
-                    <span>{copy.secureCheckout}</span>
+                    <span>{isFree ? copy.freeEnrollmentSecure : copy.secureCheckout}</span>
                   </div>
                 </div>
               )}

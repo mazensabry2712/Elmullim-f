@@ -54,15 +54,20 @@ function EnrollCourse() {
   const handlePayment = async () => {
     if (!token || !validCourseId) return;
 
+    if (promoCode.trim() && !appliedPromo) {
+      setPromoError(copy.applyPromoFirst);
+      return;
+    }
+
     const response = await payment.mutateAsync({
       token,
       courseId: numericCourseId,
-      promoCode: appliedPromo?.code || promoCode.trim() || undefined,
+      promoCode: appliedPromo?.code || undefined,
       paymentMethod,
     });
 
     if (response.data?.payment_required === false) {
-      navigate("/profile", { state: { myCourses: true }, replace: true });
+      navigate(`/courses/${numericCourseId}/view`, { replace: true });
       return;
     }
 

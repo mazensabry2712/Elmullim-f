@@ -16,6 +16,7 @@ export interface IPaymentInitiateResponse extends IStatusMsg {
   data?: IPaymentPricing & {
     redirect_url?: string | null;
     payment_required?: boolean;
+    payment_method?: PaymentMethod | null;
   } | null;
 }
 

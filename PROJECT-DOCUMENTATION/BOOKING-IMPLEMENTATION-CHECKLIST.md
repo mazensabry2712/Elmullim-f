@@ -85,12 +85,16 @@ Do not implement this before the Lesson feature is integrated end-to-end.
 - [ ] Online Join Lesson action with backend authorization.
 - [ ] Offline location display.
 
-## Future Phase — Payments
+## Payments — Implemented
 
-- [ ] Start payment for eligible booking.
-- [ ] Show pending/success/failed states.
-- [ ] Do not treat browser redirect alone as payment confirmation.
-- [ ] Refresh booking/payment state from backend.
+- [x] Start payment for eligible booking.
+- [x] Start payment for paid courses.
+- [x] Shared Card / Fawry / Mobile Wallet payment method selector.
+- [x] Shared customer checkout contract for course and booking payments.
+- [x] Show pending/success/failed states.
+- [x] Do not treat browser redirect alone as payment confirmation.
+- [x] Refresh booking/payment state from backend.
+- [x] Parent and Student booking payment authorization use the same payment contract.
 
 ## Future Phase — Session Results
 

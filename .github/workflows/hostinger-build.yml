@@ -1,9 +1,11 @@
 name: Build Hostinger Static Site
+# Production deploy source of truth: main -> generated hostinger branch
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch:
 
 permissions:
   contents: write

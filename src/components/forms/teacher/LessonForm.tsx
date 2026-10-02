@@ -160,7 +160,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
     return checks;
   }, [
     action,
-    availabilityFields,
     availabilityValues,
     description,
     bookingType,
@@ -192,10 +191,25 @@ const LessonForm = ({ action, lesson }: IProps) => {
   );
 
   const steps = useMemo(
-    () => (isArabic
-      ? ["المادة والمرحلة", "نوع الدرس", "نوع الحجز", "تفاصيل الدرس والمواعيد", "Online", "Offline", "السعة والنشر"]
-      : ["Subject & Stage", "Delivery Mode", "Booking Type", "Lesson Details & Availability", "Online", "Offline", "Capacity & Publish"]),
-    [isArabic]
+    () =>
+      isArabic
+        ? [
+            "المادة والمرحلة",
+            "نوع الدرس",
+            "نوع الحجز",
+            "تفاصيل الدرس والمواعيد",
+            deliveryMode === "online" ? "أونلاين" : "حضوري",
+            "السعة والإرسال",
+          ]
+        : [
+            "Subject & Stage",
+            "Delivery Mode",
+            "Booking Type",
+            "Lesson Details & Availability",
+            deliveryMode === "online" ? "Online" : "Offline",
+            "Capacity & Submit",
+          ],
+    [deliveryMode, isArabic]
   );
 
   function label(english: string, arabic: string) {
@@ -716,7 +730,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
         </section>
       )}
 
-      {step === 6 && (
+      {step === 5 && (
         <section className="space-y-5">
           <div className="rounded-2xl border border-main/15 bg-gradient-to-br from-main/[0.06] via-white to-white p-5 sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

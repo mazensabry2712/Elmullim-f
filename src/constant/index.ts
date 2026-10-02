@@ -286,12 +286,6 @@ export const UPDATE_STUDENT_PROFILE: IFormInput[] = [
     label: "Gender",
   },
   {
-    name: "address",
-    label: "Address",
-    type: "text",
-    placeholder: "Your address",
-  },
-  {
     name: "country_id",
     type: "select",
     label: "Country Name",

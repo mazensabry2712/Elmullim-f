@@ -11,6 +11,7 @@ import SelectFormItem from "../formItems/SelectFormItem";
 import FileFormItem from "../formItems/FileFormItem";
 import MultiInputForm from "../formItems/MultiInputForm";
 import InputFormItem from "../formItems/InputFormItem";
+import { Textarea } from "@/components/ui/textarea";
 
 interface IOption {
   value: string;
@@ -62,6 +63,33 @@ const RenderProfileFormFields = ({
             options={options?.subjects || []}
             label
           />
+        );
+
+      case input.name === "course_type":
+        return (
+          <MultiSelectFormItem
+            field={field}
+            input={input}
+            options={options?.coursesType || []}
+            label
+          />
+        );
+
+      case input.name === "description":
+        return (
+          <FormItem>
+            <FormLabel className="text-black-blue font-medium font-sora">
+              {input.label}
+            </FormLabel>
+            <FormControl>
+              <Textarea
+                {...field}
+                placeholder={input.placeholder}
+                className="min-h-32 resize-y bg-white text-black-blue placeholder:text-black-blue/45 focus-visible:ring-2 focus-visible:ring-main"
+              />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
         );
 
       case input.name === "education_level_id":

@@ -93,6 +93,9 @@ export const updateTeacherProfileSchema = z.object({
       ),
     }),
 
+  latitude: z.number().min(-90).max(90).nullable(),
+  longitude: z.number().min(-180).max(180).nullable(),
+
   education_system_id: z
     .string()
     .nonempty({

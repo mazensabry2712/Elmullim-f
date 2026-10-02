@@ -322,6 +322,7 @@ const LocationPicker = ({
 
           <Button
             type="button"
+            aria-label={isSearching ? text.searching : text.search}
             onClick={() => void searchLocation()}
             disabled={disabled || isSearching || isLocating || !query.trim()}
             className="h-11 shrink-0"
@@ -338,6 +339,7 @@ const LocationPicker = ({
             <Button
               type="button"
               variant="outline"
+              aria-label={isLocating ? text.locating : text.current}
               onClick={useCurrentLocation}
               disabled={disabled || isSearching || isLocating}
               className="h-11 shrink-0"
@@ -365,7 +367,11 @@ const LocationPicker = ({
         ) : null}
 
         {results.length > 0 ? (
-          <div className="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50">
+          <div
+            className="mt-3 overflow-hidden rounded-lg border border-gray-200 bg-gray-50"
+            role="listbox"
+            aria-label={text.location}
+          >
             {results.map((result, index) => (
               <button
                 key={`${result.lat}-${result.lon}-${index}`}
@@ -402,7 +408,24 @@ const LocationPicker = ({
                 <p className="mt-1 break-words text-sm leading-6 text-gray-600">
                   {value || query}
                 </p>
-                <p className="mt-1 text-[11px] text-gray-500">
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  <span
+                    className="rounded-lg bg-white px-2 py-1 text-[11px] font-semibold text-black-blue/55"
+                    dir="ltr"
+                  >
+                    {text.coordinates}: {Number(latitude).toFixed(5)}, {Number(longitude).toFixed(5)}
+                  </span>
+                  <a
+                    href={fullMapUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-lg bg-white px-2 py-1 text-[11px] font-semibold text-main transition hover:bg-main/5"
+                  >
+                    <ExternalLink className="h-3 w-3" />
+                    {text.openMap}
+                  </a>
+                </div>
+                <p className="mt-2 text-[11px] text-gray-500">
                   {text.selectedHint}
                 </p>
               </div>

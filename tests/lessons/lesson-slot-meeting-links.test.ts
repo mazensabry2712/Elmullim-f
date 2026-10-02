@@ -66,6 +66,24 @@ describe("lesson slot meeting links", () => {
     expect(result.success).toBe(true);
   });
 
+  it("rejects availability slots shorter than the lesson duration", () => {
+    const result = lessonSchema.safeParse({
+      ...baseLesson,
+      duration_minutes: 90,
+      availability: [
+        {
+          day_of_week: 6,
+          start_time: "18:00",
+          end_time: "19:00",
+          timezone: "Africa/Cairo",
+          meeting_url: "https://meet.example.test/one",
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+  });
+
   it("does not require meeting URLs for offline slots", () => {
     const result = lessonSchema.safeParse({
       ...baseLesson,

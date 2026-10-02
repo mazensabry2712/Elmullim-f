@@ -62,9 +62,6 @@ export const lessonSchema = z
       .trim()
       .url({ message: validationMessage("enter a valid meeting URL", "أدخل رابط اجتماع صحيح") })
       .or(z.literal("")),
-    location: z.string().trim().max(2000, {
-      message: validationMessage("location is too long", "المكان طويل جدًا"),
-    }),
     offline_visit_type: z.enum(["teacher_to_student", "student_to_teacher", ""], {
       message: validationMessage("select a valid visit type", "اختر طريقة زيارة صحيحة"),
     }),
@@ -81,14 +78,6 @@ export const lessonSchema = z
   })
   .superRefine((data, ctx) => {
     if (data.delivery_mode === "offline") {
-      if (!data.location) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["location"],
-          message: validationMessage("location is required for offline lessons", "مكان الدرس مطلوب للدروس الحضورية"),
-        });
-      }
-
       if (!data.offline_visit_type) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,

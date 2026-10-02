@@ -39,7 +39,7 @@ type LessonFormValues = z.infer<typeof lessonSchema>;
 
 const inputClassName = "mt-2 border border-input bg-white text-black-blue";
 const defaultTimezone = "Africa/Cairo";
-const defaultAvailability = [{ day_of_week: 6, start_time: "18:00", end_time: "19:00", timezone: defaultTimezone }];
+const defaultAvailability = [{ day_of_week: 6, start_time: "18:00", end_time: "19:00", timezone: defaultTimezone, meeting_url: "" }];
 
 const UsersRoundIcon = () => <UsersRound className="mt-0.5 h-5 w-5 shrink-0 text-main" />;
 const VideoIcon = () => <Video className="h-4 w-4" />;
@@ -68,6 +68,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
         start_time: slot.start_time.slice(0, 5),
         end_time: slot.end_time.slice(0, 5),
         timezone: slot.timezone || defaultTimezone,
+        meeting_url: slot.meeting_url || "",
       }))
     : defaultAvailability;
 
@@ -89,7 +90,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
       duration_minutes: lesson?.duration_minutes ?? 60,
       price: Number(lesson?.price) || 0,
       sessions_count: lesson?.sessions_count ?? 1,
-      meeting_url: lesson?.meeting_url ?? "",
       offline_visit_type: lesson?.offline_visit_type ?? "",
       service_area_ids: initialServiceAreaIds,
       max_students: lesson?.max_students ?? "",
@@ -108,7 +108,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
   const title = form.watch("title");
   const description = form.watch("description");
   const price = form.watch("price");
-  const meetingUrl = form.watch("meeting_url");
   const maxStudents = form.watch("max_students");
   const availabilityValues = form.watch("availability") || [];
   const profileAddress = teacherProfile?.data?.address || "";
@@ -139,7 +138,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
         label: label("Delivery setup", "إعداد نوع الدرس"),
         done:
           deliveryMode === "online"
-            ? Boolean(meetingUrl?.trim())
+            ? availabilityValues.length > 0 && availabilityValues.every((slot) => Boolean(slot.meeting_url?.trim()))
             : Boolean(offlineVisitType) &&
               (
                 offlineVisitType === "student_to_teacher"
@@ -172,7 +171,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
     profileLatitude,
     profileLongitude,
     maxStudents,
-    meetingUrl,
     offlineVisitType,
     price,
     grade,
@@ -201,7 +199,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
             "نوع الدرس",
             "نوع الحجز",
             "تفاصيل الدرس والمواعيد",
-            deliveryMode === "online" ? "أونلاين" : "حضوري",
+            ...(deliveryMode === "offline" ? ["حضوري"] : []),
             "السعة والإرسال",
           ]
         : [
@@ -209,11 +207,15 @@ const LessonForm = ({ action, lesson }: IProps) => {
             "Delivery Mode",
             "Booking Type",
             "Lesson Details & Availability",
-            deliveryMode === "online" ? "Online" : "Offline",
+            ...(deliveryMode === "offline" ? ["Offline"] : []),
             "Capacity & Submit",
           ],
     [deliveryMode, isArabic]
   );
+
+  useEffect(() => {
+    if (step >= steps.length) setStep(steps.length - 1);
+  }, [step, steps.length]);
 
   function label(english: string, arabic: string) {
     return isArabic ? arabic : english;
@@ -241,7 +243,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
       duration_minutes: lesson?.duration_minutes ?? 60,
       price: Number(lesson?.price) || 0,
       sessions_count: lesson?.sessions_count ?? 1,
-      meeting_url: lesson?.meeting_url ?? "",
       offline_visit_type: lesson?.offline_visit_type ?? "",
       service_area_ids: lesson?.service_areas?.filter((area) => area.is_active !== false).map((area) => area.id) || [],
       max_students: lesson?.max_students ?? "",
@@ -287,11 +288,8 @@ const LessonForm = ({ action, lesson }: IProps) => {
       step === 1 ? ["delivery_mode"] :
       step === 2 ? ["booking_type"] :
       step === 3 ? ["title", "description", "duration_minutes", "price", "sessions_count", "availability"] :
-      step === 4
-        ? deliveryMode === "online"
-          ? ["meeting_url"]
-          : ["offline_visit_type", "service_area_ids"]
-        : [];
+      step === 4 && deliveryMode === "offline" ? ["offline_visit_type", "service_area_ids"] :
+      [];
 
     const valid = await form.trigger(fields);
     if (valid) setStep((current) => Math.min(current + 1, steps.length - 1));
@@ -310,6 +308,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
         start_time: slot.start_time,
         end_time: slot.end_time,
         timezone: slot.timezone,
+        meeting_url: values.delivery_mode === "online" ? slot.meeting_url.trim() : "",
       }));
 
       const serviceAreaIds =
@@ -334,9 +333,9 @@ const LessonForm = ({ action, lesson }: IProps) => {
         ...(action === "create" || form.formState.dirtyFields.service_area_ids
           ? { service_area_ids: serviceAreaIds }
           : {}),
-        ...(values.delivery_mode === "online"
-          ? values.meeting_url ? { meeting_url: values.meeting_url } : {}
-          : { offline_visit_type: values.offline_visit_type }),
+        ...(values.delivery_mode === "offline"
+          ? { offline_visit_type: values.offline_visit_type }
+          : {}),
         ...(values.booking_type === "group" && values.max_students !== ""
           ? { max_students: Number(values.max_students) }
           : {}),
@@ -495,7 +494,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
         <section className="space-y-6 rounded-lg border bg-white p-5">
           <div>
             <h2 className="text-xl font-bold text-black-blue">{label("Lesson Details & Availability", "تفاصيل الدرس والمواعيد")}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{label("Add the weekly days and time ranges when students can request this lesson.", "أضف أيام الأسبوع والفترات الزمنية التي يمكن للطلاب طلب هذا الدرس خلالها.")}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{label("Add the weekly time slots students can request. For online lessons, each slot has its own meeting link.", "أضف المواعيد الأسبوعية التي يمكن للطلاب طلبها. في الدروس الأونلاين، لكل موعد رابط اجتماع خاص به.")}</p>
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
@@ -514,15 +513,55 @@ const LessonForm = ({ action, lesson }: IProps) => {
                 <h3 className="font-semibold text-black-blue">{label("Weekly availability", "المواعيد الأسبوعية المتاحة")}</h3>
                 <p className="text-xs text-muted-foreground">{label("Times use Africa/Cairo for the current Egyptian setup.", "الأوقات تستخدم Africa/Cairo للإعداد الحالي في مصر.")}</p>
               </div>
-              <button type="button" onClick={() => append({ day_of_week: 6, start_time: "18:00", end_time: "19:00", timezone: defaultTimezone })} className="inline-flex items-center gap-2 rounded-md bg-main px-4 py-2 text-sm font-semibold text-white"><Plus className="h-4 w-4" />{label("Add slot", "إضافة موعد")}</button>
+              <button type="button" onClick={() => append({ day_of_week: 6, start_time: "18:00", end_time: "19:00", timezone: defaultTimezone, meeting_url: "" })} className="inline-flex items-center gap-2 rounded-md bg-main px-4 py-2 text-sm font-semibold text-white"><Plus className="h-4 w-4" />{label("Add slot", "إضافة موعد")}</button>
             </div>
 
             <div className="space-y-3">
               {availabilityFields.map((field, index) => (
-                <div key={field.id} className="grid gap-3 rounded-md bg-white p-3 md:grid-cols-[1.2fr_1fr_1fr_auto] md:items-end">
-                  <label className="text-sm font-medium text-black-blue">{label("Day", "اليوم")}<select {...form.register(`availability.${index}.day_of_week`, { valueAsNumber: true })} className="mt-2 block h-11 w-full rounded-md border border-input bg-white px-3">{dayOptions.map(([value, text]) => <option key={value} value={value}>{text}</option>)}</select></label>
-                  <label className="text-sm font-medium text-black-blue">{label("Start", "من")}<Input type="time" {...form.register(`availability.${index}.start_time`)} className={inputClassName} />{form.formState.errors.availability?.[index]?.start_time?.message && <p className="mt-1 text-sm text-red-600">{String(form.formState.errors.availability[index]?.start_time?.message)}</p>}</label>
-                  <label className="text-sm font-medium text-black-blue">{label("End", "إلى")}<Input type="time" {...form.register(`availability.${index}.end_time`)} className={inputClassName} />{form.formState.errors.availability?.[index]?.end_time?.message && <p className="mt-1 text-sm text-red-600">{String(form.formState.errors.availability[index]?.end_time?.message)}</p>}</label>
+                <div
+                  key={field.id}
+                  className={
+                    "grid gap-3 rounded-md bg-white p-3 md:items-end " +
+                    (deliveryMode === "online"
+                      ? "md:grid-cols-[1.15fr_1fr_1fr_2fr_auto]"
+                      : "md:grid-cols-[1.2fr_1fr_1fr_auto]")
+                  }
+                >
+                  <label className="text-sm font-medium text-black-blue">
+                    {label("Day", "اليوم")}
+                    <select {...form.register(`availability.${index}.day_of_week`, { valueAsNumber: true })} className="mt-2 block h-11 w-full rounded-md border border-input bg-white px-3">
+                      {dayOptions.map(([value, text]) => <option key={value} value={value}>{text}</option>)}
+                    </select>
+                  </label>
+                  <label className="text-sm font-medium text-black-blue">
+                    {label("Start", "من")}
+                    <Input type="time" {...form.register(`availability.${index}.start_time`)} className={inputClassName} />
+                    {form.formState.errors.availability?.[index]?.start_time?.message && <p className="mt-1 text-sm text-red-600">{String(form.formState.errors.availability[index]?.start_time?.message)}</p>}
+                  </label>
+                  <label className="text-sm font-medium text-black-blue">
+                    {label("End", "إلى")}
+                    <Input type="time" {...form.register(`availability.${index}.end_time`)} className={inputClassName} />
+                    {form.formState.errors.availability?.[index]?.end_time?.message && <p className="mt-1 text-sm text-red-600">{String(form.formState.errors.availability[index]?.start_time?.message)}</p>}
+                  </label>
+                  {deliveryMode === "online" ? (
+                    <label className="text-sm font-medium text-black-blue">
+                      <span className="flex items-center gap-2">
+                        <VideoIcon />
+                        {label("Meeting link for this slot", "رابط الاجتماع لهذا الموعد")}
+                      </span>
+                      <Input
+                        {...form.register(`availability.${index}.meeting_url`)}
+                        type="url"
+                        placeholder="https://..."
+                        className={inputClassName}
+                      />
+                      {form.formState.errors.availability?.[index]?.meeting_url?.message && (
+                        <p className="mt-1 text-sm text-red-600">
+                          {String(form.formState.errors.availability[index]?.meeting_url?.message)}
+                        </p>
+                      )}
+                    </label>
+                  ) : null}
                   <button type="button" onClick={() => remove(index)} disabled={availabilityFields.length === 1} aria-label={label("Remove slot", "حذف الموعد")} title={label("Remove slot", "حذف الموعد")} className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-red-200 text-red-600 disabled:cursor-not-allowed disabled:opacity-40"><Trash2 className="h-4 w-4" /></button>
                 </div>
               ))}
@@ -532,38 +571,9 @@ const LessonForm = ({ action, lesson }: IProps) => {
         </section>
       )}
 
-      {step === 4 && (
+      {step === 4 && deliveryMode === "offline" && (
         <section className="space-y-6 rounded-2xl border border-black-blue/[0.07] bg-white p-5 shadow-sm sm:p-6">
-          {deliveryMode === "online" ? (
-            <>
-              <div>
-                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-main/10 px-3 py-1.5 text-xs font-extrabold text-main">
-                  <VideoIcon />
-                  {label("Online", "أونلاين")}
-                </div>
-                <h2 className="text-xl font-bold text-black-blue">
-                  {label("Meeting setup", "إعداد الاجتماع")}
-                </h2>
-                <p className="mt-1 text-sm leading-6 text-muted-foreground">
-                  {label(
-                    "Add the live meeting URL now or later from your teaching schedule.",
-                    "أدخل رابط الاجتماع الآن أو أضفه لاحقًا من جدول التدريس."
-                  )}
-                </p>
-              </div>
-              <label className="block text-sm font-medium text-black-blue">
-                {label("Meeting URL", "رابط الاجتماع")}
-                <Input
-                  {...form.register("meeting_url")}
-                  placeholder="https://..."
-                  className={inputClassName}
-                />
-                {error("meeting_url")}
-              </label>
-            </>
-          ) : (
-            <>
-              <div>
+                          <div>
                 <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-main/10 px-3 py-1.5 text-xs font-extrabold text-main">
                   <MapPin className="h-4 w-4" />
                   {label("Offline", "حضوري")}
@@ -775,12 +785,11 @@ const LessonForm = ({ action, lesson }: IProps) => {
                   {error("service_area_ids")}
                 </div>
               )}
-            </>
-          )}
+
         </section>
       )}
 
-      {step === 5 && (
+      {step === steps.length - 1 && (
         <section className="space-y-5">
           <div className="rounded-2xl border border-main/15 bg-gradient-to-br from-main/[0.06] via-white to-white p-5 sm:p-6">
             <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

@@ -328,21 +328,9 @@ export const UPDATE_STUDENT_PROFILE: IFormInput[] = [
 export const UPDATE_TEACHER_PROFILE: IFormInput[] = [
   {
     name: "name",
-    label: "Name",
+    label: "Full Name *",
     type: "text",
     placeholder: "Full Name *",
-  },
-  {
-    name: "experince",
-    label: "Experience",
-    type: "text",
-    placeholder: "Experience *",
-  },
-  {
-    name: "qualification",
-    label: "Qualification",
-    type: "text",
-    placeholder: "Qualification *",
   },
   {
     name: "description",
@@ -352,9 +340,21 @@ export const UPDATE_TEACHER_PROFILE: IFormInput[] = [
   },
   {
     name: "email",
-    label: "Email",
-    type: "text",
+    label: "Email *",
+    type: "email",
     placeholder: "Email *",
+  },
+  {
+    name: "phone",
+    label: "Phone Number *",
+    type: "tel",
+    placeholder: "Phone Number *",
+  },
+  {
+    name: "address",
+    label: "Address",
+    type: "text",
+    placeholder: "Your address",
   },
   {
     name: "gender",
@@ -367,12 +367,6 @@ export const UPDATE_TEACHER_PROFILE: IFormInput[] = [
     label: "Country Name",
   },
   {
-    name: "phone",
-    label: "Phone Number",
-    type: "text",
-    placeholder: "Phone Number *",
-  },
-  {
     name: "education_system_id",
     type: "select",
     label: "Education System",
@@ -383,11 +377,27 @@ export const UPDATE_TEACHER_PROFILE: IFormInput[] = [
     label: "Education Level",
   },
   {
+    name: "experince",
+    label: "Experience",
+    type: "number",
+    placeholder: "Experience *",
+  },
+  {
+    name: "qualification",
+    label: "Qualification",
+    type: "text",
+    placeholder: "Qualification *",
+  },
+  {
+    name: "course_type",
+    type: "select",
+    label: "Course Types",
+  },
+  {
     name: "subjects",
     type: "select",
     label: "Subjects",
   },
-
   {
     name: "profile_image",
     type: "file",
@@ -398,7 +408,7 @@ export const UPDATE_TEACHER_PROFILE: IFormInput[] = [
     name: "cv",
     type: "file",
     label: "CV",
-    accept: ".pdf,.doc,.docx,.txt,.rtf,.odt",
+    accept: ".pdf,.doc,.docx",
   },
 ];
 
@@ -457,18 +467,10 @@ export const UPDATE_PARENT_PROFILE: IFormInput[] = [
 ];
 
 export const COURSES_TYPE: { label: TCourseType; value: TCourseType }[] = [
-  {
-    label: "general",
-    value: "general",
-  },
-  {
-    label: "online",
-    value: "online",
-  },
-  {
-    label: "private",
-    value: "private",
-  },
+  { label: "group", value: "group" },
+  { label: "online", value: "online" },
+  { label: "offline", value: "offline" },
+  { label: "private", value: "private" },
 ];
 
 export const GENDERS = [

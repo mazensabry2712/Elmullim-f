@@ -1,6 +1,6 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Loader } from "lucide-react";
+import { CalendarDays, Clock3, Loader, MapPin, UsersRound } from "lucide-react";
 import InstructorDetails from "@/components/shared/InstructorDetails";
 import Newsletter from "@/components/Newsletter";
 import { useEffect } from "react";
@@ -165,6 +165,74 @@ const LessonDetails = () => {
                       )}
                     </div>
                   </div>
+
+                  {lessonData.availability && lessonData.availability.length > 0 && (
+                    <div className="mt-6 rounded-2xl border border-black-blue/[0.07] bg-white p-4 shadow-sm">
+                      <div className="mb-4 flex items-center gap-3">
+                        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-main">
+                          <CalendarDays className="h-5 w-5" />
+                        </span>
+                        <div>
+                          <h3 className="font-black text-black-blue">{copy.weeklySchedule}</h3>
+                          <p className="text-xs text-black-blue/45">
+                            {language === "ar"
+                              ? "المواعيد التي يحددها المعلم أسبوعيًا لهذا الدرس."
+                              : "The teacher's recurring weekly availability for this lesson."}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {lessonData.availability.map((slot) => {
+                          const days = language === "ar"
+                            ? { 1: "الاثنين", 2: "الثلاثاء", 3: "الأربعاء", 4: "الخميس", 5: "الجمعة", 6: "السبت", 7: "الأحد" }
+                            : { 1: "Monday", 2: "Tuesday", 3: "Wednesday", 4: "Thursday", 5: "Friday", 6: "Saturday", 7: "Sunday" };
+                          const dayName = days[slot.day_of_week as keyof typeof days] ?? String(slot.day_of_week);
+                          return (
+                            <div key={`${slot.day_of_week}-${slot.start_time}-${slot.end_time}`} className="flex items-center justify-between gap-3 rounded-xl bg-[#FBFDFC] px-3 py-3">
+                              <span className="text-sm font-bold text-black-blue">{dayName}</span>
+                              <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-black-blue/55" dir="ltr">
+                                <Clock3 className="h-3.5 w-3.5 text-main" />
+                                {slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}
+                              </span>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {lessonData.delivery_mode === "offline" &&
+                    lessonData.offline_visit_type === "teacher_to_student" &&
+                    lessonData.service_areas &&
+                    lessonData.service_areas.length > 0 && (
+                      <div className="mt-4 rounded-2xl border border-black-blue/[0.07] bg-white p-4 shadow-sm">
+                        <div className="mb-3 flex items-center gap-3">
+                          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-main/10 text-main">
+                            <MapPin className="h-5 w-5" />
+                          </span>
+                          <div>
+                            <h3 className="font-black text-black-blue">{copy.serviceAreas}</h3>
+                            <p className="text-xs text-black-blue/45">
+                              {language === "ar"
+                                ? "مناطق الخدمة التي يغطيها المعلم لهذا الدرس."
+                                : "Areas covered by the teacher for this lesson."}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {lessonData.service_areas
+                            .filter((area) => area.is_active !== false)
+                            .map((area) => (
+                              <span key={area.id} className="inline-flex items-center gap-2 rounded-full bg-main/[0.055] px-3 py-2 text-xs font-bold text-main">
+                                <UsersRound className="h-3.5 w-3.5" />
+                                {area.name}
+                                {area.radius_km != null ? ` · ${area.radius_km} km` : ""}
+                              </span>
+                            ))}
+                        </div>
+                      </div>
+                    )}
 
                   <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3 px-4">
                     {infoItems.map((item) => (

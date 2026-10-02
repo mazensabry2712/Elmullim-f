@@ -70,7 +70,7 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
           </div>
           <div className="flex justify-center gap-2 w-full">
             <Link
-              to={`/profile/my-lessons/${lesson.id}/view`}
+              to={`/lessons/${lesson.id}`}
               className="text-center w-full sm:w-fit block bg-main hover:bg-main/90 transition-all duration-200 rounded-[5px] text-white font-sora text-sm px-4 py-2"
             >
               {language === "ar" ? "مشاهدة" : "Watch"}

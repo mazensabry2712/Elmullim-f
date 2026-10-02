@@ -136,6 +136,22 @@ export const lessonSchema = z
           path: ["availability", index, "end_time"],
           message: validationMessage("end time must be later than start time", "يجب أن يكون وقت النهاية بعد وقت البداية"),
         });
+      } else {
+        const [startHour, startMinute] = slot.start_time.split(":").map(Number);
+        const [endHour, endMinute] = slot.end_time.split(":").map(Number);
+        const slotMinutes =
+          (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
+
+        if (slotMinutes < data.duration_minutes) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["availability", index, "end_time"],
+            message: validationMessage(
+              "this availability slot must be at least as long as the lesson duration",
+              "يجب أن تكون مدة الموعد مساوية لمدة الحصة أو أطول منها"
+            ),
+          });
+        }
       }
 
       data.availability.forEach((other, otherIndex) => {

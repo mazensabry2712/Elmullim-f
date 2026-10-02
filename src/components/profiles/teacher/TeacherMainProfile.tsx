@@ -23,10 +23,12 @@ import {
   WalletCards,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 import ProfileHeader from "../ProfileHeader";
 import StudentRating from "../student/StudentRating";
 import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
+import { getTeacherCv } from "@/services/teacher/teacherProfile";
 
 const courseTypeLabel = (type: string, language: "ar" | "en") => {
   const labels: Record<string, { ar: string; en: string }> = {
@@ -47,6 +49,7 @@ const TeacherMainProfile = () => {
   const { data: ratings } = useGetTeacherRatings(token);
   const { language } = useI18n();
   const isArabic = language === "ar";
+  const [isOpeningCv, setIsOpeningCv] = useState(false);
 
   const text = isArabic
     ? {
@@ -406,14 +409,36 @@ const TeacherMainProfile = () => {
           </div>
 
           {profile.cv ? (
-            <a
-              href={profile.cv}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex w-full items-center justify-center rounded-[5px] bg-main px-5 py-3 font-sora text-sm font-semibold text-white transition hover:bg-main/90 sm:w-fit"
+            <button
+              type="button"
+              disabled={isOpeningCv}
+              onClick={async () => {
+                const previewWindow = window.open("", "_blank");
+
+                if (!previewWindow) return;
+
+                setIsOpeningCv(true);
+
+                try {
+                  const blob = await getTeacherCv(token);
+                  const url = URL.createObjectURL(blob);
+                  previewWindow.location.href = url;
+
+                  window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
+                } catch {
+                  previewWindow.close();
+                } finally {
+                  setIsOpeningCv(false);
+                }
+              }}
+              className="inline-flex w-full items-center justify-center rounded-[5px] bg-main px-5 py-3 font-sora text-sm font-semibold text-white transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-fit"
             >
-              {text.openCv}
-            </a>
+              {isOpeningCv
+                ? isArabic
+                  ? "جاري فتح السيرة الذاتية..."
+                  : "Opening CV..."
+                : text.openCv}
+            </button>
           ) : (
             <p className="font-sora text-sm text-muted-foreground">
               {text.nothing}

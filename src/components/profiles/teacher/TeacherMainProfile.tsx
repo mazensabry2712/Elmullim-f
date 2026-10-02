@@ -179,7 +179,7 @@ const TeacherMainProfile = () => {
       label: text.experience,
       value:
         profile.experince != null
-          ? \`${profile.experince} ${text.years}\`
+          ? `${profile.experince} ${text.years}`
           : text.nothing,
       icon: BriefcaseBusiness,
     },
@@ -200,7 +200,7 @@ const TeacherMainProfile = () => {
       label: text.rating,
       value:
         Number(profile.rating ?? 0) > 0
-          ? \`${Number(profile.rating).toFixed(1)} ${text.outOfFive}\`
+          ? `${Number(profile.rating).toFixed(1)} ${text.outOfFive}`
           : text.nothing,
       icon: Star,
     },

@@ -91,7 +91,7 @@ export const updateTeacherProfileSchema = z.object({
         "Address must be 255 characters or fewer.",
         "يجب ألا يزيد العنوان عن 255 حرف."
       ),
-    })
+    }),
 
   education_system_id: z
     .string()

@@ -634,7 +634,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
                       </div>
                     </div>
                   </div>
-                ) : null
+                ) : null}
               </div>
 
               {offlineVisitType === "teacher_to_student" && (

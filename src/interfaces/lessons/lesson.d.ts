@@ -33,7 +33,8 @@ export interface ILesson {
   duration_minutes?: number | null;
   sessions_count?: number;
   meeting_url?: string | null;
-  location?: string | null;
+  /** @deprecated Physical lesson location is derived from the teacher/student profile or service areas. */
+  location?: null;
   offline_visit_type?: "teacher_to_student" | "student_to_teacher" | null;
   service_areas?: IServiceAreaListItem[];
   max_students?: number | null;

@@ -1,6 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, MapPin, Search, X } from "lucide-react";
+import { ExternalLink, Loader2, MapPin, Search, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
@@ -85,6 +85,12 @@ const LocationPicker = ({
         searchHint: "Press Search to load results, then choose the correct place.",
         selectedHint: "You can change the location anytime. Coordinates update automatically.",
         attribution: "Map data © OpenStreetMap contributors",
+        coordinates: "Coordinates",
+        openMap: "Open full map",
+        selectedCoordinates: "Latitude and longitude",
+        coordinates: "الإحداثيات",
+        openMap: "فتح الخريطة كاملة",
+        selectedCoordinates: "خط العرض وخط الطول",
       };
 
   const waitForRateLimit = async () => {
@@ -119,6 +125,13 @@ const LocationPicker = ({
     });
 
     return `https://www.openstreetmap.org/export/embed.html?${params.toString()}`;
+  }, [hasCoordinates, latitude, longitude]);
+
+  const fullMapUrl = useMemo(() => {
+    if (!hasCoordinates) return "";
+    const lat = Number(latitude);
+    const lon = Number(longitude);
+    return `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lon}#map=15/${lat}/${lon}`;
   }, [hasCoordinates, latitude, longitude]);
 
   const applyResult = (result: LocationResult) => {
@@ -271,6 +284,7 @@ const LocationPicker = ({
           <div className="relative min-w-0 flex-1">
             <MapPin className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-main" />
             <Input
+              aria-label={text.searchPlaceholder}
               value={query}
               onChange={(event) => {
                 const nextQuery = event.target.value;
@@ -358,6 +372,8 @@ const LocationPicker = ({
               <button
                 key={`${result.lat}-${result.lon}-${index}`}
                 type="button"
+                role="option"
+                aria-label={result.display_name}
                 onClick={() => applyResult(result)}
                 className="flex w-full items-start gap-3 border-b border-gray-200 p-3 text-start transition hover:bg-white last:border-b-0"
               >
@@ -405,7 +421,8 @@ const LocationPicker = ({
                 title={text.mapPreview}
                 src={mapUrl}
                 loading="lazy"
-                className="h-64 w-full border-0 sm:h-72"
+                referrerPolicy="no-referrer-when-downgrade"
+                className="h-64 w-full border-0 sm:h-80"
               />
 
               <div className="border-t border-gray-100 px-3 py-2 text-[11px] text-gray-500 sm:px-4">

@@ -619,18 +619,22 @@ const LessonForm = ({ action, lesson }: IProps) => {
                             "الطالب يذهب إلى الموقع المحفوظ بالفعل في ملف المعلم. لا يوجد عنوان يُكتب داخل الدرس."
                           )}
                         </p>
-                        {profileAddress ? (
-                          <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-black-blue/65">
-                            {profileAddress}
-                          </p>
-                        ) : (
-                          <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
-                            {label(
-                              "Complete your profile location before offering this option.",
-                              "أكمل موقعك في الملف الشخصي أولًا حتى تستخدم هذا النوع."
-                            )}
-                          </p>
-                        )}
+                        <p className={
+                          "mt-3 rounded-xl px-3 py-2 text-xs font-semibold " +
+                          (profileAddress && profileLatitude != null && profileLongitude != null
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "border border-amber-200 bg-amber-50 text-amber-800")
+                        }>
+                          {profileAddress && profileLatitude != null && profileLongitude != null
+                            ? label(
+                                "Ready: uses the teaching location saved in your profile.",
+                                "جاهز: سيتم استخدام موقع التدريس المحفوظ في ملفك الشخصي."
+                              )
+                            : label(
+                                "Your profile teaching location is not configured yet.",
+                                "موقع التدريس في ملفك الشخصي غير مكتمل حتى الآن."
+                              )}
+                        </p>
                       </div>
                     </div>
                   </div>

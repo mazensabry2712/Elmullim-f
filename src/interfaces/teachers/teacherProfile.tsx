@@ -6,6 +6,8 @@ export interface ITeacher {
   name: string;
   phone: string;
   address: string | null;
+  latitude: number | null;
+  longitude: number | null;
   email: string;
   description: string | null;
   experince: number | null;
@@ -34,6 +36,8 @@ export interface IUpdateTeacherProfile {
     email: string;
     phone: string;
     address: string;
+    latitude: number | null;
+    longitude: number | null;
     course_type: string[];
     country_id: string;
     education_system_id: string;

@@ -69,9 +69,9 @@ const LessonDetails = () => {
       value: String(lessonData.max_students),
     },
     lessonData?.delivery_mode === "offline" &&
-      lessonData.location && {
+      lessonData.offline_visit_type === "student_to_teacher" && {
         label: copy.location,
-        value: lessonData.location,
+        value: copy.teacherLocation,
       },
     lessonData?.delivery_mode === "offline" &&
       lessonData.offline_visit_type && {

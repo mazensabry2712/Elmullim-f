@@ -252,6 +252,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
             start_time: slot.start_time.slice(0, 5),
             end_time: slot.end_time.slice(0, 5),
             timezone: slot.timezone || defaultTimezone,
+            meeting_url: slot.meeting_url || "",
           }))
         : defaultAvailability,
     });

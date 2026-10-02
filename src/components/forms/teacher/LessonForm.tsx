@@ -90,7 +90,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
       price: Number(lesson?.price) || 0,
       sessions_count: lesson?.sessions_count ?? 1,
       meeting_url: lesson?.meeting_url ?? "",
-      location: lesson?.location ?? "",
       offline_visit_type: lesson?.offline_visit_type ?? "",
       service_area_ids: initialServiceAreaIds,
       max_students: lesson?.max_students ?? "",
@@ -112,7 +111,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
   const meetingUrl = form.watch("meeting_url");
   const maxStudents = form.watch("max_students");
   const availabilityValues = form.watch("availability") || [];
-  const location = form.watch("location");
   const profileAddress = teacherProfile?.data?.address || "";
   const profileLatitude = teacherProfile?.data?.latitude;
   const profileLongitude = teacherProfile?.data?.longitude;
@@ -143,8 +141,11 @@ const LessonForm = ({ action, lesson }: IProps) => {
           deliveryMode === "online"
             ? Boolean(meetingUrl?.trim())
             : Boolean(offlineVisitType) &&
-              Boolean(location?.trim()) &&
-              (offlineVisitType === "student_to_teacher" || selectedServiceAreaIds.length > 0),
+              (
+                offlineVisitType === "student_to_teacher"
+                  ? Boolean(profileAddress?.trim()) && profileLatitude != null && profileLongitude != null
+                  : selectedServiceAreaIds.length > 0
+              ),
       },
       {
         key: "capacity",
@@ -167,7 +168,9 @@ const LessonForm = ({ action, lesson }: IProps) => {
     deliveryMode,
     educationLevelId,
     file,
-    location,
+    profileAddress,
+    profileLatitude,
+    profileLongitude,
     maxStudents,
     meetingUrl,
     offlineVisitType,
@@ -239,7 +242,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
       price: Number(lesson?.price) || 0,
       sessions_count: lesson?.sessions_count ?? 1,
       meeting_url: lesson?.meeting_url ?? "",
-      location: lesson?.location ?? "",
       offline_visit_type: lesson?.offline_visit_type ?? "",
       service_area_ids: lesson?.service_areas?.filter((area) => area.is_active !== false).map((area) => area.id) || [],
       max_students: lesson?.max_students ?? "",
@@ -267,17 +269,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
     }
   }, [deliveryMode, offlineVisitType, form]);
 
-  useEffect(() => {
-    if (
-      deliveryMode === "offline" &&
-      offlineVisitType === "student_to_teacher" &&
-      !form.getValues("location")?.trim() &&
-      profileAddress
-    ) {
-      form.setValue("location", profileAddress, { shouldDirty: true, shouldValidate: true });
-    }
-  }, [deliveryMode, offlineVisitType, profileAddress, form]);
-
   const error = (field: keyof LessonFormValues) => {
     const message = form.formState.errors[field]?.message;
     return message ? <p className="mt-1 text-sm text-red-600">{String(message)}</p> : null;
@@ -299,7 +290,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
       step === 4
         ? deliveryMode === "online"
           ? ["meeting_url"]
-          : ["location", "offline_visit_type", "service_area_ids"]
+          : ["offline_visit_type", "service_area_ids"]
         : [];
 
     const valid = await form.trigger(fields);
@@ -345,7 +336,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
           : {}),
         ...(values.delivery_mode === "online"
           ? values.meeting_url ? { meeting_url: values.meeting_url } : {}
-          : { location: values.location, offline_visit_type: values.offline_visit_type }),
+          : { offline_visit_type: values.offline_visit_type }),
         ...(values.booking_type === "group" && values.max_students !== ""
           ? { max_students: Number(values.max_students) }
           : {}),
@@ -588,52 +579,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
                 </p>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="space-y-3">
-                  <label className="block text-sm font-medium text-black-blue">
-                    {label("Location", "المكان")}
-                    <Textarea
-                      {...form.register("location")}
-                      rows={4}
-                      className={inputClassName}
-                    />
-                    {error("location")}
-                  </label>
-
-                  {offlineVisitType === "student_to_teacher" && profileAddress ? (
-                    <button
-                      type="button"
-                      onClick={() =>
-                        form.setValue("location", profileAddress, {
-                          shouldDirty: true,
-                          shouldValidate: true,
-                        })
-                      }
-                      className="flex w-full items-start gap-3 rounded-2xl border border-main/15 bg-main/[0.045] p-3 text-start transition hover:border-main/30 hover:bg-main/[0.07]"
-                    >
-                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-main" />
-                      <span className="min-w-0 flex-1">
-                        <span className="block text-xs font-extrabold text-main">
-                          {isArabic
-                            ? "استخدم موقع ملفي الشخصي"
-                            : "Use my profile location"}
-                        </span>
-                        <span className="mt-1 block truncate text-xs text-black-blue/55">
-                          {profileAddress}
-                        </span>
-                        {profileLatitude != null && profileLongitude != null ? (
-                          <span
-                            className="mt-1 block text-[10px] font-semibold text-black-blue/35"
-                            dir="ltr"
-                          >
-                            {profileLatitude}, {profileLongitude}
-                          </span>
-                        ) : null}
-                      </span>
-                    </button>
-                  ) : null}
-                </div>
-
+              <div className="space-y-4">
                 <label className="block text-sm font-medium text-black-blue">
                   {label("Visit type", "طريقة الزيارة")}
                   <select
@@ -658,6 +604,37 @@ const LessonForm = ({ action, lesson }: IProps) => {
                   </select>
                   {error("offline_visit_type")}
                 </label>
+
+                {offlineVisitType === "student_to_teacher" ? (
+                  <div className="rounded-2xl border border-main/15 bg-main/[0.045] p-4">
+                    <div className="flex items-start gap-3">
+                      <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-main" />
+                      <div className="min-w-0">
+                        <p className="font-extrabold text-black-blue">
+                          {label("Teacher location", "موقع المعلم")}
+                        </p>
+                        <p className="mt-1 text-sm leading-6 text-black-blue/60">
+                          {label(
+                            "Students come to the location already saved in the teacher profile. No lesson address is entered here.",
+                            "الطالب يذهب إلى الموقع المحفوظ بالفعل في ملف المعلم. لا يوجد عنوان يُكتب داخل الدرس."
+                          )}
+                        </p>
+                        {profileAddress ? (
+                          <p className="mt-3 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-black-blue/65">
+                            {profileAddress}
+                          </p>
+                        ) : (
+                          <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+                            {label(
+                              "Complete your profile location before offering this option.",
+                              "أكمل موقعك في الملف الشخصي أولًا حتى تستخدم هذا النوع."
+                            )}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                ) : null
               </div>
 
               {offlineVisitType === "teacher_to_student" && (

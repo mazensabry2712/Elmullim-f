@@ -88,7 +88,7 @@ const TeacherCourses = () => {
             whileInView="visible"
             className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-6"
           >
-            {courses.data.map((course) => (
+            {(courses?.data ?? []).map((course) => (
               <motion.div variants={itemVariants} key={course.id} className="h-full">
                 <TeacherCourseCard course={course} />
               </motion.div>

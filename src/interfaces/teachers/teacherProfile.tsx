@@ -16,7 +16,7 @@ export interface ITeacher {
   course_types: TCourseType[];
   gender: TGender;
   subjects: ISubject[];
-  conversation: null;
+  conversation: string | null;
   courses_count: number;
   lessons_count: number;
   rating: number;

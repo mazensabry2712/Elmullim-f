@@ -569,12 +569,12 @@ const LessonForm = ({ action, lesson }: IProps) => {
                   {label("Offline", "حضوري")}
                 </div>
                 <h2 className="text-xl font-bold text-black-blue">
-                  {label("Location & service", "المكان ومناطق الخدمة")}
+                  {label("Visit arrangement", "طريقة الحضور")}
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-muted-foreground">
                   {label(
-                    "Choose where the lesson happens and how the visit works.",
-                    "حدد مكان الدرس وطريقة الزيارة."
+                    "Choose who travels for this offline lesson. The physical destination comes from the relevant profile; nothing is entered in the lesson.",
+                    "حدد من ينتقل في الدرس الحضوري. المكان الفعلي يُؤخذ تلقائيًا من الملف الشخصي المناسب، ولا يوجد عنوان يُكتب داخل الدرس."
                   )}
                 </p>
               </div>

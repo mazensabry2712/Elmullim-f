@@ -67,6 +67,8 @@ const LocationPicker = ({
         searchHint: "اضغط «بحث» لعرض النتائج ثم اختر المكان الصحيح.",
         selectedHint: "يمكنك تغيير المكان في أي وقت. الإحداثيات تتحدث تلقائيًا مع الاختيار.",
         attribution: "الخريطة والبيانات © OpenStreetMap contributors",
+        coordinates: "الإحداثيات",
+        openMap: "فتح الخريطة كاملة",
       }
     : {
         location: "Location",
@@ -87,10 +89,6 @@ const LocationPicker = ({
         attribution: "Map data © OpenStreetMap contributors",
         coordinates: "Coordinates",
         openMap: "Open full map",
-        selectedCoordinates: "Latitude and longitude",
-        coordinates: "الإحداثيات",
-        openMap: "فتح الخريطة كاملة",
-        selectedCoordinates: "خط العرض وخط الطول",
       };
 
   const waitForRateLimit = async () => {

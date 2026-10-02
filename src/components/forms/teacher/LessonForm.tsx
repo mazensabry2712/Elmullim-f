@@ -13,7 +13,7 @@ import {
   AlertCircle,
   CheckCircle2,
   Clock3,
-  FileImage,
+  UsersRound,
   Loader2,
   MapPin,
   Plus,
@@ -41,7 +41,7 @@ const inputClassName = "mt-2 border border-input bg-white text-black-blue";
 const defaultTimezone = "Africa/Cairo";
 const defaultAvailability = [{ day_of_week: 6, start_time: "18:00", end_time: "19:00", timezone: defaultTimezone }];
 
-const UsersRoundIcon = () => <Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-main" />;
+const UsersRoundIcon = () => <UsersRound className="mt-0.5 h-5 w-5 shrink-0 text-main" />;
 
 const LessonForm = ({ action, lesson }: IProps) => {
   const [file, setFile] = useState<File | null>(null);
@@ -174,7 +174,6 @@ const LessonForm = ({ action, lesson }: IProps) => {
     grade,
     title,
     watchedSubjectId,
-    educationLevelId,
     selectedServiceAreaIds.length,
   ]);
 

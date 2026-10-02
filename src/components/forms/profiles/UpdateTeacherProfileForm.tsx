@@ -140,7 +140,7 @@ const UpdateTeacherProfileForm = () => {
   });
 
   const sections = {
-    basic: ["name", "email", "phone", "gender", "address"],
+    basic: ["name", "email", "phone", "gender"],
     teaching: [
       "country_id",
       "education_system_id",

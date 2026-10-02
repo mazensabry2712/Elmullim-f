@@ -375,6 +375,8 @@ const BookLessonDialog = ({
                         <button
                           key={item.value}
                           type="button"
+                          aria-label={item.label}
+                          aria-pressed={selectedTime === item.value}
                           onClick={() => setSelectedTime(item.value)}
                           className={`rounded-2xl border px-3 py-3 text-start transition ${
                             selected

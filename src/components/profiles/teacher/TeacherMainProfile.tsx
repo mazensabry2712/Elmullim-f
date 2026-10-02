@@ -421,7 +421,16 @@ const TeacherMainProfile = () => {
 
                 try {
                   const blob = await getTeacherCv(token);
-                  const url = URL.createObjectURL(blob);
+                  const buffer = await blob.arrayBuffer();
+                  const header = new TextDecoder().decode(buffer.slice(0, 5));
+
+                  if (header !== "%PDF-") {
+                    previewWindow.close();
+                    return;
+                  }
+
+                  const pdfBlob = new Blob([buffer], { type: "application/pdf" });
+                  const url = URL.createObjectURL(pdfBlob);
                   previewWindow.location.href = url;
 
                   window.setTimeout(() => URL.revokeObjectURL(url), 60_000);

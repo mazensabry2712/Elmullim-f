@@ -469,4 +469,6 @@ const BookLessonDialog = ({
       )}
     </>
   );
+};
+
 export default BookLessonDialog;

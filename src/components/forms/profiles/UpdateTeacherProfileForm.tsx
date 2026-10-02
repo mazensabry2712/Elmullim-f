@@ -150,6 +150,18 @@ const UpdateTeacherProfileForm = () => {
     }
   };
   useEffect(() => {
+    if (!teacher) return;
+
+    setCountryId(
+      teacher.education_level.education_system.country.id.toString()
+    );
+    setEducationSystemId(
+      teacher.education_level.education_system.id.toString()
+    );
+    setEducationLevelId(teacher.education_level.id.toString());
+  }, [teacher]);
+
+  useEffect(() => {
     form.reset({
       name: teacher?.name || "",
       phone: teacher?.phone || "",

@@ -4,7 +4,12 @@ import {
   getStudentProfile,
   updateStudentProfile,
 } from "@/services/student/studentProfile";
-import { getTeacherProfile, getTeacherRatings } from "@/services/teacher/teacherProfile";
+import {
+  getTeacherProfile,
+  getTeacherRatings,
+  getTeacherCv,
+  updateTeacherProfile,
+} from "@/services/teacher/teacherProfile";
 import { getParentProfile } from "@/services/parent/parentProfile";
 
 vi.mock("@/config/axios.config", () => ({
@@ -117,6 +122,86 @@ describe("profile service requests", () => {
     });
 
     expect(getMock).toHaveBeenCalledWith("/teacher/me", {
+      headers: { Authorization: "Bearer teacher-token" },
+    });
+  });
+
+  it("submits every editable teacher profile field to the update endpoint", async () => {
+    const postMock = vi.mocked(axiosAPI.post);
+    postMock.mockResolvedValueOnce({
+      data: {
+        status: true,
+        data: {},
+      },
+    });
+
+    const profileImage = new File(["image"], "teacher.webp", {
+      type: "image/webp",
+    });
+    const cv = new File(["%PDF-1.7"], "teacher-cv.pdf", {
+      type: "application/pdf",
+    });
+
+    await updateTeacherProfile({
+      token: "teacher-token",
+      dataForm: {
+        email: "teacher@example.com",
+        name: "Demo Teacher",
+        phone: "201001234567",
+        address: "Cairo, Egypt",
+        country_id: "1",
+        education_system_id: "2",
+        education_level_id: "12",
+        gender: "male",
+        description: "Experienced mathematics teacher",
+        experince: 7,
+        qualification: "Bachelor of Education",
+        course_type: ["private", "online", "group"],
+        subjects: ["3", "8"],
+        profile_image: profileImage,
+        cv,
+      },
+    });
+
+    expect(postMock).toHaveBeenCalledTimes(1);
+
+    const [url, body, config] = postMock.mock.calls[0];
+    expect(url).toBe("/teacher/me");
+    expect(config).toEqual({
+      headers: { Authorization: "Bearer teacher-token" },
+    });
+
+    expect(body).toBeInstanceOf(FormData);
+    expect(body.get("email")).toBe("teacher@example.com");
+    expect(body.get("name")).toBe("Demo Teacher");
+    expect(body.get("phone")).toBe("201001234567");
+    expect(body.get("address")).toBe("Cairo, Egypt");
+    expect(body.get("country_id")).toBe("1");
+    expect(body.get("education_system_id")).toBe("2");
+    expect(body.get("education_level_id")).toBe("12");
+    expect(body.get("gender")).toBe("male");
+    expect(body.get("description")).toBe("Experienced mathematics teacher");
+    expect(body.get("experince")).toBe("7");
+    expect(body.get("qualification")).toBe("Bachelor of Education");
+    expect(body.get("profile_image")).toEqual(profileImage);
+    expect(body.get("cv")).toEqual(cv);
+    expect(body.get("subjects[0]")).toBe("3");
+    expect(body.get("subjects[1]")).toBe("8");
+    expect(body.get("course_type[0]")).toBe("private");
+    expect(body.get("course_type[1]")).toBe("online");
+    expect(body.get("course_type[2]")).toBe("group");
+  });
+
+  it("requests the protected teacher CV endpoint as a PDF blob", async () => {
+    const cvBlob = new Blob(["%PDF-1.7"], { type: "application/pdf" });
+    getMock.mockResolvedValueOnce({
+      data: cvBlob,
+    });
+
+    await expect(getTeacherCv("teacher-token")).resolves.toBe(cvBlob);
+
+    expect(getMock).toHaveBeenCalledWith("/teacher/me/cv", {
+      responseType: "blob",
       headers: { Authorization: "Bearer teacher-token" },
     });
   });

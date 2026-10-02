@@ -75,7 +75,7 @@ const copy = {
       time: "Choose available time",
       noTimes: "No available times for this date.",
       note: "Note (optional)",
-      studentLocationRequired: "The student's saved profile location is required for this visit type."
+      studentLocationRequired: "The student's saved profile location is required for this visit type.",
       confirm: "Submit booking",
       cancel: "Cancel",
       login: "You must be signed in as a student or parent to book.",

@@ -29,7 +29,7 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
         {/* Info */}
         <div>
           <Link
-            to={`/profile/my-lessons/${lesson.id}/view`}
+            to={`/lessons/${lesson.id}`}
             className="space-y-2"
           >
             <h4 className="text-black-blue capitalize font-semibold text-[21px] leading-[30px]">

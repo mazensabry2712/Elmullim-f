@@ -36,6 +36,8 @@ export const updateTeacherProfile = async ({
   formData.append("name", dataForm.name);
   formData.append("phone", dataForm.phone);
   formData.append("address", dataForm.address || "");
+  if (dataForm.latitude != null) formData.append("latitude", String(dataForm.latitude));
+  if (dataForm.longitude != null) formData.append("longitude", String(dataForm.longitude));
   formData.append("country_id", dataForm.country_id);
   formData.append("education_system_id", dataForm.education_system_id);
   formData.append("education_level_id", dataForm.education_level_id);

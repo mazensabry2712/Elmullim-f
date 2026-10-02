@@ -171,7 +171,7 @@ export const PARENT_SIGNUP_FORM_INPUTS: IFormInput[] = [
   {
     name: "gender",
     type: "select",
-    label: "Gender",
+    label: "Gender *",
   },
   {
     name: "password",
@@ -181,7 +181,7 @@ export const PARENT_SIGNUP_FORM_INPUTS: IFormInput[] = [
   {
     name: "country_id",
     type: "select",
-    label: "Country Name",
+    label: "Country Name *",
   },
   {
     name: "phone",
@@ -191,12 +191,12 @@ export const PARENT_SIGNUP_FORM_INPUTS: IFormInput[] = [
   {
     name: "education_system_id",
     type: "select",
-    label: "Education System",
+    label: "Education System *",
   },
   {
     name: "education_level_id",
     type: "select",
-    label: "Education Level",
+    label: "Education Level *",
   },
   {
     name: "students",
@@ -250,7 +250,7 @@ export const TEACHER_SIGNUP_FORM_INPUTS: IFormInput[] = [
   {
     name: "subjects",
     type: "select",
-    label: "Subjects",
+    label: "Subjects *",
   },
   {
     name: "course_type",
@@ -330,7 +330,7 @@ export const UPDATE_TEACHER_PROFILE: IFormInput[] = [
     name: "description",
     label: "Description",
     type: "text",
-    placeholder: "Description *",
+    placeholder: "Description",
   },
   {
     name: "email",
@@ -374,18 +374,18 @@ export const UPDATE_TEACHER_PROFILE: IFormInput[] = [
     name: "experince",
     label: "Experience",
     type: "number",
-    placeholder: "Experience *",
+    placeholder: "Experience",
   },
   {
     name: "qualification",
     label: "Qualification",
     type: "text",
-    placeholder: "Qualification *",
+    placeholder: "Qualification",
   },
   {
     name: "course_type",
     type: "select",
-    label: "Course Types",
+    label: "Course Types *",
   },
   {
     name: "subjects",

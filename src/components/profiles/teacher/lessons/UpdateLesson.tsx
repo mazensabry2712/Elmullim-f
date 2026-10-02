@@ -44,7 +44,17 @@ const LessonUpdate = () => {
             : "You can update lesson details from here"}
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-4">
+        {lesson?.data?.publishing_status === "rejected" && lesson.data.publishing_note ? (
+          <div className="rounded-2xl border border-red-100 bg-red-50 px-4 py-4">
+            <p className="text-xs font-extrabold uppercase tracking-wide text-red-500">
+              {language === "ar" ? "ملاحظة المراجعة" : "Review note"}
+            </p>
+            <p className="mt-1 text-sm font-semibold leading-6 text-red-700">
+              {lesson.data.publishing_note}
+            </p>
+          </div>
+        ) : null}
         <LessonForm action="update" lesson={lesson?.data} />
       </CardContent>
     </Card>

@@ -182,7 +182,8 @@ const BookLessonDialog = ({
       needsStudentLocation &&
       (
         selectedStudentBeforeRequest?.latitude == null ||
-        selectedStudentBeforeRequest?.longitude == null
+        selectedStudentBeforeRequest?.longitude == null ||
+        !selectedStudentBeforeRequest?.address?.trim()
       )
     ) {
       toast.error(bookingCopy.studentLocationRequired);
@@ -213,9 +214,6 @@ const BookLessonDialog = ({
           student_id: studentId,
           requested_start_at: requestedStartAt,
           ...(customerNote.trim() ? { customer_note: customerNote.trim() } : {}),
-          ...(needsStudentLocation && selectedStudent?.address
-            ? { student_location: selectedStudent.address }
-            : {}),
         },
       });
 

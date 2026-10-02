@@ -38,6 +38,7 @@ const copy: Record<Language, Record<string, string>> = {
     choose: "Choose...",
     "Choose": "Choose",
     "Not found": "Not found",
+    "Course Types": "Course Types",
   },
   ar: {
     Email: "البريد الإلكتروني",
@@ -76,6 +77,7 @@ const copy: Record<Language, Record<string, string>> = {
     choose: "اختر...",
     "Choose": "اختر",
     "Not found": "لم يتم العثور على نتائج",
+    "Course Types": "أنواع التدريس",
   },
 };
 

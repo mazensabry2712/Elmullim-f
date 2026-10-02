@@ -201,11 +201,6 @@ const BookLessonDialog = ({
 
     const requestedStartAt = selectedBookingOption.requested_start_at;
 
-    const selectedStudent =
-      role === "student"
-        ? selfStudent
-        : students.find((student) => student.id === studentId);
-
     try {
       const response = await mutateAsync({
         token,

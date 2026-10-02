@@ -1,10 +1,8 @@
 import { lazy } from "react";
 import cookieService from "@/utils/cookieService";
+
 const StudentProfile = lazy(
   () => import("@/components/profiles/student/StudentProfile")
-);
-const TeacherProfile = lazy(
-  () => import("@/components/profiles/teacher/TeacherProfile")
 );
 const ParentProfile = lazy(
   () => import("@/components/profiles/parent/ParentProfile")
@@ -12,8 +10,15 @@ const ParentProfile = lazy(
 
 const Profile = () => {
   const role = cookieService.getRole()!;
-  if (role === "teacher") return <TeacherProfile />;
-  if (role === "parent") return <ParentProfile />;
+
+  // Teacher profile is intentionally blank for now.
+  if (role === "teacher") {
+    return <div className="min-h-screen w-full bg-white" aria-hidden="true" />;
+  }
+
+  if (role === "parent") {
+    return <ParentProfile />;
+  }
 
   return <StudentProfile />;
 };

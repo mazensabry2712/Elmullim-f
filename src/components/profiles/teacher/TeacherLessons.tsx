@@ -154,22 +154,23 @@ const TeacherLessons = () => {
               </p>
             </div>
           ) : (
-            <div className="mb-4 rounded-xl bg-main/[0.04] px-4 py-3 text-xs font-semibold text-black-blue/60">
-              {isArabic ? `عرض ${filteredLessons.length} من ${allLessons.length} درس` : `Showing ${filteredLessons.length} of ${allLessons.length} lessons`}
-            </div>
-            <motion.div
+            <>
+              <div className="mb-4 rounded-xl bg-main/[0.04] px-4 py-3 text-xs font-semibold text-black-blue/60">
+                {isArabic ? `عرض ${filteredLessons.length} من ${allLessons.length} درس` : `Showing ${filteredLessons.length} of ${allLessons.length} lessons`}
+              </div>
+              <motion.div
               variants={containerVariants}
               viewport={{ once: true }}
               initial="hidden"
               whileInView="visible"
               className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-6"
             >
-              {filteredLessons.map((lesson) => (
-                <motion.div variants={itemVariants} key={lesson.id} className="h-full">
-                  <TeacherLessonCard lesson={lesson} />
-                </motion.div>
-              ))}
-            </motion.div>
+                {filteredLessons.map((lesson) => (
+                  <motion.div variants={itemVariants} key={lesson.id} className="h-full">
+                    <TeacherLessonCard lesson={lesson} />
+                  </motion.div>
+                ))}
+              </motion.div>
             </>
           )}
         </div>

@@ -139,12 +139,18 @@ const TeacherLessons = () => {
                 <VideoIcon />
               </div>
               <p className="mt-4 text-base font-extrabold text-black-blue">
-                {isArabic ? "لا توجد دروس بعد" : "No lessons yet"}
+                {allLessons.length === 0
+                  ? (isArabic ? "لا توجد دروس بعد" : "No lessons yet")
+                  : (isArabic ? "لا توجد نتائج مطابقة" : "No matching lessons")}
               </p>
               <p className="mt-1 max-w-md text-sm leading-6 text-black-blue/50">
-                {isArabic
-                  ? "أضف أول درس ليظهر هنا ويكون جاهزًا للحجز."
-                  : "Add your first lesson to make it ready for booking."}
+                {allLessons.length === 0
+                  ? (isArabic
+                      ? "أضف أول درس ليظهر هنا ويكون جاهزًا للحجز."
+                      : "Add your first lesson to make it ready for booking.")
+                  : (isArabic
+                      ? "غيّر البحث أو الفلتر لعرض دروسك الأخرى."
+                      : "Change your search or filter to see your other lessons.")}
               </p>
             </div>
           ) : (

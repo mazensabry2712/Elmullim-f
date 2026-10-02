@@ -537,12 +537,12 @@ const LessonForm = ({ action, lesson }: IProps) => {
                   <label className="text-sm font-medium text-black-blue">
                     {label("Start", "من")}
                     <Input type="time" {...form.register(`availability.${index}.start_time`)} className={inputClassName} />
-                    {form.formState.errors.availability?.[index]?.start_time?.message && <p className="mt-1 text-sm text-red-600">{String(form.formState.errors.availability[index]?.end_time?.message)}</p>}
+                    {form.formState.errors.availability?.[index]?.start_time?.message && <p className="mt-1 text-sm text-red-600">{String(form.formState.errors.availability[index]?.start_time?.message)}</p>}
                   </label>
                   <label className="text-sm font-medium text-black-blue">
                     {label("End", "إلى")}
                     <Input type="time" {...form.register(`availability.${index}.end_time`)} className={inputClassName} />
-                    {form.formState.errors.availability?.[index]?.end_time?.message && <p className="mt-1 text-sm text-red-600">{String(form.formState.errors.availability[index]?.start_time?.message)}</p>}
+                    {form.formState.errors.availability?.[index]?.end_time?.message && <p className="mt-1 text-sm text-red-600">{String(form.formState.errors.availability[index]?.end_time?.message)}</p>}
                   </label>
                   {deliveryMode === "online" ? (
                     <label className="text-sm font-medium text-black-blue">

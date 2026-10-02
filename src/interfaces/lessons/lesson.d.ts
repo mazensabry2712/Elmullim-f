@@ -38,6 +38,7 @@ export interface ILesson {
   service_areas?: IServiceAreaListItem[];
   max_students?: number | null;
   publishing_status?: LessonPublishingStatus;
+  publishing_note?: string | null;
   availability?: ILessonAvailabilitySlot[];
   created_at: string;
   updated_at: string;

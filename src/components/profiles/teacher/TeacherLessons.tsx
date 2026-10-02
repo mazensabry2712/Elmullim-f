@@ -4,7 +4,6 @@ import { motion } from "framer-motion";
 import { useGetTeacherLessons } from "@/lib/react-query/teacher/lessons";
 import { containerVariants, itemVariants } from "@/animations";
 import TeacherLessonCard from "./lessons/TeacherLessonCard";
-import TeacherAvailabilityBlocks from "./TeacherAvailabilityBlocks";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/i18n";
 
@@ -98,7 +97,6 @@ const TeacherLessons = () => {
         </div>
       </div>
 
-      <TeacherAvailabilityBlocks />
     </section>
   );
 };

@@ -103,6 +103,14 @@ const LessonForm = ({ action, lesson }: IProps) => {
   const bookingType = form.watch("booking_type");
   const offlineVisitType = form.watch("offline_visit_type");
   const selectedServiceAreaIds = form.watch("service_area_ids") || [];
+  const watchedSubjectId = form.watch("subject_id");
+  const grade = form.watch("grade");
+  const title = form.watch("title");
+  const description = form.watch("description");
+  const price = form.watch("price");
+  const meetingUrl = form.watch("meeting_url");
+  const maxStudents = form.watch("max_students");
+  const availabilityValues = form.watch("availability") || [];
   const location = form.watch("location");
   const profileAddress = teacherProfile?.data?.address || "";
   const profileLatitude = teacherProfile?.data?.latitude;
@@ -113,17 +121,17 @@ const LessonForm = ({ action, lesson }: IProps) => {
       {
         key: "basics",
         label: label("Lesson basics", "بيانات الدرس الأساسية"),
-        done: Boolean(educationLevelId && form.getValues("subject_id") && form.getValues("grade")?.trim()),
+        done: Boolean(educationLevelId && watchedSubjectId && grade?.trim()),
       },
       {
         key: "details",
         label: label("Details & price", "التفاصيل والسعر"),
-        done: Boolean(form.getValues("title")?.trim() && form.getValues("description")?.trim() && Number(form.getValues("price")) >= 0),
+        done: Boolean(title?.trim() && description?.trim() && Number(price) >= 0),
       },
       {
         key: "availability",
         label: label("Weekly availability", "المواعيد الأسبوعية"),
-        done: availabilityFields.length > 0 && availabilityFields.every(
+        done: availabilityValues.length > 0 && availabilityValues.every(
           (slot) => slot.start_time < slot.end_time
         ),
       },
@@ -132,7 +140,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
         label: label("Delivery setup", "إعداد نوع الدرس"),
         done:
           deliveryMode === "online"
-            ? Boolean(form.getValues("meeting_url")?.trim())
+            ? Boolean(meetingUrl?.trim())
             : Boolean(offlineVisitType) &&
               Boolean(location?.trim()) &&
               (offlineVisitType === "student_to_teacher" || selectedServiceAreaIds.length > 0),
@@ -140,7 +148,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
       {
         key: "capacity",
         label: label("Capacity", "السعة"),
-        done: bookingType !== "group" || Number(form.getValues("max_students")) >= 1,
+        done: bookingType !== "group" || Number(maxStudents) >= 1,
       },
       {
         key: "image",
@@ -153,13 +161,21 @@ const LessonForm = ({ action, lesson }: IProps) => {
   }, [
     action,
     availabilityFields,
+    availabilityValues,
+    description,
     bookingType,
     deliveryMode,
     educationLevelId,
     file,
-    form,
     location,
+    maxStudents,
+    meetingUrl,
     offlineVisitType,
+    price,
+    grade,
+    title,
+    watchedSubjectId,
+    educationLevelId,
     selectedServiceAreaIds.length,
   ]);
 

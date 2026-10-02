@@ -37,14 +37,23 @@ describe("teacher lesson update API client", () => {
         duration_minutes: 60,
         price: 100,
         sessions_count: 1,
-        meeting_url: "https://meet.example.test/updated",
+        availability: [
+          {
+            day_of_week: 6,
+            start_time: "18:00",
+            end_time: "19:00",
+            timezone: "Africa/Cairo",
+            meeting_url: "https://meet.example.test/updated",
+          },
+        ],
       },
     });
 
     const [, formData, config] = postMock.mock.calls[0];
     expect(formData).toBeInstanceOf(FormData);
     expect(formData.get("title")).toBe("Updated lesson");
-    expect(formData.get("meeting_url")).toBe("https://meet.example.test/updated");
+    expect(formData.get("meeting_url")).toBeNull();
+    expect(formData.get("availability[0][meeting_url]")).toBe("https://meet.example.test/updated");
     expect(formData.get("availability[0][day_of_week]")).toBeNull();
     expect(formData.get("service_area_ids[]")).toBeNull();
     expect(formData.get("_method")).toBe("put");

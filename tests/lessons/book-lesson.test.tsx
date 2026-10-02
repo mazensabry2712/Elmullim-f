@@ -141,10 +141,9 @@ describe("BookLessonDialog", () => {
       target: { value: "2099-01-10" },
     });
 
-    await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
-    fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), {
-      target: { value: "2099-01-10T16:00:00.000Z" },
-    });
+    const timeButton = await screen.findByRole("button", { name: /18:00/ });
+    expect(timeButton).toBeInTheDocument();
+    fireEvent.click(timeButton);
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
     await waitFor(() =>
@@ -205,8 +204,7 @@ describe("BookLessonDialog", () => {
 
     fireEvent.change(screen.getByRole("combobox", { name: "Choose student" }), { target: { value: "43" } });
     fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-11" } });
-    await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
-    fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), { target: { value: "2099-01-11T16:00:00.000Z" } });
+    fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
     await waitFor(() =>
@@ -306,7 +304,7 @@ describe("BookLessonDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
     fireEvent.change(await screen.findByLabelText("Choose date"), { target: { value: "2099-01-10" } });
 
-    expect(await screen.findByRole("option", { name: /18:00.*2 seats/ })).toBeInTheDocument();
+    expect(await screen.findByRole("button", { name: /18:00.*2 seats available/ })).toBeInTheDocument();
   });
 
   it("renders Arabic booking labels consistently", async () => {
@@ -325,7 +323,7 @@ describe("BookLessonDialog", () => {
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
     expect(screen.getByRole("heading", { name: "حجز الدرس" })).toBeInTheDocument();
     expect(screen.getByLabelText("اختر التاريخ")).toBeInTheDocument();
-    expect(screen.getByLabelText("اختر الموعد المتاح")).toBeInTheDocument();
+    expect(screen.getByText("اختر الموعد المتاح")).toBeInTheDocument();
     expect(screen.getByText("السعر: 0 جنيه")).toBeInTheDocument();
     expect(screen.getByText("هذا درس خاص ويحتاج إلى موافقة المعلم.")).toBeInTheDocument();
   });

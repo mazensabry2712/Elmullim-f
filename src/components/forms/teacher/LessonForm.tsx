@@ -580,30 +580,99 @@ const LessonForm = ({ action, lesson }: IProps) => {
               </div>
 
               <div className="space-y-4">
-                <label className="block text-sm font-medium text-black-blue">
-                  {label("Visit type", "طريقة الزيارة")}
-                  <select
-                    {...form.register("offline_visit_type")}
-                    className={inputClassName + " block h-11 w-full rounded-md px-3"}
-                  >
-                    <option value="">
-                      {label("Select visit type", "اختر طريقة الزيارة")}
-                    </option>
-                    <option value="teacher_to_student">
-                      {label(
-                        "Teacher goes to student",
-                        "المعلم يذهب إلى الطالب"
-                      )}
-                    </option>
-                    <option value="student_to_teacher">
-                      {label(
-                        "Student goes to teacher",
-                        "الطالب يذهب إلى المعلم"
-                      )}
-                    </option>
-                  </select>
+                <div>
+                  <div className="mb-3 flex items-center justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-extrabold text-black-blue">
+                        {label("How should this lesson be delivered?", "كيف ستتم الحصة الحضورية؟")}
+                      </p>
+                      <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                        {label(
+                          "Choose who moves; the destination is resolved automatically from the profile or service area.",
+                          "اختر من ينتقل، والمكان الفعلي يُحدد تلقائيًا من الملف الشخصي أو مناطق الخدمة."
+                        )}
+                      </p>
+                    </div>
+                    <span className="shrink-0 rounded-full bg-main/10 px-3 py-1 text-[10px] font-extrabold text-main">
+                      {offlineVisitType
+                        ? label("Selected", "محدد")
+                        : label("Required", "مطلوب")}
+                    </span>
+                  </div>
+
+                  <input type="hidden" {...form.register("offline_visit_type")} />
+
+                  <div className="grid gap-3 md:grid-cols-2">
+                    {[
+                      {
+                        value: "teacher_to_student" as const,
+                        title: label("Teacher goes to student", "المعلم يذهب إلى الطالب"),
+                        description: label(
+                          "Student location is used automatically at booking time.",
+                          "موقع الطالب يُستخدم تلقائيًا عند الحجز."
+                        ),
+                        icon: <UsersRoundIcon />,
+                      },
+                      {
+                        value: "student_to_teacher" as const,
+                        title: label("Student goes to teacher", "الطالب يذهب إلى المعلم"),
+                        description: label(
+                          "Teaching location comes from your teacher profile.",
+                          "موقع التدريس يأتي من ملف المعلم."
+                        ),
+                        icon: <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-main" />,
+                      },
+                    ].map((option) => {
+                      const selected = offlineVisitType === option.value;
+                      return (
+                        <button
+                          key={option.value}
+                          type="button"
+                          aria-pressed={selected}
+                          onClick={() =>
+                            form.setValue("offline_visit_type", option.value, {
+                              shouldDirty: true,
+                              shouldTouch: true,
+                              shouldValidate: true,
+                            })
+                          }
+                          className={
+                            "group flex min-h-[132px] w-full items-start gap-3 rounded-2xl border p-4 text-left transition " +
+                            (selected
+                              ? "border-main bg-main/[0.06] ring-2 ring-main/15"
+                              : "border-black-blue/[0.09] bg-white hover:border-main/30 hover:bg-main/[0.025]")
+                          }
+                        >
+                          <span
+                            className={
+                              "flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition " +
+                              (selected
+                                ? "bg-main text-white"
+                                : "bg-main/10 text-main")
+                            }
+                          >
+                            {option.icon}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="flex items-center gap-2">
+                              <span className="block font-extrabold text-black-blue">
+                                {option.title}
+                              </span>
+                              {selected ? (
+                                <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                              ) : null}
+                            </span>
+                            <span className="mt-2 block text-xs leading-5 text-muted-foreground">
+                              {option.description}
+                            </span>
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+
                   {error("offline_visit_type")}
-                </label>
+                </div>
 
                 {offlineVisitType === "student_to_teacher" ? (
                   <div className="rounded-2xl border border-main/15 bg-main/[0.045] p-4">

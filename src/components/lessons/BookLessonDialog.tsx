@@ -449,6 +449,7 @@ const BookLessonDialog = ({
                         deliveryMode === "offline" &&
                         offlineVisitType === "teacher_to_student" &&
                         (
+                          !(role === "student" ? selfStudent : students.find((student) => student.id === studentId))?.address?.trim() ||
                           (role === "student" ? selfStudent : students.find((student) => student.id === studentId))?.latitude == null ||
                           (role === "student" ? selfStudent : students.find((student) => student.id === studentId))?.longitude == null
                         )

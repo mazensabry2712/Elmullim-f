@@ -265,10 +265,61 @@ describe("BookLessonDialog", () => {
         booking: {
           student_id: 42,
           requested_start_at: expect.stringMatching(/^2099-01-10T16:00:00\.000Z$/),
-          student_location: "Nasr City, Cairo",
         },
       })
     );
+  });
+
+  it("disables teacher-to-student booking until the student profile location is complete", async () => {
+    mocks.studentProfile.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        data: {
+          id: 42,
+          name: "Student One",
+          address: "",
+          latitude: 30.0444,
+          longitude: 31.2357,
+        },
+      },
+    });
+    mocks.bookingOptions.mockReturnValue({
+      isLoading: false,
+      data: {
+        status: true,
+        message: null,
+        data: [{
+          slot_id: 1,
+          local_time: "18:00",
+          requested_start_at: "2099-01-10T16:00:00.000Z",
+          available_seats: null,
+          is_available: true,
+          timezone: "Africa/Cairo",
+        }],
+      },
+    });
+
+    render(
+      <BookLessonDialog
+        lessonId={11}
+        bookingType="private"
+        deliveryMode="offline"
+        offlineVisitType="teacher_to_student"
+        price="300.00"
+        durationMinutes={60}
+        language="en"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Book now" }));
+    await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
+    fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-10" } });
+    fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
+
+    expect(screen.getByRole("button", { name: "Submit booking" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
+    expect(mocks.mutateAsync).not.toHaveBeenCalled();
   });
 
   it("shows server-provided seats for group booking options", async () => {

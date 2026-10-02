@@ -13,7 +13,6 @@ export interface ICreateLesson {
   price: number;
   sessions_count: number;
   meeting_url?: string;
-  location?: string;
   offline_visit_type?: "teacher_to_student" | "student_to_teacher" | "";
   service_area_ids?: number[];
   max_students?: number;

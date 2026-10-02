@@ -144,11 +144,11 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
           <div className="mt-3 inline-flex min-w-0 items-center gap-2 rounded-xl bg-[#FBFDFC] px-3 py-2.5 text-xs font-semibold text-black-blue/60">
             <MapPin className="h-4 w-4 shrink-0 text-main" />
             <span className="truncate">
-              {lesson.location || (
-                serviceAreaCount
-                  ? `${serviceAreaCount} ${isArabic ? "منطقة خدمة" : "service area"}`
-                  : (isArabic ? "المكان يحتاج إعداد" : "Location needs setup")
-              )}
+              {lesson.offline_visit_type === "student_to_teacher"
+                ? (isArabic ? "المكان من ملف المعلم" : "Location comes from teacher profile")
+                : serviceAreaCount
+                  ? serviceAreaCount + " " + (isArabic ? "منطقة خدمة" : "service area")
+                  : (isArabic ? "المكان يحتاج إعداد" : "Location needs setup")}
             </span>
           </div>
         ) : null}

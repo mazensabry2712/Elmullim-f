@@ -7,13 +7,15 @@ const StudentProfile = lazy(
 const ParentProfile = lazy(
   () => import("@/components/profiles/parent/ParentProfile")
 );
+const TeacherProfile = lazy(
+  () => import("@/components/profiles/teacher/TeacherProfile")
+);
 
 const Profile = () => {
-  const role = cookieService.getRole()!;
+  const role = cookieService.getRole();
 
-  // Teacher profile is intentionally blank for now.
   if (role === "teacher") {
-    return <div className="min-h-screen w-full bg-white" aria-hidden="true" />;
+    return <TeacherProfile />;
   }
 
   if (role === "parent") {

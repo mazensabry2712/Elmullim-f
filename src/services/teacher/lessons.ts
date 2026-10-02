@@ -107,8 +107,6 @@ export const updateTeacherLesson = async ({
   appendServiceAreas(formData, lesson.service_area_ids);
 
   if (lesson.logo) formData.append("logo", lesson.logo);
-  if (lesson.meeting_url?.trim()) formData.append("meeting_url", lesson.meeting_url.trim());
-  if (lesson.location?.trim()) formData.append("location", lesson.location.trim());
   if (lesson.offline_visit_type?.trim()) formData.append("offline_visit_type", lesson.offline_visit_type.trim());
   if (lesson.max_students !== undefined) formData.append("max_students", lesson.max_students.toString());
 

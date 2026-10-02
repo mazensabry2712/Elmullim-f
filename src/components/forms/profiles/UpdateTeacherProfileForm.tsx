@@ -1,5 +1,5 @@
 import { Form } from "@/components/ui/form";
-import { UPDATE_TEACHER_PROFILE } from "@/constant";
+import { COURSES_TYPE, UPDATE_TEACHER_PROFILE } from "@/constant";
 import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import RenderProfileFormFields from "./RenderProfileFormFields";
@@ -79,6 +79,7 @@ const UpdateTeacherProfileForm = () => {
       email: "",
       gender: "",
       phone: "",
+      address: "",
       profile_image: undefined,
       country_id: "",
       description: "",
@@ -95,6 +96,7 @@ const UpdateTeacherProfileForm = () => {
     gender,
     name,
     phone,
+    address,
     education_level_id,
     country_id,
     education_system_id,
@@ -118,6 +120,7 @@ const UpdateTeacherProfileForm = () => {
           gender,
           name,
           phone,
+          address,
           description,
           profile_image,
           course_type,
@@ -150,6 +153,7 @@ const UpdateTeacherProfileForm = () => {
     form.reset({
       name: teacher?.name || "",
       phone: teacher?.phone || "",
+      address: teacher?.address || "",
       email: teacher?.email || "",
       gender: teacher?.gender || "",
       description: teacher?.description || "",
@@ -216,6 +220,25 @@ const UpdateTeacherProfileForm = () => {
                   educationSystems: educationSystemsOptions!,
                   educationLevels: educationLevelsOptions!,
                   subjects: subjectsOptions!,
+                  coursesType: COURSES_TYPE.map((option) => ({
+                    value: option.value,
+                    label:
+                      language === "ar"
+                        ? option.value === "private"
+                          ? "خاص"
+                          : option.value === "online"
+                            ? "أونلاين"
+                            : option.value === "offline"
+                              ? "حضوري"
+                              : "مجموعات"
+                        : option.value === "private"
+                          ? "Private"
+                          : option.value === "online"
+                            ? "Online"
+                            : option.value === "offline"
+                              ? "Offline"
+                              : "Group",
+                  })),
                 }}
               />
             </motion.div>

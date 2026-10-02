@@ -201,14 +201,14 @@ const Lessons = () => {
               </label>
 
               <label className="text-sm">
-                <span className="block mb-2 text-black-blue">{copy.location}</span>
+                <span className="block mb-2 text-black-blue">{copy.serviceAreaFilter}</span>
                 <input
-                  aria-label={copy.location}
+                  aria-label={copy.serviceAreaFilter}
                   value={location ?? ""}
                   onChange={(event) => updateFilter("location", event.target.value)}
                   className="w-full rounded-md border border-gray-300 bg-white px-3 py-2"
-                  placeholder={copy.location}
-                  disabled={deliveryMode === "online"}
+                  placeholder={copy.serviceAreaFilter}
+                  disabled={deliveryMode !== "offline"}
                 />
               </label>
 

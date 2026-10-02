@@ -15,7 +15,10 @@ import {
   MapPin,
   Pencil,
   Phone,
+  Star,
   UserRound,
+  UsersRound,
+  Video,
   VenusAndMars,
   WalletCards,
 } from "lucide-react";
@@ -60,7 +63,7 @@ const TeacherMainProfile = () => {
         educationSystem: "نظام التعليم",
         educationLevel: "المرحلة التعليمية",
         description: "الوصف",
-        qualification: "المؤهلات",
+        qualification: "المؤهل",
         experience: "الخبرة",
         teachingTypes: "أنواع التدريس",
         subjects: "المواد الدراسية",
@@ -69,10 +72,16 @@ const TeacherMainProfile = () => {
         openCv: "فتح السيرة الذاتية",
         noRatings: "لا توجد تقييمات بعد",
         noSubjects: "لا توجد مواد دراسية مضافة بعد",
+        noTypes: "لا توجد أنواع تدريس مضافة بعد",
         nothing: "غير محدد",
         male: "ذكر",
         female: "أنثى",
         years: "سنوات",
+        statistics: "ملخص المعلم",
+        courses: "الكورسات",
+        lessons: "الدروس",
+        rating: "التقييم",
+        outOfFive: "من 5",
       }
     : {
         edit: "Edit Profile",
@@ -88,7 +97,7 @@ const TeacherMainProfile = () => {
         educationSystem: "Education system",
         educationLevel: "Education level",
         description: "Description",
-        qualification: "Qualifications",
+        qualification: "Qualification",
         experience: "Experience",
         teachingTypes: "Teaching types",
         subjects: "Teaching subjects",
@@ -97,10 +106,16 @@ const TeacherMainProfile = () => {
         openCv: "Open CV",
         noRatings: "No ratings yet",
         noSubjects: "No teaching subjects added yet",
+        noTypes: "No teaching types added yet",
         nothing: "Not provided",
         male: "Male",
         female: "Female",
         years: "years",
+        statistics: "Teacher overview",
+        courses: "Courses",
+        lessons: "Lessons",
+        rating: "Rating",
+        outOfFive: "out of 5",
       };
 
   if (isLoading) {
@@ -137,31 +152,11 @@ const TeacherMainProfile = () => {
         : text.nothing;
 
   const personalItems = [
-    {
-      label: text.email,
-      value: profile.email || text.nothing,
-      icon: Mail,
-    },
-    {
-      label: text.phone,
-      value: profile.phone || text.nothing,
-      icon: Phone,
-    },
-    {
-      label: text.address,
-      value: profile.address || text.nothing,
-      icon: MapPin,
-    },
-    {
-      label: text.gender,
-      value: genderLabel,
-      icon: VenusAndMars,
-    },
-    {
-      label: text.country,
-      value: country?.name || text.nothing,
-      icon: MapPin,
-    },
+    { label: text.email, value: profile.email || text.nothing, icon: Mail },
+    { label: text.phone, value: profile.phone || text.nothing, icon: Phone },
+    { label: text.address, value: profile.address || text.nothing, icon: MapPin },
+    { label: text.gender, value: genderLabel, icon: VenusAndMars },
+    { label: text.country, value: country?.name || text.nothing, icon: MapPin },
   ];
 
   const teachingItems = [
@@ -184,9 +179,30 @@ const TeacherMainProfile = () => {
       label: text.experience,
       value:
         profile.experince != null
-          ? `${profile.experince} ${text.years}`
+          ? \`${profile.experince} ${text.years}\`
           : text.nothing,
       icon: BriefcaseBusiness,
+    },
+  ];
+
+  const overviewItems = [
+    {
+      label: text.courses,
+      value: String(profile.courses_count ?? 0),
+      icon: BookOpen,
+    },
+    {
+      label: text.lessons,
+      value: String(profile.lessons_count ?? 0),
+      icon: Video,
+    },
+    {
+      label: text.rating,
+      value:
+        Number(profile.rating ?? 0) > 0
+          ? \`${Number(profile.rating).toFixed(1)} ${text.outOfFive}\`
+          : text.nothing,
+      icon: Star,
     },
   ];
 
@@ -215,8 +231,9 @@ const TeacherMainProfile = () => {
                 {profile.name || text.nothing}
               </h2>
               {Number(profile.rating ?? 0) > 0 ? (
-                <span className="text-sm font-semibold text-black-blue/60">
-                  ★ {Number(profile.rating).toFixed(1)}
+                <span className="inline-flex items-center gap-1 rounded-full bg-main/10 px-3 py-1 text-sm font-bold text-main">
+                  <Star className="h-4 w-4 fill-current" />
+                  {Number(profile.rating).toFixed(1)}
                 </span>
               ) : null}
             </div>
@@ -231,6 +248,34 @@ const TeacherMainProfile = () => {
             {text.edit}
           </Button>
         </div>
+
+        <section className="mt-8">
+          <div className="mb-4 flex items-center gap-2 text-main">
+            <UsersRound className="h-5 w-5" />
+            <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+              {text.statistics}
+            </h3>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-3">
+            {overviewItems.map(({ label, value, icon: Icon }) => (
+              <div
+                key={label}
+                className="min-w-0 rounded-xl border border-main/15 bg-main/5 p-4 shadow-sm"
+              >
+                <div className="flex items-center gap-2 text-main">
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="font-sora text-xs font-semibold uppercase tracking-wide">
+                    {label}
+                  </span>
+                </div>
+                <p className="mt-2 break-words font-sora text-lg font-bold text-black-blue md:text-xl">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
 
         <section className="mt-8">
           <div className="mb-4 flex items-center gap-2 text-main">
@@ -260,19 +305,17 @@ const TeacherMainProfile = () => {
           </div>
         </section>
 
-        {profile.description?.trim() ? (
-          <section className="mt-8 rounded-xl border border-gray-100 bg-[#FAFCFB] p-5">
-            <div className="mb-3 flex items-center gap-2 text-main">
-              <FileText className="h-5 w-5" />
-              <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
-                {text.description}
-              </h3>
-            </div>
-            <p className="whitespace-pre-wrap break-words font-sora text-sm leading-7 text-black-blue md:text-base">
-              {profile.description}
-            </p>
-          </section>
-        ) : null}
+        <section className="mt-8 rounded-xl border border-gray-100 bg-[#FAFCFB] p-5">
+          <div className="mb-3 flex items-center gap-2 text-main">
+            <FileText className="h-5 w-5" />
+            <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+              {text.description}
+            </h3>
+          </div>
+          <p className="whitespace-pre-wrap break-words font-sora text-sm leading-7 text-black-blue md:text-base">
+            {profile.description?.trim() || text.nothing}
+          </p>
+        </section>
 
         <section className="mt-8">
           <div className="mb-4 flex items-center gap-2 text-main">
@@ -315,14 +358,16 @@ const TeacherMainProfile = () => {
               {profile.course_types.map((type) => (
                 <div
                   key={type}
-                  className="rounded-xl border border-main/30 bg-main/5 px-5 py-3 font-sora text-sm font-semibold text-black-blue"
+                  className="max-w-full rounded-xl border border-main/30 bg-main/5 px-5 py-3 font-sora text-sm font-semibold text-black-blue"
                 >
                   {courseTypeLabel(type, language)}
                 </div>
               ))}
             </div>
           ) : (
-            <p className="font-sora text-sm text-muted-foreground">{text.nothing}</p>
+            <p className="font-sora text-sm text-muted-foreground">
+              {text.noTypes}
+            </p>
           )}
         </section>
 
@@ -378,7 +423,7 @@ const TeacherMainProfile = () => {
 
         <section className="mt-10">
           <div className="mb-4 flex items-center gap-2 text-main">
-            <UserRound className="h-5 w-5" />
+            <Star className="h-5 w-5" />
             <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
               {text.teacherRatings}
             </h3>
@@ -393,7 +438,10 @@ const TeacherMainProfile = () => {
               </div>
             ) : (
               ratings.data.map((rate, index) => (
-                <StudentRating key={rate.created_at + "-" + index} rate={rate} />
+                <StudentRating
+                  key={rate.created_at + "-" + index}
+                  rate={rate}
+                />
               ))
             )}
           </div>

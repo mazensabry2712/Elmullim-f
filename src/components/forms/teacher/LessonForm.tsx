@@ -12,10 +12,10 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertCircle,
   CheckCircle2,
-  Clock3,
   UsersRound,
   Loader2,
   MapPin,
+  Video,
   Plus,
   Sparkles,
   Trash2,
@@ -42,6 +42,7 @@ const defaultTimezone = "Africa/Cairo";
 const defaultAvailability = [{ day_of_week: 6, start_time: "18:00", end_time: "19:00", timezone: defaultTimezone }];
 
 const UsersRoundIcon = () => <UsersRound className="mt-0.5 h-5 w-5 shrink-0 text-main" />;
+const VideoIcon = () => <Video className="h-4 w-4" />;
 
 const LessonForm = ({ action, lesson }: IProps) => {
   const [file, setFile] = useState<File | null>(null);

@@ -33,6 +33,7 @@ export interface IUpdateTeacherProfile {
     name: string;
     email: string;
     phone: string;
+    address: string;
     course_type: string[];
     country_id: string;
     education_system_id: string;

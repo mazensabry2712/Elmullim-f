@@ -1,160 +1,404 @@
 import Loader from "@/components/Loader";
-import { useGetTeacherProfile, useGetTeacherRatings } from "@/lib/react-query/teacher/teacherProfile";
+import {
+  useGetTeacherProfile,
+  useGetTeacherRatings,
+} from "@/lib/react-query/teacher/teacherProfile";
 import cookieService from "@/utils/cookieService";
-import { Award, BookOpen, BriefcaseBusiness, FileText, Mail, MapPin, Pencil, Phone, Star } from "lucide-react";
+import { motion } from "framer-motion";
+import {
+  Award,
+  BookOpen,
+  BriefcaseBusiness,
+  FileText,
+  GraduationCap,
+  Mail,
+  MapPin,
+  Pencil,
+  Phone,
+  UserRound,
+  VenusAndMars,
+  WalletCards,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import ProfileHeader from "../ProfileHeader";
 import StudentRating from "../student/StudentRating";
 import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 
+const courseTypeLabel = (type: string, language: "ar" | "en") => {
+  const labels: Record<string, { ar: string; en: string }> = {
+    private: { ar: "خاص", en: "Private" },
+    group: { ar: "مجموعات", en: "Group" },
+    general: { ar: "مجموعات", en: "Group" },
+    online: { ar: "أونلاين", en: "Online" },
+    offline: { ar: "حضوري", en: "Offline" },
+  };
+
+  return labels[type]?.[language] ?? type;
+};
+
 const TeacherMainProfile = () => {
   const token = cookieService.getToken() || "";
   const navigate = useNavigate();
+  const { data: teacher, isLoading } = useGetTeacherProfile(token);
+  const { data: ratings } = useGetTeacherRatings(token);
   const { language } = useI18n();
   const isArabic = language === "ar";
-  const { data: teacher, isLoading, isError, refetch } = useGetTeacherProfile(token);
-  const { data: ratings, isLoading: isRatingsLoading } = useGetTeacherRatings(token);
-  const profile = teacher?.data;
 
   const text = isArabic
     ? {
         edit: "تعديل الملف الشخصي",
+        about: "نبذة عني",
+        personalData: "البيانات الشخصية",
+        teachingData: "البيانات التعليمية",
+        name: "الاسم بالكامل",
         email: "البريد الإلكتروني",
         phone: "رقم الهاتف",
         address: "العنوان",
-        about: "نبذة عني",
+        gender: "النوع",
+        country: "الدولة",
+        educationSystem: "نظام التعليم",
+        educationLevel: "المرحلة التعليمية",
+        description: "الوصف",
         qualification: "المؤهلات",
         experience: "الخبرة",
-        years: "سنوات",
+        teachingTypes: "أنواع التدريس",
+        subjects: "المواد الدراسية",
+        teacherRatings: "تقييمات المعلم",
         cv: "السيرة الذاتية",
         openCv: "فتح السيرة الذاتية",
-        subjects: "موادي الدراسية",
-        ratings: "تقييمات الطلاب",
-        noSubjects: "لا توجد مواد دراسية مضافة بعد",
         noRatings: "لا توجد تقييمات بعد",
-        unavailable: "غير متوفر",
-        retry: "حاول مرة أخرى",
+        noSubjects: "لا توجد مواد دراسية مضافة بعد",
+        nothing: "غير محدد",
+        male: "ذكر",
+        female: "أنثى",
+        years: "سنوات",
       }
     : {
         edit: "Edit Profile",
+        about: "About me",
+        personalData: "Personal Information",
+        teachingData: "Teaching Information",
+        name: "Full name",
         email: "Email",
         phone: "Phone",
         address: "Address",
-        about: "About me",
+        gender: "Gender",
+        country: "Country",
+        educationSystem: "Education system",
+        educationLevel: "Education level",
+        description: "Description",
         qualification: "Qualifications",
         experience: "Experience",
-        years: "years",
+        teachingTypes: "Teaching types",
+        subjects: "Teaching subjects",
+        teacherRatings: "Teacher ratings",
         cv: "Curriculum Vitae",
         openCv: "Open CV",
-        subjects: "Teaching subjects",
-        ratings: "Student ratings",
-        noSubjects: "No teaching subjects added yet",
         noRatings: "No ratings yet",
-        unavailable: "Not provided",
-        retry: "Try again",
+        noSubjects: "No teaching subjects added yet",
+        nothing: "Not provided",
+        male: "Male",
+        female: "Female",
+        years: "years",
       };
 
   if (isLoading) {
-    return <div className="mt-4 flex min-h-[360px] items-center justify-center rounded-lg bg-white"><Loader /></div>;
-  }
-
-  if (isError || !profile) {
     return (
-      <div className="mt-4 rounded-lg bg-white px-5 py-20 text-center text-black-blue">
-        <p className="font-sora text-lg">{isArabic ? "تعذر تحميل بيانات الملف الشخصي." : "Unable to load profile information."}</p>
-        <Button type="button" onClick={() => void refetch()} className="mt-5 bg-main text-white hover:bg-main/90">{text.retry}</Button>
+      <div className="container overflow-hidden">
+        <div className="my-20 flex items-center justify-center overflow-hidden rounded-lg bg-white py-20">
+          <Loader />
+        </div>
       </div>
     );
   }
 
-  const ratingsData = ratings?.data || [];
-  const subjects = profile.subjects || [];
-  const hasDescription = Boolean(profile.description?.trim());
-  const hasQualification = Boolean(profile.qualification?.trim());
-  const hasExperience = profile.experince !== null && profile.experince !== undefined;
-  const hasCv = Boolean(profile.cv?.trim());
-  const hasAddress = Boolean(profile.address?.trim());
-  const hasOptionalDetails = hasDescription || hasQualification || hasExperience || hasCv;
+  const profile = teacher?.data;
+
+  if (!profile) {
+    return (
+      <div className="container py-20 text-center text-black-blue">
+        {isArabic
+          ? "تعذر تحميل بيانات الملف الشخصي."
+          : "Unable to load profile information."}
+      </div>
+    );
+  }
+
+  const educationLevel = profile.education_level;
+  const educationSystem = educationLevel?.education_system;
+  const country = educationSystem?.country;
+
+  const genderLabel =
+    profile.gender === "male"
+      ? text.male
+      : profile.gender === "female"
+        ? text.female
+        : text.nothing;
+
+  const personalItems = [
+    {
+      label: text.email,
+      value: profile.email || text.nothing,
+      icon: Mail,
+    },
+    {
+      label: text.phone,
+      value: profile.phone || text.nothing,
+      icon: Phone,
+    },
+    {
+      label: text.address,
+      value: profile.address || text.nothing,
+      icon: MapPin,
+    },
+    {
+      label: text.gender,
+      value: genderLabel,
+      icon: VenusAndMars,
+    },
+    {
+      label: text.country,
+      value: country?.name || text.nothing,
+      icon: MapPin,
+    },
+  ];
+
+  const teachingItems = [
+    {
+      label: text.educationSystem,
+      value: educationSystem?.name || text.nothing,
+      icon: GraduationCap,
+    },
+    {
+      label: text.educationLevel,
+      value: educationLevel?.name || text.nothing,
+      icon: BookOpen,
+    },
+    {
+      label: text.qualification,
+      value: profile.qualification || text.nothing,
+      icon: Award,
+    },
+    {
+      label: text.experience,
+      value:
+        profile.experince != null
+          ? `${profile.experince} ${text.years}`
+          : text.nothing,
+      icon: BriefcaseBusiness,
+    },
+  ];
 
   return (
     <div className="mt-4 overflow-hidden rounded-lg bg-white pb-10">
-      <header className="border-b border-gray-100 px-4 py-7 sm:px-6 md:px-10 lg:px-16">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-          <div className="flex min-w-0 items-center gap-4 sm:gap-5">
-            <div className="h-24 w-24 shrink-0 overflow-hidden rounded-full bg-gray-100 sm:h-28 sm:w-28">
-              <img src={profile.profile_image || "/images/profile-avatar.webp"} alt={profile.name || "Teacher"} className="h-full w-full object-cover" />
+      <ProfileHeader profileImage={profile.profile_image} />
+
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.1 }}
+        viewport={{ once: true }}
+        className="px-4 text-start sm:px-6 md:px-10 lg:px-16"
+      >
+        <div className="flex flex-col gap-5 border-b border-gray-100 pb-8 md:flex-row md:items-end md:justify-between">
+          <div className="min-w-0">
+            <div className="mb-2 flex items-center gap-2 text-main">
+              <UserRound className="h-5 w-5 shrink-0" />
+              <span className="font-sora text-sm font-semibold uppercase tracking-wide">
+                {text.about}
+              </span>
             </div>
-            <div className="min-w-0">
-              <h1 className="break-words font-epilogue text-2xl font-bold text-black-blue sm:text-3xl md:text-4xl">{profile.name || text.unavailable}</h1>
+
+            <div className="flex flex-wrap items-center gap-3">
+              <h2 className="break-words font-epilogue text-2xl font-bold text-black-blue md:text-4xl">
+                {profile.name || text.nothing}
+              </h2>
               {Number(profile.rating ?? 0) > 0 ? (
-                <div className="mt-2 inline-flex items-center gap-1.5 text-sm font-semibold text-black-blue/65">
-                  <Star className="h-4 w-4 fill-current text-[#E0BA00]" />
-                  {Number(profile.rating).toFixed(1)}
-                </div>
+                <span className="text-sm font-semibold text-black-blue/60">
+                  ★ {Number(profile.rating).toFixed(1)}
+                </span>
               ) : null}
             </div>
           </div>
-          <Button type="button" onClick={() => navigate("/profile/update")} className="w-full shrink-0 bg-main font-sora text-white hover:bg-main/90 sm:w-auto">
+
+          <Button
+            type="button"
+            onClick={() => navigate("/profile/update")}
+            className="w-full shrink-0 bg-main font-sora text-white hover:bg-main/90 md:w-auto"
+          >
             <Pencil className="me-2 h-4 w-4" />
             {text.edit}
           </Button>
         </div>
-      </header>
 
-      <div className="px-4 sm:px-6 md:px-10 lg:px-16">
-        <div className="grid grid-cols-1 border-b border-gray-100 sm:grid-cols-2 lg:grid-cols-3">
-          {[
-            { label: text.email, value: profile.email, icon: Mail, dir: "ltr" as const },
-            { label: text.phone, value: profile.phone, icon: Phone, dir: "ltr" as const },
-            ...(hasAddress ? [{ label: text.address, value: profile.address, icon: MapPin }] : []),
-          ].map(({ label, value, icon: Icon, dir }) => (
-            <div key={label} className="flex min-w-0 items-start gap-3 border-gray-100 py-4 sm:border-e sm:px-5 sm:first:ps-0 sm:last:border-e-0 sm:last:pe-0">
-              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-main" />
-              <div className="min-w-0">
-                <p className="text-xs font-semibold text-black-blue/45">{label}</p>
-                <p dir={dir} className="mt-1 break-words text-sm font-medium text-black-blue">{value}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {hasOptionalDetails ? (
-          <div className="grid gap-8 border-b border-gray-100 py-8 md:grid-cols-2">
-            {hasDescription ? (
-              <section><h2 className="mb-3 flex items-center gap-2 text-xl font-bold text-black-blue"><FileText className="h-5 w-5 text-main" />{text.about}</h2><p className="whitespace-pre-wrap break-words text-sm leading-7 text-black-blue/75 sm:text-base">{profile.description}</p></section>
-            ) : null}
-
-            {hasQualification || hasExperience ? (
-              <section>
-                <h2 className="mb-3 flex items-center gap-2 text-xl font-bold text-black-blue"><Award className="h-5 w-5 text-main" />{text.qualification}</h2>
-                {hasQualification ? <p className="break-words text-sm leading-7 text-black-blue/75 sm:text-base">{profile.qualification}</p> : null}
-                {hasExperience ? <div className="mt-3 inline-flex items-center gap-2 rounded-md bg-main/5 px-3 py-2 text-sm font-semibold text-black-blue"><BriefcaseBusiness className="h-4 w-4 text-main" />{profile.experince} {text.years}</div> : null}
-              </section>
-            ) : null}
-
-            {hasCv ? (
-              <section className="md:col-span-2">
-                <h2 className="mb-3 flex items-center gap-2 text-xl font-bold text-black-blue"><FileText className="h-5 w-5 text-main" />{text.cv}</h2>
-                <a href={profile.cv} target="_blank" rel="noreferrer" className="inline-flex items-center justify-center gap-2 rounded-md bg-main px-5 py-3 text-sm font-semibold text-white transition hover:bg-main/90"><FileText className="h-4 w-4" />{text.openCv}</a>
-              </section>
-            ) : null}
+        <section className="mt-8">
+          <div className="mb-4 flex items-center gap-2 text-main">
+            <UserRound className="h-5 w-5" />
+            <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+              {text.personalData}
+            </h3>
           </div>
-        ) : null}
 
-        <section className="border-b border-gray-100 py-8">
-          <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-black-blue md:text-2xl"><BookOpen className="h-5 w-5 text-main" />{text.subjects}</h2>
-          {subjects.length ? <div className="flex flex-wrap gap-2.5">{subjects.map((subject) => <span key={subject.id} className="rounded-md border border-main/20 bg-main/5 px-4 py-2.5 text-sm font-semibold text-black-blue">{subject.name}</span>)}</div> : <p className="text-sm text-black-blue/45">{text.noSubjects}</p>}
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {personalItems.map(({ label, value, icon: Icon }) => (
+              <div
+                key={label}
+                className="min-w-0 rounded-xl border border-gray-100 bg-[#FAFCFB] p-4 shadow-sm"
+              >
+                <div className="mb-2 flex items-center gap-2 text-main">
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="font-sora text-xs font-semibold uppercase tracking-wide">
+                    {label}
+                  </span>
+                </div>
+                <p className="break-words font-sora text-sm font-medium leading-6 text-black-blue md:text-base">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
         </section>
 
-        {ratingsData.length || isRatingsLoading ? (
-          <section className="pt-8">
-            <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-black-blue md:text-2xl"><Star className="h-5 w-5 fill-current text-main" />{text.ratings}</h2>
-            <div className="space-y-3">
-              {isRatingsLoading ? <div className="flex min-h-[120px] items-center justify-center rounded-lg border border-gray-100"><Loader /></div> : ratingsData.map((rate, index) => <StudentRating key={rate.created_at + "-" + index} rate={rate} />)}
+        {profile.description?.trim() ? (
+          <section className="mt-8 rounded-xl border border-gray-100 bg-[#FAFCFB] p-5">
+            <div className="mb-3 flex items-center gap-2 text-main">
+              <FileText className="h-5 w-5" />
+              <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+                {text.description}
+              </h3>
             </div>
+            <p className="whitespace-pre-wrap break-words font-sora text-sm leading-7 text-black-blue md:text-base">
+              {profile.description}
+            </p>
           </section>
         ) : null}
-      </div>
+
+        <section className="mt-8">
+          <div className="mb-4 flex items-center gap-2 text-main">
+            <GraduationCap className="h-5 w-5" />
+            <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+              {text.teachingData}
+            </h3>
+          </div>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {teachingItems.map(({ label, value, icon: Icon }) => (
+              <div
+                key={label}
+                className="min-w-0 rounded-xl border border-gray-100 bg-[#FAFCFB] p-4 shadow-sm"
+              >
+                <div className="mb-2 flex items-center gap-2 text-main">
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="font-sora text-xs font-semibold uppercase tracking-wide">
+                    {label}
+                  </span>
+                </div>
+                <p className="break-words font-sora text-sm font-medium leading-6 text-black-blue">
+                  {value}
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        <section className="mt-8">
+          <div className="mb-4 flex items-center gap-2 text-main">
+            <WalletCards className="h-5 w-5" />
+            <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+              {text.teachingTypes}
+            </h3>
+          </div>
+
+          {profile.course_types?.length ? (
+            <div className="flex flex-wrap gap-3">
+              {profile.course_types.map((type) => (
+                <div
+                  key={type}
+                  className="rounded-xl border border-main/30 bg-main/5 px-5 py-3 font-sora text-sm font-semibold text-black-blue"
+                >
+                  {courseTypeLabel(type, language)}
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="font-sora text-sm text-muted-foreground">{text.nothing}</p>
+          )}
+        </section>
+
+        <section className="mt-8">
+          <div className="mb-4 flex items-center gap-2 text-main">
+            <BookOpen className="h-5 w-5" />
+            <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+              {text.subjects}
+            </h3>
+          </div>
+
+          {profile.subjects?.length ? (
+            <div className="flex flex-wrap gap-3">
+              {profile.subjects.map((subject) => (
+                <div
+                  key={subject.id}
+                  className="max-w-full rounded-xl border border-main/30 bg-main/5 px-5 py-3 font-sora text-sm font-semibold text-black-blue"
+                >
+                  <span className="break-words">{subject.name}</span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="font-sora text-sm text-muted-foreground">
+              {text.noSubjects}
+            </p>
+          )}
+        </section>
+
+        <section className="mt-8 rounded-xl border border-gray-100 bg-[#FAFCFB] p-5">
+          <div className="mb-3 flex items-center gap-2 text-main">
+            <FileText className="h-5 w-5" />
+            <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+              {text.cv}
+            </h3>
+          </div>
+
+          {profile.cv ? (
+            <a
+              href={profile.cv}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex w-full items-center justify-center rounded-[5px] bg-main px-5 py-3 font-sora text-sm font-semibold text-white transition hover:bg-main/90 sm:w-fit"
+            >
+              {text.openCv}
+            </a>
+          ) : (
+            <p className="font-sora text-sm text-muted-foreground">
+              {text.nothing}
+            </p>
+          )}
+        </section>
+
+        <section className="mt-10">
+          <div className="mb-4 flex items-center gap-2 text-main">
+            <UserRound className="h-5 w-5" />
+            <h3 className="font-sora text-xl font-bold text-black-blue md:text-2xl">
+              {text.teacherRatings}
+            </h3>
+          </div>
+
+          <div className="min-h-[180px] space-y-3 rounded-xl border border-gray-100 bg-white p-3 shadow-sm md:p-4">
+            {!ratings?.data?.length ? (
+              <div className="flex min-h-[150px] items-center justify-center text-center">
+                <p className="font-sora text-sm text-muted-foreground">
+                  {text.noRatings}
+                </p>
+              </div>
+            ) : (
+              ratings.data.map((rate, index) => (
+                <StudentRating key={rate.created_at + "-" + index} rate={rate} />
+              ))
+            )}
+          </div>
+        </section>
+      </motion.div>
     </div>
   );
 };

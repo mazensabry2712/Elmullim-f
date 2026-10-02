@@ -9,7 +9,17 @@ import { useCreateTeacherLesson, useUpdateTeacherLesson } from "@/lib/react-quer
 import { ILesson } from "@/interfaces/lessons/lesson";
 import { lessonSchema } from "@/validations/teacher/lessonSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import {
+  AlertCircle,
+  CheckCircle2,
+  Clock3,
+  FileImage,
+  Loader2,
+  MapPin,
+  Plus,
+  Sparkles,
+  Trash2,
+} from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
@@ -30,6 +40,8 @@ type LessonFormValues = z.infer<typeof lessonSchema>;
 const inputClassName = "mt-2 border border-input bg-white text-black-blue";
 const defaultTimezone = "Africa/Cairo";
 const defaultAvailability = [{ day_of_week: 6, start_time: "18:00", end_time: "19:00", timezone: defaultTimezone }];
+
+const UsersRoundIcon = () => <Clock3 className="mt-0.5 h-5 w-5 shrink-0 text-main" />;
 
 const LessonForm = ({ action, lesson }: IProps) => {
   const [file, setFile] = useState<File | null>(null);
@@ -91,6 +103,68 @@ const LessonForm = ({ action, lesson }: IProps) => {
   const bookingType = form.watch("booking_type");
   const offlineVisitType = form.watch("offline_visit_type");
   const selectedServiceAreaIds = form.watch("service_area_ids") || [];
+  const location = form.watch("location");
+  const profileAddress = teacherProfile?.data?.address || "";
+  const profileLatitude = teacherProfile?.data?.latitude;
+  const profileLongitude = teacherProfile?.data?.longitude;
+
+  const readiness = useMemo(() => {
+    const checks = [
+      {
+        key: "basics",
+        label: label("Lesson basics", "بيانات الدرس الأساسية"),
+        done: Boolean(educationLevelId && form.getValues("subject_id") && form.getValues("grade")?.trim()),
+      },
+      {
+        key: "details",
+        label: label("Details & price", "التفاصيل والسعر"),
+        done: Boolean(form.getValues("title")?.trim() && form.getValues("description")?.trim() && Number(form.getValues("price")) >= 0),
+      },
+      {
+        key: "availability",
+        label: label("Weekly availability", "المواعيد الأسبوعية"),
+        done: availabilityFields.length > 0 && availabilityFields.every(
+          (slot) => slot.start_time < slot.end_time
+        ),
+      },
+      {
+        key: "delivery",
+        label: label("Delivery setup", "إعداد نوع الدرس"),
+        done:
+          deliveryMode === "online"
+            ? Boolean(form.getValues("meeting_url")?.trim())
+            : Boolean(offlineVisitType) &&
+              Boolean(location?.trim()) &&
+              (offlineVisitType === "student_to_teacher" || selectedServiceAreaIds.length > 0),
+      },
+      {
+        key: "capacity",
+        label: label("Capacity", "السعة"),
+        done: bookingType !== "group" || Number(form.getValues("max_students")) >= 1,
+      },
+      {
+        key: "image",
+        label: label("Lesson image", "صورة الدرس"),
+        done: action === "update" || Boolean(file),
+      },
+    ];
+
+    return checks;
+  }, [
+    action,
+    availabilityFields,
+    bookingType,
+    deliveryMode,
+    educationLevelId,
+    file,
+    form,
+    location,
+    offlineVisitType,
+    selectedServiceAreaIds.length,
+  ]);
+
+  const readinessCount = readiness.filter((item) => item.done).length;
+  const isReady = readinessCount === readiness.length;
 
   const activeServiceAreas = useMemo(
     () => serviceAreas?.data?.filter((area) => area.is_active) || [],
@@ -162,6 +236,17 @@ const LessonForm = ({ action, lesson }: IProps) => {
       form.setValue("service_area_ids", [], { shouldValidate: false });
     }
   }, [deliveryMode, offlineVisitType, form]);
+
+  useEffect(() => {
+    if (
+      deliveryMode === "offline" &&
+      offlineVisitType === "student_to_teacher" &&
+      !form.getValues("location")?.trim() &&
+      profileAddress
+    ) {
+      form.setValue("location", profileAddress, { shouldDirty: true, shouldValidate: true });
+    }
+  }, [deliveryMode, offlineVisitType, profileAddress, form]);
 
   const error = (field: keyof LessonFormValues) => {
     const message = form.formState.errors[field]?.message;
@@ -265,13 +350,56 @@ const LessonForm = ({ action, lesson }: IProps) => {
 
   return (
     <form onSubmit={form.handleSubmit(submit)} className="space-y-6">
-      <div className="rounded-lg bg-muted/30 p-4">
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
-          {steps.map((stepTitle, index) => (
-            <button key={stepTitle} type="button" disabled={isSubmitting || index > step} onClick={() => setStep(index)} className={`rounded-md px-2 py-3 text-xs font-semibold md:text-sm ${index === step ? "bg-main text-white" : index < step ? "bg-main/10 text-main" : "bg-white text-muted-foreground"}`}>
-              <span className="block text-[10px]">{index + 1}</span>{stepTitle}
-            </button>
-          ))}
+      <div className="sticky top-4 z-20 overflow-hidden rounded-2xl border border-black-blue/[0.07] bg-white/95 p-3 shadow-[0_12px_34px_rgba(33,55,75,0.07)] backdrop-blur">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-main/10 text-main">
+                <Sparkles className="h-4 w-4" />
+              </span>
+              <div className="min-w-0">
+                <p className="text-[11px] font-extrabold uppercase tracking-[0.14em] text-main">
+                  {isArabic ? "منشئ الدروس" : "Lesson builder"}
+                </p>
+                <p className="truncate text-sm font-black text-black-blue">
+                  {steps[step]}
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-3 sm:min-w-[220px] sm:justify-end">
+            <div className="min-w-0 flex-1 sm:max-w-[150px]">
+              <div className="mb-1 flex items-center justify-between text-[10px] font-bold text-black-blue/45">
+                <span>{isArabic ? "التقدم" : "Progress"}</span>
+                <span dir="ltr">{step + 1}/{steps.length}</span>
+              </div>
+              <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+                <div
+                  className="h-full rounded-full bg-main transition-all duration-300"
+                  style={{ width: `${((step + 1) / steps.length) * 100}%` }}
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="mt-3 overflow-x-auto pb-1">
+          <div className="flex min-w-max gap-2">
+            {steps.map((stepTitle, index) => (
+              <button
+                key={stepTitle}
+                type="button"
+                disabled={isSubmitting || index > step}
+                onClick={() => setStep(index)}
+                className={`inline-flex min-h-9 items-center gap-2 rounded-xl px-3 text-xs font-extrabold transition ${index === step ? "bg-main text-white shadow-sm" : index < step ? "bg-main/10 text-main" : "bg-slate-50 text-muted-foreground"}`}
+              >
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-white/80 text-[10px] text-black-blue">
+                  {index + 1}
+                </span>
+                {stepTitle}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -396,11 +524,36 @@ const LessonForm = ({ action, lesson }: IProps) => {
           </div>
 
           <div className="grid gap-4 md:grid-cols-2">
-            <label className="text-sm font-medium text-black-blue">
-              {label("Location", "المكان")}
-              <Textarea {...form.register("location")} rows={4} className={inputClassName} />
-              {error("location")}
-            </label>
+            <div className="space-y-3">
+              <label className="block text-sm font-medium text-black-blue">
+                {label("Location", "المكان")}
+                <Textarea {...form.register("location")} rows={4} className={inputClassName} />
+                {error("location")}
+              </label>
+
+              {offlineVisitType === "student_to_teacher" && profileAddress ? (
+                <button
+                  type="button"
+                  onClick={() => form.setValue("location", profileAddress, { shouldDirty: true, shouldValidate: true })}
+                  className="flex w-full items-start gap-3 rounded-xl border border-main/15 bg-main/[0.045] p-3 text-start transition hover:border-main/30 hover:bg-main/[0.07]"
+                >
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-main" />
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-xs font-extrabold text-main">
+                      {isArabic ? "استخدم موقع ملفي الشخصي" : "Use my profile location"}
+                    </span>
+                    <span className="mt-1 block truncate text-xs text-black-blue/55">
+                      {profileAddress}
+                    </span>
+                    {profileLatitude != null && profileLongitude != null ? (
+                      <span className="mt-1 block text-[10px] font-semibold text-black-blue/35" dir="ltr">
+                        {profileLatitude}, {profileLongitude}
+                      </span>
+                    ) : null}
+                  </span>
+                </button>
+              ) : null}
+            </div>
             <label className="text-sm font-medium text-black-blue">
               {label("Visit type", "طريقة الزيارة")}
               <select {...form.register("offline_visit_type")} className={`${inputClassName} block h-11 w-full rounded-md px-3`}>
@@ -453,9 +606,63 @@ const LessonForm = ({ action, lesson }: IProps) => {
       )}
 
       {step === 6 && (
-        <section className="space-y-5 rounded-lg border bg-white p-5">
-          <h2 className="text-xl font-bold text-black-blue">{label("Capacity & Publish", "السعة والنشر")}</h2>
-          {bookingType === "group" ? <label className="block text-sm font-medium text-black-blue">{label("Maximum students", "الحد الأقصى للطلاب")}<Input type="number" min={1} {...form.register("max_students")} className={inputClassName} />{error("max_students")}</label> : <p className="rounded-md bg-muted/40 p-4 text-sm text-muted-foreground">{label("Private lessons do not need group capacity.", "الدروس الخاصة لا تحتاج إلى سعة جماعية.")}</p>}
+        <section className="space-y-5">
+          <div className="rounded-2xl border border-main/15 bg-gradient-to-br from-main/[0.06] via-white to-white p-5 sm:p-6">
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex min-w-0 items-start gap-3">
+                <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-main/10 text-main">
+                  <Sparkles className="h-5 w-5" />
+                </span>
+                <div>
+                  <h2 className="text-xl font-black text-black-blue">
+                    {label("Ready to submit?", "هل الدرس جاهز للإرسال؟")}
+                  </h2>
+                  <p className="mt-1 max-w-2xl text-sm leading-6 text-black-blue/55">
+                    {label(
+                      "We check the lesson before sending it for approval, so you can fix missing details now.",
+                      "نراجع الدرس قبل إرساله للمراجعة حتى تعرف أي بيانات ناقصة قبل الإرسال."
+                    )}
+                  </p>
+                </div>
+              </div>
+              <div className={`shrink-0 rounded-2xl px-4 py-3 ${isReady ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                <p className="text-[10px] font-extrabold uppercase tracking-wide opacity-70">
+                  {label("Readiness", "الجاهزية")}
+                </p>
+                <p className="mt-1 text-2xl font-black" dir="ltr">
+                  {readinessCount}/{readiness.length}
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-5 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {readiness.map((item) => (
+                <div key={item.key} className="flex min-w-0 items-start gap-3 rounded-xl border border-black-blue/[0.06] bg-white px-3 py-3">
+                  {item.done ? (
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+                  ) : (
+                    <AlertCircle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                  )}
+                  <span className={item.done ? "text-xs font-bold text-black-blue/65" : "text-xs font-bold text-black-blue"}>
+                    {item.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {bookingType === "group" ? (
+            <label className="block rounded-2xl border border-black-blue/[0.07] bg-white p-5 text-sm font-bold text-black-blue">
+              {label("Maximum students", "الحد الأقصى للطلاب")}
+              <Input type="number" min={1} {...form.register("max_students")} className={inputClassName} />
+              {error("max_students")}
+            </label>
+          ) : (
+            <div className="flex items-start gap-3 rounded-2xl border border-black-blue/[0.07] bg-[#FBFDFC] p-5 text-sm text-black-blue/60">
+              <UsersRoundIcon />
+              <span>{label("Private lessons do not need group capacity.", "الدروس الخاصة لا تحتاج إلى سعة جماعية.")}</span>
+            </div>
+          )}
         </section>
       )}
 

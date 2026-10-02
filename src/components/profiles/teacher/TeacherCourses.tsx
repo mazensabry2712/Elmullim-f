@@ -47,7 +47,7 @@ const TeacherCourses = () => {
           ) : (
             <>
               {!courses?.data.length ? (
-                <p className="font-medium fon-sora text-lg text-center text-[#4D5756] pt-5">
+                <p className="font-medium font-sora text-lg text-center text-[#4D5756] pt-5">
                   {isArabic ? "لا توجد كورسات بعد." : "No courses found"}
                 </p>
               ) : (

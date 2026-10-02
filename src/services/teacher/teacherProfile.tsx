@@ -16,6 +16,17 @@ export const getTeacherProfile = async (
   return data;
 };
 
+export const getTeacherCv = async (token: string): Promise<Blob> => {
+  const { data } = await axiosAPI.get("/teacher/me/cv", {
+    responseType: "blob",
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  return data;
+};
+
 export const updateTeacherProfile = async ({
   token,
   dataForm,

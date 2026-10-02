@@ -1,4 +1,10 @@
-import { FormField } from "@/components/ui/form";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 import { IFormInput } from "@/interfaces";
 import { z, ZodSchema } from "zod";
 import { ControllerRenderProps, UseFormReturn } from "react-hook-form";
@@ -12,6 +18,7 @@ import FileFormItem from "../formItems/FileFormItem";
 import MultiInputForm from "../formItems/MultiInputForm";
 import InputFormItem from "../formItems/InputFormItem";
 import { Textarea } from "@/components/ui/textarea";
+import { translateFormText } from "@/i18n/formCopy";
 
 interface IOption {
   value: string;

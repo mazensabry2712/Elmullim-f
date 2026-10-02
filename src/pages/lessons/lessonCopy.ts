@@ -61,6 +61,9 @@ const copy = {
     content: "Lesson content",
     noContent: "No content available for this lesson.",
     relatedLessons: "Related lessons",
+    weeklySchedule: "Weekly schedule",
+    serviceAreas: "Service areas",
+    availableArea: "service area",
     booking: {
       title: "Book lesson",
       student: "Student",
@@ -163,6 +166,9 @@ const copy = {
     content: "محتوى الدرس",
     noContent: "لا يوجد محتوى متاح لهذا الدرس.",
     relatedLessons: "دروس مشابهة",
+    weeklySchedule: "المواعيد الأسبوعية",
+    serviceAreas: "مناطق الخدمة",
+    availableArea: "منطقة خدمة",
     booking: {
       title: "حجز الدرس",
       student: "الطالب",

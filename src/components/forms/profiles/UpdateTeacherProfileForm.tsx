@@ -36,6 +36,7 @@ import { updateTeacherProfileSchema } from "@/validations/teacher/teacherProfile
 import Swal from "sweetalert2";
 import { useI18n } from "@/i18n";
 import { getAuthCopy } from "@/i18n/authCopy";
+import LocationPicker from "@/components/shared/LocationPicker";
 
 const fieldInput = (name: string) =>
   UPDATE_TEACHER_PROFILE.find((input) => input.name === name);
@@ -111,6 +112,8 @@ const UpdateTeacherProfileForm = () => {
       gender: "",
       phone: "",
       address: "",
+      latitude: null,
+      longitude: null,
       profile_image: undefined,
       country_id: "",
       description: "",
@@ -126,6 +129,10 @@ const UpdateTeacherProfileForm = () => {
     control: form.control,
     name: "profile_image",
   });
+
+  const selectedAddress = useWatch({ control: form.control, name: "address" });
+  const selectedLatitude = useWatch({ control: form.control, name: "latitude" });
+  const selectedLongitude = useWatch({ control: form.control, name: "longitude" });
 
   const selectedCv = useWatch({
     control: form.control,
@@ -207,6 +214,8 @@ const UpdateTeacherProfileForm = () => {
     qualification,
     cv,
     experince,
+    latitude,
+    longitude,
   }: z.infer<typeof updateTeacherProfileSchema>) => {
     try {
       const { status, message } = await updateTeacherProfile({
@@ -221,6 +230,8 @@ const UpdateTeacherProfileForm = () => {
           name,
           phone,
           address,
+          latitude,
+          longitude,
           description,
           profile_image,
           course_type,
@@ -274,6 +285,8 @@ const UpdateTeacherProfileForm = () => {
       name: teacher.name || "",
       phone: teacher.phone || "",
       address: teacher.address || "",
+      latitude: teacher.latitude == null ? null : Number(teacher.latitude),
+      longitude: teacher.longitude == null ? null : Number(teacher.longitude),
       email: teacher.email || "",
       gender: teacher.gender || "",
       description: teacher.description || "",
@@ -398,6 +411,20 @@ const UpdateTeacherProfileForm = () => {
 
             <div className="grid min-w-0 gap-4 md:grid-cols-2">
               {sections.basic.map(renderField)}
+            </div>
+            <div className="mt-5 rounded-2xl border border-main/10 bg-white p-4 md:p-5">
+              <LocationPicker
+                value={selectedAddress || ""}
+                latitude={selectedLatitude}
+                longitude={selectedLongitude}
+                disabled={isPending}
+                onChange={({ address, latitude, longitude }) => {
+                  form.setValue("address", address, { shouldDirty: true, shouldValidate: true });
+                  form.setValue("latitude", latitude, { shouldDirty: true, shouldValidate: true });
+                  form.setValue("longitude", longitude, { shouldDirty: true, shouldValidate: true });
+                }}
+                placeholder={isArabic ? "ابحث عن عنوانك واختر المكان" : "Search your address and select the location"}
+              />
             </div>
           </motion.section>
 

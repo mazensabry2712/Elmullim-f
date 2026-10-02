@@ -86,7 +86,7 @@ export const updateTeacherProfileSchema = z.object({
   }),
   address: z
     .string()
-    .max(500, {
+    .max(255, {
       message: validationMessage(
         "Address must be 500 characters or fewer.",
         "يجب ألا يزيد العنوان عن 500 حرف."

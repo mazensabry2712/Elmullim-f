@@ -254,10 +254,7 @@ describe("BookLessonDialog", () => {
     fireEvent.change(screen.getByLabelText("Choose date"), {
       target: { value: "2099-01-10" },
     });
-    await waitFor(() => expect(screen.getByRole("option", { name: /18:00/ })).toBeInTheDocument());
-    fireEvent.change(screen.getByRole("combobox", { name: "Choose available time" }), {
-      target: { value: "2099-01-10T16:00:00.000Z" },
-    });
+    fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
 
     fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
 
@@ -324,7 +321,7 @@ describe("BookLessonDialog", () => {
     expect(screen.getByRole("heading", { name: "حجز الدرس" })).toBeInTheDocument();
     expect(screen.getByLabelText("اختر التاريخ")).toBeInTheDocument();
     expect(screen.getByText("اختر الموعد المتاح")).toBeInTheDocument();
-    expect(screen.getByText("السعر: 0 جنيه")).toBeInTheDocument();
+    expect(screen.getByText("0 جنيه")).toBeInTheDocument();
     expect(screen.getByText("هذا درس خاص ويحتاج إلى موافقة المعلم.")).toBeInTheDocument();
   });
 

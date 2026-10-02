@@ -5,15 +5,18 @@ import { useGetTeacherCourses } from "@/lib/react-query/teacher/courses";
 import { containerVariants, itemVariants } from "@/animations";
 import TeacherCourseCard from "./courses/TeacherCourseCard";
 import { Link } from "react-router-dom";
+import { useI18n } from "@/i18n";
 
 const TeacherCourses = () => {
   const token = cookieService.getToken()!;
-  const { data: courses, isLoading } = useGetTeacherCourses(token);
+  const { language } = useI18n();
+  const isArabic = language === "ar";
+  const { data: courses, isLoading, isError, refetch } = useGetTeacherCourses(token);
 
   return (
     <div className="pb-10 mt-4 overflow-hidden bg-white rounded-lg">
       <h2 className="font-sora font-bold text-center capitalize text-main text-2xl my-5">
-        my courses
+        {isArabic ? "كورساتي" : "My Courses"}
       </h2>
       <motion.section
         initial={{ opacity: 0, y: 40 }}
@@ -27,17 +30,25 @@ const TeacherCourses = () => {
             to={"/profile/teacher/courses/upload"}
             className="flex justify-center items-center bg-main text-white rounded-md py-3 px-6 w-full sm:w-fit ml-auto"
           >
-            Add new course
+            {isArabic ? "إضافة كورس جديد" : "Add new course"}
           </Link>
         </div>
         <div className="py-12 md:py-16 px-3 md:px-8">
           {isLoading ? (
-            <Loader size={40} className="animate-spin mx-auto" />
+            <div className="py-12" role="status" aria-live="polite">
+              <Loader size={40} className="animate-spin mx-auto" />
+              <span className="sr-only">{isArabic ? "جاري تحميل الكورسات" : "Loading courses"}</span>
+            </div>
+          ) : isError ? (
+            <div className="py-12 text-center" role="alert">
+              <p className="font-sora text-sm text-[#4D5756]">{isArabic ? "تعذر تحميل الكورسات حاليًا." : "Unable to load courses right now."}</p>
+              <button type="button" onClick={() => void refetch()} className="mt-4 rounded-md bg-main px-5 py-2 text-sm font-semibold text-white">{isArabic ? "حاول مرة أخرى" : "Try again"}</button>
+            </div>
           ) : (
             <>
               {!courses?.data.length ? (
                 <p className="font-medium fon-sora text-lg text-center text-[#4D5756] pt-5">
-                  No courses found
+                  {isArabic ? "لا توجد كورسات بعد." : "No courses found"}
                 </p>
               ) : (
                 <motion.div

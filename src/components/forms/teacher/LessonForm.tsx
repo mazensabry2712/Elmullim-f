@@ -282,8 +282,11 @@ const LessonForm = ({ action, lesson }: IProps) => {
       step === 1 ? ["delivery_mode"] :
       step === 2 ? ["booking_type"] :
       step === 3 ? ["title", "description", "duration_minutes", "price", "sessions_count", "availability"] :
-      step === 4 ? ["meeting_url"] :
-      ["location", "offline_visit_type", "service_area_ids"];
+      step === 4
+        ? deliveryMode === "online"
+          ? ["meeting_url"]
+          : ["location", "offline_visit_type", "service_area_ids"]
+        : [];
 
     const valid = await form.trigger(fields);
     if (valid) setStep((current) => Math.min(current + 1, steps.length - 1));
@@ -525,98 +528,190 @@ const LessonForm = ({ action, lesson }: IProps) => {
       )}
 
       {step === 4 && (
-        <section className="space-y-5 rounded-lg border bg-white p-5">
-          <h2 className="text-xl font-bold text-black-blue">Online</h2>
-          <p className="text-sm text-muted-foreground">{label("Add the live meeting URL now or later from your teaching schedule.", "أدخل رابط الاجتماع الآن أو أضفه لاحقًا من جدول التدريس.")}</p>
-          <label className="block text-sm font-medium text-black-blue">Meeting URL<Input {...form.register("meeting_url")} placeholder="https://..." className={inputClassName} />{error("meeting_url")}</label>
-        </section>
-      )}
-
-      {step === 5 && (
-        <section className="space-y-6 rounded-lg border bg-white p-5">
-          <div>
-            <h2 className="text-xl font-bold text-black-blue">Offline</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{label("Define where the lesson happens and whether the teacher travels to the student.", "حدد مكان الدرس وهل المعلم سيذهب إلى الطالب أم سيذهب الطالب إلى المعلم.")}</p>
-          </div>
-
-          <div className="grid gap-4 md:grid-cols-2">
-            <div className="space-y-3">
-              <label className="block text-sm font-medium text-black-blue">
-                {label("Location", "المكان")}
-                <Textarea {...form.register("location")} rows={4} className={inputClassName} />
-                {error("location")}
-              </label>
-
-              {offlineVisitType === "student_to_teacher" && profileAddress ? (
-                <button
-                  type="button"
-                  onClick={() => form.setValue("location", profileAddress, { shouldDirty: true, shouldValidate: true })}
-                  className="flex w-full items-start gap-3 rounded-xl border border-main/15 bg-main/[0.045] p-3 text-start transition hover:border-main/30 hover:bg-main/[0.07]"
-                >
-                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-main" />
-                  <span className="min-w-0 flex-1">
-                    <span className="block text-xs font-extrabold text-main">
-                      {isArabic ? "استخدم موقع ملفي الشخصي" : "Use my profile location"}
-                    </span>
-                    <span className="mt-1 block truncate text-xs text-black-blue/55">
-                      {profileAddress}
-                    </span>
-                    {profileLatitude != null && profileLongitude != null ? (
-                      <span className="mt-1 block text-[10px] font-semibold text-black-blue/35" dir="ltr">
-                        {profileLatitude}, {profileLongitude}
-                      </span>
-                    ) : null}
-                  </span>
-                </button>
-              ) : null}
-            </div>
-            <label className="text-sm font-medium text-black-blue">
-              {label("Visit type", "طريقة الزيارة")}
-              <select {...form.register("offline_visit_type")} className={`${inputClassName} block h-11 w-full rounded-md px-3`}>
-                <option value="">{label("Select visit type", "اختر طريقة الزيارة")}</option>
-                <option value="teacher_to_student">{label("Teacher goes to student", "المعلم يذهب إلى الطالب")}</option>
-                <option value="student_to_teacher">{label("Student goes to teacher", "الطالب يذهب إلى المعلم")}</option>
-              </select>
-              {error("offline_visit_type")}
-            </label>
-          </div>
-
-          {offlineVisitType === "teacher_to_student" && (
-            <div className="space-y-4 rounded-lg border border-main/30 bg-main/5 p-4">
+        <section className="space-y-6 rounded-2xl border border-black-blue/[0.07] bg-white p-5 shadow-sm sm:p-6">
+          {deliveryMode === "online" ? (
+            <>
               <div>
-                <h3 className="font-semibold text-black-blue">{label("Service areas", "مناطق الخدمة")}</h3>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  {label("Students can book this lesson only when their saved location is inside at least one selected area.", "يمكن للطلاب حجز هذا الدرس فقط عندما يكون موقعهم المسجل داخل منطقة خدمة واحدة على الأقل.")}
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-main/10 px-3 py-1.5 text-xs font-extrabold text-main">
+                  <VideoIcon />
+                  {label("Online", "أونلاين")}
+                </div>
+                <h2 className="text-xl font-bold text-black-blue">
+                  {label("Meeting setup", "إعداد الاجتماع")}
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  {label(
+                    "Add the live meeting URL now or later from your teaching schedule.",
+                    "أدخل رابط الاجتماع الآن أو أضفه لاحقًا من جدول التدريس."
+                  )}
+                </p>
+              </div>
+              <label className="block text-sm font-medium text-black-blue">
+                {label("Meeting URL", "رابط الاجتماع")}
+                <Input
+                  {...form.register("meeting_url")}
+                  placeholder="https://..."
+                  className={inputClassName}
+                />
+                {error("meeting_url")}
+              </label>
+            </>
+          ) : (
+            <>
+              <div>
+                <div className="mb-2 inline-flex items-center gap-2 rounded-full bg-main/10 px-3 py-1.5 text-xs font-extrabold text-main">
+                  <MapPin className="h-4 w-4" />
+                  {label("Offline", "حضوري")}
+                </div>
+                <h2 className="text-xl font-bold text-black-blue">
+                  {label("Location & service", "المكان ومناطق الخدمة")}
+                </h2>
+                <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                  {label(
+                    "Choose where the lesson happens and how the visit works.",
+                    "حدد مكان الدرس وطريقة الزيارة."
+                  )}
                 </p>
               </div>
 
-              {isLoadingServiceAreas ? (
-                <div className="rounded-md bg-white p-4 text-sm text-muted-foreground">{label("Loading service areas...", "جاري تحميل مناطق الخدمة...")}</div>
-              ) : activeServiceAreas.length === 0 ? (
-                <div className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-                  {label("No active service areas found. Create an active service area from your profile before publishing a teacher-to-student lesson.", "لا توجد مناطق خدمة نشطة. أنشئ منطقة خدمة نشطة من ملفك الشخصي قبل نشر درس يذهب فيه المعلم إلى الطالب.")}
-                </div>
-              ) : (
-                <div className="grid gap-3 md:grid-cols-2">
-                  {activeServiceAreas.map((area) => {
-                    const checked = selectedServiceAreaIds.includes(area.id);
-                    return (
-                      <label key={area.id} className={`flex cursor-pointer items-start gap-3 rounded-md border bg-white p-4 ${checked ? "border-main ring-1 ring-main/30" : "border-border"}`}>
-                        <input type="checkbox" checked={checked} onChange={() => toggleServiceArea(area.id)} className="mt-1 h-4 w-4 accent-main" />
-                        <span>
-                          <span className="block font-semibold text-black-blue">{area.name}</span>
-                          <span className="mt-1 block text-xs text-muted-foreground">
-                            {label("Radius", "نطاق")}: {area.radius_km} km
-                          </span>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-3">
+                  <label className="block text-sm font-medium text-black-blue">
+                    {label("Location", "المكان")}
+                    <Textarea
+                      {...form.register("location")}
+                      rows={4}
+                      className={inputClassName}
+                    />
+                    {error("location")}
+                  </label>
+
+                  {offlineVisitType === "student_to_teacher" && profileAddress ? (
+                    <button
+                      type="button"
+                      onClick={() =>
+                        form.setValue("location", profileAddress, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        })
+                      }
+                      className="flex w-full items-start gap-3 rounded-2xl border border-main/15 bg-main/[0.045] p-3 text-start transition hover:border-main/30 hover:bg-main/[0.07]"
+                    >
+                      <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-main" />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-xs font-extrabold text-main">
+                          {isArabic
+                            ? "استخدم موقع ملفي الشخصي"
+                            : "Use my profile location"}
                         </span>
-                      </label>
-                    );
-                  })}
+                        <span className="mt-1 block truncate text-xs text-black-blue/55">
+                          {profileAddress}
+                        </span>
+                        {profileLatitude != null && profileLongitude != null ? (
+                          <span
+                            className="mt-1 block text-[10px] font-semibold text-black-blue/35"
+                            dir="ltr"
+                          >
+                            {profileLatitude}, {profileLongitude}
+                          </span>
+                        ) : null}
+                      </span>
+                    </button>
+                  ) : null}
+                </div>
+
+                <label className="block text-sm font-medium text-black-blue">
+                  {label("Visit type", "طريقة الزيارة")}
+                  <select
+                    {...form.register("offline_visit_type")}
+                    className={inputClassName + " block h-11 w-full rounded-md px-3"}
+                  >
+                    <option value="">
+                      {label("Select visit type", "اختر طريقة الزيارة")}
+                    </option>
+                    <option value="teacher_to_student">
+                      {label(
+                        "Teacher goes to student",
+                        "المعلم يذهب إلى الطالب"
+                      )}
+                    </option>
+                    <option value="student_to_teacher">
+                      {label(
+                        "Student goes to teacher",
+                        "الطالب يذهب إلى المعلم"
+                      )}
+                    </option>
+                  </select>
+                  {error("offline_visit_type")}
+                </label>
+              </div>
+
+              {offlineVisitType === "teacher_to_student" && (
+                <div className="space-y-4 rounded-2xl border border-main/20 bg-main/[0.035] p-4">
+                  <div>
+                    <h3 className="font-semibold text-black-blue">
+                      {label("Service areas", "مناطق الخدمة")}
+                    </h3>
+                    <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                      {label(
+                        "Only students inside one of these active areas can request this lesson.",
+                        "يمكن للطلاب الموجودين داخل إحدى مناطق الخدمة النشطة طلب هذا الدرس."
+                      )}
+                    </p>
+                  </div>
+
+                  {isLoadingServiceAreas ? (
+                    <div className="rounded-xl bg-white p-4 text-sm text-muted-foreground">
+                      {label(
+                        "Loading service areas...",
+                        "جاري تحميل مناطق الخدمة..."
+                      )}
+                    </div>
+                  ) : activeServiceAreas.length === 0 ? (
+                    <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-800">
+                      {label(
+                        "No active service areas found. Add one from your profile first.",
+                        "لا توجد مناطق خدمة نشطة. أضف منطقة خدمة من ملفك الشخصي أولًا."
+                      )}
+                    </div>
+                  ) : (
+                    <div className="grid gap-3 md:grid-cols-2">
+                      {activeServiceAreas.map((area) => {
+                        const checked = selectedServiceAreaIds.includes(area.id);
+                        return (
+                          <label
+                            key={area.id}
+                            className={
+                              "flex cursor-pointer items-start gap-3 rounded-xl border bg-white p-4 " +
+                              (checked
+                                ? "border-main ring-1 ring-main/30"
+                                : "border-black-blue/[0.08]")
+                            }
+                          >
+                            <input
+                              type="checkbox"
+                              checked={checked}
+                              onChange={() => toggleServiceArea(area.id)}
+                              className="mt-1 h-4 w-4 accent-main"
+                            />
+                            <span className="min-w-0">
+                              <span className="block break-words font-semibold text-black-blue">
+                                {area.name}
+                              </span>
+                              <span className="mt-1 block text-xs text-muted-foreground">
+                                {label("Radius", "نطاق")}: {area.radius_km} km
+                              </span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {error("service_area_ids")}
                 </div>
               )}
-
-              {error("service_area_ids")}
-            </div>
+            </>
           )}
         </section>
       )}
@@ -684,7 +779,7 @@ const LessonForm = ({ action, lesson }: IProps) => {
 
       <div className="flex flex-wrap items-center justify-between gap-3">
         <Button type="button" variant="outline" onClick={goBack} disabled={step === 0 || isSubmitting}>{label("Back", "رجوع")}</Button>
-        {step < steps.length - 1 ? <Button type="button" onClick={goNext} disabled={isSubmitting}>{label("Next", "التالي")}</Button> : <Button type="submit" disabled={isSubmitting}>{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{action === "create" ? label("Create Lesson", "إنشاء الدرس") : label("Update Lesson", "تحديث الدرس")}</Button>}
+        {step < steps.length - 1 ? <Button type="button" onClick={goNext} disabled={isSubmitting}>{label("Next", "التالي")}</Button> : <Button type="submit" disabled={isSubmitting || !isReady}>{isSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}{action === "create" ? label("Create Lesson", "إنشاء الدرس") : label("Update Lesson", "تحديث الدرس")}</Button>}
       </div>
     </form>
   );

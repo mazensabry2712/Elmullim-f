@@ -84,12 +84,20 @@ export const updateTeacherProfileSchema = z.object({
       "يجب أن يحتوي رقم الهاتف على 10 إلى 20 رقمًا."
     ),
   }),
-  address: z.string().max(500, {
-    message: validationMessage(
-      "Address must be 500 characters or fewer.",
-      "يجب ألا يزيد العنوان عن 500 حرف."
-    ),
-  }).optional(),
+  address: z
+    .string()
+    .max(500, {
+      message: validationMessage(
+        "Address must be 500 characters or fewer.",
+        "يجب ألا يزيد العنوان عن 500 حرف."
+      ),
+    })
+    .nonempty({
+      message: validationMessage(
+        "Address is required.",
+        "العنوان مطلوب."
+      ),
+    }),
   education_system_id: z
     .string()
     .nonempty({

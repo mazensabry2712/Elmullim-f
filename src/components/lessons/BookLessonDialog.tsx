@@ -399,10 +399,13 @@ const BookLessonDialog = ({
                   <div className="flex items-start gap-3">
                     <MapPin className="mt-0.5 h-5 w-5 shrink-0 text-main" />
                     <div className="min-w-0">
-                      <p className="text-sm font-extrabold text-black-blue">{bookingCopy.studentLocation}</p>
+                      <p className="text-sm font-extrabold text-black-blue">
+                        {language === "ar" ? "موقع الحصة" : "Lesson location"}
+                      </p>
                       <p className="mt-1 text-xs leading-5 text-black-blue/55">
-                        {(role === "student" ? selfStudent : students.find((student) => student.id === studentId))?.address
-                          || bookingCopy.studentLocationPlaceholder}
+                        {language === "ar"
+                          ? "سيتم استخدام موقع الطالب المحفوظ في ملفه الشخصي تلقائيًا. لا يوجد عنوان يُكتب داخل الحجز."
+                          : "The student's saved profile location is used automatically. No address is entered in the booking."}
                       </p>
                     </div>
                   </div>

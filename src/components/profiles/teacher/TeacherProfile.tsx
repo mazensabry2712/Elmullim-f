@@ -17,12 +17,12 @@ const TeacherProfile = () => {
     : { main: "Main", courses: "Courses", lessons: "Lessons", serviceAreas: "Service Areas", chat: "Chat", quizzes: "Quizzes" };
 
   return (
-    <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} viewport={{ once: true }} className="container mb-10">
+    <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.35 }} viewport={{ once: true }} className="container mb-10">
       <div className="mt-10">
         <Tabs defaultValue={state?.myCourses ? "courses" : state?.myLessons ? "lessons" : state?.serviceAreas ? "service-areas" : state?.chat ? "chat" : "main-profile"} className="w-full">
-          <TabsList className="!mx-auto h-auto w-full justify-center overflow-hidden rounded-lg bg-[#21374B] p-0 px-4">
-            <div className="mx-auto flex max-w-4xl flex-wrap justify-center gap-x-4 sm:gap-x-10">
-              <TabsTrigger value="main-profile" className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-lg font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B]">{text.main}</TabsTrigger>
+          <TabsList className="grid h-auto w-full grid-cols-2 gap-1.5 overflow-hidden rounded-2xl bg-[#21374B] p-1.5 sm:grid-cols-3 lg:flex lg:justify-center">
+            <div className="contents lg:flex lg:items-center lg:justify-center">
+              <TabsTrigger value="main-profile" className="min-w-0 rounded-xl border-0 px-2.5 py-3 text-xs font-bold text-white transition-all data-[state=active]:bg-white data-[state=active]:text-[#21374B] data-[state=active]:shadow-sm sm:px-4 sm:text-sm lg:min-w-[125px] lg:px-5">{text.main}</TabsTrigger>
               <TabsTrigger value="courses" className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-lg font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B]">{text.courses}</TabsTrigger>
               <TabsTrigger value="lessons" className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-lg font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B]">{text.lessons}</TabsTrigger>
               <TabsTrigger value="service-areas" className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-lg font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B]">{text.serviceAreas}</TabsTrigger>

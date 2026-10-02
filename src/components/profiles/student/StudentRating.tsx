@@ -12,15 +12,19 @@ const StudentRating = ({ rate }: IProps) => {
   const actor = rate.reply;
   const actorType = actor?.type?.toLowerCase().includes("teacher")
     ? isArabic
-      ? "مدرس"
+      ? "معلم"
       : "Teacher"
     : actor?.type?.toLowerCase().includes("famil")
       ? isArabic
         ? "ولي الأمر"
         : "Parent"
-      : isArabic
-        ? "مُقيّم"
-        : "Reviewer";
+      : actor?.type?.toLowerCase().includes("student")
+        ? isArabic
+          ? "طالب"
+          : "Student"
+        : isArabic
+          ? "مُقيّم"
+          : "Reviewer";
 
   const formattedDate = (() => {
     const value = new Date(rate.created_at);

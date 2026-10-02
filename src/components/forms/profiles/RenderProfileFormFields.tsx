@@ -79,12 +79,12 @@ const RenderProfileFormFields = ({
         return (
           <FormItem>
             <FormLabel className="text-black-blue font-medium font-sora">
-              {input.label}
+              {translateFormText(language, input.label)}
             </FormLabel>
             <FormControl>
               <Textarea
                 {...field}
-                placeholder={input.placeholder}
+                placeholder={translateFormText(language, input.placeholder)}
                 className="min-h-32 resize-y bg-white text-black-blue placeholder:text-black-blue/45 focus-visible:ring-2 focus-visible:ring-main"
               />
             </FormControl>

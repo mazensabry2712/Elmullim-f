@@ -129,6 +129,17 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
           </div>
         </div>
 
+        {lesson.publishing_status === "rejected" && lesson.publishing_note ? (
+          <div className="mt-3 rounded-2xl border border-red-100 bg-red-50 px-3 py-3">
+            <p className="text-[10px] font-extrabold uppercase tracking-wide text-red-500">
+              {isArabic ? "سبب المراجعة" : "Review note"}
+            </p>
+            <p className="mt-1 line-clamp-3 text-xs font-semibold leading-5 text-red-700">
+              {lesson.publishing_note}
+            </p>
+          </div>
+        ) : null}
+
         {lesson.delivery_mode === "offline" ? (
           <div className="mt-3 inline-flex min-w-0 items-center gap-2 rounded-xl bg-[#FBFDFC] px-3 py-2.5 text-xs font-semibold text-black-blue/60">
             <MapPin className="h-4 w-4 shrink-0 text-main" />

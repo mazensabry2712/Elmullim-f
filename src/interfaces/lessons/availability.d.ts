@@ -52,4 +52,5 @@ export interface ICreateLessonAvailabilitySlot {
   start_time: string;
   end_time: string;
   timezone: string;
+  meeting_url?: string;
 }

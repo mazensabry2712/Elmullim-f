@@ -164,6 +164,7 @@ const TeacherLessons = () => {
                 </motion.div>
               ))}
             </motion.div>
+            </>
           )}
         </div>
       </div>

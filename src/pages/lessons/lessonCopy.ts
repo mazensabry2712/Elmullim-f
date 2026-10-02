@@ -75,9 +75,7 @@ const copy = {
       time: "Choose available time",
       noTimes: "No available times for this date.",
       note: "Note (optional)",
-      studentLocation: "Student location",
-      studentLocationPlaceholder: "Enter the area/address where the lesson will take place",
-      studentLocationRequired: "Student location is required for this visit type.",
+      studentLocationRequired: "The student's saved profile location is required for this visit type."
       confirm: "Submit booking",
       cancel: "Cancel",
       login: "You must be signed in as a student or parent to book.",
@@ -182,9 +180,7 @@ const copy = {
       time: "اختر الموعد المتاح",
       noTimes: "لا توجد مواعيد متاحة في هذا اليوم.",
       note: "ملاحظة (اختياري)",
-      studentLocation: "موقع الطالب",
-      studentLocationPlaceholder: "اكتب المنطقة أو العنوان الذي سيتم فيه الدرس",
-      studentLocationRequired: "موقع الطالب مطلوب في هذا النوع من الزيارة.",
+      studentLocationRequired: "يجب إكمال موقع الطالب المحفوظ في ملفه الشخصي لهذا النوع من الزيارة."
       confirm: "تأكيد طلب الحجز",
       cancel: "إلغاء",
       login: "يجب تسجيل الدخول كطالب أو ولي أمر للحجز.",

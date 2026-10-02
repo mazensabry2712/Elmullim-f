@@ -1,4 +1,4 @@
-import { Loader, Plus, Sparkles } from "lucide-react";
+import { Filter, Loader, Plus, Search, Sparkles } from "lucide-react";
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { useGetTeacherLessons } from "@/lib/react-query/teacher/lessons";
@@ -6,13 +6,37 @@ import { containerVariants, itemVariants } from "@/animations";
 import TeacherLessonCard from "./lessons/TeacherLessonCard";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/i18n";
+import { useMemo, useState } from "react";
 
 const TeacherLessons = () => {
   const token = cookieService.getToken() || "";
   const { language } = useI18n();
   const isArabic = language === "ar";
   const { data: lessons, isLoading, isError, refetch } = useGetTeacherLessons(token);
-  const lessonCount = lessons?.data?.length ?? 0;
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState<"all" | "published" | "pending_approval" | "rejected" | "draft">("all");
+
+  const allLessons = lessons?.data ?? [];
+  const stats = useMemo(() => ({
+    total: allLessons.length,
+    published: allLessons.filter((lesson) => lesson.publishing_status === "published").length,
+    pending: allLessons.filter((lesson) => lesson.publishing_status === "pending_approval").length,
+    drafts: allLessons.filter((lesson) => lesson.publishing_status === "draft" || lesson.publishing_status === "rejected").length,
+  }), [allLessons]);
+
+  const filteredLessons = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return allLessons.filter((lesson) => {
+      const matchesSearch =
+        !query ||
+        lesson.title.toLowerCase().includes(query) ||
+        (lesson.grade || "").toLowerCase().includes(query);
+      const matchesStatus = status === "all" || lesson.publishing_status === status;
+      return matchesSearch && matchesStatus;
+    });
+  }, [allLessons, search, status]);
+
+  const lessonCount = filteredLessons.length;
 
   return (
     <section className="space-y-4">
@@ -27,10 +51,10 @@ const TeacherLessons = () => {
               <h2 className="text-2xl font-extrabold tracking-tight text-black-blue md:text-3xl">
                 {isArabic ? "دروسي" : "My Lessons"}
               </h2>
-              <p className="mt-1 text-sm text-black-blue/50">
+              <p className="mt-1 max-w-2xl text-sm leading-6 text-black-blue/50">
                 {isArabic
-                  ? "أنشئ دروسك وتابع إعدادات الحجز والتوافر."
-                  : "Create lessons and manage their booking availability."}
+                  ? "أنشئ دروسك، راقب جاهزيتها للحجز، وتابع التوافر والمكان والحالة من نفس الشاشة."
+                  : "Create lessons, monitor booking readiness, and manage availability, location and status from one place."}
               </p>
             </div>
 
@@ -44,7 +68,51 @@ const TeacherLessons = () => {
           </div>
         </div>
 
+        <div className="border-b border-black-blue/[0.06] bg-[#FBFDFC] px-4 py-4 sm:px-5 md:px-8">
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+            {[
+              [isArabic ? "إجمالي الدروس" : "Total lessons", stats.total],
+              [isArabic ? "منشورة" : "Published", stats.published],
+              [isArabic ? "قيد المراجعة" : "Pending review", stats.pending],
+              [isArabic ? "تحتاج متابعة" : "Needs attention", stats.drafts],
+            ].map(([label, value]) => (
+              <div key={String(label)} className="rounded-2xl border border-black-blue/[0.06] bg-white px-4 py-3 shadow-sm">
+                <p className="text-[11px] font-bold uppercase tracking-wide text-black-blue/40">{label}</p>
+                <p className="mt-1 text-2xl font-black text-black-blue">{value}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
         <div className="px-4 py-6 sm:px-5 md:px-8 md:py-8">
+          <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+            <label className="relative block">
+              <span className="sr-only">{isArabic ? "بحث في الدروس" : "Search lessons"}</span>
+              <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black-blue/35" />
+              <input
+                value={search}
+                onChange={(event) => setSearch(event.target.value)}
+                placeholder={isArabic ? "ابحث باسم الدرس أو الصف..." : "Search by lesson title or grade..."}
+                className="h-11 w-full rounded-xl border border-black-blue/10 bg-white ps-10 pe-4 text-sm text-black-blue outline-none transition focus:border-main/40 focus:ring-2 focus:ring-main/10"
+              />
+            </label>
+            <label className="relative block">
+              <span className="sr-only">{isArabic ? "تصفية الحالة" : "Filter status"}</span>
+              <Filter className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black-blue/35" />
+              <select
+                value={status}
+                onChange={(event) => setStatus(event.target.value as typeof status)}
+                className="h-11 w-full appearance-none rounded-xl border border-black-blue/10 bg-white ps-10 pe-4 text-sm font-semibold text-black-blue outline-none focus:border-main/40 focus:ring-2 focus:ring-main/10"
+              >
+                <option value="all">{isArabic ? "كل الحالات" : "All statuses"}</option>
+                <option value="published">{isArabic ? "منشور" : "Published"}</option>
+                <option value="pending_approval">{isArabic ? "قيد المراجعة" : "Pending review"}</option>
+                <option value="rejected">{isArabic ? "مرفوض" : "Rejected"}</option>
+                <option value="draft">{isArabic ? "مسودة" : "Draft"}</option>
+              </select>
+            </label>
+          </div>
+
           {isLoading ? (
             <div className="flex min-h-72 items-center justify-center rounded-2xl bg-[#FBFDFC]" role="status" aria-live="polite">
               <Loader size={38} className="mx-auto animate-spin text-main" />
@@ -80,6 +148,9 @@ const TeacherLessons = () => {
               </p>
             </div>
           ) : (
+            <div className="mb-4 rounded-xl bg-main/[0.04] px-4 py-3 text-xs font-semibold text-black-blue/60">
+              {isArabic ? `عرض ${filteredLessons.length} من ${allLessons.length} درس` : `Showing ${filteredLessons.length} of ${allLessons.length} lessons`}
+            </div>
             <motion.div
               variants={containerVariants}
               viewport={{ once: true }}
@@ -87,7 +158,7 @@ const TeacherLessons = () => {
               whileInView="visible"
               className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-6"
             >
-              {(lessons?.data ?? []).map((lesson) => (
+              {filteredLessons.map((lesson) => (
                 <motion.div variants={itemVariants} key={lesson.id} className="h-full">
                   <TeacherLessonCard lesson={lesson} />
                 </motion.div>

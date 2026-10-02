@@ -36,12 +36,12 @@ const LessonUpdate = () => {
     <Card>
       <CardHeader>
         <CardTitle>
-          {language === "ar" ? "تحديث الدرس" : "Update Lesson"}
+          {language === "ar" ? "ضبط الدرس" : "Tune Lesson"}
         </CardTitle>
         <CardDescription>
           {language === "ar"
-            ? "يمكنك تحديث تفاصيل الدرس من هنا"
-            : "You can update lesson details from here"}
+            ? "عدّل البيانات التي تحتاجها فقط؛ الإعدادات المرتبطة تتكيّف تلقائيًا."
+            : "Edit only what you need; related settings adapt automatically."}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

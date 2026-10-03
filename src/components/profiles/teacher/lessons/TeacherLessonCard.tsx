@@ -199,7 +199,7 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
             <DeleteLesson id={lesson.id.toString()} disabled={(lesson.bookings_count ?? 0) > 0} />
           </div>
           <LessonStatusActions lesson={lesson} compact />
-        </div>        </div>
+        </div>
       </div>
     </article>
   );

@@ -1,7 +1,7 @@
 import axiosAPI from "@/config/axios.config";
 import { IStatusMsg } from "@/interfaces";
 import { ICreateLesson, IUpdateLesson } from "@/interfaces/teachers/teacherLessons";
-import { ILessonsRes, ILessonRes } from "@/interfaces/lessons/lesson";
+import { ILessonsRes, ILessonRes, ITeacherLessonsRes } from "@/interfaces/lessons/lesson";
 import { ICreateLessonAvailabilitySlot } from "@/interfaces/lessons/availability";
 
 const appendAvailability = (
@@ -32,7 +32,7 @@ const appendServiceAreas = (formData: FormData, serviceAreaIds?: number[]) => {
   serviceAreaIds?.forEach((id) => formData.append("service_area_ids[]", id.toString()));
 };
 
-export const getTeacherLessons = async (token: string): Promise<ILessonsRes> => {
+export const getTeacherLessons = async (token: string): Promise<ITeacherLessonsRes> => {
   const { data } = await axiosAPI.get("/teacher/lessons", {
     headers: { Authorization: "Bearer " + token },
   });

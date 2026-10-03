@@ -14,6 +14,8 @@ export const useGetTeacherLessons = (token: string, enabled = true) =>
     queryKey: [QueryKeys.TEACHER_LESSONS],
     queryFn: () => getTeacherLessons(token),
     enabled: enabled && !!token,
+    staleTime: 2 * 60 * 1000,
+    gcTime: 10 * 60 * 1000,
   });
 
 export const useGetTeacherLessonById = ({

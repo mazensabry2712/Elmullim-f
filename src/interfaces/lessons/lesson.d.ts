@@ -51,8 +51,20 @@ export interface ILessonRes {
   data: ILesson;
 }
 
+export interface ITeacherLessonListItem extends Omit<ILesson, "teacher"> {
+  teacher?: ITeacher;
+  availability_count?: number;
+  service_area_count?: number;
+}
+
 export interface ILessonsRes {
   status: boolean;
   message: string | null;
   data: ILesson[];
+}
+
+export interface ITeacherLessonsRes {
+  status: boolean;
+  message: string | null;
+  data: ITeacherLessonListItem[];
 }

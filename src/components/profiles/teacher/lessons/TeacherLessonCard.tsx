@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import truncateTxt from "@/utils/truncateTxt";
-import { ILesson } from "@/interfaces/lessons/lesson";
+import { ITeacherLessonListItem } from "@/interfaces/lessons/lesson";
 import DeleteLesson from "./DeleteLesson";
 import {
   CalendarDays,
@@ -13,7 +13,7 @@ import {
 import { useI18n } from "@/i18n";
 
 interface IProps {
-  lesson: ILesson;
+  lesson: ITeacherLessonListItem;
 }
 
 const TeacherLessonCard = ({ lesson }: IProps) => {
@@ -55,8 +55,8 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
     : (isArabic ? "خاص" : "Private");
 
   const price = Number(lesson.price);
-  const serviceAreaCount = lesson.service_areas?.length ?? 0;
-  const availabilityCount = lesson.availability?.length ?? 0;
+  const serviceAreaCount = lesson.service_area_count ?? lesson.service_areas?.length ?? 0;
+  const availabilityCount = lesson.availability_count ?? lesson.availability?.length ?? 0;
 
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-3xl border border-black-blue/[0.07] bg-white shadow-[0_12px_38px_rgba(33,55,75,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_48px_rgba(33,55,75,0.1)]">

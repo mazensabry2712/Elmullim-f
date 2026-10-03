@@ -45,8 +45,23 @@ export const getBookings = async ({ token, page = 1 }: { token: string; page?: n
   return data;
 };
 
-export const getTeacherBookings = async ({ token, page = 1 }: { token: string; page?: number }): Promise<PaginatedResponse<IBooking>> => {
-  const { data } = await axiosAPI.get("/teacher/bookings", pageConfig(token, page));
+export const getTeacherBookings = async ({
+  token,
+  page = 1,
+  lessonId,
+}: {
+  token: string;
+  page?: number;
+  lessonId?: number;
+}): Promise<PaginatedResponse<IBooking>> => {
+  const params: Record<string, string> = {};
+  if (page > 1) params.page = String(page);
+  if (lessonId) params.lesson_id = String(lessonId);
+
+  const { data } = await axiosAPI.get("/teacher/bookings", {
+    headers: authHeaders(token),
+    ...(Object.keys(params).length ? { params } : {}),
+  });
   return data;
 };
 

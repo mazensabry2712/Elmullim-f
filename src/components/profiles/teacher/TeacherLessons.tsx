@@ -16,7 +16,7 @@ const TeacherLessons = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "published" | "pending_approval" | "rejected" | "draft">("all");
 
-  const allLessons = lessons?.data ?? [];
+  const allLessons = useMemo(() => lessons?.data ?? [], [lessons?.data]);
   const stats = useMemo(() => ({
     total: allLessons.length,
     published: allLessons.filter((lesson) => lesson.publishing_status === "published").length,

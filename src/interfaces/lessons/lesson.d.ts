@@ -11,6 +11,14 @@ export type LessonPublishingStatus =
   | "rejected"
   | "unpublished";
 
+export type LessonOperationalStatus =
+  | "available"
+  | "scheduled"
+  | "full"
+  | "booking_expired"
+  | "ended"
+  | "not_published";
+
 /**
  * Public lesson-domain contract.
  *
@@ -42,6 +50,12 @@ export interface ILesson {
   max_students?: number | null;
   publishing_status?: LessonPublishingStatus;
   publishing_note?: string | null;
+  booking_opens_at?: string | null;
+  booking_closes_at?: string | null;
+  ends_at?: string | null;
+  operational_status?: LessonOperationalStatus;
+  is_bookable?: boolean;
+  seats_remaining?: number | null;
   bookings_count?: number;
   active_bookings_count?: number;
   availability?: ILessonAvailabilitySlot[];

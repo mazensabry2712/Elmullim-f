@@ -304,6 +304,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   );
 
   const isImageReady = action === "update" || Boolean(file);
+  const hasChanges =
+    action === "create" || form.formState.isDirty || Boolean(file);
 
   const readiness = [
     {
@@ -342,61 +344,21 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const isReady = readyCount === readiness.length;
 
   useEffect(() => {
-    form.reset({
-      education_level_id:
-        lesson?.education_level_id ?? teacherEducationLevel?.id,
-      subject_id: lesson?.subject_id ?? undefined,
-      grade: lesson?.grade ?? "",
-      delivery_mode: lesson?.delivery_mode ?? "online",
-      booking_type: lesson?.booking_type ?? "private",
-      title: lesson?.title ?? "",
-      description: lesson?.description ?? "",
-      duration_minutes: lesson?.duration_minutes ?? 60,
-      price: Number(lesson?.price) || 0,
-      sessions_count: lesson?.sessions_count ?? 1,
-      offline_visit_type: lesson?.offline_visit_type ?? "",
-      service_area_ids:
-        lesson?.service_areas
-          ?.filter((area) => area.is_active !== false)
-          .map((area) => area.id) || [],
-      max_students: lesson?.max_students ?? "",
-      availability: initialAvailability,
-    });
-
-    setPatternDays(
-      lesson?.availability?.length
-        ? [...new Set(lesson.availability.map((slot) => slot.day_of_week))]
-        : [6]
-    );
-    setPatternStart(
-      lesson?.availability?.[0]?.start_time?.slice(0, 5) || "18:00"
-    );
-    setPatternEnd(
-      lesson?.availability?.[0]?.end_time?.slice(0, 5) || "19:00"
-    );
-  }, [
-    form,
-    initialAvailability,
-    lesson?.education_level_id,
-    lesson?.subject_id,
-    lesson?.id,
-    lesson?.grade,
-    lesson?.delivery_mode,
-    lesson?.booking_type,
-    lesson?.title,
-    lesson?.description,
-    lesson?.duration_minutes,
-    lesson?.price,
-    lesson?.sessions_count,
-    lesson?.offline_visit_type,
-    lesson?.max_students,
-    lesson?.availability,
-    lesson?.service_areas,
-    teacherEducationLevel?.id,
-  ]);
+    if (
+      action === "create" &&
+      !form.getValues("education_level_id") &&
+      teacherEducationLevel?.id
+    ) {
+      form.setValue("education_level_id", teacherEducationLevel.id, {
+        shouldDirty: false,
+        shouldTouch: false,
+        shouldValidate: true,
+      });
+    }
+  }, [action, form, teacherEducationLevel?.id]);
 
   useEffect(() => {
-    const currentSubject = form.getValues("subject_id");
+    const currentSubject = form.getValues("subject_id"); = form.getValues("subject_id");
 
     if (
       currentSubject &&
@@ -1781,6 +1743,9 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 title={label("Lesson cover image", "صورة غلاف الدرس")}
                 file={file}
                 setFile={setFile}
+                existingUrl={
+                  action === "update" ? lesson?.logo ?? undefined : undefined
+                }
               />
               {!isImageReady ? (
                 <p className="mt-2 flex items-center gap-2 text-xs font-bold text-amber-700">
@@ -1810,20 +1775,44 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
               </div>
             </div>
 
-            <Button
-              type="submit"
-              disabled={isSubmitting || !isReady}
-              className="h-12 shrink-0 rounded-xl bg-main px-6 font-black text-white hover:bg-main/90"
-            >
+            <div className="flex w-full shrink-0 flex-col gap-2 sm:w-auto sm:flex-row">
+              {action === "update" && hasChanges ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={isSubmitting}
+                  onClick={() => {
+                    setFile(null);
+                    form.reset();
+                  }}
+                  className="h-12 rounded-xl border-black-blue/10 px-5 font-black text-black-blue"
+                >
+                  {label("Discard changes", "تجاهل التعديلات")}
+                </Button>
+              ) : null}
+
+              <Button
+                type="submit"
+                disabled={
+                  isSubmitting ||
+                  !isReady ||
+                  (action === "update" && !hasChanges)
+                }
+                className="h-12 rounded-xl bg-main px-6 font-black text-white hover:bg-main/90"
+              >
               {isSubmitting ? (
                 <Loader2 className="me-2 h-4 w-4 animate-spin" />
               ) : (
                 <Check className="me-2 h-4 w-4" />
               )}
-              {action === "create"
-                ? label("Publish lesson", "نشر الدرس")
-                : label("Save changes", "حفظ التعديلات")}
-            </Button>
+                {action === "create"
+                  ? label("Publish lesson", "نشر الدرس")
+                  : label(
+                      hasChanges ? "Save changes" : "No changes",
+                      hasChanges ? "حفظ التعديلات" : "لا توجد تعديلات"
+                    )}
+              </Button>
+            </div>
           </div>
         </div>
 

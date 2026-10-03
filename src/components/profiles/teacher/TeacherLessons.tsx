@@ -23,7 +23,7 @@ const TeacherLessons = () => {
     total: allLessons.length,
     published: allLessons.filter((lesson) => lesson.publishing_status === "published").length,
     pending: allLessons.filter((lesson) => lesson.publishing_status === "pending_approval").length,
-    drafts: allLessons.filter((lesson) => lesson.publishing_status === "draft" || lesson.publishing_status === "rejected").length,
+    drafts: allLessons.filter((lesson) => ["draft", "rejected", "unpublished"].includes(lesson.publishing_status ?? "draft")).length,
   }), [allLessons]);
 
   const filteredLessons = useMemo(() => {
@@ -38,7 +38,7 @@ const TeacherLessons = () => {
       const matchesBooking = bookingType === "all" || lesson.booking_type === bookingType;
       return matchesSearch && matchesStatus && matchesDelivery && matchesBooking;
     });
-  }, [allLessons, search, status]);
+  }, [allLessons, search, status, deliveryMode, bookingType]);
 
   const lessonCount = filteredLessons.length;
 

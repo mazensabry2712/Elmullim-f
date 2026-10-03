@@ -17,8 +17,40 @@ const TeacherLessons = () => {
   const [status, setStatus] = useState<"all" | "published" | "pending_approval" | "rejected" | "draft" | "unpublished">("all");
   const [deliveryMode, setDeliveryMode] = useState<"all" | "online" | "offline">("all");
   const [bookingType, setBookingType] = useState<"all" | "private" | "group">("all");
+  const [subjectId, setSubjectId] = useState("all");
+  const [educationLevelId, setEducationLevelId] = useState("all");
 
   const allLessons = useMemo(() => lessons?.data ?? [], [lessons?.data]);
+
+  const subjectOptions = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          allLessons
+            .filter((lesson) => lesson.subject_id)
+            .map((lesson) => [
+              String(lesson.subject_id),
+              { id: lesson.subject_id as number, name: lesson.subject_name || `#${lesson.subject_id}` },
+            ])
+        ).values()
+      ).sort((a, b) => a.name.localeCompare(b.name)),
+    [allLessons]
+  );
+
+  const educationLevelOptions = useMemo(
+    () =>
+      Array.from(
+        new Map(
+          allLessons
+            .filter((lesson) => lesson.education_level_id)
+            .map((lesson) => [
+              String(lesson.education_level_id),
+              { id: lesson.education_level_id as number, name: lesson.education_level_name || `#${lesson.education_level_id}` },
+            ])
+        ).values()
+      ).sort((a, b) => a.name.localeCompare(b.name)),
+    [allLessons]
+  );
   const stats = useMemo(() => ({
     total: allLessons.length,
     published: allLessons.filter((lesson) => lesson.publishing_status === "published").length,
@@ -36,9 +68,12 @@ const TeacherLessons = () => {
       const matchesStatus = status === "all" || lesson.publishing_status === status;
       const matchesDelivery = deliveryMode === "all" || lesson.delivery_mode === deliveryMode;
       const matchesBooking = bookingType === "all" || lesson.booking_type === bookingType;
-      return matchesSearch && matchesStatus && matchesDelivery && matchesBooking;
+      const matchesSubject = subjectId === "all" || String(lesson.subject_id ?? "") === subjectId;
+      const matchesEducationLevel =
+        educationLevelId === "all" || String(lesson.education_level_id ?? "") === educationLevelId;
+      return matchesSearch && matchesStatus && matchesDelivery && matchesBooking && matchesSubject && matchesEducationLevel;
     });
-  }, [allLessons, search, status, deliveryMode, bookingType]);
+  }, [allLessons, search, status, deliveryMode, bookingType, subjectId, educationLevelId]);
 
   const lessonCount = filteredLessons.length;
 
@@ -140,6 +175,34 @@ const TeacherLessons = () => {
                 <option value="all">{isArabic ? "كل أنواع الحجز" : "All booking types"}</option>
                 <option value="private">{isArabic ? "خاص" : "Private"}</option>
                 <option value="group">{isArabic ? "جماعي" : "Group"}</option>
+              </select>
+            </label>
+            <label className="block">
+              <span className="sr-only">{isArabic ? "تصفية المادة" : "Filter subject"}</span>
+              <select
+                aria-label={isArabic ? "المادة" : "Subject"}
+                value={subjectId}
+                onChange={(event) => setSubjectId(event.target.value)}
+                className="h-11 w-full rounded-xl border border-black-blue/10 bg-white px-4 text-sm font-semibold text-black-blue outline-none focus:border-main/40 focus:ring-2 focus:ring-main/10"
+              >
+                <option value="all">{isArabic ? "كل المواد" : "All subjects"}</option>
+                {subjectOptions.map((subject) => (
+                  <option key={subject.id} value={subject.id}>{subject.name}</option>
+                ))}
+              </select>
+            </label>
+            <label className="block">
+              <span className="sr-only">{isArabic ? "تصفية المرحلة" : "Filter education stage"}</span>
+              <select
+                aria-label={isArabic ? "المرحلة التعليمية" : "Education stage"}
+                value={educationLevelId}
+                onChange={(event) => setEducationLevelId(event.target.value)}
+                className="h-11 w-full rounded-xl border border-black-blue/10 bg-white px-4 text-sm font-semibold text-black-blue outline-none focus:border-main/40 focus:ring-2 focus:ring-main/10"
+              >
+                <option value="all">{isArabic ? "كل المراحل" : "All stages"}</option>
+                {educationLevelOptions.map((level) => (
+                  <option key={level.id} value={level.id}>{level.name}</option>
+                ))}
               </select>
             </label>
           </div>

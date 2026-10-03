@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { CalendarDays, CheckCircle2, Clock3, Loader2, MapPin, UsersRound, X } from "lucide-react";
 import { toast } from "react-toastify";
@@ -52,6 +53,7 @@ const BookLessonDialog = ({
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
   const [customerNote, setCustomerNote] = useState("");
+  const [successStatus, setSuccessStatus] = useState<BookingStatus | null>(null);
   const {
     data: bookingOptions,
     isLoading: loadingBookingOptions,
@@ -137,6 +139,14 @@ const BookLessonDialog = ({
 
   const minimumDate = getTodayInputValue();
 
+  const closeDialog = () => {
+    setOpen(false);
+    setSuccessStatus(null);
+    setSelectedDate("");
+    setSelectedTime("");
+    setCustomerNote("");
+  };
+
   const timesForDate = useMemo(() => {
     if (!selectedDate || !bookingOptions?.data) return [];
 
@@ -220,10 +230,7 @@ const BookLessonDialog = ({
       const status = response.data.status as BookingStatus;
       const statusText = bookingCopy.statuses[status] ?? status;
       toast.success(`${bookingCopy.success}: ${statusText}`);
-      setOpen(false);
-      setSelectedDate("");
-      setSelectedTime("");
-      setCustomerNote("");
+      setSuccessStatus(status);
     } catch {
       toast.error(bookingCopy.failed);
     }

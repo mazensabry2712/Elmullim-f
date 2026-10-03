@@ -162,3 +162,32 @@ export const unpublishTeacherLesson = async ({
   );
   return data;
 };
+
+
+export interface ITeacherLessonSummary {
+  total_lessons: number;
+  published_lessons: number;
+  pending_lessons: number;
+  active_bookings: number;
+  unique_students: number;
+  upcoming_sessions: number;
+  rating: number;
+  total_earnings: number;
+  available_balance: number;
+}
+
+export interface ITeacherLessonSummaryRes {
+  status: boolean;
+  message: string | null;
+  data: ITeacherLessonSummary;
+}
+
+export const getTeacherLessonSummary = async (
+  token: string
+): Promise<ITeacherLessonSummaryRes> => {
+  const { data } = await axiosAPI.get("/teacher/lessons/summary", {
+    headers: { Authorization: "Bearer " + token },
+  });
+
+  return data;
+};

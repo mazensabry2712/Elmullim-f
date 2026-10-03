@@ -179,6 +179,7 @@ const BookLessonDialog = ({
       .sort((a, b) => a.requested_start_at.localeCompare(b.requested_start_at))
       .map((option) => ({
         value: option.requested_start_at,
+        local_time: option.local_time,
         label:
           bookingType === "group"
             ? option.local_time + " (" + option.timezone + ") — " +

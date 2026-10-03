@@ -358,7 +358,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   }, [action, form, teacherEducationLevel?.id]);
 
   useEffect(() => {
-    const currentSubject = form.getValues("subject_id"); = form.getValues("subject_id");
+    const currentSubject = form.getValues("subject_id");
 
     if (
       currentSubject &&

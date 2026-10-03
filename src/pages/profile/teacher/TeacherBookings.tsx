@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useI18n } from "@/i18n";
 import { ChevronLeft, ChevronRight, Loader } from "lucide-react";
 import cookieService from "@/utils/cookieService";
@@ -9,6 +9,7 @@ import {
   useRejectBooking,
 } from "@/lib/react-query/booking";
 import { IBooking } from "@/interfaces/bookings/booking";
+import { useSearchParams } from "react-router-dom";
 import { getBookingCopy } from "@/pages/bookings/bookingCopy";
 import { dateTimeLocalToIso, formatDateTime, formatDateTimeLocalInput } from "@/utils/dateTime";
 
@@ -17,7 +18,19 @@ const TeacherBookings = () => {
   const copy = getBookingCopy(language).teacherBookings;
   const token = cookieService.getToken() || "";
   const [page, setPage] = useState(1);
-  const { data, isLoading, isFetching, isError, refetch } = useGetTeacherBookings({ token, page, enabled: !!token });
+  const [searchParams] = useSearchParams();
+  const lessonIdParam = Number(searchParams.get("lesson_id"));
+  const lessonId = Number.isInteger(lessonIdParam) && lessonIdParam > 0 ? lessonIdParam : undefined;
+  const { data, isLoading, isFetching, isError, refetch } = useGetTeacherBookings({
+    token,
+    page,
+    lessonId,
+    enabled: !!token,
+  });
+
+  useEffect(() => {
+    setPage(1);
+  }, [lessonId]);
   const acceptMutation = useAcceptBooking();
   const rejectMutation = useRejectBooking();
   const proposeMutation = useProposeBookingTime();
@@ -43,8 +56,27 @@ const TeacherBookings = () => {
     <main className="bg-white min-h-screen py-12">
       <div className="container">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-5xl font-bold text-black-blue">{copy.title}</h1>
-          <p className="mt-3 font-sora text-[#4D5756]">{copy.description}</p>
+          <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
+            <div>
+              <h1 className="text-3xl md:text-5xl font-bold text-black-blue">{copy.title}</h1>
+              <p className="mt-3 font-sora text-[#4D5756]">{copy.description}</p>
+            </div>
+            {lessonId ? (
+              <a
+                href="/profile/teacher/bookings"
+                className="inline-flex w-fit items-center rounded-xl border border-black-blue/10 bg-white px-4 py-2.5 text-sm font-bold text-black-blue transition hover:border-main hover:text-main"
+              >
+                {language === "ar" ? "عرض كل الحجوزات" : "View all bookings"}
+              </a>
+            ) : null}
+          </div>
+          {lessonId ? (
+            <div className="mt-4 rounded-2xl border border-main/10 bg-main/[0.04] px-4 py-3 text-sm font-bold text-main">
+              {language === "ar"
+                ? `الحجوزات الخاصة بالدرس #${lessonId}`
+                : `Showing bookings for lesson #${lessonId}`}
+            </div>
+          ) : null}
         </div>
 
         {error && <div className="mb-5 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-700" role="alert">{error}</div>}

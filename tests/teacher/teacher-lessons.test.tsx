@@ -7,6 +7,7 @@ import { I18nProvider } from "@/i18n";
 import TeacherLessons from "@/components/profiles/teacher/TeacherLessons";
 
 const mockUseGetTeacherLessons = vi.fn();
+const mockUseGetTeacherLessonSummary = vi.fn();
 
 vi.mock("@/utils/cookieService", () => ({
   default: { getToken: vi.fn(() => "teacher-token") },
@@ -14,6 +15,7 @@ vi.mock("@/utils/cookieService", () => ({
 
 vi.mock("@/lib/react-query/teacher/lessons", () => ({
   useGetTeacherLessons: (...args: unknown[]) => mockUseGetTeacherLessons(...args),
+  useGetTeacherLessonSummary: (...args: unknown[]) => mockUseGetTeacherLessonSummary(...args),
 }));
 
 vi.mock("@/components/profiles/teacher/lessons/TeacherLessonCard", () => ({
@@ -36,6 +38,26 @@ describe("TeacherLessons", () => {
     vi.clearAllMocks();
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
+
+    mockUseGetTeacherLessonSummary.mockReturnValue({
+      data: {
+        status: true,
+        message: null,
+        data: {
+          total_lessons: 2,
+          published_lessons: 1,
+          pending_lessons: 0,
+          active_bookings: 0,
+          unique_students: 0,
+          upcoming_sessions: 0,
+          rating: 0,
+          total_earnings: 0,
+          available_balance: 0,
+        },
+      },
+      isLoading: false,
+      isError: false,
+    });
 
     mockUseGetTeacherLessons.mockReturnValue({
       data: {

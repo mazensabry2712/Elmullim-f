@@ -568,6 +568,33 @@ const LessonDetails = () => {
           )}
         </div>
 
+
+        {lessonData && bookingEnabled && canBook && (
+          <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black-blue/[0.08] bg-white/95 px-4 py-3 shadow-[0_-12px_35px_rgba(33,55,75,0.12)] backdrop-blur lg:hidden">
+            <div className="mx-auto flex max-w-3xl items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">
+                  {copy.price}
+                </p>
+                <p className="truncate text-lg font-black text-main">
+                  {Number(lessonData.price) === 0 ? copy.free : lessonData.price + " " + copy.currency}
+                </p>
+              </div>
+              <div className="shrink-0">
+                <BookLessonDialog
+                  lessonId={lessonData.id}
+                  bookingType={lessonData.booking_type!}
+                  deliveryMode={lessonData.delivery_mode}
+                  offlineVisitType={lessonData.offline_visit_type}
+                  price={lessonData.price}
+                  durationMinutes={lessonData.duration_minutes ?? 60}
+                  language={language}
+                />
+              </div>
+            </div>
+          </div>
+        )}
+
         <Newsletter />
       </motion.section>
     </main>

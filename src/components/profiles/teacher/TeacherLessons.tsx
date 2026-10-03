@@ -1,7 +1,10 @@
 import { Filter, Loader, Plus, Search, Sparkles } from "lucide-react";
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
-import { useGetTeacherLessons } from "@/lib/react-query/teacher/lessons";
+import {
+  useGetTeacherLessonSummary,
+  useGetTeacherLessons,
+} from "@/lib/react-query/teacher/lessons";
 import { containerVariants, itemVariants } from "@/animations";
 import TeacherLessonCard from "./lessons/TeacherLessonCard";
 import { Link } from "react-router-dom";
@@ -13,6 +16,7 @@ const TeacherLessons = () => {
   const { language } = useI18n();
   const isArabic = language === "ar";
   const { data: lessons, isLoading, isError, refetch } = useGetTeacherLessons(token);
+  const { data: summaryResponse } = useGetTeacherLessonSummary(token);
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "published" | "pending_approval" | "rejected" | "draft" | "unpublished">("all");
   const [deliveryMode, setDeliveryMode] = useState<"all" | "online" | "offline">("all");
@@ -122,6 +126,27 @@ const TeacherLessons = () => {
             ))}
           </div>
         </div>
+
+        {summaryResponse?.data ? (
+          <div className="border-b border-black-blue/[0.06] bg-white px-4 py-4 sm:px-5 md:px-8">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+              {[
+                [isArabic ? "الحجوزات النشطة" : "Active bookings", summaryResponse.data.active_bookings],
+                [isArabic ? "الطلاب" : "Students", summaryResponse.data.unique_students],
+                [isArabic ? "الجلسات القادمة" : "Upcoming sessions", summaryResponse.data.upcoming_sessions],
+                [isArabic ? "التقييم" : "Rating", summaryResponse.data.rating ? summaryResponse.data.rating.toFixed(1) : "—"],
+                [isArabic ? "إجمالي الأرباح" : "Total earnings", `${Number(summaryResponse.data.total_earnings).toFixed(2)} EGP`],
+                [isArabic ? "الرصيد المتاح" : "Available balance", `${Number(summaryResponse.data.available_balance).toFixed(2)} EGP`],
+                [isArabic ? "المنشور" : "Published", summaryResponse.data.published_lessons],
+              ].map(([label, value]) => (
+                <div key={String(label)} className="rounded-2xl border border-main/10 bg-main/[0.03] px-3 py-3">
+                  <p className="text-[10px] font-black uppercase tracking-wide text-black-blue/35">{label}</p>
+                  <p className="mt-1 break-words text-lg font-black text-black-blue">{value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : null}
 
         <div className="px-4 py-6 sm:px-5 md:px-8 md:py-8">
           <div className="mb-6 grid gap-3 lg:grid-cols-2 xl:grid-cols-4">

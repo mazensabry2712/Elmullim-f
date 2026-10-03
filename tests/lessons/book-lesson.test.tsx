@@ -1,6 +1,13 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import BookLessonDialog from "@/components/lessons/BookLessonDialog";
+import React from "react";
+
+vi.mock("react-router-dom", () => ({
+  Link: ({ to, children, ...props }: { to: string; children?: React.ReactNode; [key: string]: unknown }) => (
+    <a href={to} {...props}>{children}</a>
+  ),
+}));
 
 const mocks = vi.hoisted(() => ({
   role: "student" as "student" | "parent",
@@ -317,8 +324,8 @@ describe("BookLessonDialog", () => {
     fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-10" } });
     fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
 
-    expect(screen.getByRole("button", { name: "Confirm free booking" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Confirm free booking" }));
+    expect(screen.getByRole("button", { name: "Send booking request" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Send booking request" }));
     expect(mocks.mutateAsync).not.toHaveBeenCalled();
   });
 
@@ -373,7 +380,7 @@ describe("BookLessonDialog", () => {
     expect(screen.getByLabelText("اختر التاريخ")).toBeInTheDocument();
     expect(screen.getByText("اختر الموعد المتاح")).toBeInTheDocument();
     expect(screen.getByText("مجاني")).toBeInTheDocument();
-    expect(screen.getByText("هذا درس خاص ويحتاج إلى موافقة المعلم", { exact: false })).toBeInTheDocument();
+    expect(screen.getByText("هذا درس خاص مجاني، لكن الحجز يحتاج إلى موافقة المعلم.", { exact: false })).toBeInTheDocument();
   });
 
   it("does not offer times on a day without matching availability", async () => {

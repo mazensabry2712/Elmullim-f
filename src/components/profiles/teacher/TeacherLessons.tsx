@@ -14,7 +14,9 @@ const TeacherLessons = () => {
   const isArabic = language === "ar";
   const { data: lessons, isLoading, isError, refetch } = useGetTeacherLessons(token);
   const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<"all" | "published" | "pending_approval" | "rejected" | "draft">("all");
+  const [status, setStatus] = useState<"all" | "published" | "pending_approval" | "rejected" | "draft" | "unpublished">("all");
+  const [deliveryMode, setDeliveryMode] = useState<"all" | "online" | "offline">("all");
+  const [bookingType, setBookingType] = useState<"all" | "private" | "group">("all");
 
   const allLessons = useMemo(() => lessons?.data ?? [], [lessons?.data]);
   const stats = useMemo(() => ({
@@ -32,7 +34,9 @@ const TeacherLessons = () => {
         lesson.title.toLowerCase().includes(query) ||
         (lesson.grade || "").toLowerCase().includes(query);
       const matchesStatus = status === "all" || lesson.publishing_status === status;
-      return matchesSearch && matchesStatus;
+      const matchesDelivery = deliveryMode === "all" || lesson.delivery_mode === deliveryMode;
+      const matchesBooking = bookingType === "all" || lesson.booking_type === bookingType;
+      return matchesSearch && matchesStatus && matchesDelivery && matchesBooking;
     });
   }, [allLessons, search, status]);
 
@@ -85,7 +89,7 @@ const TeacherLessons = () => {
         </div>
 
         <div className="px-4 py-6 sm:px-5 md:px-8 md:py-8">
-          <div className="mb-6 grid gap-3 lg:grid-cols-[minmax(0,1fr)_220px]">
+          <div className="mb-6 grid gap-3 lg:grid-cols-2 xl:grid-cols-4">
             <label className="relative block">
               <span className="sr-only">{isArabic ? "بحث في الدروس" : "Search lessons"}</span>
               <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-black-blue/35" />
@@ -109,6 +113,33 @@ const TeacherLessons = () => {
                 <option value="pending_approval">{isArabic ? "قيد المراجعة" : "Pending review"}</option>
                 <option value="rejected">{isArabic ? "مرفوض" : "Rejected"}</option>
                 <option value="draft">{isArabic ? "مسودة" : "Draft"}</option>
+                <option value="unpublished">{isArabic ? "غير منشور" : "Unpublished"}</option>
+              </select>
+            </label>
+            <label className="relative block">
+              <span className="sr-only">{isArabic ? "تصفية نوع التوصيل" : "Filter delivery"}</span>
+              <select
+                aria-label={isArabic ? "نوع التوصيل" : "Delivery"}
+                value={deliveryMode}
+                onChange={(event) => setDeliveryMode(event.target.value as typeof deliveryMode)}
+                className="h-11 w-full appearance-none rounded-xl border border-black-blue/10 bg-white px-4 text-sm font-semibold text-black-blue outline-none focus:border-main/40 focus:ring-2 focus:ring-main/10"
+              >
+                <option value="all">{isArabic ? "كل طرق التدريس" : "All delivery modes"}</option>
+                <option value="online">{isArabic ? "أونلاين" : "Online"}</option>
+                <option value="offline">{isArabic ? "حضوري" : "Offline"}</option>
+              </select>
+            </label>
+            <label className="relative block">
+              <span className="sr-only">{isArabic ? "تصفية نوع الحجز" : "Filter booking type"}</span>
+              <select
+                aria-label={isArabic ? "نوع الحجز" : "Booking type"}
+                value={bookingType}
+                onChange={(event) => setBookingType(event.target.value as typeof bookingType)}
+                className="h-11 w-full appearance-none rounded-xl border border-black-blue/10 bg-white px-4 text-sm font-semibold text-black-blue outline-none focus:border-main/40 focus:ring-2 focus:ring-main/10"
+              >
+                <option value="all">{isArabic ? "كل أنواع الحجز" : "All booking types"}</option>
+                <option value="private">{isArabic ? "خاص" : "Private"}</option>
+                <option value="group">{isArabic ? "جماعي" : "Group"}</option>
               </select>
             </label>
           </div>

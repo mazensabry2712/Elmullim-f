@@ -17,7 +17,6 @@ import { lessonSchema } from "@/validations/teacher/lessonSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AlertCircle,
-  ArrowRight,
   CalendarDays,
   Check,
   CheckCircle2,
@@ -36,10 +35,9 @@ import {
   UsersRound,
   Video,
   Wand2,
-  X,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -203,7 +201,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const price = Number(form.watch("price") || 0);
   const sessionsCount = Number(form.watch("sessions_count") || 0);
   const maxStudents = form.watch("max_students");
-  const availabilityValues = form.watch("availability") || [];
+  const availabilityValues =
+    useWatch({ control: form.control, name: "availability" }) || [];
 
   const profileAddress = teacherProfile?.data?.address || "";
   const profileLatitude = teacherProfile?.data?.latitude;
@@ -243,6 +242,20 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     [availabilityValues, duration]
   );
 
+  const hasScheduleOverlap = useMemo(
+    () =>
+      availabilityValues.some((slot, index) =>
+        availabilityValues.slice(index + 1).some(
+          (other) =>
+            Number(slot.day_of_week) === Number(other.day_of_week) &&
+            slot.timezone === other.timezone &&
+            slot.start_time < other.end_time &&
+            other.start_time < slot.end_time
+        )
+      ),
+    [availabilityValues]
+  );
+
   const onlineLinksReady =
     deliveryMode !== "online" ||
     (availabilityValues.length > 0 &&
@@ -280,6 +293,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
           minutesBetween(slot.start_time, slot.end_time) >= duration
       ) &&
       scheduleProblems === 0 &&
+      !hasScheduleOverlap &&
       onlineLinksReady
   );
 
@@ -370,6 +384,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     lesson?.sessions_count,
     lesson?.offline_visit_type,
     lesson?.max_students,
+    lesson?.availability,
+    lesson?.service_areas,
     teacherEducationLevel?.id,
   ]);
 

@@ -6,10 +6,26 @@ import TeacherLessons from "./TeacherLessons";
 import Chat from "@/components/chat/Chat";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/i18n";
+import { useQueryClient } from "@tanstack/react-query";
+import QueryKeys from "@/enums";
+import { getTeacherLessons } from "@/services/teacher/lessons";
+import cookieService from "@/utils/cookieService";
 
 const TeacherProfile = () => {
   const { state } = useLocation();
   const { language } = useI18n();
+  const queryClient = useQueryClient();
+  const token = cookieService.getToken() || "";
+
+  const prefetchLessons = () => {
+    if (!token) return;
+
+    void queryClient.prefetchQuery({
+      queryKey: [QueryKeys.TEACHER_LESSONS],
+      queryFn: () => getTeacherLessons(token),
+      staleTime: 2 * 60 * 1000,
+    });
+  };
 
   const text =
     language === "ar"
@@ -64,6 +80,9 @@ const TeacherProfile = () => {
 
               <TabsTrigger
                 value="lessons"
+                onPointerEnter={prefetchLessons}
+                onPointerDown={prefetchLessons}
+                onFocus={prefetchLessons}
                 className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-sm font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B] sm:text-base md:text-lg"
               >
                 {text.lessons}

@@ -23,6 +23,7 @@ Implemented:
 - Teacher create/update flow.
 - Public published lesson discovery and details.
 - Booking-focused Lesson screens.
+- Teacher My Lessons management center with preview, status actions, booking metrics, and filtering.
 
 Remaining refinements:
 - Final browser verification for all four Lesson combinations.
@@ -67,7 +68,7 @@ Implemented:
 
 Remaining:
 - Final real API/browser verification.
-- Automatic recurring Session generation from `sessions_count` as a later extension.
+- Automatic recurring Session generation from `sessions_count`.
 
 ### Offline service areas
 
@@ -128,6 +129,18 @@ Implemented:
 
 Remaining:
 - Additional dispute/reporting workflows if required.
+
+### Teacher lesson management
+
+Implemented:
+- Teacher-only preview for every owned Lesson publishing state.
+- Rejected → resubmit-for-review flow.
+- Draft/Unpublished → submit-for-review flow.
+- Published → unpublish flow with active-booking protection.
+- Lesson booking counters in the Teacher API/UI.
+- Direct Lesson-scoped booking navigation.
+- Delivery and booking-type filters.
+- Explicit unpublished status filter.
 
 ### Admin Panel
 

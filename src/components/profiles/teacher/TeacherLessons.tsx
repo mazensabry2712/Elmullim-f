@@ -58,11 +58,18 @@ const TeacherLessons = () => {
       ).sort((a, b) => a.name.localeCompare(b.name)),
     [allLessons]
   );
+  const operationalArchiveStatuses = ["full", "booking_expired", "ended"] as const;
+  const isOperationalArchived = (lesson: (typeof allLessons)[number]) =>
+    operationalArchiveStatuses.includes(
+      lesson.operational_status as (typeof operationalArchiveStatuses)[number]
+    );
+
   const stats = useMemo(() => ({
     total: allLessons.length,
     published: allLessons.filter((lesson) => lesson.publishing_status === "published").length,
     pending: allLessons.filter((lesson) => lesson.publishing_status === "pending_approval").length,
     drafts: allLessons.filter((lesson) => ["draft", "rejected", "unpublished"].includes(lesson.publishing_status ?? "draft")).length,
+    archived: allLessons.filter((lesson) => isOperationalArchived(lesson)).length,
   }), [allLessons]);
 
   const filteredLessons = useMemo(() => {
@@ -82,7 +89,16 @@ const TeacherLessons = () => {
     });
   }, [allLessons, search, status, deliveryMode, bookingType, subjectId, educationLevelId]);
 
-  const lessonCount = filteredLessons.length;
+  const activeTeacherLessons = useMemo(
+    () => filteredLessons.filter((lesson) => !isOperationalArchived(lesson)),
+    [filteredLessons]
+  );
+  const archivedTeacherLessons = useMemo(
+    () => filteredLessons.filter((lesson) => isOperationalArchived(lesson)),
+    [filteredLessons]
+  );
+
+  const lessonCount = activeTeacherLessons.length + archivedTeacherLessons.length;
 
   return (
     <section className="space-y-4">
@@ -121,6 +137,7 @@ const TeacherLessons = () => {
               [isArabic ? "منشورة" : "Published", stats.published],
               [isArabic ? "قيد المراجعة" : "Pending review", stats.pending],
               [isArabic ? "تحتاج متابعة" : "Needs attention", stats.drafts],
+              [isArabic ? "مغلقة مؤقتًا" : "Operational archive", stats.archived],
             ].map(([label, value]) => (
               <div key={String(label)} className="rounded-2xl border border-black-blue/[0.06] bg-white px-4 py-3 shadow-sm">
                 <p className="text-[11px] font-bold uppercase tracking-wide text-black-blue/40">{label}</p>
@@ -280,19 +297,52 @@ const TeacherLessons = () => {
               <div className="mb-4 rounded-xl bg-main/[0.04] px-4 py-3 text-xs font-semibold text-black-blue/60">
                 {isArabic ? `عرض ${filteredLessons.length} من ${allLessons.length} درس` : `Showing ${filteredLessons.length} of ${allLessons.length} lessons`}
               </div>
-              <motion.div
-              variants={containerVariants}
-              viewport={{ once: true }}
-              initial="hidden"
-              whileInView="visible"
-              className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-6"
-            >
-                {filteredLessons.map((lesson) => (
-                  <motion.div variants={itemVariants} key={lesson.id} className="h-full">
-                    <TeacherLessonCard lesson={lesson} />
-                  </motion.div>
-                ))}
-              </motion.div>
+              {activeTeacherLessons.length > 0 ? (
+                <motion.div
+                  variants={containerVariants}
+                  viewport={{ once: true }}
+                  initial="hidden"
+                  whileInView="visible"
+                  className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-6"
+                >
+                  {activeTeacherLessons.map((lesson) => (
+                    <motion.div variants={itemVariants} key={lesson.id} className="h-full">
+                      <TeacherLessonCard lesson={lesson} />
+                    </motion.div>
+                  ))}
+                </motion.div>
+              ) : null}
+
+              {archivedTeacherLessons.length > 0 ? (
+                <section className="mt-8 rounded-3xl border border-amber-200/70 bg-amber-50/40 p-4 sm:p-5">
+                  <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-[0.14em] text-amber-600">
+                        {isArabic ? "لا تظهر في الحجز العام" : "Not available for public booking"}
+                      </p>
+                      <h3 className="mt-1 text-xl font-black text-black-blue">
+                        {isArabic ? "أرشيف الدروس المغلقة" : "Closed lesson archive"}
+                      </h3>
+                      <p className="mt-1 text-xs font-semibold text-black-blue/45">
+                        {isArabic
+                          ? "تظل هذه الدروس عندك ويمكنك تعديل السعة أو المواعيد ثم إعادة فتحها."
+                          : "These lessons stay in your account. Increase capacity or adjust the dates to reopen them."}
+                      </p>
+                    </div>
+                    <span className="w-fit rounded-full bg-white px-3 py-1.5 text-xs font-black text-amber-700 shadow-sm">
+                      {archivedTeacherLessons.length}
+                    </span>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3 xl:gap-6">
+                    {archivedTeacherLessons.map((lesson) => (
+                      <motion.div variants={itemVariants} key={lesson.id} className="h-full">
+                        <TeacherLessonCard lesson={lesson} />
+                      </motion.div>
+                    ))}
+                  </div>
+                </section>
+              ) : null}
             </>
           )}
         </div>

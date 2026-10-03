@@ -110,7 +110,6 @@ export const updateTeacherLesson = async ({
   if (lesson.offline_visit_type?.trim()) formData.append("offline_visit_type", lesson.offline_visit_type.trim());
   if (lesson.max_students !== undefined) formData.append("max_students", lesson.max_students.toString());
 
-  formData.append("_method", "put");
 
   const { data } = await axiosAPI.post(
     "/teacher/lessons/" + lesson.id,

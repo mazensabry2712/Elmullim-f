@@ -1,4 +1,4 @@
-import { Bell, Check, Loader2 } from "lucide-react";
+import { Bell, Check, Loader2, ExternalLink } from "lucide-react";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 import { formatDateTime } from "@/utils/dateTime";
@@ -121,6 +121,15 @@ const Notifications = () => {
                       <h2 className="font-bold text-black-blue">{title}</h2>
                     </div>
                     <p className="mt-2 font-sora text-sm text-[#4D5756]">{body}</p>
+                    {notification.data.event === "lesson_publishing_rejected" && notification.data.lesson_id ? (
+                      <a
+                        href={`/profile/my-lessons/${notification.data.lesson_id}/preview`}
+                        className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-main/20 bg-main/[0.05] px-3 py-2 text-xs font-bold text-main transition hover:bg-main/[0.1]"
+                      >
+                        <ExternalLink size={14} />
+                        {isArabic ? "عرض الدرس" : "View lesson"}
+                      </a>
+                    ) : null}
                     <p className="mt-2 text-xs text-gray-400">
                       {formatDateTime(notification.created_at, language)}
                     </p>

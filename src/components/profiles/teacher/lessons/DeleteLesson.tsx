@@ -11,8 +11,9 @@ import { useI18n } from "@/i18n";
 
 interface IProps {
   id: string;
+  disabled?: boolean;
 }
-const DeleteLesson = ({ id }: IProps) => {
+const DeleteLesson = ({ id, disabled = false }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
   const navigate = useNavigate();
@@ -50,7 +51,14 @@ const DeleteLesson = ({ id }: IProps) => {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} variant="destructive" size="icon">
+      <Button
+        onClick={() => setIsOpen(true)}
+        variant="destructive"
+        size="icon"
+        disabled={disabled}
+        title={disabled ? (language === "ar" ? "لا يمكن حذف درس له حجوزات" : "A lesson with bookings cannot be deleted") : undefined}
+        aria-label={disabled ? (language === "ar" ? "لا يمكن حذف الدرس لوجود حجوزات" : "Lesson cannot be deleted because it has bookings") : text.confirm}
+      >
         <Trash2 className="h-4 w-4" />
       </Button>
 

@@ -15,6 +15,9 @@ export interface ICreateLesson {
   offline_visit_type?: "teacher_to_student" | "student_to_teacher" | "";
   service_area_ids?: number[];
   max_students?: number;
+  booking_opens_at?: string;
+  booking_closes_at?: string;
+  ends_at?: string;
   availability: ICreateLessonAvailabilitySlot[];
   logo: File;
 }

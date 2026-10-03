@@ -14,6 +14,7 @@ export interface ILessonAvailabilitySlot {
   start_time: string;
   end_time: string;
   timezone: string;
+  meeting_url?: string | null;
   is_active: boolean;
   booking_options?: ILessonBookingOption[];
 }
@@ -51,4 +52,5 @@ export interface ICreateLessonAvailabilitySlot {
   start_time: string;
   end_time: string;
   timezone: string;
+  meeting_url?: string;
 }

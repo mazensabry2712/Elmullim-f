@@ -27,6 +27,11 @@ const availabilitySlotSchema = z.object({
   start_time: timeOnly("start time is invalid", "وقت البداية غير صحيح"),
   end_time: timeOnly("end time is invalid", "وقت النهاية غير صحيح"),
   timezone: requiredText("timezone is required", "المنطقة الزمنية مطلوبة"),
+  meeting_url: z
+    .string()
+    .trim()
+    .url({ message: validationMessage("enter a valid meeting URL", "أدخل رابط اجتماع صحيح") })
+    .or(z.literal("")),
 });
 
 export const lessonSchema = z
@@ -57,11 +62,6 @@ export const lessonSchema = z
       .number({ message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") })
       .min(0, { message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") }),
     sessions_count: positiveInteger("sessions count is required", "عدد الحصص مطلوب"),
-    meeting_url: z
-      .string()
-      .trim()
-      .url({ message: validationMessage("enter a valid meeting URL", "أدخل رابط اجتماع صحيح") })
-      .or(z.literal("")),
     offline_visit_type: z.enum(["teacher_to_student", "student_to_teacher", ""], {
       message: validationMessage("select a valid visit type", "اختر طريقة زيارة صحيحة"),
     }),
@@ -77,6 +77,21 @@ export const lessonSchema = z
     }),
   })
   .superRefine((data, ctx) => {
+    if (data.delivery_mode === "online") {
+      data.availability.forEach((slot, index) => {
+        if (!slot.meeting_url?.trim()) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["availability", index, "meeting_url"],
+            message: validationMessage(
+              "meeting URL is required for every online availability slot",
+              "رابط الاجتماع مطلوب لكل موعد أونلاين"
+            ),
+          });
+        }
+      });
+    }
+
     if (data.delivery_mode === "offline") {
       if (!data.offline_visit_type) {
         ctx.addIssue({
@@ -121,6 +136,22 @@ export const lessonSchema = z
           path: ["availability", index, "end_time"],
           message: validationMessage("end time must be later than start time", "يجب أن يكون وقت النهاية بعد وقت البداية"),
         });
+      } else {
+        const [startHour, startMinute] = slot.start_time.split(":").map(Number);
+        const [endHour, endMinute] = slot.end_time.split(":").map(Number);
+        const slotMinutes =
+          (endHour * 60 + endMinute) - (startHour * 60 + startMinute);
+
+        if (slotMinutes < data.duration_minutes) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["availability", index, "end_time"],
+            message: validationMessage(
+              "this availability slot must be at least as long as the lesson duration",
+              "يجب أن تكون مدة الموعد مساوية لمدة الحصة أو أطول منها"
+            ),
+          });
+        }
       }
 
       data.availability.forEach((other, otherIndex) => {

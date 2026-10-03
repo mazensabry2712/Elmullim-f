@@ -22,6 +22,9 @@ const appendAvailability = (
       slot.end_time.length === 5 ? slot.end_time + ":00" : slot.end_time
     );
     formData.append("availability[" + index + "][timezone]", slot.timezone);
+    if (slot.meeting_url?.trim()) {
+      formData.append("availability[" + index + "][meeting_url]", slot.meeting_url.trim());
+    }
   });
 };
 
@@ -72,7 +75,6 @@ export const createTeacherLesson = async ({
   appendAvailability(formData, lesson.availability);
   appendServiceAreas(formData, lesson.service_area_ids);
 
-  if (lesson.meeting_url?.trim()) formData.append("meeting_url", lesson.meeting_url.trim());
   if (lesson.offline_visit_type?.trim()) formData.append("offline_visit_type", lesson.offline_visit_type.trim());
   if (lesson.max_students !== undefined) formData.append("max_students", lesson.max_students.toString());
 
@@ -105,8 +107,6 @@ export const updateTeacherLesson = async ({
   appendServiceAreas(formData, lesson.service_area_ids);
 
   if (lesson.logo) formData.append("logo", lesson.logo);
-  if (lesson.meeting_url?.trim()) formData.append("meeting_url", lesson.meeting_url.trim());
-  if (lesson.location?.trim()) formData.append("location", lesson.location.trim());
   if (lesson.offline_visit_type?.trim()) formData.append("offline_visit_type", lesson.offline_visit_type.trim());
   if (lesson.max_students !== undefined) formData.append("max_students", lesson.max_students.toString());
 

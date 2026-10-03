@@ -249,7 +249,7 @@ describe("BookLessonDialog", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
-    expect(screen.getByText("Nasr City, Cairo")).toBeInTheDocument();
+    expect(screen.getByText(/saved profile location is used automatically/i)).toBeInTheDocument();
 
     fireEvent.change(screen.getByLabelText("Choose date"), {
       target: { value: "2099-01-10" },

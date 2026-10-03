@@ -5,8 +5,8 @@ import { useI18n } from "@/i18n";
 const UploadLesson = () => {
   const { language } = useI18n();
   const copy = language === "ar"
-    ? { title: "إنشاء درس", home: "الرئيسية" }
-    : { title: "Create Lesson", home: "Home" };
+    ? { title: "بناء درس", home: "الرئيسية" }
+    : { title: "Build Lesson", home: "Home" };
 
   return (
     <main>

@@ -2,7 +2,7 @@ import { useState } from "react";
 import { EyeOff, Loader2, RotateCcw, UploadCloud } from "lucide-react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
-import { ILesson } from "@/interfaces/lessons/lesson";
+import { ITeacherLessonListItem } from "@/interfaces/lessons/lesson";
 import {
   useResubmitTeacherLesson,
   useUnpublishTeacherLesson,
@@ -12,7 +12,7 @@ import { useI18n } from "@/i18n";
 import cookieService from "@/utils/cookieService";
 
 interface Props {
-  lesson: ILesson;
+  lesson: Pick<ITeacherLessonListItem, "id" | "publishing_status" | "publishing_note" | "active_bookings_count">;
   compact?: boolean;
 }
 

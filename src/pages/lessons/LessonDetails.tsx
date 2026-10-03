@@ -176,14 +176,33 @@ const LessonDetails = () => {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
-        className="container text-center text-white space-y-4 md:space-y-6 pt-20 md:pt-32 pb-16 md:pb-24"
+        className="container pt-16 text-white md:pt-24"
       >
-        <h1 className="text-4xl font-bold leading-tight md:text-6xl md:leading-[74px]">
-          {copy.detailTitle}
-        </h1>
-        <p className="font-sora font-light leading-[30px]" aria-label={copy.detailBreadcrumb}>
-          {copy.home} <span className="text-main">//</span> {copy.detailTitle}
-        </p>
+        <div className="flex flex-col items-center gap-4 pb-12 text-center md:pb-16">
+          <h1 className="text-4xl font-bold leading-tight md:text-6xl md:leading-[74px]">
+            {copy.detailTitle}
+          </h1>
+          <nav
+            className="font-sora text-sm font-light leading-6 text-white/75"
+            aria-label={copy.detailBreadcrumb}
+          >
+            <ol className="flex items-center justify-center gap-2">
+              <li>
+                <Link to="/" className="transition hover:text-white">
+                  {copy.home}
+                </Link>
+              </li>
+              <li aria-hidden="true" className="text-main">›</li>
+              <li>
+                <Link to="/lessons" className="transition hover:text-white">
+                  {copy.title}
+                </Link>
+              </li>
+              <li aria-hidden="true" className="text-main">›</li>
+              <li className="text-white">{copy.detailTitle}</li>
+            </ol>
+          </nav>
+        </div>
       </motion.div>
 
       <motion.section
@@ -244,6 +263,9 @@ const LessonDetails = () => {
                         <img
                           src={lessonData.teacher.profile_image || "/images/profile-avatar.webp"}
                           alt={copy.teacherImageAlt + ": " + lessonData.teacher.name}
+                          onError={(event) => {
+                            event.currentTarget.src = "/images/profile-avatar.webp";
+                          }}
                           className="h-11 w-11 rounded-full object-cover object-top"
                         />
                         <div>
@@ -261,10 +283,9 @@ const LessonDetails = () => {
                             {copy.ratingLabel}
                           </p>
                           <p className="text-sm font-black text-black-blue">
-                            {Number(lessonData.teacher.rating ?? 0).toFixed(1)}
-                            <span className="ms-1 text-xs font-semibold text-black-blue/40">
-                              {Number(lessonData.teacher.rating ?? 0) > 0 ? "" : copy.noRatingsYet}
-                            </span>
+                            {Number(lessonData.teacher.rating ?? 0) > 0
+                              ? Number(lessonData.teacher.rating).toFixed(1)
+                              : copy.noRatingsYet}
                           </p>
                         </div>
                       </div>
@@ -321,7 +342,10 @@ const LessonDetails = () => {
                         <img
                           src={lessonData.logo || "/images/placeholder-img.webp"}
                           alt={copy.imageAlt + ": " + lessonData.title}
-                          className="h-full w-full object-cover"
+                          onError={(event) => {
+                            event.currentTarget.src = "/images/placeholder-img.webp";
+                          }}
+                          className="h-full w-full object-cover transition duration-500 hover:scale-[1.02]"
                         />
                       </div>
                     </div>
@@ -416,6 +440,19 @@ const LessonDetails = () => {
                             const dayName =
                               dayNames[slot.day_of_week as keyof typeof dayNames] ??
                               String(slot.day_of_week);
+                            const [startHour, startMinute] = slot.start_time
+                              .slice(0, 5)
+                              .split(":")
+                              .map(Number);
+                            const [endHour, endMinute] = slot.end_time
+                              .slice(0, 5)
+                              .split(":")
+                              .map(Number);
+                            const slotMinutes = Math.max(
+                              0,
+                              endHour * 60 + endMinute - (startHour * 60 + startMinute)
+                            );
+
                             return (
                               <div
                                 key={
@@ -425,16 +462,18 @@ const LessonDetails = () => {
                                   "-" +
                                   slot.end_time
                                 }
-                                className="flex items-center justify-between gap-3 rounded-2xl border border-black-blue/[0.06] bg-[#FBFDFC] px-4 py-3"
+                                className="rounded-2xl border border-black-blue/[0.06] bg-[#FBFDFC] p-4 transition hover:-translate-y-0.5 hover:border-main/20 hover:shadow-sm"
                               >
-                                <span className="text-sm font-black text-black-blue">{dayName}</span>
-                                <span
-                                  className="inline-flex items-center gap-1.5 text-sm font-bold text-black-blue/60"
-                                  dir="ltr"
-                                >
-                                  <Clock3 className="h-4 w-4 text-main" />
-                                  {slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}
-                                </span>
+                                <div className="flex items-center justify-between gap-3">
+                                  <span className="text-sm font-black text-black-blue">{dayName}</span>
+                                  <span className="rounded-full bg-main/[0.06] px-2.5 py-1 text-[10px] font-extrabold text-main">
+                                    {slotMinutes} {copy.durationUnit}
+                                  </span>
+                                </div>
+                                <div className="mt-3 flex items-center gap-2 text-base font-black text-black-blue" dir="ltr">
+                                  <Clock3 className="h-4 w-4 shrink-0 text-main" />
+                                  <span>{slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}</span>
+                                </div>
                               </div>
                             );
                           })}
@@ -490,9 +529,14 @@ const LessonDetails = () => {
 
                   <aside className="space-y-4 lg:sticky lg:top-24 lg:self-start">
                     <div className="rounded-3xl bg-black-blue p-5 text-white shadow-xl">
-                      <div className="flex items-center gap-2 text-main">
+                      <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-2 text-main">
                         <Banknote className="h-5 w-5" />
-                        <span className="text-xs font-extrabold uppercase tracking-wide">{copy.bookingSummary}</span>
+                          <span className="text-xs font-extrabold uppercase tracking-wide">{copy.bookingSummary}</span>
+                        </div>
+                        <span className="rounded-full bg-white/10 px-2.5 py-1 text-[10px] font-extrabold text-white/70">
+                          {copy.published}
+                        </span>
                       </div>
                       <p className="mt-3 text-3xl font-black">
                         {Number(lessonData.price) === 0
@@ -516,6 +560,12 @@ const LessonDetails = () => {
                           <span>{copy.sessions}</span>
                           <strong className="text-white">{lessonData.sessions_count}</strong>
                         </div>
+                        {lessonData.booking_type === "group" && lessonData.max_students ? (
+                          <div className="flex items-center justify-between gap-3">
+                            <span>{copy.maximumStudents}</span>
+                            <strong className="text-white">{lessonData.max_students}</strong>
+                          </div>
+                        ) : null}
                       </div>
 
                       {bookingEnabled && canBook ? (
@@ -581,15 +631,24 @@ const LessonDetails = () => {
                 </p>
               </div>
               <div className="shrink-0">
-                <BookLessonDialog
-                  lessonId={lessonData.id}
-                  bookingType={lessonData.booking_type!}
-                  deliveryMode={lessonData.delivery_mode}
-                  offlineVisitType={lessonData.offline_visit_type}
-                  price={lessonData.price}
-                  durationMinutes={lessonData.duration_minutes ?? 60}
-                  language={language}
-                />
+                {canBook ? (
+                  <BookLessonDialog
+                    lessonId={lessonData.id}
+                    bookingType={lessonData.booking_type!}
+                    deliveryMode={lessonData.delivery_mode}
+                    offlineVisitType={lessonData.offline_visit_type}
+                    price={lessonData.price}
+                    durationMinutes={lessonData.duration_minutes ?? 60}
+                    language={language}
+                  />
+                ) : (
+                  <Link
+                    to="/login"
+                    className="inline-flex min-h-11 items-center justify-center rounded-xl bg-main px-5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-main/15 transition hover:bg-main/90"
+                  >
+                    {copy.loginToBook}
+                  </Link>
+                )}
               </div>
             </div>
           </div>

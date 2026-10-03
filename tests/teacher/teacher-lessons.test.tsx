@@ -116,11 +116,11 @@ describe("TeacherLessons", () => {
     expect(screen.getByText("Algebra Private")).toBeInTheDocument();
     expect(screen.getByText("Physics Group")).toBeInTheDocument();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Delivery" }), "offline");
+    await user.selectOptions(screen.getByRole("combobox", { name: "نوع التوصيل" }), "offline");
     expect(screen.queryByText("Algebra Private")).not.toBeInTheDocument();
     expect(screen.getByText("Physics Group")).toBeInTheDocument();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Booking type" }), "group");
+    await user.selectOptions(screen.getByRole("combobox", { name: "نوع الحجز" }), "group");
     expect(screen.getByText("Physics Group")).toBeInTheDocument();
 
     await user.selectOptions(screen.getByRole("combobox", { name: "Filter status" }), "unpublished");
@@ -131,11 +131,11 @@ describe("TeacherLessons", () => {
     const user = userEvent.setup();
     renderPage();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Subject" }), "11");
+    await user.selectOptions(screen.getByRole("combobox", { name: "المادة" }), "11");
     expect(screen.queryByText("Algebra Private")).not.toBeInTheDocument();
     expect(screen.getByText("Physics Group")).toBeInTheDocument();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Education stage" }), "5");
+    await user.selectOptions(screen.getByRole("combobox", { name: "المرحلة التعليمية" }), "5");
     expect(screen.getByText("Physics Group")).toBeInTheDocument();
   });
 });

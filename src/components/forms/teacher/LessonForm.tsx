@@ -201,8 +201,14 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const price = Number(form.watch("price") || 0);
   const sessionsCount = Number(form.watch("sessions_count") || 0);
   const maxStudents = form.watch("max_students");
-  const availabilityValues =
-    useWatch({ control: form.control, name: "availability" }) || [];
+  const watchedAvailability = useWatch({
+    control: form.control,
+    name: "availability",
+  });
+  const availabilityValues = useMemo(
+    () => watchedAvailability ?? [],
+    [watchedAvailability]
+  );
 
   const profileAddress = teacherProfile?.data?.address || "";
   const profileLatitude = teacherProfile?.data?.latitude;

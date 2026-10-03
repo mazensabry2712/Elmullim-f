@@ -1,7 +1,7 @@
 import axiosAPI from "@/config/axios.config";
 import { IStatusMsg } from "@/interfaces";
 import { ICreateLesson, IUpdateLesson } from "@/interfaces/teachers/teacherLessons";
-import { ILessonsRes, ILessonRes, ITeacherLessonsRes } from "@/interfaces/lessons/lesson";
+import { ILessonRes, ITeacherLessonsRes } from "@/interfaces/lessons/lesson";
 import { ICreateLessonAvailabilitySlot } from "@/interfaces/lessons/availability";
 
 const appendAvailability = (

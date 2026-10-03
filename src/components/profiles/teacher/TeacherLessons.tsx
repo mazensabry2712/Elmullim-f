@@ -11,6 +11,12 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import { useMemo, useState } from "react";
 
+const operationalArchiveStatuses = ["full", "booking_expired", "ended"] as const;
+const isOperationalArchived = (operationalStatus?: string) =>
+  operationalArchiveStatuses.includes(
+    operationalStatus as (typeof operationalArchiveStatuses)[number]
+  );
+
 const TeacherLessons = () => {
   const token = cookieService.getToken() || "";
   const { language } = useI18n();
@@ -58,18 +64,12 @@ const TeacherLessons = () => {
       ).sort((a, b) => a.name.localeCompare(b.name)),
     [allLessons]
   );
-  const operationalArchiveStatuses = ["full", "booking_expired", "ended"] as const;
-  const isOperationalArchived = (lesson: (typeof allLessons)[number]) =>
-    operationalArchiveStatuses.includes(
-      lesson.operational_status as (typeof operationalArchiveStatuses)[number]
-    );
-
   const stats = useMemo(() => ({
     total: allLessons.length,
     published: allLessons.filter((lesson) => lesson.publishing_status === "published").length,
     pending: allLessons.filter((lesson) => lesson.publishing_status === "pending_approval").length,
     drafts: allLessons.filter((lesson) => ["draft", "rejected", "unpublished"].includes(lesson.publishing_status ?? "draft")).length,
-    archived: allLessons.filter((lesson) => isOperationalArchived(lesson)).length,
+    archived: allLessons.filter((lesson) => isOperationalArchived(lesson.operational_status)).length,
   }), [allLessons]);
 
   const filteredLessons = useMemo(() => {
@@ -90,11 +90,11 @@ const TeacherLessons = () => {
   }, [allLessons, search, status, deliveryMode, bookingType, subjectId, educationLevelId]);
 
   const activeTeacherLessons = useMemo(
-    () => filteredLessons.filter((lesson) => !isOperationalArchived(lesson)),
+    () => filteredLessons.filter((lesson) => !isOperationalArchived(lesson.operational_status)),
     [filteredLessons]
   );
   const archivedTeacherLessons = useMemo(
-    () => filteredLessons.filter((lesson) => isOperationalArchived(lesson)),
+    () => filteredLessons.filter((lesson) => isOperationalArchived(lesson.operational_status)),
     [filteredLessons]
   );
 

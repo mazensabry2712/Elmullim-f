@@ -12,6 +12,7 @@ type MaintenanceResponse = {
 
 const MAINTENANCE_EVENT = "elmullim:maintenance";
 const CHECK_INTERVAL_MS = 30_000;
+const CHECK_TIMEOUT_MS = 5_000;
 
 const MaintenanceGate = ({ children }: { children: ReactNode }) => {
   const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
@@ -31,7 +32,7 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
                 Authorization: `Bearer ${token}`,
               },
             }
-          : undefined
+          : { timeout: CHECK_TIMEOUT_MS }
       );
 
       const status = statusResponse.data?.data ?? {};

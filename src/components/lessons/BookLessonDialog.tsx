@@ -153,6 +153,13 @@ const BookLessonDialog = ({
       : isFree
         ? bookingCopy.confirmFree
         : bookingCopy.confirmRequest;
+  const selectionHint = !selectedDate
+    ? role === "parent"
+      ? bookingCopy.selectStudentDateTime
+      : bookingCopy.date
+    : !selectedTime
+      ? bookingCopy.time
+      : bookingCopy.confirm;
 
   const closeDialog = () => {
     setOpen(false);
@@ -510,24 +517,28 @@ const BookLessonDialog = ({
                 </section>
               )}
 
-              <label className="block text-sm font-extrabold text-black-blue">
-                {bookingCopy.note}
-                <textarea
-                  value={customerNote}
-                  onChange={(event) => setCustomerNote(event.target.value)}
-                  rows={4}
-                  maxLength={5000}
-                  className="mt-2 w-full resize-none rounded-2xl border border-black-blue/10 bg-white px-4 py-3 text-sm font-medium text-black-blue outline-none transition focus:border-main focus:ring-2 focus:ring-main/10"
-                />
-              </label>
+              <details className="group rounded-2xl border border-black-blue/[0.07] bg-white">
+                <summary className="cursor-pointer list-none px-4 py-3 text-sm font-extrabold text-black-blue">
+                  <span className="flex items-center justify-between gap-3">
+                    <span>{bookingCopy.note}</span>
+                    <span className="text-xs font-semibold text-black-blue/35 transition group-open:rotate-180">⌄</span>
+                  </span>
+                </summary>
+                <div className="px-4 pb-4">
+                  <textarea
+                    value={customerNote}
+                    onChange={(event) => setCustomerNote(event.target.value)}
+                    rows={3}
+                    maxLength={5000}
+                    placeholder={language === "ar" ? "أضف أي ملاحظة للمعلم إذا لزم الأمر..." : "Add a note for the teacher if needed..."}
+                    className="w-full resize-none rounded-2xl border border-black-blue/10 bg-white px-4 py-3 text-sm font-medium text-black-blue outline-none transition focus:border-main focus:ring-2 focus:ring-main/10"
+                  />
+                </div>
+              </details>
 
               <div className="flex flex-col gap-3 border-t border-black-blue/[0.07] pt-5 sm:flex-row sm:items-center sm:justify-between">
                 <div className="text-xs font-semibold text-black-blue/45">
-                  {!selectedDate
-                    ? bookingCopy.selectStudentDateTime
-                    : !selectedTime
-                      ? bookingCopy.time
-                      : confirmLabel}
+                  {selectionHint}
                 </div>
                 <div className="flex flex-col-reverse gap-2 sm:flex-row">
                   <button type="button" onClick={() => setOpen(false)} className="min-h-11 rounded-xl border border-black-blue/10 bg-white px-5 py-2 text-sm font-extrabold text-black-blue/65 transition hover:bg-slate-50">

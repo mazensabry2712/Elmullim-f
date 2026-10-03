@@ -62,6 +62,9 @@ export const lessonSchema = z
       .number({ message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") })
       .min(0, { message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") }),
     sessions_count: positiveInteger("sessions count is required", "عدد الحصص مطلوب"),
+    booking_opens_at: z.string().optional().or(z.literal("")),
+    booking_closes_at: z.string().optional().or(z.literal("")),
+    ends_at: z.string().optional().or(z.literal("")),
     offline_visit_type: z.enum(["teacher_to_student", "student_to_teacher", ""], {
       message: validationMessage("select a valid visit type", "اختر طريقة زيارة صحيحة"),
     }),
@@ -126,6 +129,58 @@ export const lessonSchema = z
         code: z.ZodIssueCode.custom,
         path: ["max_students"],
         message: validationMessage("maximum students is required for group lessons", "الحد الأقصى للطلاب مطلوب للدروس الجماعية"),
+      });
+    }
+
+    const opens = data.booking_opens_at ? new Date(data.booking_opens_at) : null;
+    const closes = data.booking_closes_at ? new Date(data.booking_closes_at) : null;
+    const ends = data.ends_at ? new Date(data.ends_at) : null;
+
+    if (opens && Number.isNaN(opens.getTime())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["booking_opens_at"],
+        message: validationMessage("booking opening date is invalid", "تاريخ بدء الحجز غير صحيح"),
+      });
+    }
+
+    if (closes && Number.isNaN(closes.getTime())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["booking_closes_at"],
+        message: validationMessage("booking closing date is invalid", "تاريخ إغلاق الحجز غير صحيح"),
+      });
+    }
+
+    if (ends && Number.isNaN(ends.getTime())) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ends_at"],
+        message: validationMessage("lesson end date is invalid", "تاريخ نهاية الدرس غير صحيح"),
+      });
+    }
+
+    if (opens && closes && closes < opens) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["booking_closes_at"],
+        message: validationMessage("booking close date must be after opening date", "يجب أن يكون إغلاق الحجز بعد بدء الحجز"),
+      });
+    }
+
+    if (closes && ends && ends <= closes) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ends_at"],
+        message: validationMessage("lesson end date must be after booking close date", "يجب أن تكون نهاية الدرس بعد إغلاق الحجز"),
+      });
+    }
+
+    if (!closes && opens && ends && ends <= opens) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["ends_at"],
+        message: validationMessage("lesson end date must be after booking opening date", "يجب أن تكون نهاية الدرس بعد بدء الحجز"),
       });
     }
 

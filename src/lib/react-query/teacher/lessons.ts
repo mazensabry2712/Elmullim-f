@@ -4,6 +4,7 @@ import {
   deleteTeacherLesson,
   getTeacherLessonById,
   getTeacherLessons,
+  getTeacherLessonSummary,
   resubmitTeacherLesson,
   unpublishTeacherLesson,
   updateTeacherLesson,
@@ -16,6 +17,14 @@ export const useGetTeacherLessons = (token: string, enabled = true) =>
     queryKey: [QueryKeys.TEACHER_LESSONS],
     queryFn: () => getTeacherLessons(token),
     enabled: enabled && !!token,
+  });
+
+export const useGetTeacherLessonSummary = (token: string, enabled = true) =>
+  useQuery({
+    queryKey: [QueryKeys.TEACHER_LESSONS, "summary"],
+    queryFn: () => getTeacherLessonSummary(token),
+    enabled: enabled && !!token,
+    staleTime: 30_000,
   });
 
 export const useGetTeacherLessonById = ({
@@ -46,6 +55,7 @@ export const useCreateTeacherLesson = () => {
     }) => createTeacherLesson({ token, lesson }),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS, "summary"] });
     },
   });
 };
@@ -80,6 +90,7 @@ export const useResubmitTeacherLesson = () => {
       resubmitTeacherLesson({ token, id }),
     onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS, "summary"] });
       void queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_LESSON, String(variables.id)],
       });

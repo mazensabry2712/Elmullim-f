@@ -78,6 +78,17 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
           <span className={`rounded-full px-3 py-1.5 text-[11px] font-extrabold shadow-sm ${statusClass}`}>
             {statusCopy[status as keyof typeof statusCopy] ?? status}
           </span>
+          {lesson.operational_status === "full" ||
+          lesson.operational_status === "booking_expired" ||
+          lesson.operational_status === "ended" ? (
+            <span className="absolute start-3 top-12 rounded-full bg-amber-50/95 px-3 py-1.5 text-[11px] font-black text-amber-700 shadow-sm backdrop-blur">
+              {lesson.operational_status === "full"
+                ? (isArabic ? "مكتمل السعة" : "Full capacity")
+                : lesson.operational_status === "booking_expired"
+                  ? (isArabic ? "انتهت فترة الحجز" : "Booking ended")
+                  : (isArabic ? "انتهى الدرس" : "Lesson ended")}
+            </span>
+          ) : null}
         </div>
       </div>
 

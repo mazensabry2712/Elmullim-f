@@ -1781,6 +1781,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 title={label("Lesson cover image", "صورة غلاف الدرس")}
                 file={file}
                 setFile={setFile}
+                existingUrl={action === "update" ? lesson?.logo : undefined}
               />
               {!isImageReady ? (
                 <p className="mt-2 flex items-center gap-2 text-xs font-bold text-amber-700">

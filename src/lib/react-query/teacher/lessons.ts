@@ -59,8 +59,13 @@ export const useUpdateTeacherLesson = () => {
       token: string;
       lesson: IUpdateLesson;
     }) => updateTeacherLesson({ token, lesson }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_LESSONS],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_LESSON, String(variables.lesson.id)],
+      });
     },
   });
 };

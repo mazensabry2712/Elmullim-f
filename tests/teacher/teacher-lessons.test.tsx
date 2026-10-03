@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import type { ReactNode } from "react";
 import userEvent from "@testing-library/user-event";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
@@ -26,7 +27,7 @@ vi.mock("@/animations", () => ({
 
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+    div: ({ children }: { children?: ReactNode }) => <div>{children}</div>,
   },
 }));
 

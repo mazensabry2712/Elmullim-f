@@ -16,7 +16,10 @@ const TeacherLessons = () => {
   const { language } = useI18n();
   const isArabic = language === "ar";
   const { data: lessons, isLoading, isError, refetch } = useGetTeacherLessons(token);
-  const { data: summaryResponse } = useGetTeacherLessonSummary(token);
+  const { data: summaryResponse } = useGetTeacherLessonSummary(
+    token,
+    Boolean(lessons) && !isLoading && !isError
+  );
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState<"all" | "published" | "pending_approval" | "rejected" | "draft" | "unpublished">("all");
   const [deliveryMode, setDeliveryMode] = useState<"all" | "online" | "offline">("all");

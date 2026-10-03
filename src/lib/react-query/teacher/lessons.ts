@@ -4,6 +4,8 @@ import {
   deleteTeacherLesson,
   getTeacherLessonById,
   getTeacherLessons,
+  resubmitTeacherLesson,
+  unpublishTeacherLesson,
   updateTeacherLesson,
 } from "@/services/teacher/lessons";
 import { ICreateLesson, IUpdateLesson } from "@/interfaces/teachers/teacherLessons";

@@ -9,6 +9,7 @@ import {
 } from "@/lib/react-query/teacher/lessons";
 import handleResError from "@/utils/handleResponseError";
 import { useI18n } from "@/i18n";
+import cookieService from "@/utils/cookieService";
 
 interface Props {
   lesson: ILesson;
@@ -48,7 +49,7 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
     setIsWorking(true);
     try {
       const response = await resubmitMutation.mutateAsync({
-        token: document.cookie ? (await import("@/utils/cookieService")).default.getToken() || "" : "",
+        token: cookieService.getToken() || "",
         id: lesson.id,
       });
       if (!response.status) {
@@ -79,7 +80,7 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
     setIsWorking(true);
     try {
       const response = await unpublishMutation.mutateAsync({
-        token: (await import("@/utils/cookieService")).default.getToken() || "",
+        token: cookieService.getToken() || "",
         id: lesson.id,
       });
       if (!response.status) {

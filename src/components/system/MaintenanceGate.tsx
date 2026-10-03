@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { useSelector } from "react-redux";
 import axiosAPI from "@/config/axios.config";
-import cookieService from "@/utils/cookieService";
 import type { RootState } from "@/store/store";
 import { useI18n } from "@/i18n";
 
@@ -22,17 +21,11 @@ const MaintenanceGate = ({ children }: { children: ReactNode }) => {
 
   const check = useCallback(async () => {
     try {
-      const token = cookieService.getToken();
-
       const statusResponse = await axiosAPI.get<{ data?: MaintenanceResponse }>(
         "/main/maintenance",
-        token
-          ? {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          : { timeout: CHECK_TIMEOUT_MS }
+        {
+          timeout: CHECK_TIMEOUT_MS,
+        }
       );
 
       const status = statusResponse.data?.data ?? {};

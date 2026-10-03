@@ -108,12 +108,13 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
       <button
         type="button"
         onClick={() => void unpublish()}
-        disabled={isWorking}
+        disabled={isWorking || (lesson.active_bookings_count ?? 0) > 0}
         className={`inline-flex items-center justify-center gap-2 rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-sm font-bold text-amber-700 transition hover:bg-amber-100 disabled:cursor-not-allowed disabled:opacity-60 ${compact ? "w-full" : ""}`}
       >
         {isWorking ? <Loader2 className="h-4 w-4 animate-spin" /> : <EyeOff className="h-4 w-4" />}
         {text.unpublish}
       </button>
+    
     );
   }
 

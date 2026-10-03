@@ -70,6 +70,36 @@ export const useUpdateTeacherLesson = () => {
   });
 };
 
+export const useResubmitTeacherLesson = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ token, id }: { token: string; id: number }) =>
+      resubmitTeacherLesson({ token, id }),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_LESSON, String(variables.id)],
+      });
+    },
+  });
+};
+
+export const useUnpublishTeacherLesson = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ token, id }: { token: string; id: number }) =>
+      unpublishTeacherLesson({ token, id }),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_LESSON, String(variables.id)],
+      });
+    },
+  });
+};
+
 export const useDeleteTeacherLesson = () => {
   const queryClient = useQueryClient();
 

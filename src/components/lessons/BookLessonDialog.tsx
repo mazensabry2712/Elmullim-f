@@ -138,6 +138,21 @@ const BookLessonDialog = ({
   ]);
 
   const minimumDate = getTodayInputValue();
+  const isFree = Number(price) <= 0;
+  const bookingNotice =
+    bookingType === "private"
+      ? isFree
+        ? bookingCopy.freePrivateApproval
+        : bookingCopy.privateRequiresApproval
+      : isFree
+        ? bookingCopy.freeGroupInstant
+        : bookingCopy.groupBookingRequest;
+  const confirmLabel =
+    bookingType === "private"
+      ? bookingCopy.confirmRequest
+      : isFree
+        ? bookingCopy.confirmFree
+        : bookingCopy.confirmRequest;
 
   const closeDialog = () => {
     setOpen(false);
@@ -317,26 +332,42 @@ const BookLessonDialog = ({
               </div>
             ) : (
               <div className="space-y-5 px-5 py-5 sm:px-6 sm:py-6">
-              <div className="grid gap-3 sm:grid-cols-3">
-                <div className="rounded-2xl bg-main/[0.055] p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">{copy.price}</p>
-                  <p className="mt-1 text-lg font-black text-main">{price} {copy.currency}</p>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="rounded-2xl bg-main/[0.055] p-4">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">{copy.price}</p>
+                    <p className="mt-1 text-lg font-black text-main">
+                      {isFree ? copy.free : Number(price).toFixed(2) + " " + copy.currency}
+                    </p>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">{bookingCopy.lessonDuration}</p>
+                    <p className="mt-1 text-lg font-black text-black-blue">{durationMinutes} {copy.durationUnit}</p>
+                  </div>
+                  <div className="rounded-2xl bg-slate-50 p-4">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">{copy.bookingType}</p>
+                    <p className="mt-1 text-lg font-black text-black-blue">{bookingType === "group" ? copy.group : copy.private}</p>
+                  </div>
                 </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">{bookingCopy.lessonDuration}</p>
-                  <p className="mt-1 text-lg font-black text-black-blue">{durationMinutes} {copy.durationUnit}</p>
-                </div>
-                <div className="rounded-2xl bg-slate-50 p-4">
-                  <p className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">{copy.bookingType}</p>
-                  <p className="mt-1 text-lg font-black text-black-blue">{bookingType === "group" ? copy.group : copy.private}</p>
-                </div>
-              </div>
 
-              <div className="rounded-2xl border border-main/10 bg-main/[0.035] p-4">
-                <p className="text-sm font-semibold leading-6 text-black-blue/65">
-                  {bookingType === "private" ? bookingCopy.privateRequiresApproval : bookingCopy.groupBookingRequest}
-                </p>
-              </div>
+                <div className="rounded-2xl border border-main/10 bg-main/[0.035] p-4">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-main" />
+                    <div>
+                      <p className="text-sm font-extrabold text-black-blue">{bookingNotice}</p>
+                      {isFree && (
+                        <p className="mt-1 text-xs font-semibold leading-5 text-black-blue/50">
+                          {bookingCopy.freeNoPayment}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+              {role === "student" && (
+                <div className="rounded-2xl border border-black-blue/[0.07] bg-white px-4 py-3 text-sm font-semibold text-black-blue/60">
+                  <span className="font-extrabold text-black-blue">{bookingCopy.student}:</span> {selfStudent?.name || "..."}
+                </div>
+              )}
 
               {role === "parent" && (
                 <section className="space-y-2">
@@ -366,11 +397,14 @@ const BookLessonDialog = ({
               )}
 
               <section className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <CalendarDays className="h-4 w-4 text-main" />
-                  <label className="text-sm font-extrabold text-black-blue" htmlFor="lesson-booking-date">
-                    {bookingCopy.date}
-                  </label>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <CalendarDays className="h-4 w-4 text-main" />
+                    <label className="text-sm font-extrabold text-black-blue" htmlFor="lesson-booking-date">
+                      {bookingCopy.date}
+                    </label>
+                  </div>
+                  <p className="mt-1 text-xs leading-5 text-black-blue/45">{bookingCopy.chooseDateHint}</p>
                 </div>
                 <input
                   id="lesson-booking-date"
@@ -384,9 +418,12 @@ const BookLessonDialog = ({
 
               <section className="space-y-3">
                 <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <Clock3 className="h-4 w-4 text-main" />
-                    <p className="text-sm font-extrabold text-black-blue">{bookingCopy.time}</p>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <Clock3 className="h-4 w-4 text-main" />
+                      <p className="text-sm font-extrabold text-black-blue">{bookingCopy.time}</p>
+                    </div>
+                    <p className="mt-1 text-xs leading-5 text-black-blue/45">{bookingCopy.chooseTimeHint}</p>
                   </div>
                   {selectedDate && timesForDate.length > 0 && (
                     <span className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">
@@ -440,6 +477,19 @@ const BookLessonDialog = ({
                     })}
                   </div>
                 )}
+
+                {selectedDate && selectedTime && (
+                  <div className="rounded-2xl border border-main/10 bg-main/[0.045] p-4">
+                    <p className="text-[10px] font-extrabold uppercase tracking-wide text-main">
+                      {bookingCopy.selectedBooking}
+                    </p>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-sm font-black text-black-blue" dir="ltr">
+                      <span>{selectedDate}</span>
+                      <span className="text-black-blue/25">•</span>
+                      <span>{timesForDate.find((item) => item.value === selectedTime)?.local_time || ""}</span>
+                    </div>
+                  </div>
+                )}
               </section>
 
               {deliveryMode === "offline" && offlineVisitType === "teacher_to_student" && (
@@ -477,7 +527,7 @@ const BookLessonDialog = ({
                     ? bookingCopy.selectStudentDateTime
                     : !selectedTime
                       ? bookingCopy.time
-                      : bookingCopy.confirm}
+                      : confirmLabel}
                 </div>
                 <div className="flex flex-col-reverse gap-2 sm:flex-row">
                   <button type="button" onClick={() => setOpen(false)} className="min-h-11 rounded-xl border border-black-blue/10 bg-white px-5 py-2 text-sm font-extrabold text-black-blue/65 transition hover:bg-slate-50">
@@ -506,7 +556,7 @@ const BookLessonDialog = ({
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-main px-6 py-2 text-sm font-extrabold text-white transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-                    {bookingCopy.confirm}
+                    {confirmLabel}
                   </button>
                 </div>
               </div>

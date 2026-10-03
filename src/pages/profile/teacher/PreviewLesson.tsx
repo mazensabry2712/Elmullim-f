@@ -22,7 +22,7 @@ const PreviewLesson = () => {
 
   useEffect(() => {
     if (!Number.isInteger(numericId) || numericId <= 0 || isError) {
-      if (isError) navigate("/profile", { replace: true });
+      navigate("/profile", { replace: true });
     }
   }, [isError, navigate, numericId]);
 
@@ -115,8 +115,8 @@ const PreviewLesson = () => {
 
               <div className="mt-6 grid gap-3 sm:grid-cols-2">
                 {[
-                  [isArabic ? "المادة" : "Subject", String(lesson.subject_id ?? "—")],
-                  [isArabic ? "المرحلة" : "Education stage", String(lesson.education_level_id ?? "—")],
+                  [isArabic ? "المادة" : "Subject", lesson.subject_name || String(lesson.subject_id ?? "—")],
+                  [isArabic ? "المرحلة" : "Education stage", lesson.education_level_name || String(lesson.education_level_id ?? "—")],
                   [isArabic ? "الصف" : "Grade", lesson.grade || "—"],
                   [isArabic ? "التوصيل" : "Delivery", lesson.delivery_mode === "offline" ? (isArabic ? "حضوري" : "Offline") : (isArabic ? "أونلاين" : "Online")],
                   [isArabic ? "الحجز" : "Booking", lesson.booking_type === "group" ? (isArabic ? "جماعي" : "Group") : (isArabic ? "خاص" : "Private")],

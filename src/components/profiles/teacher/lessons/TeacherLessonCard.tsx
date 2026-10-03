@@ -2,9 +2,12 @@ import { Link } from "react-router-dom";
 import truncateTxt from "@/utils/truncateTxt";
 import { ILesson } from "@/interfaces/lessons/lesson";
 import DeleteLesson from "./DeleteLesson";
+import LessonStatusActions from "./LessonStatusActions";
 import {
   CalendarDays,
   Clock3,
+  Eye,
+  BookOpenCheck,
   MapPin,
   Pen,
   UsersRound,
@@ -79,7 +82,7 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
       </div>
 
       <div className="flex flex-1 flex-col p-4 sm:p-5">
-        <Link to={`/lessons/${lesson.id}`} className="block">
+        <Link to={`/profile/my-lessons/${lesson.id}/preview`} className="block">
           <h3 className="line-clamp-2 text-lg font-black leading-7 text-black-blue transition-colors hover:text-main sm:text-xl">
             {lesson.title}
           </h3>
@@ -140,6 +143,21 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
           </div>
         ) : null}
 
+        <div className="mt-4 grid grid-cols-2 gap-2">
+          <div className="rounded-2xl border border-black-blue/[0.06] bg-[#FBFDFC] px-3 py-3">
+            <p className="text-[10px] font-black uppercase tracking-wide text-black-blue/35">
+              {isArabic ? "الحجوزات" : "Bookings"}
+            </p>
+            <p className="mt-1 text-lg font-black text-black-blue">{lesson.bookings_count ?? 0}</p>
+          </div>
+          <div className="rounded-2xl border border-black-blue/[0.06] bg-[#FBFDFC] px-3 py-3">
+            <p className="text-[10px] font-black uppercase tracking-wide text-black-blue/35">
+              {isArabic ? "النشطة" : "Active"}
+            </p>
+            <p className="mt-1 text-lg font-black text-main">{lesson.active_bookings_count ?? 0}</p>
+          </div>
+        </div>
+
         {lesson.delivery_mode === "offline" ? (
           <div className="mt-3 inline-flex min-w-0 items-center gap-2 rounded-xl bg-[#FBFDFC] px-3 py-2.5 text-xs font-semibold text-black-blue/60">
             <MapPin className="h-4 w-4 shrink-0 text-main" />
@@ -153,25 +171,35 @@ const TeacherLessonCard = ({ lesson }: IProps) => {
           </div>
         ) : null}
 
-        <div className="mt-auto flex flex-col gap-2 pt-5 sm:flex-row">
-          <Link
-            to={`/lessons/${lesson.id}`}
-            className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-main px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-main/90"
-          >
-            {isArabic ? "عرض الدرس" : "View lesson"}
-          </Link>
-          <div className="grid grid-cols-2 gap-2 sm:flex sm:shrink-0">
+        <div className="mt-auto space-y-2 pt-5">
+          <div className="grid grid-cols-2 gap-2">
+            <Link
+              to={`/profile/my-lessons/${lesson.id}/preview`}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-main px-3 py-2.5 text-xs font-extrabold text-white transition hover:bg-main/90"
+            >
+              <Eye className="h-4 w-4" />
+              {isArabic ? "معاينة" : "Preview"}
+            </Link>
+            <Link
+              to={`/profile/teacher/bookings?lesson_id=${lesson.id}`}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-main/20 bg-main/[0.05] px-3 py-2.5 text-xs font-extrabold text-main transition hover:bg-main/[0.1]"
+            >
+              <BookOpenCheck className="h-4 w-4" />
+              {isArabic ? "الحجوزات" : "Bookings"}
+            </Link>
             <Link
               to={`/profile/my-lessons/${lesson.id}/update`}
               aria-label={isArabic ? "تحديث الدرس" : "Update lesson"}
               title={isArabic ? "تحديث الدرس" : "Update lesson"}
-              className="flex h-11 w-full items-center justify-center rounded-xl border border-blue-200 bg-blue-50 px-3 text-blue-600 transition hover:bg-blue-600 hover:text-white sm:w-11 sm:px-0"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-extrabold text-blue-600 transition hover:bg-blue-600 hover:text-white"
             >
               <Pen className="h-4 w-4" />
+              {isArabic ? "تعديل" : "Edit"}
             </Link>
-            <DeleteLesson id={lesson.id.toString()} />
+            <DeleteLesson id={lesson.id.toString()} disabled={(lesson.bookings_count ?? 0) > 0} />
           </div>
-        </div>
+          <LessonStatusActions lesson={lesson} compact />
+        </div>        </div>
       </div>
     </article>
   );

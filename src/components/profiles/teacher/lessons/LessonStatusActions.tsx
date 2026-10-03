@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { EyeOff, Loader2, RotateCcw, UploadCloud } from "lucide-react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
@@ -12,7 +13,7 @@ import { useI18n } from "@/i18n";
 import cookieService from "@/utils/cookieService";
 
 interface Props {
-  lesson: Pick<ITeacherLessonListItem, "id" | "publishing_status" | "publishing_note" | "active_bookings_count">;
+  lesson: Pick<ITeacherLessonListItem, "id" | "publishing_status" | "publishing_note" | "active_bookings_count" | "operational_status" | "seats_remaining">;
   compact?: boolean;
 }
 
@@ -32,6 +33,10 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
         cancel: "إلغاء",
         confirm: "إلغاء النشر",
         successResubmit: "تم إرسال الدرس للمراجعة.",
+        reopen: "إدارة وإعادة فتح",
+        closedFull: "مكتمل السعة",
+        closedExpired: "انتهت فترة الحجز",
+        closedEnded: "انتهى الدرس",
         successUnpublish: "تم إلغاء نشر الدرس.",
       }
     : {
@@ -42,6 +47,10 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
         cancel: "Cancel",
         confirm: "Unpublish",
         successResubmit: "Lesson submitted for review.",
+        reopen: "Manage and reopen",
+        closedFull: "Full capacity",
+        closedExpired: "Booking period ended",
+        closedEnded: "Lesson ended",
         successUnpublish: "Lesson unpublished successfully.",
       };
 
@@ -104,8 +113,38 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
   if (!visible) return null;
 
   if (lesson.publishing_status === "published") {
-    return (
-      <button
+    const closedOperational =
+      lesson.operational_status === "full" ||
+      lesson.operational_status === "booking_expired" ||
+      lesson.operational_status === "ended";
+
+    if (closedOperational) {
+      const closedLabel =
+        lesson.operational_status === "full"
+          ? text.closedFull
+          : lesson.operational_status === "booking_expired"
+            ? text.closedExpired
+            : text.closedEnded;
+
+      return (
+        <div className={compact ? "w-full space-y-2" : "space-y-2"}>
+          <div className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs font-extrabold text-amber-700">
+            {closedLabel}
+            {lesson.operational_status === "full" && lesson.seats_remaining === 0
+              ? ` — ${isArabic ? "لا توجد مقاعد متاحة" : "No seats available"}`
+              : ""}
+          </div>
+          <Link
+            to={`/profile/my-lessons/${lesson.id}/update`}
+            className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-main/20 bg-main/[0.06] px-4 py-2.5 text-sm font-bold text-main transition hover:bg-main/[0.1]"
+          >
+            {text.reopen}
+          </Link>
+        </div>
+      );
+    }
+
+    return (      <button
         type="button"
         onClick={() => void unpublish()}
         disabled={isWorking || (lesson.active_bookings_count ?? 0) > 0}

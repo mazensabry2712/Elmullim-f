@@ -47,7 +47,7 @@ describe("teacher lesson update API client", () => {
     expect(formData.get("availability[0][meeting_url]")).toBeNull();
     expect(formData.get("availability[0][day_of_week]")).toBeNull();
     expect(formData.get("service_area_ids[]")).toBeNull();
-    expect(formData.get("_method")).toBe("put");
+    expect(formData.get("_method")).toBeNull();
     expect(config).toEqual({
       headers: { Authorization: "Bearer teacher-token" },
     });

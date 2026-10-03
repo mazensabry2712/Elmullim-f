@@ -49,10 +49,20 @@ export const useGetBookings = ({ token, page = 1, enabled = true }: { token: str
     placeholderData: (previous) => previous,
   });
 
-export const useGetTeacherBookings = ({ token, page = 1, enabled = true }: { token: string; page?: number; enabled?: boolean }) =>
+export const useGetTeacherBookings = ({
+  token,
+  page = 1,
+  lessonId,
+  enabled = true,
+}: {
+  token: string;
+  page?: number;
+  lessonId?: number;
+  enabled?: boolean;
+}) =>
   useQuery({
-    queryKey: [...bookingKeys.teacher(), page],
-    queryFn: () => getTeacherBookings({ token, page }),
+    queryKey: [...bookingKeys.teacher(), page, lessonId ?? null],
+    queryFn: () => getTeacherBookings({ token, page, lessonId }),
     enabled: enabled && !!token,
     placeholderData: (previous) => previous,
   });

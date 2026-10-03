@@ -144,7 +144,7 @@ describe("BookLessonDialog", () => {
     const timeButton = await screen.findByRole("button", { name: /18:00/ });
     expect(timeButton).toBeInTheDocument();
     fireEvent.click(timeButton);
-    fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
+    fireEvent.click(screen.getByRole("button", { name: "Send booking request" }));
 
     await waitFor(() =>
       expect(mocks.mutateAsync).toHaveBeenCalledWith({
@@ -205,7 +205,7 @@ describe("BookLessonDialog", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Choose student" }), { target: { value: "43" } });
     fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-11" } });
     fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
+    fireEvent.click(screen.getByRole("button", { name: "Send booking request" }));
 
     await waitFor(() =>
       expect(mocks.mutateAsync).toHaveBeenCalledWith({
@@ -256,7 +256,7 @@ describe("BookLessonDialog", () => {
     });
     fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
 
-    fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
+    fireEvent.click(screen.getByRole("button", { name: "Send booking request" }));
 
     await waitFor(() =>
       expect(mocks.mutateAsync).toHaveBeenCalledWith({
@@ -317,8 +317,8 @@ describe("BookLessonDialog", () => {
     fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-10" } });
     fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
 
-    expect(screen.getByRole("button", { name: "Submit booking" })).toBeDisabled();
-    fireEvent.click(screen.getByRole("button", { name: "Submit booking" }));
+    expect(screen.getByRole("button", { name: "Confirm free booking" })).toBeDisabled();
+    fireEvent.click(screen.getByRole("button", { name: "Confirm free booking" }));
     expect(mocks.mutateAsync).not.toHaveBeenCalled();
   });
 
@@ -373,7 +373,7 @@ describe("BookLessonDialog", () => {
     expect(screen.getByLabelText("اختر التاريخ")).toBeInTheDocument();
     expect(screen.getByText("اختر الموعد المتاح")).toBeInTheDocument();
     expect(screen.getByText("مجاني")).toBeInTheDocument();
-    expect(screen.getByText("هذا درس خاص ويحتاج إلى موافقة المعلم.")).toBeInTheDocument();
+    expect(screen.getByText("هذا درس خاص ويحتاج إلى موافقة المعلم", { exact: false })).toBeInTheDocument();
   });
 
   it("does not offer times on a day without matching availability", async () => {

@@ -295,7 +295,7 @@ const LessonDetails = () => {
                           durationMinutes={lessonData.duration_minutes ?? 60}
                           language={language}
                         />
-                      ) : bookingEnabled && !canBook && role !== "teacher" ? (
+                      ) : bookingEnabled && role !== "teacher" ? (
                         <Link
                           to="/login"
                           className="inline-flex min-h-12 items-center justify-center rounded-xl bg-main px-7 py-3 text-sm font-extrabold text-white shadow-lg shadow-main/15 transition hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
@@ -530,7 +530,7 @@ const LessonDetails = () => {
                             language={language}
                           />
                         </div>
-                      ) : bookingEnabled && !canBook && role !== "teacher" ? (
+                      ) : bookingEnabled && role !== "teacher" ? (
                         <Link
                           to="/login"
                           className="mt-5 inline-flex min-h-12 w-full items-center justify-center rounded-xl bg-main px-6 py-3 text-sm font-extrabold text-white transition hover:bg-main/90"
@@ -569,7 +569,7 @@ const LessonDetails = () => {
         </div>
 
 
-        {lessonData && bookingEnabled && canBook && (
+        {lessonData && bookingEnabled && role !== "teacher" && (
           <div className="fixed inset-x-0 bottom-0 z-40 border-t border-black-blue/[0.08] bg-white/95 px-4 py-3 shadow-[0_-12px_35px_rgba(33,55,75,0.12)] backdrop-blur lg:hidden">
             <div className="mx-auto flex max-w-3xl items-center gap-3">
               <div className="min-w-0 flex-1">

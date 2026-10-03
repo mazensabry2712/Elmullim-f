@@ -56,7 +56,19 @@ const LessonDetails = () => {
   const bookingEnabled =
     !!lessonData &&
     (lessonData.booking_type === "private" || lessonData.booking_type === "group") &&
-    lessonData.publishing_status === "published";
+    lessonData.publishing_status === "published" &&
+    lessonData.is_bookable !== false;
+
+  const lifecycleNotice =
+    lessonData?.operational_status === "full"
+      ? language === "ar" ? "اكتملت سعة هذا الدرس حاليًا." : "This lesson has reached its capacity."
+      : lessonData?.operational_status === "booking_expired"
+        ? language === "ar" ? "انتهت فترة الحجز لهذا الدرس." : "The booking period for this lesson has ended."
+        : lessonData?.operational_status === "ended"
+          ? language === "ar" ? "انتهى هذا الدرس." : "This lesson has ended."
+          : lessonData?.operational_status === "scheduled"
+            ? language === "ar" ? "لم يبدأ الحجز لهذا الدرس بعد." : "Booking for this lesson has not opened yet."
+            : null;
   const canBook = role === "student" || role === "parent";
 
   const dayNames =
@@ -306,7 +318,11 @@ const LessonDetails = () => {
                         </div>
                       </div>
 
-                      {bookingEnabled && canBook ? (
+                      {lifecycleNotice && role !== "teacher" ? (
+                        <div className="flex-1 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-sm font-extrabold leading-6 text-amber-700">
+                          {lifecycleNotice}
+                        </div>
+                      ) : bookingEnabled && canBook ? (
                         <BookLessonDialog
                           lessonId={lessonData.id}
                           bookingType={lessonData.booking_type!}
@@ -568,7 +584,11 @@ const LessonDetails = () => {
                         ) : null}
                       </div>
 
-                      {bookingEnabled && canBook ? (
+                      {lifecycleNotice && role !== "teacher" ? (
+                        <div className="mt-5 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm font-extrabold leading-6 text-amber-700">
+                          {lifecycleNotice}
+                        </div>
+                      ) : bookingEnabled && canBook ? (
                         <div className="mt-5">
                           <BookLessonDialog
                             lessonId={lessonData.id}

@@ -19,6 +19,7 @@ export interface IAppNotification {
     status?: string;
     session_id?: number;
     meeting_url?: string | null;
+    publishing_note?: string | null;
   };
   read_at?: string | null;
   created_at: string;

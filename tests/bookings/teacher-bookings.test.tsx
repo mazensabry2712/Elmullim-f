@@ -13,6 +13,10 @@ const mocks = vi.hoisted(() => ({
   proposeBookingTime: vi.fn(),
 }));
 
+vi.mock("react-router-dom", () => ({
+  useSearchParams: () => [new URLSearchParams(), vi.fn()],
+}));
+
 vi.mock("@/utils/cookieService", () => ({
   default: {
     getToken: () => mocks.getToken(),

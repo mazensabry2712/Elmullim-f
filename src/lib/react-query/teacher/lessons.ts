@@ -42,12 +42,9 @@ export const useCreateTeacherLesson = () => {
       token: string;
       lesson: ICreateLesson;
     }) => createTeacherLesson({ token, lesson }),
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       void queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_LESSONS],
-      });
-      void queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_LESSON, String(variables.lesson.id)],
       });
     },
   });
@@ -64,8 +61,13 @@ export const useUpdateTeacherLesson = () => {
       token: string;
       lesson: IUpdateLesson;
     }) => updateTeacherLesson({ token, lesson }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_LESSONS],
+      });
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_LESSON, String(variables.lesson.id)],
+      });
     },
   });
 };

@@ -131,3 +131,34 @@ export const deleteTeacherLesson = async ({
   });
   return data;
 };
+
+
+export const resubmitTeacherLesson = async ({
+  token,
+  id,
+}: {
+  token: string;
+  id: number;
+}): Promise<ILessonRes> => {
+  const { data } = await axiosAPI.post(
+    `/teacher/lessons/${id}/resubmit`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+};
+
+export const unpublishTeacherLesson = async ({
+  token,
+  id,
+}: {
+  token: string;
+  id: number;
+}): Promise<ILessonRes> => {
+  const { data } = await axiosAPI.post(
+    `/teacher/lessons/${id}/unpublish`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+};

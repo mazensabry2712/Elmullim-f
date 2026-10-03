@@ -593,8 +593,8 @@ const LessonDetails = () => {
                         <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-main" />
                         <span>
                           {lessonData.booking_type === "private"
-                            ? copy.privateRequiresApproval
-                            : copy.groupBookingRequest}
+                            ? copy.booking.privateRequiresApproval
+                            : copy.booking.groupBookingRequest}
                         </span>
                       </div>
                     </div>

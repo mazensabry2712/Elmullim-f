@@ -39,6 +39,13 @@ jobs:
           VITE_ENV: production
         run: npm run build
 
+      - name: Verify production bundle
+        run: |
+          test -s dist/index.html
+          test -d dist/assets
+          test -n "$(find dist/assets -maxdepth 1 -type f -print -quit)"
+          echo "Production bundle verified for commit $GITHUB_SHA"
+
       - name: Prepare static deployment
         run: |
           mkdir -p /tmp/hostinger-deploy

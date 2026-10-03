@@ -40,7 +40,7 @@ const DeleteLesson = ({ id }: IProps) => {
 
       toast.success(message || text.success);
       setIsOpen(false);
-      navigate("/login");
+      navigate("/profile");
     } catch (error) {
       handleResError(error);
     } finally {

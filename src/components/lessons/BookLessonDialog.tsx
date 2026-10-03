@@ -572,7 +572,6 @@ const BookLessonDialog = ({
                 </div>
               </div>
             </div>
-              </div>
             )}
           </div>
         </div>

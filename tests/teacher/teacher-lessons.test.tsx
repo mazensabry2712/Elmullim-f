@@ -123,7 +123,7 @@ describe("TeacherLessons", () => {
     await user.selectOptions(screen.getByRole("combobox", { name: "نوع الحجز" }), "group");
     expect(screen.getByText("Physics Group")).toBeInTheDocument();
 
-    await user.selectOptions(screen.getByRole("combobox", { name: "Filter status" }), "unpublished");
+    await user.selectOptions(screen.getByRole("combobox", { name: "تصفية الحالة" }), "unpublished");
     expect(screen.getByText("Physics Group")).toBeInTheDocument();
   });
 

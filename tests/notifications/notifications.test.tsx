@@ -68,6 +68,42 @@ describe("Notifications", () => {
     });
   });
 
+  it("links lesson rejection notifications to the teacher lesson preview", () => {
+    mocks.query.mockReturnValue({
+      data: {
+        data: {
+          unread_count: 1,
+          items: [{
+            id: "n-lesson-rejected",
+            type: "LessonPublishingRejected",
+            data: {
+              event: "lesson_publishing_rejected",
+              lesson_id: 42,
+              title_en: "Lesson publishing request rejected",
+              title_ar: "تم رفض نشر الدرس",
+              body_en: 'Your lesson "Algebra" was rejected. Reason: Add a clearer description.',
+              body_ar: 'تم رفض نشر الدرس «Algebra». سبب الرفض: أضف وصفًا أوضح.',
+              publishing_note: "Add a clearer description.",
+            },
+            read_at: null,
+            created_at: "2026-10-03T10:00:00Z",
+          }],
+        },
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<I18nProvider><Notifications /></I18nProvider>);
+
+    expect(screen.getByText("Lesson publishing request rejected")).toBeInTheDocument();
+    expect(screen.getByText(/Add a clearer description/)).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View lesson" })).toHaveAttribute(
+      "href",
+      "/profile/my-lessons/42/preview",
+    );
+  });
+
   it("supports Arabic notification content", () => {
     localStorage.setItem("elmullim-language", "ar");
     mocks.query.mockReturnValue({

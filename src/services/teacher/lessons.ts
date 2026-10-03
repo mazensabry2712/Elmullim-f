@@ -77,6 +77,9 @@ export const createTeacherLesson = async ({
 
   if (lesson.offline_visit_type?.trim()) formData.append("offline_visit_type", lesson.offline_visit_type.trim());
   if (lesson.max_students !== undefined) formData.append("max_students", lesson.max_students.toString());
+  if (lesson.booking_opens_at) formData.append("booking_opens_at", lesson.booking_opens_at);
+  if (lesson.booking_closes_at) formData.append("booking_closes_at", lesson.booking_closes_at);
+  if (lesson.ends_at) formData.append("ends_at", lesson.ends_at);
 
   const { data } = await axiosAPI.post("/teacher/lessons", formData, {
     headers: { Authorization: "Bearer " + token },
@@ -109,7 +112,9 @@ export const updateTeacherLesson = async ({
   if (lesson.logo) formData.append("logo", lesson.logo);
   if (lesson.offline_visit_type?.trim()) formData.append("offline_visit_type", lesson.offline_visit_type.trim());
   if (lesson.max_students !== undefined) formData.append("max_students", lesson.max_students.toString());
-
+  if (lesson.booking_opens_at) formData.append("booking_opens_at", lesson.booking_opens_at);
+  if (lesson.booking_closes_at) formData.append("booking_closes_at", lesson.booking_closes_at);
+  if (lesson.ends_at) formData.append("ends_at", lesson.ends_at);
 
   const { data } = await axiosAPI.post(
     "/teacher/lessons/" + lesson.id,

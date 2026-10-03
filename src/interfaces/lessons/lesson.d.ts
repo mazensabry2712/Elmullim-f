@@ -22,7 +22,9 @@ export interface ILesson {
   id: number;
   teacher: ITeacher;
   education_level_id?: number | null;
+  education_level_name?: string | null;
   subject_id?: number | null;
+  subject_name?: string | null;
   grade?: string | null;
   title: string;
   description: string;

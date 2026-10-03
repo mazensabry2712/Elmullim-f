@@ -175,6 +175,9 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
           ?.filter((area) => area.is_active !== false)
           .map((area) => area.id) || [],
       max_students: lesson?.max_students ?? "",
+      booking_opens_at: lesson?.booking_opens_at?.slice(0, 16) ?? "",
+      booking_closes_at: lesson?.booking_closes_at?.slice(0, 16) ?? "",
+      ends_at: lesson?.ends_at?.slice(0, 16) ?? "",
       availability: initialAvailability,
     },
   });
@@ -639,6 +642,9 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
         values.max_students !== ""
           ? { max_students: Number(values.max_students) }
           : {}),
+        ...(values.booking_opens_at ? { booking_opens_at: values.booking_opens_at } : {}),
+        ...(values.booking_closes_at ? { booking_closes_at: values.booking_closes_at } : {}),
+        ...(values.ends_at ? { ends_at: values.ends_at } : {}),
       };
 
       const response =
@@ -1108,6 +1114,61 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 </div>
                 {error("description")}
               </label>
+
+              <div className="mt-5 rounded-2xl border border-main/10 bg-main/[0.025] p-4">
+                <div className="flex items-start gap-3">
+                  <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-main" />
+                  <div>
+                    <p className="text-sm font-black text-black-blue">
+                      {label("Booking lifecycle", "دورة حياة الحجز")}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 text-black-blue/50">
+                      {label("When capacity is full or the booking period/lesson end date passes, the lesson leaves public booking automatically but stays in your lessons archive.", "عند اكتمال السعة أو انتهاء فترة الحجز أو نهاية الدرس، يتوقف الحجز تلقائيًا ويظل الدرس محفوظًا في أرشيف دروسك.")}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-4 grid gap-3 md:grid-cols-3">
+                  <label className="block text-sm font-black text-black-blue">
+                    {label("Booking opens", "بدء الحجز")}
+                    <Input
+                      type="datetime-local"
+                      {...form.register("booking_opens_at")}
+                      className={commonInput + " h-12 rounded-xl"}
+                    />
+                    <span className="mt-1 block text-[11px] font-semibold text-black-blue/40">
+                      {label("Optional", "اختياري")}
+                    </span>
+                    {error("booking_opens_at")}
+                  </label>
+
+                  <label className="block text-sm font-black text-black-blue">
+                    {label("Booking closes", "إغلاق الحجز")}
+                    <Input
+                      type="datetime-local"
+                      {...form.register("booking_closes_at")}
+                      className={commonInput + " h-12 rounded-xl"}
+                    />
+                    <span className="mt-1 block text-[11px] font-semibold text-black-blue/40">
+                      {label("Optional", "اختياري")}
+                    </span>
+                    {error("booking_closes_at")}
+                  </label>
+
+                  <label className="block text-sm font-black text-black-blue">
+                    {label("Lesson ends", "نهاية الدرس")}
+                    <Input
+                      type="datetime-local"
+                      {...form.register("ends_at")}
+                      className={commonInput + " h-12 rounded-xl"}
+                    />
+                    <span className="mt-1 block text-[11px] font-semibold text-black-blue/40">
+                      {label("Optional, recommended for limited-time lessons", "اختياري، ومُفضّل للدروس ذات المدة المحدودة")}
+                    </span>
+                    {error("ends_at")}
+                  </label>
+                </div>
+              </div>
 
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 <label className="text-sm font-black text-black-blue">

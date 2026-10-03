@@ -240,7 +240,10 @@ const BookLessonDialog = ({
     <>
       <button
         type="button"
-        onClick={() => setOpen(true)}
+        onClick={() => {
+        setSuccessStatus(null);
+        setOpen(true);
+      }}
         className="inline-flex min-h-11 w-full items-center justify-center rounded-xl bg-main px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 lg:w-auto"
       >
         {copy.book}
@@ -275,7 +278,45 @@ const BookLessonDialog = ({
               </div>
             </div>
 
-            <div className="space-y-5 px-5 py-5 sm:px-6 sm:py-6">
+            {successStatus ? (
+              <div className="flex min-h-[360px] flex-col items-center justify-center px-5 py-8 text-center sm:px-6">
+                <div className="flex h-20 w-20 items-center justify-center rounded-full bg-main/10 text-main">
+                  <CheckCircle2 className="h-10 w-10" />
+                </div>
+                <h3 className="mt-6 text-2xl font-black text-black-blue">
+                  {bookingCopy.success}
+                </h3>
+                <p className="mt-2 text-sm font-bold text-main">
+                  {bookingCopy.statuses[successStatus] ?? successStatus}
+                </p>
+                <p className="mt-2 max-w-md text-sm leading-6 text-black-blue/55">
+                  {successStatus === "confirmed"
+                    ? language === "ar"
+                      ? "تم تأكيد حجزك بنجاح، وأصبحت الحصة متاحة ضمن حجوزاتك."
+                      : "Your booking is confirmed and is now available in your bookings."
+                    : language === "ar"
+                      ? "تم إرسال طلب الحجز ويمكنك متابعة حالته من حجوزاتك."
+                      : "Your booking request was sent. You can follow its status from your bookings."}
+                </p>
+                <div className="mt-7 flex w-full max-w-sm flex-col gap-2 sm:flex-row">
+                  <Link
+                    to="/bookings"
+                    onClick={() => setSuccessStatus(null)}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl bg-main px-5 py-2.5 text-sm font-extrabold text-white transition hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+                  >
+                    {language === "ar" ? "عرض حجوزاتي" : "View my bookings"}
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={closeDialog}
+                    className="inline-flex min-h-11 flex-1 items-center justify-center rounded-xl border border-black-blue/10 bg-white px-5 py-2.5 text-sm font-extrabold text-black-blue/65 transition hover:bg-slate-50"
+                  >
+                    {bookingCopy.cancel}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-5 px-5 py-5 sm:px-6 sm:py-6">
               <div className="grid gap-3 sm:grid-cols-3">
                 <div className="rounded-2xl bg-main/[0.055] p-4">
                   <p className="text-[10px] font-extrabold uppercase tracking-wide text-black-blue/35">{copy.price}</p>
@@ -470,6 +511,8 @@ const BookLessonDialog = ({
                 </div>
               </div>
             </div>
+              </div>
+            )}
           </div>
         </div>
       )}

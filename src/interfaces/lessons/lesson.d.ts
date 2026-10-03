@@ -40,6 +40,8 @@ export interface ILesson {
   max_students?: number | null;
   publishing_status?: LessonPublishingStatus;
   publishing_note?: string | null;
+  bookings_count?: number;
+  active_bookings_count?: number;
   availability?: ILessonAvailabilitySlot[];
   created_at: string;
   updated_at: string;

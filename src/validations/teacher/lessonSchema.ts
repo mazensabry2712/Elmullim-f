@@ -11,11 +11,66 @@ const requiredText = (english: string, arabic: string) =>
     message: validationMessage(english, arabic),
   });
 
-const positiveInteger = (english: string, arabic: string) =>
-  z.coerce
-    .number({ message: validationMessage(english, arabic) })
-    .int({ message: validationMessage(english, arabic) })
-    .min(1, { message: validationMessage(english, arabic) });
+const normalizeNumberInput = (value: unknown): unknown => {
+  if (value === "" || value === null || value === undefined) {
+    return undefined;
+  }
+
+  if (typeof value === "number" && Number.isNaN(value)) {
+    return undefined;
+  }
+
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return trimmed === "" ? undefined : Number(trimmed);
+  }
+
+  return value;
+};
+
+const requiredPositiveInteger = (english: string, arabic: string) =>
+  z.preprocess(
+    normalizeNumberInput,
+    z
+      .number({ message: validationMessage(english, arabic) })
+      .int({ message: validationMessage(english, arabic) })
+      .min(1, { message: validationMessage(english, arabic) })
+  );
+
+const requiredNonNegativeNumber = (english: string, arabic: string) =>
+  z.preprocess(
+    normalizeNumberInput,
+    z
+      .number({ message: validationMessage(english, arabic) })
+      .min(0, { message: validationMessage(english, arabic) })
+  );
+
+const optionalPositiveIntegerOrBlank = (english: string, arabic: string) =>
+  z.preprocess(
+    (value) => {
+      if (value === "" || value === null || value === undefined) {
+        return "";
+      }
+
+      if (typeof value === "number" && Number.isNaN(value)) {
+        return "";
+      }
+
+      if (typeof value === "string") {
+        const trimmed = value.trim();
+        return trimmed === "" ? "" : Number(trimmed);
+      }
+
+      return value;
+    },
+    z.union([
+      z.literal(""),
+      z
+        .number({ message: validationMessage(english, arabic) })
+        .int({ message: validationMessage(english, arabic) })
+        .min(1, { message: validationMessage(english, arabic) }),
+    ])
+  );
 
 const timeOnly = (english: string, arabic: string) =>
   z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, {
@@ -33,7 +88,12 @@ const availabilitySlotSchema = z.object({
     })
     .optional()
     .or(z.literal("")),
-  day_of_week: z.coerce.number().int().min(1).max(7),
+  day_of_week: requiredPositiveInteger(
+    "day of week is required",
+    "يوم الأسبوع مطلوب"
+  ).max(7, {
+    message: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح"),
+  }),
   start_time: timeOnly("start time is invalid", "وقت البداية غير صحيح"),
   end_time: timeOnly("end time is invalid", "وقت النهاية غير صحيح"),
   timezone: requiredText("timezone is required", "المنطقة الزمنية مطلوبة"),
@@ -46,12 +106,14 @@ const availabilitySlotSchema = z.object({
 
 export const lessonSchema = z
   .object({
-    education_level_id: z.coerce.number().int().min(1, {
-      message: validationMessage("stage is required", "المرحلة مطلوبة"),
-    }),
-    subject_id: z.coerce.number().int().min(1, {
-      message: validationMessage("subject is required", "المادة مطلوبة"),
-    }),
+    education_level_id: requiredPositiveInteger(
+      "stage is required",
+      "المرحلة مطلوبة"
+    ),
+    subject_id: requiredPositiveInteger(
+      "subject is required",
+      "المادة مطلوبة"
+    ),
     grade: requiredText("grade is required", "الصف مطلوب").max(100, {
       message: validationMessage("grade is too long", "الصف طويل جدًا"),
     }),
@@ -67,11 +129,18 @@ export const lessonSchema = z
     description: requiredText("description is required", "الوصف مطلوب").max(250, {
       message: validationMessage("description is too long", "الوصف طويل جدًا"),
     }),
-    duration_minutes: positiveInteger("duration is required", "مدة الحصة مطلوبة"),
-    price: z.coerce
-      .number({ message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") })
-      .min(0, { message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") }),
-    sessions_count: positiveInteger("sessions count is required", "عدد الحصص مطلوب"),
+    duration_minutes: requiredPositiveInteger(
+      "duration is required",
+      "مدة الحصة مطلوبة"
+    ),
+    price: requiredNonNegativeNumber(
+      "enter a valid price",
+      "أدخل سعرًا صحيحًا"
+    ),
+    sessions_count: requiredPositiveInteger(
+      "sessions count is required",
+      "عدد الحصص مطلوب"
+    ),
     booking_opens_at: z.string().optional().or(z.literal("")),
     booking_closes_at: z.string().optional().or(z.literal("")),
     ends_at: z.string().optional().or(z.literal("")),
@@ -79,12 +148,10 @@ export const lessonSchema = z
       message: validationMessage("select a valid visit type", "اختر طريقة زيارة صحيحة"),
     }),
     service_area_ids: z.array(z.coerce.number().int().positive()),
-    max_students: z.union([
-      z.coerce.number().int().min(1, {
-        message: validationMessage("capacity must be at least 1", "الحد الأقصى يجب أن يكون 1 على الأقل"),
-      }),
-      z.literal(""),
-    ]),
+    max_students: optionalPositiveIntegerOrBlank(
+      "capacity must be at least 1",
+      "الحد الأقصى يجب أن يكون 1 على الأقل"
+    ),
     availability: z.array(availabilitySlotSchema).min(1, {
       message: validationMessage("add at least one availability slot", "أضف موعدًا متاحًا واحدًا على الأقل"),
     }),

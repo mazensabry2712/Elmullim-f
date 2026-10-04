@@ -49,6 +49,7 @@ describe("lesson slot meeting links", () => {
       ...baseLesson,
       availability: [
         {
+          available_on: "2099-01-10",
           day_of_week: 6,
           start_time: "18:00",
           end_time: "19:00",
@@ -74,6 +75,7 @@ describe("lesson slot meeting links", () => {
       duration_minutes: 90,
       availability: [
         {
+          available_on: "2099-01-10",
           day_of_week: 6,
           start_time: "18:00",
           end_time: "19:00",
@@ -93,6 +95,7 @@ describe("lesson slot meeting links", () => {
       offline_visit_type: "student_to_teacher",
       availability: [
         {
+          available_on: "2099-01-10",
           day_of_week: 6,
           start_time: "18:00",
           end_time: "19:00",

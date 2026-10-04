@@ -6,13 +6,23 @@ import { MemoryRouter, useLocation } from "react-router-dom";
 import Lessons from "@/pages/lessons/Lessons";
 import { I18nProvider, useI18n } from "@/i18n";
 
-const mockRefetch = vi.fn();
-const mockUseGetLessons = vi.fn();
-const mockUseGetLessonFilterOptions = vi.fn();
-const mockUseGetStudentProfile = vi.fn();
-const mockUseGetParentProfile = vi.fn();
-const mockGetToken = vi.fn(() => undefined);
-const mockGetRole = vi.fn(() => undefined);
+const {
+  mockRefetch,
+  mockUseGetLessons,
+  mockUseGetLessonFilterOptions,
+  mockUseGetStudentProfile,
+  mockUseGetParentProfile,
+  mockGetToken,
+  mockGetRole,
+} = vi.hoisted(() => ({
+  mockRefetch: vi.fn(),
+  mockUseGetLessons: vi.fn(),
+  mockUseGetLessonFilterOptions: vi.fn(),
+  mockUseGetStudentProfile: vi.fn(),
+  mockUseGetParentProfile: vi.fn(),
+  mockGetToken: vi.fn(() => undefined),
+  mockGetRole: vi.fn(() => undefined),
+}));
 
 vi.mock("@/lib/react-query/lessons/lessons", () => ({
   useGetLessons: (...args: unknown[]) => mockUseGetLessons(...args),

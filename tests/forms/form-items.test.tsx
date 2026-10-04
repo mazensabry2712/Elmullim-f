@@ -55,7 +55,7 @@ vi.mock("@/components/ui/popover", async () => {
     ...props
   }: {
     children?: React.ReactNode;
-    [key: string]: unknown;
+    [key: string]: any;
   }) => {
     const context = React.useContext(PopoverContext);
     if (!context?.open) return null;

@@ -188,7 +188,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
               slot.start_time.slice(0, 5),
               slot.end_time.slice(0, 5),
               slot.meeting_url || "",
-              slot.available_on || getInputDateForWeekday(slot.day_of_week)
+              slot.available_on || ""
             )
           )
         : [makeSlot()],
@@ -604,7 +604,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       return;
     }
 
-    availabilityFields.forEach((_, index) => {
+    customAvailabilityEntries.forEach(({ index }) => {
       form.setValue(
         "availability." + index + ".meeting_url",
         source.trim(),
@@ -618,8 +618,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
     toast.success(
       label(
-        "Meeting link copied to every slot.",
-        "تم نسخ رابط الاجتماع إلى كل المواعيد."
+        "Meeting link copied to every one-off date.",
+        "تم نسخ رابط الاجتماع إلى كل المواعيد الاستثنائية."
       )
     );
   };

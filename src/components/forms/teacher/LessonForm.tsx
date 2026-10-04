@@ -54,6 +54,20 @@ interface IProps {
 type LessonFormValues = z.infer<typeof lessonSchema>;
 
 const defaultTimezone = "Africa/Cairo";
+
+const getInputDateForWeekday = (dayOfWeek: number) => {
+  const now = new Date();
+  const currentDay = ((now.getUTCDay() + 6) % 7) + 1;
+  let daysAhead = (dayOfWeek - currentDay + 7) % 7;
+  if (daysAhead === 0) daysAhead = 7;
+
+  const date = new Date(
+    Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() + daysAhead)
+  );
+
+  return date.toISOString().slice(0, 10);
+};
+
 const commonInput =
   "mt-2 border-black-blue/[0.10] bg-white text-black-blue shadow-none focus-visible:border-main focus-visible:ring-main/15";
 
@@ -61,8 +75,10 @@ const makeSlot = (
   day_of_week = 6,
   start_time = "18:00",
   end_time = "19:00",
-  meeting_url = ""
+  meeting_url = "",
+  available_on = getInputDateForWeekday(day_of_week)
 ) => ({
+  available_on,
   day_of_week,
   start_time,
   end_time,
@@ -146,7 +162,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
               slot.day_of_week,
               slot.start_time.slice(0, 5),
               slot.end_time.slice(0, 5),
-              slot.meeting_url || ""
+              slot.meeting_url || "",
+              slot.available_on || getInputDateForWeekday(slot.day_of_week)
             )
           )
         : [makeSlot()],
@@ -254,13 +271,19 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const hasScheduleOverlap = useMemo(
     () =>
       availabilityValues.some((slot, index) =>
-        availabilityValues.slice(index + 1).some(
-          (other) =>
-            Number(slot.day_of_week) === Number(other.day_of_week) &&
+        availabilityValues.slice(index + 1).some((other) => {
+          const sameCalendarDate =
+            slot.available_on && other.available_on
+              ? slot.available_on === other.available_on
+              : Number(slot.day_of_week) === Number(other.day_of_week);
+
+          return (
+            sameCalendarDate &&
             slot.timezone === other.timezone &&
             slot.start_time < other.end_time &&
             other.start_time < slot.end_time
-        )
+          );
+        })
       ),
     [availabilityValues]
   );
@@ -418,7 +441,12 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
   const availabilityError = (
     index: number,
-    field: "start_time" | "end_time" | "meeting_url" | "timezone"
+    field:
+      | "available_on"
+      | "start_time"
+      | "end_time"
+      | "meeting_url"
+      | "timezone"
   ) => {
     const message =
       form.formState.errors.availability?.[index]?.[field]?.message;
@@ -606,6 +634,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       }
 
       const availability = values.availability.map((slot) => ({
+        available_on: slot.available_on,
         day_of_week: Number(slot.day_of_week),
         start_time: slot.start_time,
         end_time: slot.end_time,
@@ -1377,20 +1406,48 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                       >
                         <div className="grid gap-3 lg:grid-cols-[1.1fr_1fr_1fr_1.8fr_auto] lg:items-end">
                           <label className="text-xs font-black text-black-blue">
-                            {label("Day", "اليوم")}
-                            <select
-                              {...form.register(
-                                `availability.${index}.day_of_week`,
-                                { valueAsNumber: true }
+                            {label("Date", "التاريخ")}
+                            <Input
+                              type="date"
+                              min={new Date().toISOString().slice(0, 10)}
+                              value={slot?.available_on || ""}
+                              onChange={(event) => {
+                                const value = event.target.value;
+
+                                form.setValue(
+                                  `availability.${index}.available_on`,
+                                  value,
+                                  {
+                                    shouldDirty: true,
+                                    shouldTouch: true,
+                                    shouldValidate: true,
+                                  }
+                                );
+
+                                if (value) {
+                                  const date = new Date(value + "T00:00:00Z");
+                                  const dayOfWeek = ((date.getUTCDay() + 6) % 7) + 1;
+
+                                  form.setValue(
+                                    `availability.${index}.day_of_week`,
+                                    dayOfWeek,
+                                    {
+                                      shouldDirty: true,
+                                      shouldTouch: true,
+                                      shouldValidate: true,
+                                    }
+                                  );
+                                }
+                              }}
+                              className={`${commonInput} h-11 rounded-xl`}
+                            />
+                            {availabilityError(index, "available_on")}
+                            <span className="mt-1 block text-[10px] font-semibold text-black-blue/40">
+                              {label(
+                                "This exact date will be offered to learners.",
+                                "هذا هو التاريخ الفعلي الذي سيظهر للطلاب للحجز."
                               )}
-                              className={`${commonInput} block h-11 w-full rounded-xl px-3`}
-                            >
-                              {days.map((day) => (
-                                <option key={day.value} value={day.value}>
-                                  {isArabic ? day.ar : day.en}
-                                </option>
-                              ))}
-                            </select>
+                            </span>
                           </label>
 
                           <label className="text-xs font-black text-black-blue">

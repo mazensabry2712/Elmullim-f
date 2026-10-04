@@ -195,9 +195,10 @@ export const lessonSchema = z
     }
 
     data.availability.forEach((slot, index) => {
-      const availableDate = new Date(slot.available_on + "T00:00:00Z");
+      if (slot.available_on?.trim()) {
+        const availableDate = new Date(slot.available_on + "T00:00:00Z");
 
-      if (Number.isNaN(availableDate.getTime())) {
+        if (Number.isNaN(availableDate.getTime())) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: ["availability", index, "available_on"],
@@ -225,16 +226,17 @@ export const lessonSchema = z
           });
         }
 
-        const derivedDay = ((availableDate.getUTCDay() + 6) % 7) + 1;
-        if (derivedDay !== Number(slot.day_of_week)) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["availability", index, "day_of_week"],
-            message: validationMessage(
-              "availability day does not match the selected date",
-              "يوم الإتاحة لا يطابق التاريخ المحدد"
-            ),
-          });
+          const derivedDay = ((availableDate.getUTCDay() + 6) % 7) + 1;
+          if (derivedDay !== Number(slot.day_of_week)) {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              path: ["availability", index, "day_of_week"],
+              message: validationMessage(
+                "availability day does not match the selected date",
+                "يوم الإتاحة لا يطابق التاريخ المحدد"
+              ),
+            });
+          }
         }
       }
 

@@ -41,7 +41,11 @@ const Lessons = () => {
 
   const serviceAreaIdValue = searchParams.get("service_area_id");
   const serviceAreaId = serviceAreaIdValue ? Number(serviceAreaIdValue) : undefined;
-  const sort = (searchParams.get("sort") as SortOption | null) ?? "latest";
+  const rawSort = searchParams.get("sort");
+  const sort: SortOption =
+    rawSort === "price_asc" || rawSort === "price_desc" || rawSort === "rating_desc"
+      ? rawSort
+      : "latest";
 
   useEffect(() => {
     setGradeDraft(searchParams.get("grade") ?? "");

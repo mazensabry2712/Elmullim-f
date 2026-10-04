@@ -720,11 +720,17 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       }
 
       if (!isReady) {
+        const missingItems = readiness
+          .filter((item) => !item.done)
+          .map((item) => item.label)
+          .join(isArabic ? "، " : ", ");
+
         toast.error(
           label(
-            "Complete the highlighted items before submitting the lesson for review.",
-            "أكمل العناصر الناقصة قبل إرسال الدرس للمراجعة."
-          )
+            `Complete these items before publishing: ${missingItems}.`,
+            `أكمل العناصر التالية قبل نشر الدرس: ${missingItems}.`
+          ),
+          { autoClose: 7000 }
         );
         return;
       }
@@ -2179,10 +2185,12 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 type="submit"
                 disabled={
                   isSubmitting ||
-                  !isReady ||
                   (action === "update" && !hasChanges)
                 }
-                className="h-12 rounded-xl bg-main px-6 font-black text-white hover:bg-main/90"
+                aria-disabled={
+                  isSubmitting || (action === "update" && !hasChanges)
+                }
+                className="h-12 rounded-xl bg-main px-6 font-black text-white hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60"
               >
               {isSubmitting ? (
                 <Loader2 className="me-2 h-4 w-4 animate-spin" />

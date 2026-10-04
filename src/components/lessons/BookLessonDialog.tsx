@@ -709,7 +709,6 @@ const BookLessonDialog = ({
                   ) : (
                     <select
                       id="lesson-booking-date"
-                      aria-label={bookingCopy.chooseDateHint}
                       value={selectedDate}
                       disabled={isSubmitting}
                       onChange={(event) => {

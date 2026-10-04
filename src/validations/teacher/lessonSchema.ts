@@ -44,7 +44,10 @@ const requiredNonNegativeNumber = (english: string, arabic: string) =>
   z.preprocess(
     normalizeNumberInput,
     z
-      .number({ message: validationMessage(english, arabic) })
+      .number({
+        required_error: validationMessage(english, arabic),
+        invalid_type_error: validationMessage(english, arabic),
+      })
       .min(0, { message: validationMessage(english, arabic) })
   );
 
@@ -69,7 +72,10 @@ const optionalPositiveIntegerOrBlank = (english: string, arabic: string) =>
     z.union([
       z.literal(""),
       z
-        .number({ message: validationMessage(english, arabic) })
+        .number({
+        required_error: validationMessage(english, arabic),
+        invalid_type_error: validationMessage(english, arabic),
+      })
         .int({ message: validationMessage(english, arabic) })
         .min(1, { message: validationMessage(english, arabic) }),
     ])

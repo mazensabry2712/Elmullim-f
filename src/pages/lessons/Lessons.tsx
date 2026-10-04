@@ -182,6 +182,7 @@ const Lessons = () => {
 
     next.set("nearby", "1");
     next.set("delivery_mode", "offline");
+    next.delete("location");
     next.delete("service_area_id");
 
     if (isParent && selectedStudentId) {

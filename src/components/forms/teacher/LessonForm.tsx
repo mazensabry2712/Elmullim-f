@@ -36,7 +36,8 @@ import {
   Wand2,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { FieldErrors, useFieldArray, useForm, useWatch } from "react-hook-form";
+import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import type { FieldErrors } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";

@@ -755,8 +755,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
           : label("Lesson saved", "تم حفظ الدرس"),
         text: action === "create"
           ? label(
-              "Your lesson is now pending admin review. It will become public after approval.",
-              "الدرس الآن قيد مراجعة الإدارة، وسيصبح ظاهرًا للطلاب بعد الموافقة."
+              "Your lesson is now published and available to students.",
+              "تم نشر الدرس وأصبح متاحًا للطلاب."
             )
           : response.message,
       });
@@ -768,7 +768,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   };
 
   const statusText = isReady
-    ? label("Ready to submit for review", "جاهز للإرسال للمراجعة")
+    ? label("Ready to publish", "جاهز للنشر")
     : label("Needs attention", "يحتاج استكمال");
 
   return (
@@ -2061,10 +2061,10 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 <p className="mt-1 text-xs leading-5 text-black-blue/50">
                   {label(
                     action === "create"
-                      ? "Submitting sends the lesson to admin review. The lesson becomes public only after approval."
+                      ? "Publishing makes the lesson public immediately for eligible students."
                       : "The save button below is unlocked only when the lesson is internally consistent.",
                     action === "create"
-                      ? "زر الإرسال يضع الدرس قيد مراجعة الإدارة، ويصبح الدرس عامًا بعد الموافقة فقط."
+                      ? "زر النشر يجعل الدرس عامًا فورًا بعد اجتياز كل التحقق."
                       : "زر الحفظ لا يتفعل إلا لما يكون الدرس متسق داخليًا وكل البيانات المطلوبة مكتملة."
                   )}
                 </p>
@@ -2102,7 +2102,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 <Check className="me-2 h-4 w-4" />
               )}
                 {action === "create"
-                  ? label("Submit for review", "إرسال للمراجعة")
+                  ? label("Publish lesson", "نشر الدرس")
                   : label(
                       hasChanges ? "Save changes" : "No changes",
                       hasChanges ? "حفظ التعديلات" : "لا توجد تعديلات"

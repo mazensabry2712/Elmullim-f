@@ -27,10 +27,12 @@ const availabilitySlotSchema = z.object({
     .string()
     .regex(/^\d{4}-\d{2}-\d{2}$/, {
       message: validationMessage(
-        "availability date is required",
-        "تاريخ الإتاحة مطلوب"
+        "availability date is invalid",
+        "تاريخ الإتاحة غير صحيح"
       ),
-    }),
+    })
+    .optional()
+    .or(z.literal("")),
   day_of_week: z.coerce.number().int().min(1).max(7),
   start_time: timeOnly("start time is invalid", "وقت البداية غير صحيح"),
   end_time: timeOnly("end time is invalid", "وقت النهاية غير صحيح"),

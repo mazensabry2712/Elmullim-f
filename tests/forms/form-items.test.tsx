@@ -67,6 +67,8 @@ describe("form item controls", () => {
 
     fireEvent.change(searchInput, { target: { value: "Egypt" } });
     expect(screen.getByText("Egypt")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("combobox", { name: "Country Name" }));
   });
 
   it("keeps multiselect trigger safe and localizes its search copy", () => {
@@ -113,5 +115,7 @@ describe("form item controls", () => {
 
     fireEvent.change(searchInput, { target: { value: "does-not-exist" } });
     expect(screen.getByText("Not found")).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("combobox", { name: "Subjects" }));
   }, 15000);
 });

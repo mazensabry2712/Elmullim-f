@@ -155,10 +155,6 @@ describe("BookLessonDialog", () => {
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
 
-    fireEvent.change(screen.getByLabelText("Choose date"), {
-      target: { value: "2099-01-10" },
-    });
-
     const timeButton = await screen.findByRole("button", { name: /18:00/ });
     expect(timeButton).toBeInTheDocument();
     fireEvent.click(timeButton);
@@ -223,7 +219,6 @@ describe("BookLessonDialog", () => {
     await waitFor(() => expect(screen.getByRole("combobox", { name: "Choose student" })).toBeInTheDocument());
 
     fireEvent.change(screen.getByRole("combobox", { name: "Choose student" }), { target: { value: "43" } });
-    fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-11" } });
     fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
     fireEvent.click(screen.getByRole("button", { name: "Continue to payment" }));
 
@@ -276,9 +271,6 @@ describe("BookLessonDialog", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
-    fireEvent.change(await screen.findByLabelText("Choose date"), {
-      target: { value: "2099-01-10" },
-    });
     fireEvent.click(await screen.findByRole("button", { name: /18:00.*3 seats available/ }));
     fireEvent.click(screen.getByRole("button", { name: "Continue to payment" }));
 
@@ -327,9 +319,6 @@ describe("BookLessonDialog", () => {
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
     expect(screen.getByText(/saved profile location is used automatically/i)).toBeInTheDocument();
 
-    fireEvent.change(screen.getByLabelText("Choose date"), {
-      target: { value: "2099-01-10" },
-    });
     fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
 
     fireEvent.click(screen.getByRole("button", { name: "Send booking request" }));
@@ -390,7 +379,6 @@ describe("BookLessonDialog", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
-    fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-10" } });
     fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
 
     expect(screen.getByRole("button", { name: "Send booking request" })).toBeDisabled();
@@ -426,7 +414,6 @@ describe("BookLessonDialog", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
-    fireEvent.change(await screen.findByLabelText("Choose date"), { target: { value: "2099-01-10" } });
 
     expect(await screen.findByRole("button", { name: /18:00.*2 seats available/ })).toBeInTheDocument();
   });
@@ -446,13 +433,13 @@ describe("BookLessonDialog", () => {
 
     await waitFor(() => expect(screen.getByRole("dialog")).toBeInTheDocument());
     expect(screen.getByRole("heading", { name: "حجز الدرس" })).toBeInTheDocument();
-    expect(screen.getByLabelText("اختر التاريخ")).toBeInTheDocument();
+    expect(screen.getByLabelText("اختر التاريخ").tagName).toBe("SELECT");
     expect(screen.getByText("اختر الموعد المتاح")).toBeInTheDocument();
     expect(screen.getByText("مجاني")).toBeInTheDocument();
     expect(screen.getByText("هذا درس خاص مجاني، لكن الحجز يحتاج إلى موافقة المعلم.", { exact: false })).toBeInTheDocument();
   });
 
-  it("does not offer times on a day without matching availability", async () => {
+  it("only offers concrete dates produced by the lesson availability", async () => {
     render(
       <BookLessonDialog
         lessonId={7}
@@ -464,9 +451,20 @@ describe("BookLessonDialog", () => {
     );
 
     fireEvent.click(screen.getByRole("button", { name: "Book now" }));
-    fireEvent.change(await screen.findByLabelText("Choose date"), { target: { value: "2099-01-12" } });
 
-    await waitFor(() => expect(screen.getByText("No available times for this date.")).toBeInTheDocument());
-    expect(screen.getByRole("button", { name: "Confirm free booking" })).toBeDisabled();
+    const dateSelect = await screen.findByLabelText("Choose date");
+    expect(dateSelect).toBeInTheDocument();
+    expect(dateSelect).toHaveValue(expect.stringMatching(/^\d{4}-\d{2}-\d{2}$/));
+
+    const options = Array.from((dateSelect as HTMLSelectElement).options);
+    expect(options).toHaveLength(1);
+    expect(options[0].value).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+
+    const weekday = new Intl.DateTimeFormat("en-US", {
+      timeZone: "Africa/Cairo",
+      weekday: "short",
+    }).format(new Date(options[0].value + "T12:00:00.000Z"));
+
+    expect(weekday).toBe("Sat");
   });
 });

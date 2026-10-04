@@ -478,6 +478,69 @@ describe("BookLessonDialog", () => {
     expect(screen.getByText("هذا درس خاص مجاني، لكن الحجز يحتاج إلى موافقة المعلم.", { exact: false })).toBeInTheDocument();
   });
 
+  it("combines recurring weekly dates with one-off dates", async () => {
+    const today = new Date();
+    const base = new Date(
+      Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate(), 12)
+    );
+    const daysUntilMonday = (1 - base.getUTCDay() + 7) % 7;
+    const weeklyDate = new Date(base.getTime() + daysUntilMonday * 24 * 60 * 60 * 1000);
+    const oneOffDate = new Date(weeklyDate.getTime() + 6 * 24 * 60 * 60 * 1000);
+    const weeklyValue = weeklyDate.toISOString().slice(0, 10);
+    const oneOffValue = oneOffDate.toISOString().slice(0, 10);
+
+    mocks.availability.mockReturnValue({
+      isLoading: false,
+      isError: false,
+      data: {
+        status: true,
+        message: null,
+        data: [
+          {
+            id: 20,
+            lesson_id: 13,
+            available_on: null,
+            day_of_week: 1,
+            start_time: "18:00:00",
+            end_time: "19:00:00",
+            timezone: "Africa/Cairo",
+            is_active: true,
+          },
+          {
+            id: 21,
+            lesson_id: 13,
+            available_on: oneOffValue,
+            day_of_week: 7,
+            start_time: "18:00:00",
+            end_time: "19:00:00",
+            timezone: "Africa/Cairo",
+            is_active: true,
+          },
+        ],
+      },
+    });
+
+    render(
+      <BookLessonDialog
+        lessonId={13}
+        bookingType="private"
+        price="0"
+        durationMinutes={60}
+        language="en"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Book now" }));
+
+    const dateSelect = await screen.findByLabelText("Choose date");
+    const values = Array.from((dateSelect as HTMLSelectElement).options).map(
+      (option) => option.value
+    );
+
+    expect(values).toContain(weeklyValue);
+    expect(values).toContain(oneOffValue);
+  });
+
   it("only offers concrete dates produced by the lesson availability", async () => {
     render(
       <BookLessonDialog

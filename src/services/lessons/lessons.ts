@@ -70,7 +70,6 @@ export const getAllLessons = async ({
   if (filters.service_area_id) params.set("service_area_id", String(filters.service_area_id));
   if (filters.sort && filters.sort !== "latest") params.set("sort", filters.sort);
 
-  const query = params.toString();
   const endpoint = filters.nearby ? "/lessons/nearby" : "/lessons/all";
 
   if (filters.nearby && filters.student_id) {

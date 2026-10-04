@@ -266,7 +266,9 @@ describe("form item controls", () => {
 
     fireEvent.change(searchInput, { target: { value: "does-not-exist" } });
     expect(screen.getByText("Not found")).toBeInTheDocument();
+    expect(screen.queryByText("Mathematics")).not.toBeInTheDocument();
+    expect(screen.queryByText("Science")).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole("combobox", { name: "Subjects" }));
-  }, 15000);
+  });
 });

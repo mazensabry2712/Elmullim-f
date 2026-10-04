@@ -474,7 +474,7 @@ describe("BookLessonDialog", () => {
     expect(screen.getByRole("heading", { name: "حجز الدرس" })).toBeInTheDocument();
     expect(screen.getByLabelText("اختر التاريخ").tagName).toBe("SELECT");
     expect(screen.getAllByText("اختر الموعد المتاح").length).toBeGreaterThan(0);
-    expect(screen.getByText("مجاني")).toBeInTheDocument();
+    expect(screen.getAllByText("مجاني", { exact: true })).toHaveLength(2);
     expect(screen.getByText("هذا درس خاص مجاني، لكن الحجز يحتاج إلى موافقة المعلم.", { exact: false })).toBeInTheDocument();
   });
 

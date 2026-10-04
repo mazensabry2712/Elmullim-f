@@ -37,7 +37,7 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
-import type { FieldErrors } from "react-hook-form";
+import type { FieldErrors, FieldPath } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -52,6 +52,9 @@ interface IProps {
 }
 
 type LessonFormValues = z.infer<typeof lessonSchema>;
+
+const availabilityField = (index: number, field: "available_on" | "day_of_week" | "start_time" | "end_time" | "timezone" | "meeting_url"): FieldPath<LessonFormValues> =>
+  (`availability.${index}.${field}`) as FieldPath<LessonFormValues>;
 
 interface WeeklyScheduleRow {
   day_of_week: number;

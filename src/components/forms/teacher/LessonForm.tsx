@@ -671,8 +671,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       if (!isReady) {
         toast.error(
           label(
-            "Complete the highlighted items before publishing.",
-            "أكمل العناصر الناقصة قبل نشر الدرس."
+            "Complete the highlighted items before submitting the lesson for review.",
+            "أكمل العناصر الناقصة قبل إرسال الدرس للمراجعة."
           )
         );
         return;
@@ -750,8 +750,15 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
       await Swal.fire({
         icon: "success",
-        title: label("Lesson saved", "تم حفظ الدرس"),
-        text: response.message,
+        title: action === "create"
+          ? label("Lesson submitted", "تم إرسال الدرس")
+          : label("Lesson saved", "تم حفظ الدرس"),
+        text: action === "create"
+          ? label(
+              "Your lesson is now pending admin review. It will become public after approval.",
+              "الدرس الآن قيد مراجعة الإدارة، وسيصبح ظاهرًا للطلاب بعد الموافقة."
+            )
+          : response.message,
       });
 
       navigate("/profile");
@@ -761,7 +768,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   };
 
   const statusText = isReady
-    ? label("Ready to publish", "جاهز للنشر")
+    ? label("Ready to submit for review", "جاهز للإرسال للمراجعة")
     : label("Needs attention", "يحتاج استكمال");
 
   return (
@@ -2053,8 +2060,12 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 </p>
                 <p className="mt-1 text-xs leading-5 text-black-blue/50">
                   {label(
-                    "The save button below is unlocked only when the lesson is internally consistent.",
-                    "زر الحفظ لا يتفعل إلا لما يكون الدرس متسق داخليًا وكل البيانات المطلوبة مكتملة."
+                    action === "create"
+                      ? "Submitting sends the lesson to admin review. The lesson becomes public only after approval."
+                      : "The save button below is unlocked only when the lesson is internally consistent.",
+                    action === "create"
+                      ? "زر الإرسال يضع الدرس قيد مراجعة الإدارة، ويصبح الدرس عامًا بعد الموافقة فقط."
+                      : "زر الحفظ لا يتفعل إلا لما يكون الدرس متسق داخليًا وكل البيانات المطلوبة مكتملة."
                   )}
                 </p>
               </div>
@@ -2091,7 +2102,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 <Check className="me-2 h-4 w-4" />
               )}
                 {action === "create"
-                  ? label("Publish lesson", "نشر الدرس")
+                  ? label("Submit for review", "إرسال للمراجعة")
                   : label(
                       hasChanges ? "Save changes" : "No changes",
                       hasChanges ? "حفظ التعديلات" : "لا توجد تعديلات"

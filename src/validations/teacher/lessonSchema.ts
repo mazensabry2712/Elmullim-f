@@ -266,14 +266,42 @@ export const lessonSchema = z
 
       data.availability.forEach((other, otherIndex) => {
         if (index >= otherIndex) return;
-        if (slot.available_on !== other.available_on || slot.timezone !== other.timezone) return;
-        if (slot.start_time < other.end_time && slot.end_time > other.start_time) {
-          ctx.addIssue({
-            code: z.ZodIssueCode.custom,
-            path: ["availability", index, "end_time"],
-            message: validationMessage("availability slots cannot overlap", "لا يمكن أن تتداخل مواعيد التوفر"),
-          });
+        if (slot.timezone !== other.timezone) return;
+
+        const slotDate = slot.available_on?.trim() || "";
+        const otherDate = other.available_on?.trim() || "";
+
+        let sameOccurrence = false;
+
+        if (slotDate && otherDate) {
+          sameOccurrence = slotDate === otherDate;
+        } else if (!slotDate && !otherDate) {
+          sameOccurrence = Number(slot.day_of_week) === Number(other.day_of_week);
+        } else {
+          const datedSlot = slotDate ? slot : other;
+          const recurringSlot = slotDate ? other : slot;
+          const date = new Date(datedSlot.available_on + "T00:00:00Z");
+
+          if (!Number.isNaN(date.getTime())) {
+            const derivedDay = ((date.getUTCDay() + 6) % 7) + 1;
+            sameOccurrence =
+              derivedDay === Number(recurringSlot.day_of_week);
+          }
         }
+
+        if (
+          !sameOccurrence ||
+          slot.start_time >= other.end_time ||
+          slot.end_time <= other.start_time
+        ) {
+          return;
+        }
+
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["availability", index, "end_time"],
+          message: validationMessage("availability slots cannot overlap", "لا يمكن أن تتداخل مواعيد التوفر"),
+        });
       });
     });
   });

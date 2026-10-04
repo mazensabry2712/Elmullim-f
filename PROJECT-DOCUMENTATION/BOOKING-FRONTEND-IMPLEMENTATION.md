@@ -12,9 +12,14 @@ Implemented:
 3. Student selects a valid date/time from Lesson availability.
 4. Student may add a note.
 5. Frontend sends the real booking request.
-6. Backend status is shown to the user.
+6. The booking UX branches from the lesson's own state:
+   - Free + Group → immediate confirmation.
+   - Free + Private → teacher approval.
+   - Paid + Group → create the booking reservation, initialize the booking payment immediately, then redirect to the secure checkout.
+   - Paid + Private → send the booking request first; payment is offered only after teacher acceptance.
+7. Backend status is shown to the user.
 
-Private lessons remain pending teacher approval. Group lessons follow the backend group flow.
+The dialog is therefore driven by the Lesson's price and booking type instead of treating every booking as the same generic form.
 
 ## Parent
 
@@ -34,6 +39,8 @@ Student/Parent booking management provides:
 - Cancellation for eligible states.
 - Accept/reject of teacher reschedule proposals.
 - Payment action when the backend says the booking is payable.
+- Paid Group booking can enter checkout directly from the booking dialog.
+- Paid Private booking stays approval-gated before checkout.
 - Link to schedule.
 
 Teacher booking management provides:
@@ -101,6 +108,13 @@ Backend:
 
 The provider name is not exposed in the customer-facing payment UI.
 
+Booking dialog UX now uses the same payment method contract as the existing Booking Payment dialog:
+- Card.
+- Fawry / Kiosk.
+- Mobile Wallets.
+
+For a paid Group lesson, the selected payment method is submitted immediately after the booking reservation is created. If provider initialization fails, the booking remains visible in My Bookings so payment can be retried through the existing booking-payment flow.
+
 ## Environment
 
 Local environment configuration is machine-specific. Required API/base URL values should be configured through the environment template and should not be committed as secrets.
@@ -116,8 +130,6 @@ Real API/browser verification remains the final product gate for the completed b
 
 ## Remaining extension
 
-- Dynamic available-seat display for the selected Group time slot.
-- Final Subject/Stage discovery filters.
-- Automatic recurring Session generation from `sessions_count`.
+- Final real API/browser verification of the four Lesson booking combinations.
+- Automatic recurring Session generation/semantics should remain aligned with the current Backend SessionService behavior.
 - Advanced Push/FCM delivery if required.
-- Super Admin implementation.

@@ -475,7 +475,11 @@ describe("BookLessonDialog", () => {
     expect(screen.getByLabelText("اختر التاريخ").tagName).toBe("SELECT");
     expect(screen.getAllByText("اختر الموعد المتاح").length).toBeGreaterThan(0);
     expect(screen.getAllByText("مجاني", { exact: true })).toHaveLength(2);
-    expect(screen.getByText("هذا درس خاص مجاني، لكن الحجز يحتاج إلى موافقة المعلم.", { exact: false })).toBeInTheDocument();
+    expect(
+      screen.getAllByText("هذا درس خاص مجاني، لكن الحجز يحتاج إلى موافقة المعلم.", {
+        exact: true,
+      })
+    ).toHaveLength(2);
   });
 
   it("combines recurring weekly dates with one-off dates", async () => {

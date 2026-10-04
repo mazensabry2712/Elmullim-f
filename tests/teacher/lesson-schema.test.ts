@@ -177,6 +177,30 @@ describe("teacher lesson schedule schema", () => {
       expect(messages).toContain("duration is required");
       expect(messages).toContain("enter a valid price");
       expect(messages).toContain("sessions count is required");
+      expect(messages.some((message) => /nan/i.test(message))).toBe(false);
+    }
+
+    const groupCapacityResult = lessonSchema.safeParse({
+      ...baseLesson,
+      booking_type: "group",
+      max_students: Number.NaN,
+      availability: [
+        {
+          available_on: "",
+          day_of_week: 6,
+          start_time: "18:00",
+          end_time: "19:00",
+          timezone: "Africa/Cairo",
+          meeting_url: "https://meet.example.test/lesson",
+        },
+      ],
+    });
+
+    expect(groupCapacityResult.success).toBe(false);
+
+    if (!groupCapacityResult.success) {
+      const messages = groupCapacityResult.error.issues.map((issue) => issue.message);
+
       expect(messages).toContain(
         "maximum students is required for group lessons"
       );

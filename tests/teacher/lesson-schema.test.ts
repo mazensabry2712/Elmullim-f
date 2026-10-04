@@ -57,6 +57,93 @@ describe("teacher lesson schedule schema", () => {
     expect(result.success).toBe(true);
   });
 
+
+
+  it("returns field-specific required errors instead of NaN for empty numeric selects", () => {
+    const result = lessonSchema.safeParse({
+      ...baseLesson,
+      education_level_id: "",
+      subject_id: "",
+      availability: [
+        {
+          available_on: "",
+          day_of_week: 6,
+          start_time: "18:00",
+          end_time: "19:00",
+          timezone: "Africa/Cairo",
+          meeting_url: "https://meet.example.test/lesson",
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+
+    if (!result.success) {
+      const messages = result.error.issues.map((issue) => issue.message);
+      expect(messages).toContain("stage is required");
+      expect(messages).toContain("subject is required");
+      expect(messages.some((message) => /nan/i.test(message))).toBe(false);
+    }
+  });
+
+  it("rejects an empty price instead of treating it as a free lesson", () => {
+    const result = lessonSchema.safeParse({
+      ...baseLesson,
+      price: "",
+      availability: [
+        {
+          available_on: "",
+          day_of_week: 6,
+          start_time: "18:00",
+          end_time: "19:00",
+          timezone: "Africa/Cairo",
+          meeting_url: "https://meet.example.test/lesson",
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues.map((issue) => issue.message)).toContain("enter a valid price");
+    }
+  });
+
+  it("allows blank capacity for private lessons but requires it for group lessons", () => {
+    const availability = [
+      {
+        available_on: "",
+        day_of_week: 6,
+        start_time: "18:00",
+        end_time: "19:00",
+        timezone: "Africa/Cairo",
+        meeting_url: "https://meet.example.test/lesson",
+      },
+    ];
+
+    const privateResult = lessonSchema.safeParse({
+      ...baseLesson,
+      booking_type: "private",
+      max_students: "",
+      availability,
+    });
+
+    expect(privateResult.success).toBe(true);
+
+    const groupResult = lessonSchema.safeParse({
+      ...baseLesson,
+      booking_type: "group",
+      max_students: "",
+      availability,
+    });
+
+    expect(groupResult.success).toBe(false);
+    if (!groupResult.success) {
+      expect(groupResult.error.issues.map((issue) => issue.message)).toContain(
+        "maximum students is required for group lessons"
+      );
+    }
+  });
+
   it("rejects an exact date whose weekday does not match", () => {
     const result = lessonSchema.safeParse({
       ...baseLesson,

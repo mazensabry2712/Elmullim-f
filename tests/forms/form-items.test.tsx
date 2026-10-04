@@ -35,7 +35,7 @@ vi.mock("@/components/ui/popover", async () => {
     children,
   }: {
     asChild?: boolean;
-    children?: React.ReactElement;
+    children?: React.ReactElement<Record<string, any>>;
   }) => {
     const context = React.useContext(PopoverContext);
     if (!asChild || !React.isValidElement(children)) {
@@ -79,7 +79,7 @@ vi.mock("@/components/ui/command", async () => {
   }: {
     children?: React.ReactNode;
     className?: string;
-    [key: string]: unknown;
+    [key: string]: any;
   }) => (
     <div className={className} {...props}>
       {children}
@@ -91,7 +91,7 @@ vi.mock("@/components/ui/command", async () => {
     ...props
   }: {
     onValueChange?: (value: string) => void;
-    [key: string]: unknown;
+    [key: string]: any;
   }) => (
     <input
       {...props}
@@ -107,7 +107,7 @@ vi.mock("@/components/ui/command", async () => {
     ...props
   }: {
     children?: React.ReactNode;
-    [key: string]: unknown;
+    [key: string]: any;
   }) => <div {...props}>{children}</div>;
 
   const CommandEmpty = ({
@@ -115,7 +115,7 @@ vi.mock("@/components/ui/command", async () => {
     ...props
   }: {
     children?: React.ReactNode;
-    [key: string]: unknown;
+    [key: string]: any;
   }) => <div {...props}>{children}</div>;
 
   const CommandGroup = ({
@@ -123,7 +123,7 @@ vi.mock("@/components/ui/command", async () => {
     ...props
   }: {
     children?: React.ReactNode;
-    [key: string]: unknown;
+    [key: string]: any;
   }) => <div {...props}>{children}</div>;
 
   const CommandItem = ({
@@ -133,7 +133,7 @@ vi.mock("@/components/ui/command", async () => {
   }: {
     children?: React.ReactNode;
     onSelect?: () => void;
-    [key: string]: unknown;
+    [key: string]: any;
   }) => (
     <button
       type="button"

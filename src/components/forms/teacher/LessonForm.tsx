@@ -277,12 +277,30 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     [serviceAreas]
   );
 
+  const teacherSubjectIds = useMemo(
+    () =>
+      new Set(
+        (teacherProfile?.data?.subjects || []).map((subject) =>
+          Number(subject.id)
+        )
+      ),
+    [teacherProfile?.data?.subjects]
+  );
+
+  const availableSubjects = useMemo(
+    () =>
+      (subjects?.data || []).filter((subject) =>
+        teacherSubjectIds.has(Number(subject.id))
+      ),
+    [subjects?.data, teacherSubjectIds]
+  );
+
   const selectedSubject = useMemo(
     () =>
-      subjects?.data?.find(
+      availableSubjects.find(
         (subject) => subject.id === Number(watchedSubjectId)
       ),
-    [subjects?.data, watchedSubjectId]
+    [availableSubjects, watchedSubjectId]
   );
 
   const locationReadyForTeacher = Boolean(
@@ -421,7 +439,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     if (
       currentSubject > 0 &&
       subjects?.data &&
-      !subjects.data.some((subject) => subject.id === currentSubject)
+      !availableSubjects.some((subject) => subject.id === currentSubject)
     ) {
       form.setValue("subject_id", 0, {
         shouldDirty: true,
@@ -429,7 +447,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
         shouldValidate: true,
       });
     }
-  }, [form, subjects]);
+  }, [form, subjects, availableSubjects]);
 
   useEffect(() => {
     if (deliveryMode !== "offline") {
@@ -708,6 +726,20 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
         return;
       }
 
+      if (
+        !availableSubjects.some(
+          (subject) => subject.id === Number(values.subject_id)
+        )
+      ) {
+        toast.error(
+          label(
+            "Choose a subject assigned to your teacher profile.",
+            "اختر مادة مسجلة في ملف المعلم أولًا."
+          )
+        );
+        return;
+      }
+
       const availability = values.availability.map((slot) => ({
         available_on: slot.available_on,
         day_of_week: Number(slot.day_of_week),
@@ -950,7 +982,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                   <option value="">
                     {label("Choose a subject", "اختر المادة")}
                   </option>
-                  {subjects?.data?.map((subject) => (
+                  {availableSubjects.map((subject) => (
                     <option key={subject.id} value={subject.id}>
                       {subject.name}
                     </option>
@@ -958,6 +990,16 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 </select>
                 {error("subject_id")}
               </label>
+                {availableSubjects.length === 0 &&
+                subjects?.data &&
+                subjects.data.length > 0 ? (
+                  <p className="mt-2 text-xs font-semibold text-amber-700">
+                    {label(
+                      "None of the subjects for this stage are assigned to your teacher profile. Add the subject to your profile first.",
+                      "لا توجد مادة من هذه المرحلة مسجلة في ملف المعلم. أضف المادة إلى ملفك أولًا."
+                    )}
+                  </p>
+                ) : null}
             </div>
 
             <label className="mt-4 block text-sm font-bold text-black-blue">

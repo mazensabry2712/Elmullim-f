@@ -277,7 +277,7 @@ const BookLessonDialog = ({
     );
     const dates = new Map<string, { value: string; timezone: string }>();
 
-    for (let offset = 0; offset < 90; offset += 1) {
+    for (let offset = 0; offset < 366; offset += 1) {
       const instant = new Date(start.getTime() + offset * 24 * 60 * 60 * 1000);
 
       for (const slot of slots) {
@@ -293,8 +293,15 @@ const BookLessonDialog = ({
           continue;
         }
 
-        if (endsAt && value > endsAt.slice(0, 10)) {
-          continue;
+        if (endsAt) {
+          const lessonEndDate = getCalendarDateInTimezone(
+            new Date(endsAt),
+            slot.timezone
+          );
+
+          if (lessonEndDate && value > lessonEndDate) {
+            continue;
+          }
         }
 
         if (!dates.has(value)) {

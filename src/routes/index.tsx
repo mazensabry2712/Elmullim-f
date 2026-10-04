@@ -36,7 +36,7 @@ const TeacherViewCourse = lazy(() => import("@/pages/profile/teacher/TeacherView
 const Bookings = lazy(() => import("@/pages/bookings/Bookings"));
 const Schedule = lazy(() => import("@/pages/bookings/Schedule"));
 const TeacherBookings = lazy(() => import("@/pages/profile/teacher/TeacherBookings"));
-const Notifications = lazy(() => import("@/pages/Notifications"));
+const Notifications = lazy(() => import("@/pages/Notifications"));\nconst Ratings = lazy(() => import("@/pages/profile/Ratings"));\nconst TeacherWallet = lazy(() => import("@/pages/profile/teacher/TeacherWallet"));
 // Profile
 const Profile = lazy(() => import("@/pages/profile/Profile"));
 const UpdateProfile = lazy(() => import("@/pages/profile/UpdateProfile"));
@@ -60,7 +60,7 @@ export const routes = createRoutesFromElements(
       <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} id="chat" />
       <Route path="/bookings" element={<ProtectedRoute requiredRole={["student", "parent"]}><Bookings /></ProtectedRoute>} id="bookings" />
       <Route path="/schedule" element={<ProtectedRoute requiredRole={["student", "parent", "teacher"]}><Schedule /></ProtectedRoute>} id="schedule" />
-      <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} id="notifications" />
+      <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} id="notifications" />\n      <Route path="/ratings" element={<ProtectedRoute requiredRole={["student", "parent", "teacher"]}><Ratings /></ProtectedRoute>} id="ratings" />\n      <Route path="/profile/teacher/finance" element={<ProtectedRoute requiredRole="teacher"><TeacherWallet /></ProtectedRoute>} id="teacher-finance" />
       <Route path="/profile/teacher/bookings" element={<ProtectedRoute requiredRole="teacher"><TeacherBookings /></ProtectedRoute>} id="teacher-bookings" />
       <Route path="/profile/teacher/schedule" element={<ProtectedRoute requiredRole="teacher"><Schedule /></ProtectedRoute>} id="teacher-schedule" />
 

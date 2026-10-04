@@ -1265,8 +1265,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-black-blue/50">
                   {label(
-                    "Build a weekly pattern once, then fine-tune individual slots only when needed.",
-                    "أنشئ نمطًا أسبوعيًا مرة واحدة، وبعدها عدّل المواعيد المختلفة فقط وقت الحاجة."
+                    "Create date-specific booking slots. The shortcut below suggests the next date for each selected day.",
+                    "أنشئ مواعيد حجز بتواريخ فعلية. الاختصار بالأسفل يقترح أقرب تاريخ لكل يوم تختاره."
                   )}
                 </p>
               </div>
@@ -1287,12 +1287,12 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                   <Sparkles className="h-4 w-4 text-main" />
                   <div>
                     <p className="text-sm font-black text-black-blue">
-                      {label("Weekly pattern", "النمط الأسبوعي")}
+                      {label("Date suggestions", "اقتراح التواريخ")}
                     </p>
                     <p className="text-xs text-black-blue/45">
                       {label(
-                        "Choose days and one time window. Existing meeting links are preserved where possible.",
-                        "اختر الأيام وفترة زمنية واحدة. الروابط الموجودة تُحافظ عليها قدر الإمكان."
+                        "Choose days and one time window. Each selected day becomes one concrete future booking date.",
+                        "اختر الأيام وفترة زمنية واحدة، وكل يوم مختار يتحول إلى تاريخ حجز فعلي قادم."
                       )}
                     </p>
                   </div>
@@ -2045,11 +2045,11 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
                       return (
                         <div
-                          key={`${slot.day_of_week}-${slot.start_time}-${index}`}
+                          key={`${slot.available_on || slot.day_of_week}-${slot.start_time}-${index}`}
                           className="flex items-center justify-between gap-3 rounded-xl bg-[#F7FAF9] px-3 py-2.5 text-xs"
                         >
-                          <span className="font-black text-black-blue">
-                            {day ? (isArabic ? day.ar : day.en) : "—"}
+                          <span className="font-black text-black-blue" dir="ltr">
+                            {slot.available_on || (day ? (isArabic ? day.ar : day.en) : "—")}
                           </span>
                           <span className="font-bold text-black-blue/55" dir="ltr">
                             {slot.start_time}–{slot.end_time}

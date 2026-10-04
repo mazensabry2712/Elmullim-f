@@ -5,6 +5,7 @@ import {
   getTeacherLessonById,
   getTeacherLessons,
   getTeacherLessonSummary,
+  publishTeacherLesson,
   resubmitTeacherLesson,
   unpublishTeacherLesson,
   updateTeacherLesson,
@@ -84,6 +85,22 @@ export const useUpdateTeacherLesson = () => {
   });
 };
 
+export const usePublishTeacherLesson = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ token, id }: { token: string; id: number }) =>
+      publishTeacherLesson({ token, id }),
+    onSuccess: (_data, variables) => {
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS, "summary"] });
+      void queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_LESSON, String(variables.id)],
+      });
+    },
+  });
+};
+
 export const useResubmitTeacherLesson = () => {
   const queryClient = useQueryClient();
 
@@ -111,6 +128,7 @@ export const useUnpublishTeacherLesson = () => {
       void queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_LESSON, String(variables.id)],
       });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS, "summary"] });
     },
   });
 };

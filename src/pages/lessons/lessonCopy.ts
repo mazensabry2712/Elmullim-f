@@ -129,7 +129,7 @@ const copy = {
       fawryPayment: "Fawry / Kiosk",
       fawryPaymentDescription: "Use a Fawry reference or kiosk.",
       walletPayment: "Mobile wallets",
-      walletPaymentDescription: "Pay directly from your mobile wallet."
+      walletPaymentDescription: "Pay directly from your mobile wallet.",
       confirmFree: "Confirm free booking",
       confirmRequest: "Send booking request",
       chooseDateHint: "Pick a date to see the teacher's defined slot for that day.",

@@ -9,6 +9,13 @@ const appendAvailability = (
   availability?: ICreateLessonAvailabilitySlot[]
 ) => {
   availability?.forEach((slot, index) => {
+    if (slot.available_on) {
+      formData.append(
+        "availability[" + index + "][available_on]",
+        slot.available_on
+      );
+    }
+
     formData.append(
       "availability[" + index + "][day_of_week]",
       slot.day_of_week.toString()

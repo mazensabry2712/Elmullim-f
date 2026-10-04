@@ -145,6 +145,22 @@ export const deleteTeacherLesson = async ({
 };
 
 
+export const publishTeacherLesson = async ({
+  token,
+  id,
+}: {
+  token: string;
+  id: number;
+}): Promise<ILessonRes> => {
+  const { data } = await axiosAPI.post(
+    `/teacher/lessons/${id}/publish`,
+    {},
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return data;
+};
+
+
 export const resubmitTeacherLesson = async ({
   token,
   id,

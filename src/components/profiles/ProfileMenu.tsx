@@ -1,6 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   BookOpen,
+  CalendarDays,
   LogOut,
   MapPin,
   MessageCircleMore,
@@ -74,6 +75,8 @@ const ProfileDropdownMenu = () => {
     edit: ar ? "تعديل الملف الشخصي" : "Edit Profile",
     courses: ar ? "كورساتي" : "My Courses",
     lessons: ar ? "دروسي" : "My Lessons",
+    bookings: ar ? "حجزاتي" : "My Bookings",
+    teacherBookings: ar ? "حجوزات الطلاب" : "Student Bookings",
     uploadCourses: ar ? "رفع الكورسات" : "Upload Courses",
     uploadLessons: ar ? "رفع الدروس" : "Upload Lessons",
     serviceAreas: ar ? "مناطق الخدمة" : "Service Areas",
@@ -230,6 +233,22 @@ const ProfileDropdownMenu = () => {
                   {text.edit}
                 </button>
 
+                {(role === "student" || role === "parent") && (
+                  <button
+                    type="button"
+                    className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                    onClick={() => {
+                      navigate("/bookings");
+                      setIsOpen(false);
+                    }}
+                  >
+                    <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                      <CalendarDays className="h-4 w-4" />
+                    </span>
+                    {text.bookings}
+                  </button>
+                )}
+
                 {role === "student" && (
                   <button
                     type="button"
@@ -302,6 +321,20 @@ const ProfileDropdownMenu = () => {
                         <Upload className="h-4 w-4" />
                       </span>
                       {text.uploadLessons}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                      onClick={() => {
+                        navigate("/profile/teacher/bookings");
+                        setIsOpen(false);
+                      }}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
+                        <CalendarDays className="h-4 w-4" />
+                      </span>
+                      {text.teacherBookings}
                     </button>
 
                     <button

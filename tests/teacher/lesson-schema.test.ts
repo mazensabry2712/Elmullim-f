@@ -144,6 +144,46 @@ describe("teacher lesson schedule schema", () => {
     }
   });
 
+
+  it("handles browser NaN values as missing numeric inputs", () => {
+    const result = lessonSchema.safeParse({
+      ...baseLesson,
+      education_level_id: Number.NaN,
+      subject_id: Number.NaN,
+      duration_minutes: Number.NaN,
+      price: Number.NaN,
+      sessions_count: Number.NaN,
+      max_students: Number.NaN,
+      booking_type: "group",
+      availability: [
+        {
+          available_on: "",
+          day_of_week: 6,
+          start_time: "18:00",
+          end_time: "19:00",
+          timezone: "Africa/Cairo",
+          meeting_url: "https://meet.example.test/lesson",
+        },
+      ],
+    });
+
+    expect(result.success).toBe(false);
+
+    if (!result.success) {
+      const messages = result.error.issues.map((issue) => issue.message);
+
+      expect(messages).toContain("stage is required");
+      expect(messages).toContain("subject is required");
+      expect(messages).toContain("duration is required");
+      expect(messages).toContain("enter a valid price");
+      expect(messages).toContain("sessions count is required");
+      expect(messages).toContain(
+        "maximum students is required for group lessons"
+      );
+      expect(messages.some((message) => /nan/i.test(message))).toBe(false);
+    }
+  });
+
   it("rejects an exact date whose weekday does not match", () => {
     const result = lessonSchema.safeParse({
       ...baseLesson,

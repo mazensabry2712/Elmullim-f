@@ -1,5 +1,6 @@
 name: Build Hostinger Static Site
 # Production deploy source of truth: main -> generated hostinger branch
+# Deployment refresh: rebuild static production output from the current main commit.
 
 on:
   push:

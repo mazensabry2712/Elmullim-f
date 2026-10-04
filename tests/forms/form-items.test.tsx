@@ -1,10 +1,161 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useForm } from "react-hook-form";
 import { Form, FormField } from "@/components/ui/form";
 import SelectFormItem from "@/components/forms/formItems/SelectFormItem";
 import MultiSelectFormItem from "@/components/forms/formItems/MultiSelectFormItem";
 import { I18nProvider } from "@/i18n";
+
+vi.mock("@/components/ui/popover", async () => {
+  const React = await import("react");
+
+  type PopoverContextValue = {
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+  };
+
+  const PopoverContext = React.createContext<PopoverContextValue | null>(null);
+
+  const Popover = ({
+    open = false,
+    onOpenChange = () => undefined,
+    children,
+  }: {
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    children?: React.ReactNode;
+  }) => (
+    <PopoverContext.Provider value={{ open, onOpenChange }}>
+      {children}
+    </PopoverContext.Provider>
+  );
+
+  const PopoverTrigger = ({
+    asChild,
+    children,
+  }: {
+    asChild?: boolean;
+    children?: React.ReactElement;
+  }) => {
+    const context = React.useContext(PopoverContext);
+    if (!asChild || !React.isValidElement(children)) {
+      return children ?? null;
+    }
+
+    return React.cloneElement(children, {
+      onClick: (event: React.MouseEvent) => {
+        children.props.onClick?.(event);
+        context?.onOpenChange(!context.open);
+      },
+    });
+  };
+
+  const PopoverContent = ({
+    children,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => {
+    const context = React.useContext(PopoverContext);
+    if (!context?.open) return null;
+
+    return <div {...props}>{children}</div>;
+  };
+
+  const PopoverAnchor = ({ children }: { children?: React.ReactNode }) =>
+    children ?? null;
+
+  return { Popover, PopoverTrigger, PopoverContent, PopoverAnchor };
+});
+
+vi.mock("@/components/ui/command", async () => {
+  const React = await import("react");
+
+  const Command = ({
+    children,
+    className,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    className?: string;
+    [key: string]: unknown;
+  }) => (
+    <div className={className} {...props}>
+      {children}
+    </div>
+  );
+
+  const CommandInput = ({
+    onValueChange,
+    ...props
+  }: {
+    onValueChange?: (value: string) => void;
+    [key: string]: unknown;
+  }) => (
+    <input
+      {...props}
+      onChange={(event) => {
+        props.onChange?.(event);
+        onValueChange?.(event.currentTarget.value);
+      }}
+    />
+  );
+
+  const CommandList = ({
+    children,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => <div {...props}>{children}</div>;
+
+  const CommandEmpty = ({
+    children,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => <div {...props}>{children}</div>;
+
+  const CommandGroup = ({
+    children,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    [key: string]: unknown;
+  }) => <div {...props}>{children}</div>;
+
+  const CommandItem = ({
+    children,
+    onSelect,
+    ...props
+  }: {
+    children?: React.ReactNode;
+    onSelect?: () => void;
+    [key: string]: unknown;
+  }) => (
+    <button
+      type="button"
+      onClick={onSelect}
+      {...props}
+    >
+      {children}
+    </button>
+  );
+
+  return {
+    Command,
+    CommandInput,
+    CommandList,
+    CommandEmpty,
+    CommandGroup,
+    CommandItem,
+    CommandDialog: Command,
+    CommandSeparator: () => null,
+    CommandShortcut: () => null,
+  };
+});
 
 const renderWithProviders = (children: React.ReactNode) =>
   render(<I18nProvider>{children}</I18nProvider>);

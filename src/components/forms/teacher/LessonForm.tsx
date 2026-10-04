@@ -816,7 +816,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       await Swal.fire({
         icon: "success",
         title: action === "create"
-          ? label("Lesson submitted", "تم إرسال الدرس")
+          ? label("Lesson published", "تم نشر الدرس")
           : label("Lesson saved", "تم حفظ الدرس"),
         text: action === "create"
           ? label(

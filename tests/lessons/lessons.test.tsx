@@ -223,6 +223,44 @@ describe("Lessons", () => {
     });
   });
 
+  it("clears manual location filters when smart nearby discovery is enabled", async () => {
+    const user = userEvent.setup();
+    mockGetToken.mockReturnValue("student-token");
+    mockGetRole.mockReturnValue("student");
+    mockUseGetStudentProfile.mockReturnValue({
+      data: {
+        data: {
+          address: "Damanhur, Beheira",
+          latitude: 31.04,
+          longitude: 30.47,
+        },
+      },
+    });
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/lessons?location=Damanhur&service_area_id=101"]}>
+        <I18nProvider>
+          <Lessons />
+          <LocationProbe />
+        </I18nProvider>
+      </MemoryRouter>
+    );
+
+    await user.click(screen.getByRole("button", { name: /near my saved location/i }));
+
+    const currentSearch = screen.getByTestId("location-search").textContent ?? "";
+    expect(currentSearch).toContain("nearby=1");
+    expect(currentSearch).toContain("delivery_mode=offline");
+    expect(currentSearch).not.toContain("location=Damanhur");
+    expect(currentSearch).not.toContain("service_area_id=101");
+  });
+
   it("lets a parent choose the beneficiary student for smart nearby discovery", async () => {
     const user = userEvent.setup();
     mockGetToken.mockReturnValue("parent-token");

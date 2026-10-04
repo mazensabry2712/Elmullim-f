@@ -1409,6 +1409,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                               }
                               className={commonInput + " h-11 rounded-xl"}
                             />
+                            {availabilityError(index, "start_time")}
                           </label>
 
                           <label className="text-xs font-black text-black-blue">
@@ -1425,6 +1426,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                               }
                               className={commonInput + " h-11 rounded-xl"}
                             />
+                            {availabilityError(index, "end_time")}
                           </label>
 
                           <label className="text-xs font-black text-black-blue">
@@ -1470,6 +1472,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                                 }
                                 className={commonInput + " mt-2 h-11 rounded-xl"}
                               />
+                              {availabilityError(index, "meeting_url")}
                               {row.meeting_url.trim() ? (
                                 <span className="mt-1 block text-[10px] font-bold text-emerald-600">
                                   {label("Link configured", "الرابط مضبوط")}
@@ -1676,7 +1679,9 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                           </label>
 
                           <label className="text-xs font-black text-black-blue">
-                            {label("Meeting URL", "رابط الاجتماع")}
+                            {deliveryMode === "online"
+                              ? label("Meeting URL", "رابط الاجتماع")
+                              : label("Timezone", "المنطقة الزمنية")}
                             {deliveryMode === "online" ? (
                               <>
                                 <Input

@@ -53,6 +53,14 @@ interface IProps {
 
 type LessonFormValues = z.infer<typeof lessonSchema>;
 
+interface WeeklyScheduleRow {
+  day_of_week: number;
+  start_time: string;
+  end_time: string;
+  timezone: string;
+  meeting_url: string;
+}
+
 const defaultTimezone = "Africa/Cairo";
 
 const getInputDateForWeekday = (dayOfWeek: number) => {
@@ -76,7 +84,7 @@ const makeSlot = (
   start_time = "18:00",
   end_time = "19:00",
   meeting_url = "",
-  available_on = getInputDateForWeekday(day_of_week)
+  available_on = ""
 ) => ({
   available_on,
   day_of_week,
@@ -114,17 +122,34 @@ const minutesBetween = (start: string, end: string) => {
 const SmartLessonForm = ({ action, lesson }: IProps) => {
   const [file, setFile] = useState<File | null>(null);
   const [showAdvancedSchedule, setShowAdvancedSchedule] = useState(false);
-  const [patternDays, setPatternDays] = useState<number[]>(
-    lesson?.availability?.length
-      ? lesson.availability.map((slot) => slot.day_of_week)
-      : [6]
-  );
-  const [patternStart, setPatternStart] = useState(
-    lesson?.availability?.[0]?.start_time?.slice(0, 5) || "18:00"
-  );
-  const [patternEnd, setPatternEnd] = useState(
-    lesson?.availability?.[0]?.end_time?.slice(0, 5) || "19:00"
-  );
+  const [weeklyRows, setWeeklyRows] = useState<WeeklyScheduleRow[]>(() => {
+    const recurringSlots =
+      lesson?.availability?.filter((slot) => !slot.available_on) || [];
+
+    if (recurringSlots.length) {
+      return recurringSlots.map((slot) => ({
+        day_of_week: Number(slot.day_of_week),
+        start_time: slot.start_time.slice(0, 5),
+        end_time: slot.end_time.slice(0, 5),
+        timezone: slot.timezone || defaultTimezone,
+        meeting_url: slot.meeting_url || "",
+      }));
+    }
+
+    if (action === "create" || !lesson) {
+      return [
+        {
+          day_of_week: 6,
+          start_time: "18:00",
+          end_time: "19:00",
+          timezone: defaultTimezone,
+          meeting_url: "",
+        },
+      ];
+    }
+
+    return [];
+  });
 
   const token = cookieService.getToken() || "";
   const navigate = useNavigate();
@@ -228,6 +253,14 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const availabilityValues = useMemo(
     () => watchedAvailability ?? [],
     [watchedAvailability]
+  );
+
+  const customAvailabilityEntries = useMemo(
+    () =>
+      availabilityValues
+        .map((slot, index) => ({ slot, index }))
+        .filter(({ slot }) => Boolean(slot.available_on)),
+    [availabilityValues]
   );
 
   const profileAddress = teacherProfile?.data?.address || "";
@@ -458,91 +491,107 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     ) : null;
   };
 
-  const togglePatternDay = (day: number) => {
-    setPatternDays((current) =>
-      current.includes(day)
-        ? current.filter((value) => value !== day)
-        : [...current, day].sort((a, b) => a - b)
-    );
-  };
+  const syncWeeklyRows = (nextRows: WeeklyScheduleRow[]) => {
+    setWeeklyRows(nextRows);
 
-  const applyWeeklyPattern = () => {
-    if (!patternDays.length) {
-      toast.error(
-        label(
-          "Select at least one day.",
-          "اختر يومًا واحدًا على الأقل."
-        )
-      );
-      return;
-    }
-
-    if (
-      patternStart >= patternEnd ||
-      minutesBetween(patternStart, patternEnd) < duration
-    ) {
-      toast.error(
-        label(
-          "The pattern must be longer than the lesson duration.",
-          "يجب أن يكون وقت النمط أطول من مدة الدرس."
-        )
-      );
-      return;
-    }
-
-    const current = form.getValues("availability") || [];
-    const linkByDay = new Map(
-      current.map((slot) => [Number(slot.day_of_week), slot.meeting_url || ""])
-    );
-    const fallbackLink =
-      current.find((slot) => slot.meeting_url?.trim())?.meeting_url || "";
-
-    const generated = patternDays.map((day) =>
-      makeSlot(
-        day,
-        patternStart,
-        patternEnd,
-        deliveryMode === "online"
-          ? linkByDay.get(day) || fallbackLink
-          : ""
-      )
+    const customSlots = (form.getValues("availability") || []).filter(
+      (slot) => Boolean(slot.available_on)
     );
 
-    form.setValue("availability", generated, {
+    const recurringSlots = nextRows.map((row) => ({
+      ...makeSlot(
+        row.day_of_week,
+        row.start_time,
+        row.end_time,
+        deliveryMode === "online" ? row.meeting_url.trim() : "",
+        ""
+      ),
+      timezone: row.timezone,
+    }));
+
+    form.setValue("availability", [...recurringSlots, ...customSlots], {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
     });
+  };
 
-    toast.success(
-      label(
-        "Weekly pattern applied. You can fine-tune any slot below.",
-        "تم تطبيق النمط الأسبوعي. يمكنك تعديل أي موعد من الأسفل."
+  const toggleWeeklyDay = (day: number) => {
+    const existing = weeklyRows.find((row) => row.day_of_week === day);
+
+    if (existing) {
+      syncWeeklyRows(
+        weeklyRows.filter((row) => row.day_of_week !== day)
+      );
+      return;
+    }
+
+    const fallback = weeklyRows[0];
+    const existingFormSlots = form.getValues("availability") || [];
+    const fallbackMeetingUrl =
+      existingFormSlots.find((slot) => slot.meeting_url?.trim())?.meeting_url ||
+      "";
+
+    syncWeeklyRows(
+      [...weeklyRows, {
+        day_of_week: day,
+        start_time: fallback?.start_time || "18:00",
+        end_time: fallback?.end_time || "19:00",
+        timezone: fallback?.timezone || defaultTimezone,
+        meeting_url:
+          deliveryMode === "online"
+            ? fallback?.meeting_url?.trim() || fallbackMeetingUrl
+            : "",
+      }].sort((a, b) => a.day_of_week - b.day_of_week)
+    );
+  };
+
+  const updateWeeklyRow = (
+    index: number,
+    field: keyof WeeklyScheduleRow,
+    value: string | number
+  ) => {
+    syncWeeklyRows(
+      weeklyRows.map((row, rowIndex) =>
+        rowIndex === index
+          ? { ...row, [field]: value }
+          : row
       )
     );
   };
 
   const addCustomSlot = () => {
     const current = form.getValues("availability") || [];
-    const usedDays = new Set(current.map((slot) => Number(slot.day_of_week)));
-    const nextDay =
-      days.find((day) => !usedDays.has(day.value))?.value || 1;
+    const usedDates = new Set(
+      current
+        .filter((slot) => Boolean(slot.available_on))
+        .map((slot) => slot.available_on)
+    );
+    const nextDay = days.find((day) => {
+      const candidate = getInputDateForWeekday(day.value);
+      return !usedDates.has(candidate);
+    })?.value || 1;
+    const weeklyFallback =
+      weeklyRows.find((row) => row.day_of_week === nextDay) || weeklyRows[0];
 
     append(
       makeSlot(
         nextDay,
-        patternStart,
-        patternEnd,
+        weeklyFallback?.start_time || "18:00",
+        weeklyFallback?.end_time || "19:00",
         deliveryMode === "online"
-          ? current.find((slot) => slot.meeting_url?.trim())?.meeting_url || ""
-          : ""
+          ? weeklyFallback?.meeting_url ||
+              current.find((slot) => slot.meeting_url?.trim())?.meeting_url ||
+              ""
+          : "",
+        getInputDateForWeekday(nextDay)
       )
     );
   };
 
   const copyMeetingLinkToAll = (sourceIndex: number) => {
     const source = form.getValues(
-      `availability.${sourceIndex}.meeting_url`
+      "availability." + sourceIndex + ".meeting_url"
     );
 
     if (!source?.trim()) {
@@ -557,7 +606,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
     availabilityFields.forEach((_, index) => {
       form.setValue(
-        `availability.${index}.meeting_url`,
+        "availability." + index + ".meeting_url",
         source.trim(),
         {
           shouldDirty: true,
@@ -569,7 +618,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
     toast.success(
       label(
-        "Meeting link copied to every online slot.",
+        "Meeting link copied to every slot.",
         "تم نسخ رابط الاجتماع إلى كل المواعيد."
       )
     );
@@ -1265,8 +1314,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 </h2>
                 <p className="mt-1 text-sm leading-6 text-black-blue/50">
                   {label(
-                    "Create date-specific booking slots. The shortcut below suggests the next date for each selected day.",
-                    "أنشئ مواعيد حجز بتواريخ فعلية. الاختصار بالأسفل يقترح أقرب تاريخ لكل يوم تختاره."
+                    "Set the days and times that repeat every week. Each row is a recurring booking window; exact dates are only for one-off exceptions.",
+                    "حدد الأيام والأوقات التي يتكرر فيها الحجز كل أسبوع. كل سطر هنا موعد أسبوعي متكرر، أما التاريخ المحدد فمخصص للاستثناءات فقط."
                   )}
                 </p>
               </div>
@@ -1282,121 +1331,264 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
             </div>
 
             <div className="mt-6 rounded-2xl border border-main/10 bg-main/[0.025] p-4 sm:p-5">
-              <div className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-main" />
+              <div className="flex items-start gap-3">
+                <Sparkles className="mt-0.5 h-5 w-5 shrink-0 text-main" />
+                <div>
+                  <p className="text-sm font-black text-black-blue">
+                    {label("Weekly schedule", "الجدول الأسبوعي")}
+                  </p>
+                  <p className="mt-1 text-xs leading-5 text-black-blue/45">
+                    {label(
+                      "Pick the days first, then give each selected day its own time. Online lessons also need a meeting URL for every recurring day.",
+                      "اختار الأيام الأول، وبعدها حدد لكل يوم وقته. الدرس الأونلاين يحتاج رابط اجتماع لكل يوم متكرر."
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-5 grid grid-cols-4 gap-2 sm:grid-cols-7">
+                {days.map((day) => {
+                  const selected = weeklyRows.some(
+                    (row) => row.day_of_week === day.value
+                  );
+
+                  return (
+                    <button
+                      key={day.value}
+                      type="button"
+                      onClick={() => toggleWeeklyDay(day.value)}
+                      className={
+                        "rounded-xl border px-2 py-3 text-xs font-black transition " +
+                        (selected
+                          ? "border-main bg-main text-white"
+                          : "border-black-blue/[0.08] bg-white text-black-blue/55 hover:border-main/25")
+                      }
+                    >
+                      {isArabic ? day.ar : day.en}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {weeklyRows.length ? (
+                <div className="mt-5 space-y-3">
+                  {weeklyRows.map((row, index) => {
+                    const day = days.find(
+                      (item) => item.value === row.day_of_week
+                    );
+
+                    return (
+                      <div
+                        key={row.day_of_week}
+                        className="rounded-2xl border border-black-blue/[0.07] bg-white p-3 sm:p-4"
+                      >
+                        <div className="grid gap-3 lg:grid-cols-[0.9fr_1fr_1fr_1.2fr_2fr_auto] lg:items-end">
+                          <div>
+                            <p className="text-xs font-black text-black-blue/40">
+                              {label("Day", "اليوم")}
+                            </p>
+                            <p className="mt-1 text-sm font-black text-black-blue">
+                              {isArabic ? day?.ar : day?.en}
+                            </p>
+                            <p className="mt-1 text-[10px] font-semibold text-main">
+                              {label("Repeats weekly", "يتكرر كل أسبوع")}
+                            </p>
+                          </div>
+
+                          <label className="text-xs font-black text-black-blue">
+                            {label("From", "من")}
+                            <Input
+                              type="time"
+                              value={row.start_time}
+                              onChange={(event) =>
+                                updateWeeklyRow(
+                                  index,
+                                  "start_time",
+                                  event.target.value
+                                )
+                              }
+                              className={commonInput + " h-11 rounded-xl"}
+                            />
+                          </label>
+
+                          <label className="text-xs font-black text-black-blue">
+                            {label("To", "إلى")}
+                            <Input
+                              type="time"
+                              value={row.end_time}
+                              onChange={(event) =>
+                                updateWeeklyRow(
+                                  index,
+                                  "end_time",
+                                  event.target.value
+                                )
+                              }
+                              className={commonInput + " h-11 rounded-xl"}
+                            />
+                          </label>
+
+                          <label className="text-xs font-black text-black-blue">
+                            {label("Timezone", "المنطقة الزمنية")}
+                            <select
+                              value={row.timezone}
+                              onChange={(event) =>
+                                updateWeeklyRow(
+                                  index,
+                                  "timezone",
+                                  event.target.value
+                                )
+                              }
+                              className={commonInput + " mt-2 block h-11 w-full rounded-xl px-3"}
+                            >
+                              {timezones.map((timezone) => (
+                                <option
+                                  key={timezone.value}
+                                  value={timezone.value}
+                                >
+                                  {timezone.label}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+
+                          {deliveryMode === "online" ? (
+                            <label className="text-xs font-black text-black-blue">
+                              <span className="flex items-center gap-2">
+                                <Link2 className="h-3.5 w-3.5 text-main" />
+                                {label("Meeting URL", "رابط الاجتماع")}
+                              </span>
+                              <Input
+                                type="url"
+                                placeholder="https://..."
+                                value={row.meeting_url}
+                                onChange={(event) =>
+                                  updateWeeklyRow(
+                                    index,
+                                    "meeting_url",
+                                    event.target.value
+                                  )
+                                }
+                                className={commonInput + " mt-2 h-11 rounded-xl"}
+                              />
+                              {row.meeting_url.trim() ? (
+                                <span className="mt-1 block text-[10px] font-bold text-emerald-600">
+                                  {label("Link configured", "الرابط مضبوط")}
+                                </span>
+                              ) : (
+                                <span className="mt-1 block text-[10px] font-bold text-amber-700">
+                                  {label("Required for online booking.", "مطلوب للحجز الأونلاين.")}
+                                </span>
+                              )}
+                            </label>
+                          ) : (
+                            <div className="rounded-xl bg-[#F7FAF9] px-3 py-3 text-xs font-semibold text-black-blue/45">
+                              {label(
+                                "The destination is resolved at booking time.",
+                                "مكان الحصة بيتحدد وقت الحجز."
+                              )}
+                            </div>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => toggleWeeklyDay(row.day_of_week)}
+                            title={label("Remove day", "حذف اليوم")}
+                            aria-label={label("Remove day", "حذف اليوم")}
+                            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:bg-red-100"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+
+                        <div className="mt-3 flex items-center justify-between gap-3 border-t border-dashed border-black-blue/[0.07] pt-3">
+                          <span className="text-[11px] font-semibold text-black-blue/40">
+                            {label(
+                              "Students can choose concrete dates generated from this weekly rule.",
+                              "الطلاب هيشوفوا التواريخ الفعلية القادمة الناتجة من الجدول ده."
+                            )}
+                          </span>
+                          <span className="shrink-0 text-[11px] font-bold text-main" dir="ltr">
+                            {minutesBetween(row.start_time, row.end_time)} min
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <div className="mt-5 rounded-2xl border border-dashed border-black-blue/[0.12] bg-white p-6 text-center">
+                  <CalendarDays className="mx-auto h-6 w-6 text-black-blue/30" />
+                  <p className="mt-2 text-sm font-black text-black-blue">
+                    {label("No weekly days selected", "لم يتم اختيار أيام أسبوعية")}
+                  </p>
+                  <p className="mt-1 text-xs text-black-blue/45">
+                    {label(
+                      "Choose at least one day above to open recurring booking times.",
+                      "اختر يومًا واحدًا على الأقل لفتح مواعيد حجز متكررة."
+                    )}
+                  </p>
+                </div>
+              )}
+
+              <div className="mt-4 rounded-2xl border border-blue-100 bg-blue-50/60 p-4">
+                <div className="flex items-start gap-3">
+                  <Info className="mt-0.5 h-4 w-4 shrink-0 text-blue-600" />
+                  <div>
+                    <p className="text-xs font-black text-blue-900">
+                      {label("How students will book", "الطالب هيحجز إزاي")}
+                    </p>
+                    <p className="mt-1 text-xs leading-5 font-semibold text-blue-800/70">
+                      {label(
+                        "You do not enter the future date here. The system turns each weekly rule into real upcoming dates, and the student chooses one of those dates.",
+                        "مش مطلوب تكتب تاريخ مستقبلي هنا. السيستم بيحوّل كل قاعدة أسبوعية لمواعيد فعلية قادمة، والطالب يختار واحدًا منها للحجز."
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex min-w-0 items-start gap-3">
+                  <CalendarDays className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
                   <div>
                     <p className="text-sm font-black text-black-blue">
-                      {label("Date suggestions", "اقتراح التواريخ")}
+                      {label("One-off dates", "مواعيد استثنائية")}
                     </p>
-                    <p className="text-xs text-black-blue/45">
+                    <p className="mt-1 text-xs leading-5 text-black-blue/50">
                       {label(
-                        "Choose days and one time window. Each selected day becomes one concrete future booking date.",
-                        "اختر الأيام وفترة زمنية واحدة، وكل يوم مختار يتحول إلى تاريخ حجز فعلي قادم."
+                        "Use an exact date only when you need an exception outside the normal weekly schedule.",
+                        "استخدم تاريخًا محددًا فقط لما تحتاج موعدًا استثنائيًا خارج الجدول الأسبوعي المعتاد."
                       )}
                     </p>
                   </div>
                 </div>
 
-                <div className="grid grid-cols-4 gap-2 sm:grid-cols-7">
-                  {days.map((day) => {
-                    const selected = patternDays.includes(day.value);
-
-                    return (
-                      <button
-                        key={day.value}
-                        type="button"
-                        onClick={() => togglePatternDay(day.value)}
-                        className={
-                          "rounded-xl border px-2 py-3 text-xs font-black transition " +
-                          (selected
-                            ? "border-main bg-main text-white"
-                            : "border-black-blue/[0.08] bg-white text-black-blue/55 hover:border-main/25")
-                        }
-                      >
-                        {isArabic ? day.ar : day.en}
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
-                  <label className="text-xs font-black text-black-blue">
-                    {label("From", "من")}
-                    <Input
-                      type="time"
-                      value={patternStart}
-                      onChange={(event) => setPatternStart(event.target.value)}
-                      className={`${commonInput} h-11 rounded-xl`}
-                    />
-                  </label>
-
-                  <label className="text-xs font-black text-black-blue">
-                    {label("To", "إلى")}
-                    <Input
-                      type="time"
-                      value={patternEnd}
-                      onChange={(event) => setPatternEnd(event.target.value)}
-                      className={`${commonInput} h-11 rounded-xl`}
-                    />
-                  </label>
-
-                  <Button
-                    type="button"
-                    onClick={applyWeeklyPattern}
-                    className="h-11 rounded-xl bg-main font-black text-white hover:bg-main/90"
-                  >
-                    <CalendarDays className="me-2 h-4 w-4" />
-                    {label("Apply pattern", "تطبيق النمط")}
-                  </Button>
-                </div>
+                <button
+                  type="button"
+                  onClick={addCustomSlot}
+                  className="inline-flex shrink-0 items-center justify-center gap-2 rounded-xl border border-amber-200 bg-white px-4 py-2.5 text-sm font-black text-amber-800 transition hover:bg-amber-100"
+                >
+                  <Plus className="h-4 w-4" />
+                  {label("Add one-off date", "إضافة موعد استثنائي")}
+                </button>
               </div>
-            </div>
 
-            <div className="mt-4 flex flex-col gap-3 rounded-2xl border border-amber-100 bg-amber-50/70 p-4 sm:flex-row sm:items-start sm:justify-between">
-              <div className="flex min-w-0 items-start gap-3">
-                <Info className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
-                <p className="text-xs font-semibold leading-5 text-amber-800">
-                  {deliveryMode === "online"
-                    ? label(
-                        "Every online slot needs its own meeting URL. The shortcut below can copy one link to every slot without changing the final slot-level contract.",
-                        "كل موعد أونلاين يحتاج رابط اجتماع خاصًا به. الاختصار بالأسفل ينسخ نفس الرابط لكل المواعيد مع بقاء التخزين على مستوى كل موعد."
-                      )
-                    : label(
-                        "The physical destination is not entered here. It comes from the teacher profile or selected service areas.",
-                        "المكان الفعلي لا يُكتب هنا؛ يأتي من ملف المعلم أو مناطق الخدمة المحددة."
-                      )}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAdvancedSchedule((current) => !current)}
-                className="inline-flex shrink-0 items-center gap-2 self-end rounded-xl border border-amber-200 bg-white px-3 py-2 text-xs font-black text-amber-800 sm:self-auto"
-              >
-                <ChevronDown
-                  className={`h-4 w-4 transition-transform ${showAdvancedSchedule ? "rotate-180" : ""}`}
-                />
-                {label("Advanced", "متقدم")}
-              </button>
-            </div>
-
-            {showAdvancedSchedule ? (
-              <div className="mt-4 rounded-2xl border border-black-blue/[0.07] bg-[#FBFDFC] p-4">
-                <p className="text-xs font-black uppercase tracking-[0.12em] text-black-blue/35">
-                  {label("Manual slot control", "تحكم يدوي في المواعيد")}
-                </p>
-                <div className="mt-3 space-y-3">
-                  {availabilityFields.map((field, index) => {
-                    const slot = availabilityValues[index];
+              {customAvailabilityEntries.length ? (
+                <div className="mt-4 space-y-3">
+                  {customAvailabilityEntries.map(({ slot, index }) => {
                     const slotMinutes = minutesBetween(
                       slot?.start_time || "",
                       slot?.end_time || ""
                     );
                     const tooShort = slotMinutes > 0 && slotMinutes < duration;
+                    const isFirstCustom =
+                      customAvailabilityEntries[0]?.index === index;
 
                     return (
                       <div
-                        key={field.id}
+                        key={availabilityFields[index]?.id || index}
                         className={
                           "rounded-2xl border bg-white p-3 sm:p-4 " +
                           (tooShort
@@ -1406,7 +1598,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                       >
                         <div className="grid gap-3 lg:grid-cols-[1.1fr_1fr_1fr_1.8fr_auto] lg:items-end">
                           <label className="text-xs font-black text-black-blue">
-                            {label("Date", "التاريخ")}
+                            {label("Exact date", "التاريخ المحدد")}
                             <Input
                               type="date"
                               min={new Date().toISOString().slice(0, 10)}
@@ -1415,7 +1607,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                                 const value = event.target.value;
 
                                 form.setValue(
-                                  `availability.${index}.available_on`,
+                                  "availability." + index + ".available_on",
                                   value,
                                   {
                                     shouldDirty: true,
@@ -1426,10 +1618,11 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
                                 if (value) {
                                   const date = new Date(value + "T00:00:00Z");
-                                  const dayOfWeek = ((date.getUTCDay() + 6) % 7) + 1;
+                                  const dayOfWeek =
+                                    ((date.getUTCDay() + 6) % 7) + 1;
 
                                   form.setValue(
-                                    `availability.${index}.day_of_week`,
+                                    "availability." + index + ".day_of_week",
                                     dayOfWeek,
                                     {
                                       shouldDirty: true,
@@ -1439,13 +1632,13 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                                   );
                                 }
                               }}
-                              className={`${commonInput} h-11 rounded-xl`}
+                              className={commonInput + " mt-2 h-11 rounded-xl"}
                             />
                             {availabilityError(index, "available_on")}
                             <span className="mt-1 block text-[10px] font-semibold text-black-blue/40">
                               {label(
-                                "This exact date will be offered to learners.",
-                                "هذا هو التاريخ الفعلي الذي سيظهر للطلاب للحجز."
+                                "Only this exact date will use this slot.",
+                                "الموعد ده هيظهر في التاريخ المحدد فقط."
                               )}
                             </span>
                           </label>
@@ -1455,9 +1648,9 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                             <Input
                               type="time"
                               {...form.register(
-                                `availability.${index}.start_time`
+                                "availability." + index + ".start_time"
                               )}
-                              className={`${commonInput} h-11 rounded-xl`}
+                              className={commonInput + " mt-2 h-11 rounded-xl"}
                             />
                             {availabilityError(index, "start_time")}
                           </label>
@@ -1467,51 +1660,41 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                             <Input
                               type="time"
                               {...form.register(
-                                `availability.${index}.end_time`
+                                "availability." + index + ".end_time"
                               )}
-                              className={`${commonInput} h-11 rounded-xl`}
+                              className={commonInput + " mt-2 h-11 rounded-xl"}
                             />
                             {availabilityError(index, "end_time")}
                             {tooShort ? (
                               <p className="mt-1 text-[10px] font-bold text-amber-700">
                                 {label(
-                                  `This slot is ${duration - slotMinutes} min too short.`,
-                                  `هذا الموعد أقصر من مدة الدرس بـ ${duration - slotMinutes} دقيقة.`
+                                  "This slot is " + (duration - slotMinutes) + " min too short.",
+                                  "هذا الموعد أقصر من مدة الدرس بـ " + (duration - slotMinutes) + " دقيقة."
                                 )}
                               </p>
                             ) : null}
                           </label>
 
                           <label className="text-xs font-black text-black-blue">
-                            <span className="flex items-center gap-2">
-                              {deliveryMode === "online" ? (
-                                <Link2 className="h-3.5 w-3.5 text-main" />
-                              ) : (
-                                <Clock3 className="h-3.5 w-3.5 text-main" />
-                              )}
-                              {deliveryMode === "online"
-                                ? label("Meeting URL", "رابط الاجتماع")
-                                : label("Timezone", "المنطقة الزمنية")}
-                            </span>
-
+                            {label("Meeting URL", "رابط الاجتماع")}
                             {deliveryMode === "online" ? (
                               <>
                                 <Input
                                   type="url"
                                   placeholder="https://..."
                                   {...form.register(
-                                    `availability.${index}.meeting_url`
+                                    "availability." + index + ".meeting_url"
                                   )}
-                                  className={`${commonInput} h-11 rounded-xl`}
+                                  className={commonInput + " mt-2 h-11 rounded-xl"}
                                 />
                                 {availabilityError(index, "meeting_url")}
                               </>
                             ) : (
                               <select
                                 {...form.register(
-                                  `availability.${index}.timezone`
+                                  "availability." + index + ".timezone"
                                 )}
-                                className={`${commonInput} mt-2 block h-11 w-full rounded-xl px-3`}
+                                className={commonInput + " mt-2 block h-11 w-full rounded-xl px-3"}
                               >
                                 {timezones.map((timezone) => (
                                   <option
@@ -1526,7 +1709,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                           </label>
 
                           <div className="flex gap-2 lg:justify-end">
-                            {deliveryMode === "online" && index === 0 ? (
+                            {deliveryMode === "online" && isFirstCustom ? (
                               <button
                                 type="button"
                                 onClick={() => copyMeetingLinkToAll(index)}
@@ -1543,48 +1726,31 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                             <button
                               type="button"
                               onClick={() => remove(index)}
-                              disabled={availabilityFields.length === 1}
-                              title={label("Remove slot", "حذف الموعد")}
-                              aria-label={label("Remove slot", "حذف الموعد")}
-                              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:bg-red-100 disabled:cursor-not-allowed disabled:opacity-35"
+                              title={label("Remove exception", "حذف الاستثناء")}
+                              aria-label={label(
+                                "Remove exception",
+                                "حذف الاستثناء"
+                              )}
+                              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-red-100 bg-red-50 text-red-600 transition hover:bg-red-100"
                             >
                               <Trash2 className="h-4 w-4" />
                             </button>
                           </div>
                         </div>
-
-                        {deliveryMode === "online" ? (
-                          <div className="mt-3 flex flex-col gap-2 border-t border-dashed border-black-blue/[0.07] pt-3 sm:flex-row sm:items-center sm:justify-between">
-                            <span className="text-[11px] font-semibold text-black-blue/40">
-                              {label(
-                                `${slotMinutes > 0 ? slotMinutes : 0} minutes available`,
-                                `متاح ${slotMinutes > 0 ? slotMinutes : 0} دقيقة`
-                              )}
-                            </span>
-                            <span className="text-[11px] font-bold text-main">
-                              {slot?.meeting_url?.trim()
-                                ? label("Link configured", "الرابط مضبوط")
-                                : label("Link required", "الرابط مطلوب")}
-                            </span>
-                          </div>
-                        ) : null}
                       </div>
                     );
                   })}
                 </div>
-
-                <button
-                  type="button"
-                  onClick={addCustomSlot}
-                  className="mt-4 inline-flex items-center gap-2 rounded-xl border border-main/15 bg-main/[0.045] px-4 py-2.5 text-sm font-black text-main transition hover:bg-main/10"
-                >
-                  <Plus className="h-4 w-4" />
-                  {label("Add custom slot", "إضافة موعد مخصص")}
-                </button>
-              </div>
-            ) : null}
+              ) : (
+                <p className="mt-4 rounded-2xl border border-dashed border-amber-200 bg-white/70 p-4 text-xs font-semibold text-amber-800/70">
+                  {label(
+                    "No one-off dates. Your weekly schedule will generate the bookable dates.",
+                    "مفيش مواعيد استثنائية. الجدول الأسبوعي هو اللي هيولد مواعيد الحجز القادمة."
+                  )}
+                </p>
+              )}
+            </div>
           </section>
-
           {deliveryMode === "offline" ? (
             <section className="rounded-[24px] border border-black-blue/[0.07] bg-white p-5 shadow-sm sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">

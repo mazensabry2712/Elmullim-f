@@ -108,11 +108,11 @@ const days = [
 ] as const;
 
 const timezones = [
-  { value: "Africa/Cairo", label: "Cairo (GMT+02:00)" },
-  { value: "Asia/Riyadh", label: "Riyadh (GMT+03:00)" },
-  { value: "Asia/Dubai", label: "Dubai (GMT+04:00)" },
-  { value: "Europe/London", label: "London" },
-  { value: "Europe/Paris", label: "Paris" },
+  { value: "Africa/Cairo", label: "Cairo (Africa/Cairo)" },
+  { value: "Asia/Riyadh", label: "Riyadh (Asia/Riyadh)" },
+  { value: "Asia/Dubai", label: "Dubai (Asia/Dubai)" },
+  { value: "Europe/London", label: "London (Europe/London)" },
+  { value: "Europe/Paris", label: "Paris (Europe/Paris)" },
 ] as const;
 
 const minutesBetween = (start: string, end: string) => {

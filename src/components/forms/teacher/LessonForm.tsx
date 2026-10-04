@@ -244,9 +244,12 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const grade = form.watch("grade");
   const title = form.watch("title");
   const description = form.watch("description");
-  const duration = Number(form.watch("duration_minutes") || 0);
-  const price = Number(form.watch("price") || 0);
-  const sessionsCount = Number(form.watch("sessions_count") || 0);
+  const durationValue = form.watch("duration_minutes");
+  const duration = Number(durationValue || 0);
+  const priceValue = form.watch("price");
+  const price = Number(priceValue || 0);
+  const sessionsCountValue = form.watch("sessions_count");
+  const sessionsCount = Number(sessionsCountValue || 0);
   const maxStudents = form.watch("max_students");
   const watchedAvailability = useWatch({
     control: form.control,
@@ -356,7 +359,11 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
           : false;
 
   const isCapacityReady =
-    bookingType !== "group" || Number(maxStudents) >= 1;
+    bookingType !== "group" ||
+    (maxStudents !== "" &&
+      Number.isInteger(Number(maxStudents)) &&
+      Number.isFinite(Number(maxStudents)) &&
+      Number(maxStudents) >= 1);
 
   const isBasicsReady = Boolean(
     educationLevelId && watchedSubjectId && grade?.trim()
@@ -365,9 +372,15 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const isDetailsReady = Boolean(
     title?.trim() &&
       description?.trim() &&
-      Number(duration) >= 1 &&
-      Number(price) >= 0 &&
-      Number(sessionsCount) >= 1
+      durationValue !== "" &&
+      Number.isInteger(duration) &&
+      duration >= 1 &&
+      priceValue !== "" &&
+      Number.isFinite(price) &&
+      price >= 0 &&
+      sessionsCountValue !== "" &&
+      Number.isInteger(sessionsCount) &&
+      sessionsCount >= 1
   );
 
   const isScheduleReady = Boolean(
@@ -949,7 +962,6 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 {label("Education stage", "المرحلة التعليمية")}
                 <select
                   {...form.register("education_level_id", {
-                    valueAsNumber: true,
                     onChange: (event) => {
                       const nextEducationLevelId = Number(event.target.value);
                       form.setValue("education_level_id", nextEducationLevelId, {
@@ -982,9 +994,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
               <label className="text-sm font-bold text-black-blue">
                 {label("Subject", "المادة")}
                 <select
-                  {...form.register("subject_id", {
-                    valueAsNumber: true,
-                  })}
+                  {...form.register("subject_id")}
                   disabled={!educationLevelId || isLoadingSubjects}
                   className={`${commonInput} block h-12 w-full rounded-xl px-3`}
                 >
@@ -1349,9 +1359,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 <label className="text-sm font-black text-black-blue">
                   {label("Duration", "المدة")}
                   <select
-                    {...form.register("duration_minutes", {
-                      valueAsNumber: true,
-                    })}
+                    {...form.register("duration_minutes")}
                     className={`${commonInput} block h-12 w-full rounded-xl px-3`}
                   >
                     {[30, 45, 60, 75, 90, 120, 150, 180].map((value) => (

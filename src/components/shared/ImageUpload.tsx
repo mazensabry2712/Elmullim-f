@@ -76,7 +76,10 @@ const ImageUpload = ({ title, file, setFile, existingUrl }: IProps) => {
                 if (nextFile) setFile(nextFile);
               }}
               accept={{
-                "image/png": [".png", ".jpg", ".jpeg", ".webp"],
+                "image/png": [".png"],
+                "image/jpeg": [".jpg", ".jpeg"],
+                "image/webp": [".webp"],
+                "image/svg+xml": [".svg"],
               }}
               maxFiles={1}
             >

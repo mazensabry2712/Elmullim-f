@@ -8,6 +8,15 @@ import { ILessonRes, ILessonsRes, LessonBookingType, LessonDeliveryMode } from "
 export interface ILessonFilterOption {
   id: number;
   name: string;
+  education_level?: {
+    id: number;
+    name: string;
+  } | null;
+}
+
+export interface ILessonServiceAreaFilterOption {
+  id: number;
+  name: string;
 }
 
 export interface ILessonFilterOptionsRes {
@@ -16,6 +25,8 @@ export interface ILessonFilterOptionsRes {
   data: {
     education_levels: ILessonFilterOption[];
     subjects: ILessonFilterOption[];
+    grades: string[];
+    service_areas: ILessonServiceAreaFilterOption[];
   };
 }
 
@@ -29,6 +40,8 @@ export interface ILessonFilters {
   min_price?: number;
   max_price?: number;
   location?: string;
+  service_area_id?: number;
+  sort?: "latest" | "price_asc" | "price_desc" | "rating_desc";
 }
 
 export const getLessonFilterOptions = async (): Promise<ILessonFilterOptionsRes> => {
@@ -52,6 +65,8 @@ export const getAllLessons = async ({
   if (typeof filters.min_price === "number") params.set("min_price", String(filters.min_price));
   if (typeof filters.max_price === "number") params.set("max_price", String(filters.max_price));
   if (filters.location?.trim()) params.set("location", filters.location.trim());
+  if (filters.service_area_id) params.set("service_area_id", String(filters.service_area_id));
+  if (filters.sort && filters.sort !== "latest") params.set("sort", filters.sort);
 
   const query = params.toString();
 

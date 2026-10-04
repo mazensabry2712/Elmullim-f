@@ -97,13 +97,23 @@ const LessonDetails = () => {
     [lessonData?.availability]
   );
 
+  const recurringAvailability = useMemo(
+    () => activeAvailability.filter((slot) => !slot.available_on),
+    [activeAvailability]
+  );
+
+  const oneOffAvailability = useMemo(
+    () => activeAvailability.filter((slot) => slot.available_on),
+    [activeAvailability]
+  );
+
   const activeServiceAreas = useMemo(
     () => lessonData?.service_areas?.filter((area) => area.is_active !== false) ?? [],
     [lessonData?.service_areas]
   );
 
   const weeklyHours = useMemo(() => {
-    return activeAvailability.reduce((total, slot) => {
+    return recurringAvailability.reduce((total, slot) => {
       const [startHour, startMinute] = slot.start_time.slice(0, 5).split(":").map(Number);
       const [endHour, endMinute] = slot.end_time.slice(0, 5).split(":").map(Number);
       const minutes = Math.max(
@@ -112,7 +122,7 @@ const LessonDetails = () => {
       );
       return total + minutes / 60;
     }, 0);
-  }, [activeAvailability]);
+  }, [recurringAvailability]);
 
   const infoItems = [
     lessonData?.subject_name && {
@@ -434,7 +444,7 @@ const LessonDetails = () => {
                       </div>
                     </section>
 
-                    {activeAvailability.length > 0 && (
+                    {recurringAvailability.length > 0 && (
                       <section className="rounded-3xl border border-black-blue/[0.07] bg-white p-5 md:p-6 shadow-sm">
                         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                           <div className="flex items-start gap-3">
@@ -453,7 +463,7 @@ const LessonDetails = () => {
                         </div>
 
                         <div className="grid gap-3 sm:grid-cols-2">
-                          {activeAvailability.map((slot) => {
+                          {recurringAvailability.map((slot) => {
                             const dayName =
                               dayNames[slot.day_of_week as keyof typeof dayNames] ??
                               String(slot.day_of_week);
@@ -503,6 +513,86 @@ const LessonDetails = () => {
                             </p>
                           </div>
                         )}
+                      </section>
+                    )}
+
+                    {oneOffAvailability.length > 0 && (
+                      <section className="rounded-3xl border border-black-blue/[0.07] bg-white p-5 md:p-6 shadow-sm">
+                        <div className="mb-5 flex items-start gap-3">
+                          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-main/10 text-main">
+                            <CalendarDays className="h-5 w-5" />
+                          </span>
+                          <div>
+                            <h3 className="text-xl font-black text-black-blue">
+                              {language === "ar" ? "المواعيد الاستثنائية" : "One-off dates"}
+                            </h3>
+                            <p className="mt-1 text-sm text-black-blue/45">
+                              {language === "ar"
+                                ? "مواعيد محددة متاحة في تواريخها فقط."
+                                : "Exact dates available only on their specified calendar dates."}
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid gap-3 sm:grid-cols-2">
+                          {oneOffAvailability.map((slot) => {
+                            const value = slot.available_on as string;
+                            const [startHour, startMinute] = slot.start_time
+                              .slice(0, 5)
+                              .split(":")
+                              .map(Number);
+                            const [endHour, endMinute] = slot.end_time
+                              .slice(0, 5)
+                              .split(":")
+                              .map(Number);
+                            const slotMinutes = Math.max(
+                              0,
+                              endHour * 60 + endMinute - (startHour * 60 + startMinute)
+                            );
+                            const formattedDate = (() => {
+                              try {
+                                return new Intl.DateTimeFormat(
+                                  language === "ar" ? "ar-EG" : "en-US",
+                                  {
+                                    timeZone: slot.timezone,
+                                    weekday: "long",
+                                    day: "numeric",
+                                    month: "long",
+                                    year: "numeric",
+                                  }
+                                ).format(new Date(value + "T12:00:00.000Z"));
+                              } catch {
+                                return value;
+                              }
+                            })();
+
+                            return (
+                              <div
+                                key={
+                                  String(slot.id) +
+                                  "-" +
+                                  value +
+                                  "-" +
+                                  slot.start_time +
+                                  "-" +
+                                  slot.end_time
+                                }
+                                className="rounded-2xl border border-black-blue/[0.06] bg-[#FBFDFC] p-4 transition hover:-translate-y-0.5 hover:border-main/20 hover:shadow-sm"
+                              >
+                                <div className="flex items-center justify-between gap-3">
+                                  <span className="text-sm font-black text-black-blue">{formattedDate}</span>
+                                  <span className="rounded-full bg-main/[0.06] px-2.5 py-1 text-[10px] font-extrabold text-main">
+                                    {slotMinutes} {copy.durationUnit}
+                                  </span>
+                                </div>
+                                <div className="mt-3 flex items-center gap-2 text-base font-black text-black-blue" dir="ltr">
+                                  <Clock3 className="h-4 w-4 shrink-0 text-main" />
+                                  <span>{slot.start_time.slice(0, 5)} – {slot.end_time.slice(0, 5)}</span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
                       </section>
                     )}
 

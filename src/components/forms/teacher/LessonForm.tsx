@@ -1684,7 +1684,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                                   type="url"
                                   placeholder="https://..."
                                   {...form.register(
-                                    "availability." + index + ".meeting_url"
+                                    `availability.${index}.meeting_url` as `availability.${number}.meeting_url`
                                   )}
                                   className={commonInput + " mt-2 h-11 rounded-xl"}
                                 />

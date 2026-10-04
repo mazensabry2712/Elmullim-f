@@ -489,10 +489,6 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       form.setValue("max_students", "", {
         shouldValidate: false,
       });
-    } else if (!form.getValues("max_students")) {
-      form.setValue("max_students", 5, {
-        shouldValidate: false,
-      });
     }
   }, [bookingType, form]);
 

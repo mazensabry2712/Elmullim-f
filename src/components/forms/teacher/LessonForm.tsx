@@ -51,7 +51,8 @@ interface IProps {
   lesson?: ILesson;
 }
 
-type LessonFormValues = z.infer<typeof lessonSchema>;
+type LessonFormInput = z.input<typeof lessonSchema>;
+type LessonFormValues = z.output<typeof lessonSchema>;
 
 const availabilityField = (index: number, field: "available_on" | "day_of_week" | "start_time" | "end_time" | "timezone" | "meeting_url"): FieldPath<LessonFormValues> =>
   (`availability.${index}.${field}`) as FieldPath<LessonFormValues>;
@@ -197,7 +198,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     [lesson?.availability]
   );
 
-  const form = useForm<LessonFormValues>({
+  const form = useForm<LessonFormInput, any, LessonFormValues>({
     resolver: zodResolver(lessonSchema),
     mode: "onTouched",
     shouldFocusError: true,
@@ -370,16 +371,19 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     educationLevelId && watchedSubjectId && grade?.trim()
   );
 
+  const hasInputValue = (value: unknown) =>
+    value !== "" && value !== null && value !== undefined;
+
   const isDetailsReady = Boolean(
     title?.trim() &&
       description?.trim() &&
-      durationValue !== "" &&
+      hasInputValue(durationValue) &&
       Number.isInteger(duration) &&
       duration >= 1 &&
-      priceValue !== "" &&
+      hasInputValue(priceValue) &&
       Number.isFinite(price) &&
       price >= 0 &&
-      sessionsCountValue !== "" &&
+      hasInputValue(sessionsCountValue) &&
       Number.isInteger(sessionsCount) &&
       sessionsCount >= 1
   );

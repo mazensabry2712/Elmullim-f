@@ -20,7 +20,10 @@ import { useGetStudentProfile } from "@/lib/react-query/student/studentProfile";
 import { useGetParentProfile } from "@/lib/react-query/parent/parentProfile";
 import { BookingStatus } from "@/interfaces/bookings/booking";
 import type { PaymentMethod } from "@/interfaces/payment/payment";
-import { useGetLessonBookingOptions } from "@/lib/react-query/lessons/lessons";
+import {
+  useGetLessonAvailability,
+  useGetLessonBookingOptions,
+} from "@/lib/react-query/lessons/lessons";
 import PaymentMethodSelector from "@/components/payments/PaymentMethodSelector";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 
@@ -32,6 +35,7 @@ interface IProps {
   price: string | number;
   durationMinutes: number;
   language: "ar" | "en";
+  endsAt?: string | null;
 }
 
 interface IStudentOption {
@@ -42,11 +46,68 @@ interface IStudentOption {
   longitude?: string | number | null;
 }
 
-const getTodayInputValue = () => {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+const WEEKDAY_TO_ISO: Record<string, number> = {
+  Mon: 1,
+  Tue: 2,
+  Wed: 3,
+  Thu: 4,
+  Fri: 5,
+  Sat: 6,
+  Sun: 7,
 };
 
+const getCalendarDateInTimezone = (instant: Date, timezone: string) => {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).formatToParts(instant);
+
+    const year = parts.find((part) => part.type === "year")?.value;
+    const month = parts.find((part) => part.type === "month")?.value;
+    const day = parts.find((part) => part.type === "day")?.value;
+
+    return year && month && day ? year + "-" + month + "-" + day : "";
+  } catch {
+    return "";
+  }
+};
+
+const getIsoWeekdayInTimezone = (instant: Date, timezone: string) => {
+  try {
+    const weekday = new Intl.DateTimeFormat("en-US", {
+      timeZone: timezone,
+      weekday: "short",
+    }).format(instant);
+
+    return WEEKDAY_TO_ISO[weekday] ?? null;
+  } catch {
+    return null;
+  }
+};
+
+const formatAvailableDate = (
+  value: string,
+  timezone: string,
+  language: "ar" | "en"
+) => {
+  try {
+    return new Intl.DateTimeFormat(
+      language === "ar" ? "ar-EG" : "en-US",
+      {
+        timeZone: timezone,
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      }
+    ).format(new Date(value + "T12:00:00.000Z"));
+  } catch {
+    return value;
+  }
+};
 const BookLessonDialog = ({
   lessonId,
   bookingType,
@@ -55,6 +116,7 @@ const BookLessonDialog = ({
   price,
   durationMinutes,
   language,
+  endsAt = null,
 }: IProps) => {
   const token = cookieService.getToken() || "";
   const role = cookieService.getRole();
@@ -71,6 +133,12 @@ const BookLessonDialog = ({
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("card");
   const [successStatus, setSuccessStatus] = useState<BookingStatus | null>(null);
   const [paymentInitializationFailed, setPaymentInitializationFailed] = useState(false);
+
+  const {
+    data: lessonAvailability,
+    isLoading: loadingLessonAvailability,
+    isError: lessonAvailabilityError,
+  } = useGetLessonAvailability(lessonId);
 
   const {
     data: bookingOptions,
@@ -192,7 +260,70 @@ const BookLessonDialog = ({
     bookingCopy.failed,
   ]);
 
-  const minimumDate = getTodayInputValue();
+  const availableDates = useMemo(() => {
+    const slots = (lessonAvailability?.data ?? []).filter(
+      (slot) =>
+        slot.is_active &&
+        (!slot.lesson_id || Number(slot.lesson_id) === Number(lessonId))
+    );
+
+    if (!slots.length) {
+      return [];
+    }
+
+    const now = new Date();
+    const start = new Date(
+      Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12)
+    );
+    const dates = new Map<string, { value: string; timezone: string }>();
+
+    for (let offset = 0; offset < 90; offset += 1) {
+      const instant = new Date(start.getTime() + offset * 24 * 60 * 60 * 1000);
+
+      for (const slot of slots) {
+        if (
+          getIsoWeekdayInTimezone(instant, slot.timezone) !==
+          Number(slot.day_of_week)
+        ) {
+          continue;
+        }
+
+        const value = getCalendarDateInTimezone(instant, slot.timezone);
+        if (!value) {
+          continue;
+        }
+
+        if (endsAt && value > endsAt.slice(0, 10)) {
+          continue;
+        }
+
+        if (!dates.has(value)) {
+          dates.set(value, {
+            value,
+            timezone: slot.timezone,
+          });
+        }
+      }
+    }
+
+    return Array.from(dates.values()).sort((a, b) =>
+      a.value.localeCompare(b.value)
+    );
+  }, [lessonAvailability?.data, lessonId, endsAt]);
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+
+    if (
+      !selectedDate ||
+      !availableDates.some((date) => date.value === selectedDate)
+    ) {
+      setSelectedDate(availableDates[0]?.value ?? "");
+      setSelectedTime("");
+    }
+  }, [open, availableDates, selectedDate]);
 
   const closeDialog = () => {
     setOpen(false);
@@ -554,18 +685,46 @@ const BookLessonDialog = ({
                     </div>
                   </div>
 
-                  <input
-                    id="lesson-booking-date"
-                    type="date"
-                    min={minimumDate}
-                    value={selectedDate}
-                    disabled={isSubmitting}
-                    onChange={(event) => {
-                      setSelectedDate(event.target.value);
-                      setSelectedTime("");
-                    }}
-                    className="h-12 w-full rounded-2xl border border-black-blue/10 bg-white px-4 text-sm font-semibold text-black-blue outline-none transition focus:border-main focus:ring-2 focus:ring-main/10 disabled:opacity-60"
-                  />
+                  {loadingLessonAvailability ? (
+                    <div
+                      className="flex items-center gap-2 rounded-2xl bg-slate-50 px-4 py-4 text-sm text-black-blue/55"
+                      role="status"
+                    >
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {bookingCopy.availabilityLoading}
+                    </div>
+                  ) : lessonAvailabilityError ? (
+                    <div
+                      className="rounded-2xl border border-red-200 bg-red-50 px-4 py-4 text-sm text-red-700"
+                      role="alert"
+                    >
+                      {bookingCopy.availabilityError}
+                    </div>
+                  ) : availableDates.length === 0 ? (
+                    <div className="rounded-2xl border border-dashed border-black-blue/10 px-4 py-4 text-sm text-black-blue/55">
+                      {language === "ar"
+                        ? "لا توجد تواريخ حجز متاحة حاليًا ضمن مواعيد المعلم."
+                        : "There are no upcoming dates available in the teacher's schedule."}
+                    </div>
+                  ) : (
+                    <select
+                      id="lesson-booking-date"
+                      aria-label={bookingCopy.chooseDateHint}
+                      value={selectedDate}
+                      disabled={isSubmitting}
+                      onChange={(event) => {
+                        setSelectedDate(event.target.value);
+                        setSelectedTime("");
+                      }}
+                      className="h-12 w-full rounded-2xl border border-black-blue/10 bg-white px-4 text-sm font-semibold text-black-blue outline-none transition focus:border-main focus:ring-2 focus:ring-main/10 disabled:opacity-60"
+                    >
+                      {availableDates.map((date) => (
+                        <option key={date.value} value={date.value}>
+                          {formatAvailableDate(date.value, date.timezone, language)}
+                        </option>
+                      ))}
+                    </select>
+                  )}
                 </section>
 
                 <section className="space-y-3">

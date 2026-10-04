@@ -416,16 +416,16 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   }, [action, form, teacherEducationLevel?.id]);
 
   useEffect(() => {
-    const currentSubject = form.getValues("subject_id");
+    const currentSubject = Number(form.getValues("subject_id") || 0);
 
     if (
-      currentSubject &&
+      currentSubject > 0 &&
       subjects?.data &&
-      !subjects.data.some(
-        (subject) => subject.id === Number(currentSubject)
-      )
+      !subjects.data.some((subject) => subject.id === currentSubject)
     ) {
       form.setValue("subject_id", 0, {
+        shouldDirty: true,
+        shouldTouch: true,
         shouldValidate: true,
       });
     }
@@ -909,6 +909,19 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 <select
                   {...form.register("education_level_id", {
                     valueAsNumber: true,
+                    onChange: (event) => {
+                      const nextEducationLevelId = Number(event.target.value);
+                      form.setValue("education_level_id", nextEducationLevelId, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
+                      form.setValue("subject_id", 0, {
+                        shouldDirty: true,
+                        shouldTouch: true,
+                        shouldValidate: true,
+                      });
+                    },
                   })}
                   disabled={isLoadingTeacher || isLoadingLevels}
                   className={`${commonInput} block h-12 w-full rounded-xl px-3`}

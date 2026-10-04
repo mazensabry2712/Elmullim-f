@@ -4,7 +4,7 @@ import { ILesson } from "@/interfaces/lessons/lesson";
 import type { LessonsCopy } from "@/pages/lessons/lessonCopy";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 import { useI18n } from "@/i18n";
-import { CalendarDays, Clock3, MapPin, UsersRound } from "lucide-react";
+import { CalendarDays, Clock3, MapPin, Navigation, UsersRound } from "lucide-react";
 
 interface IProps {
   lesson: ILesson;
@@ -79,7 +79,14 @@ const LessonCard = ({ lesson, copy }: IProps) => {
           </span>
         </div>
 
-        {lesson.delivery_mode === "offline" && lesson.offline_visit_type === "teacher_to_student" && areas > 0 ? (
+        {lesson.location_match?.distance_km != null ? (
+          <p className="mt-3 inline-flex w-fit max-w-full items-center gap-2 rounded-xl border border-main/15 bg-main/5 px-3 py-2.5 text-xs font-extrabold text-main">
+            <Navigation className="h-4 w-4 shrink-0" />
+            <span className="truncate">
+              {text.locationMatch}: {lesson.location_match.distance_km.toFixed(1)} {text.distanceUnit}
+            </span>
+          </p>
+        ) : lesson.delivery_mode === "offline" && lesson.offline_visit_type === "teacher_to_student" && areas > 0 ? (
           <p className="mt-3 rounded-xl bg-[#FBFDFC] px-3 py-2.5 text-xs font-semibold text-black-blue/55">
             {areas} {text.availableArea}
             {areas > 1 && language === "en" ? "s" : ""}

@@ -41,6 +41,8 @@ export interface ILessonFilters {
   max_price?: number;
   location?: string;
   service_area_id?: number;
+  nearby?: boolean;
+  student_id?: number;
   sort?: "latest" | "price_asc" | "price_desc" | "rating_desc";
 }
 
@@ -69,8 +71,15 @@ export const getAllLessons = async ({
   if (filters.sort && filters.sort !== "latest") params.set("sort", filters.sort);
 
   const query = params.toString();
+  const endpoint = filters.nearby ? "/lessons/nearby" : "/lessons/all";
 
-  const { data } = await axiosAPI.get("/lessons/all" + (query ? "?" + query : ""), {
+  if (filters.nearby && filters.student_id) {
+    params.set("student_id", String(filters.student_id));
+  }
+
+  const finalQuery = params.toString();
+
+  const { data } = await axiosAPI.get(endpoint + (finalQuery ? "?" + finalQuery : ""), {
     headers: {
       Authorization: token ? "Bearer " + token : undefined,
     },

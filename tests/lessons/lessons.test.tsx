@@ -9,14 +9,26 @@ import { I18nProvider, useI18n } from "@/i18n";
 const mockRefetch = vi.fn();
 const mockUseGetLessons = vi.fn();
 const mockUseGetLessonFilterOptions = vi.fn();
+const mockUseGetStudentProfile = vi.fn();
+const mockUseGetParentProfile = vi.fn();
+const mockGetToken = vi.fn(() => undefined);
+const mockGetRole = vi.fn(() => undefined);
 
 vi.mock("@/lib/react-query/lessons/lessons", () => ({
   useGetLessons: (...args: unknown[]) => mockUseGetLessons(...args),
   useGetLessonFilterOptions: () => mockUseGetLessonFilterOptions(),
 }));
 
+vi.mock("@/lib/react-query/student/studentProfile", () => ({
+  useGetStudentProfile: (...args: unknown[]) => mockUseGetStudentProfile(...args),
+}));
+
+vi.mock("@/lib/react-query/parent/parentProfile", () => ({
+  useGetParentProfile: (...args: unknown[]) => mockUseGetParentProfile(...args),
+}));
+
 vi.mock("@/utils/cookieService", () => ({
-  default: { getToken: vi.fn(() => undefined) },
+  default: { getToken: mockGetToken, getRole: mockGetRole },
 }));
 
 vi.mock("@/components/lessons/LessonsList", () => ({
@@ -55,6 +67,10 @@ const renderPage = (children: React.ReactNode) =>
 describe("Lessons", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    mockGetToken.mockReturnValue(undefined);
+    mockGetRole.mockReturnValue(undefined);
+    mockUseGetStudentProfile.mockReturnValue({ data: undefined });
+    mockUseGetParentProfile.mockReturnValue({ data: undefined });
     mockUseGetLessonFilterOptions.mockReturnValue({
       data: {
         status: true,
@@ -161,6 +177,74 @@ describe("Lessons", () => {
       delivery_mode: "offline",
       service_area_id: 101,
       sort: "price_asc",
+    });
+  });
+
+
+  it("uses the student's saved location for smart nearby discovery", async () => {
+    const user = userEvent.setup();
+    mockGetToken.mockReturnValue("student-token");
+    mockGetRole.mockReturnValue("student");
+    mockUseGetStudentProfile.mockReturnValue({
+      data: {
+        data: {
+          address: "Damanhur, Beheira",
+          latitude: 31.04,
+          longitude: 30.47,
+        },
+      },
+    });
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    renderPage(<Lessons />);
+
+    await user.click(screen.getByRole("button", { name: /near my saved location/i }));
+
+    const latestCall = mockUseGetLessons.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+    expect(latestCall).toMatchObject({
+      nearby: true,
+      delivery_mode: "offline",
+      enabled: true,
+    });
+  });
+
+  it("lets a parent choose the beneficiary student for smart nearby discovery", async () => {
+    const user = userEvent.setup();
+    mockGetToken.mockReturnValue("parent-token");
+    mockGetRole.mockReturnValue("parent");
+    mockUseGetParentProfile.mockReturnValue({
+      data: {
+        data: {
+          students: [
+            { id: 201, name: "Sara", address: "Damanhur", latitude: 31.04, longitude: 30.47 },
+            { id: 202, name: "Omar", address: "Alexandria", latitude: 31.2, longitude: 29.9 },
+          ],
+        },
+      },
+    });
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    renderPage(<Lessons />);
+
+    await user.selectOptions(screen.getByRole("combobox", { name: "Choose student" }), "201");
+    await user.click(screen.getByRole("button", { name: /near my saved location/i }));
+
+    const latestCall = mockUseGetLessons.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+    expect(latestCall).toMatchObject({
+      nearby: true,
+      student_id: 201,
+      delivery_mode: "offline",
+      enabled: true,
     });
   });
 

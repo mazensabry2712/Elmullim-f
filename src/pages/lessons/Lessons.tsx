@@ -7,11 +7,13 @@ import {
   useGetLessonFilterOptions,
   useGetLessons,
 } from "@/lib/react-query/lessons/lessons";
+import { useGetStudentProfile } from "@/lib/react-query/student/studentProfile";
+import { useGetParentProfile } from "@/lib/react-query/parent/parentProfile";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
-import { ChevronDown, Loader, SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, Loader, Navigation, SlidersHorizontal, X } from "lucide-react";
 import { motion } from "framer-motion";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { getLessonsCopy } from "./lessonCopy";
 
 type SortOption = "latest" | "price_asc" | "price_desc" | "rating_desc";
@@ -23,6 +25,13 @@ const Lessons = () => {
   const search = useDebounce(searchParams.get("q"), 500) ?? undefined;
   const { data: filterOptions } = useGetLessonFilterOptions();
   const token = cookieService.getToken() || undefined;
+  const role = cookieService.getRole();
+  const isStudent = role === "student";
+  const isParent = role === "parent";
+
+  const { data: studentProfile } = useGetStudentProfile(token || "", isStudent);
+  const { data: parentProfile } = useGetParentProfile(token || "", isParent);
+  const linkedStudents = parentProfile?.data?.students ?? [];
 
   const deliveryMode = searchParams.get("delivery_mode") as "online" | "offline" | null;
   const educationLevelIdValue = searchParams.get("education_level_id");
@@ -41,6 +50,31 @@ const Lessons = () => {
 
   const serviceAreaIdValue = searchParams.get("service_area_id");
   const serviceAreaId = serviceAreaIdValue ? Number(serviceAreaIdValue) : undefined;
+  const nearbyMode = searchParams.get("nearby") === "1";
+  const selectedStudentId =
+    isParent
+      ? searchParams.get("student_id") ||
+        (linkedStudents.length === 1 ? String(linkedStudents[0].id) : "")
+      : "";
+  const beneficiaryStudent =
+    isStudent
+      ? studentProfile?.data
+      : isParent && selectedStudentId
+        ? linkedStudents.find((student) => String(student.id) === selectedStudentId)
+        : undefined;
+  const hasBeneficiaryLocation = Boolean(
+    beneficiaryStudent?.address?.trim() &&
+      beneficiaryStudent?.latitude != null &&
+      beneficiaryStudent?.longitude != null &&
+      Number.isFinite(Number(beneficiaryStudent.latitude)) &&
+      Number.isFinite(Number(beneficiaryStudent.longitude))
+  );
+  const nearbyReady =
+    nearbyMode &&
+    Boolean(token) &&
+    (isStudent || isParent) &&
+    Boolean(beneficiaryStudent) &&
+    hasBeneficiaryLocation;
   const rawSort = searchParams.get("sort");
   const sort: SortOption =
     rawSort === "price_asc" || rawSort === "price_desc" || rawSort === "rating_desc"
@@ -79,10 +113,13 @@ const Lessons = () => {
     ...(Number.isFinite(educationLevelId) && { education_level_id: educationLevelId }),
     ...(Number.isFinite(subjectId) && { subject_id: subjectId }),
     ...(grade && { grade }),
-    ...(Number.isFinite(serviceAreaId) && { service_area_id: serviceAreaId }),
+    ...(!nearbyMode && Number.isFinite(serviceAreaId) && { service_area_id: serviceAreaId }),
     ...(Number.isFinite(minPrice) && { min_price: minPrice }),
     ...(Number.isFinite(maxPrice) && { max_price: maxPrice }),
+    ...(nearbyMode && { nearby: true }),
+    ...(nearbyMode && isParent && selectedStudentId && { student_id: Number(selectedStudentId) }),
     sort,
+    enabled: !nearbyMode || nearbyReady,
   });
 
   const updateFilter = (key: string, value: string) => {
@@ -94,6 +131,13 @@ const Lessons = () => {
     if (key === "delivery_mode" && value === "online") {
       next.delete("location");
       next.delete("service_area_id");
+      next.delete("nearby");
+      next.delete("student_id");
+    }
+
+    if (key === "service_area_id" && value) {
+      next.delete("nearby");
+      next.delete("student_id");
     }
 
     if (key === "education_level_id" && value) {
@@ -126,6 +170,29 @@ const Lessons = () => {
     setSearchParams(next);
   };
 
+  const setNearbyMode = (enabled: boolean) => {
+    const next = new URLSearchParams(searchParams);
+
+    if (!enabled) {
+      next.delete("nearby");
+      next.delete("student_id");
+      setSearchParams(next);
+      return;
+    }
+
+    next.set("nearby", "1");
+    next.set("delivery_mode", "offline");
+    next.delete("service_area_id");
+
+    if (isParent && selectedStudentId) {
+      next.set("student_id", selectedStudentId);
+    } else {
+      next.delete("student_id");
+    }
+
+    setSearchParams(next);
+  };
+
   const activeFilterCount = [
     deliveryMode,
     bookingType,
@@ -135,6 +202,7 @@ const Lessons = () => {
     serviceAreaIdValue,
     minPriceDraft,
     maxPriceDraft,
+    nearbyMode ? "nearby" : "",
     sort !== "latest" ? sort : "",
   ].filter(Boolean).length;
 
@@ -186,6 +254,13 @@ const Lessons = () => {
             )?.name ?? serviceAreaIdValue,
         }
       : null,
+    nearbyMode
+      ? {
+          key: "nearby",
+          label: copy.locationMode,
+          value: copy.nearMe,
+        }
+      : null,
     minPriceDraft
       ? { key: "min_price", label: copy.minPrice, value: minPriceDraft }
       : null,
@@ -207,6 +282,10 @@ const Lessons = () => {
   ].filter(Boolean) as Array<{ key: string; label: string; value: string }>;
 
   const clearFilterChip = (key: string) => {
+    if (key === "nearby") {
+      setNearbyMode(false);
+      return;
+    }
     if (key === "grade") setGradeDraft("");
     if (key === "min_price") setMinPriceDraft("");
     if (key === "max_price") setMaxPriceDraft("");
@@ -280,6 +359,86 @@ const Lessons = () => {
                 >
                   {copy.clearFilters}
                 </button>
+              </div>
+
+
+              <div className="sm:col-span-2 lg:col-span-4 rounded-2xl border border-main/15 bg-white p-4 shadow-sm">
+                <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-main/10 text-main">
+                      <Navigation className="h-5 w-5" aria-hidden="true" />
+                    </span>
+                    <div className="min-w-0">
+                      <p className="text-sm font-extrabold text-black-blue">{copy.locationMode}</p>
+                      <p className="mt-1 text-xs leading-5 text-black-blue/50">{copy.nearMe}</p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    {isParent ? (
+                      <label className="min-w-0 sm:min-w-[230px]">
+                        <span className="sr-only">{copy.chooseStudent}</span>
+                        <select
+                          aria-label={copy.chooseStudent}
+                          value={selectedStudentId}
+                          onChange={(event) => {
+                            const next = new URLSearchParams(searchParams);
+                            const value = event.target.value;
+                            if (value) next.set("student_id", value);
+                            else next.delete("student_id");
+                            if (nearbyMode) next.set("nearby", "1");
+                            setSearchParams(next);
+                          }}
+                          className="h-11 w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-sm"
+                        >
+                          <option value="">{copy.chooseStudent}</option>
+                          {linkedStudents.map((student) => (
+                            <option key={student.id} value={student.id}>{student.name}</option>
+                          ))}
+                        </select>
+                      </label>
+                    ) : null}
+
+                    <button
+                      type="button"
+                      aria-pressed={nearbyMode}
+                      onClick={() => setNearbyMode(!nearbyMode)}
+                      disabled={
+                        !token ||
+                        (!isStudent && !isParent) ||
+                        (isParent && !selectedStudentId) ||
+                        !hasBeneficiaryLocation
+                      }
+                      className={
+                        nearbyMode
+                          ? "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-main px-4 py-2.5 text-sm font-extrabold text-white shadow-sm"
+                          : "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-main/25 bg-main/5 px-4 py-2.5 text-sm font-extrabold text-main transition hover:bg-main/10 disabled:cursor-not-allowed disabled:opacity-50"
+                      }
+                    >
+                      <Navigation className="h-4 w-4" aria-hidden="true" />
+                      {copy.nearMe}
+                    </button>
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  {!token || (!isStudent && !isParent) ? (
+                    <p className="text-xs font-semibold leading-5 text-black-blue/50">{copy.loginForNearby}</p>
+                  ) : isParent && !selectedStudentId ? (
+                    <p className="text-xs font-semibold leading-5 text-amber-700">{copy.chooseStudentForNearby}</p>
+                  ) : !hasBeneficiaryLocation ? (
+                    <div className="flex flex-col gap-2 text-xs font-semibold leading-5 text-amber-700 sm:flex-row sm:items-center sm:justify-between">
+                      <span>{copy.locationMissing}</span>
+                      <Link to="/profile" className="w-fit rounded-lg bg-white px-3 py-2 font-extrabold text-main shadow-sm hover:bg-main/5">
+                        {language === "ar" ? "فتح الملف الشخصي" : "Open profile"}
+                      </Link>
+                    </div>
+                  ) : (
+                    <p className="text-xs font-semibold leading-5 text-emerald-700">
+                      {nearbyMode ? copy.nearbyActive : copy.usingSavedLocation}
+                    </p>
+                  )}
+                </div>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -445,7 +604,7 @@ const Lessons = () => {
             </div>
           </details>
 
-          {!isLoading && !isError ? (
+          {!nearbyMode && !isLoading && !isError ? (
             <div className="mb-5 flex items-center justify-between gap-3 text-sm font-semibold text-black-blue/60">
               <span>
                 {lessons?.data.length ?? 0} {copy.resultsShown}
@@ -453,7 +612,25 @@ const Lessons = () => {
             </div>
           ) : null}
 
-          {isLoading ? (
+          {nearbyMode && !nearbyReady ? (
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 px-5 py-6 text-center" role="alert">
+              <p className="font-sora text-base font-bold text-amber-900">
+                {!token || (!isStudent && !isParent)
+                  ? copy.loginForNearby
+                  : isParent && !selectedStudentId
+                    ? copy.chooseStudentForNearby
+                    : copy.locationMissing}
+              </p>
+              {token && (isStudent || isParent) && hasBeneficiaryLocation === false ? (
+                <Link
+                  to="/profile"
+                  className="mt-3 inline-flex rounded-xl bg-main px-4 py-2.5 text-sm font-extrabold text-white"
+                >
+                  {language === "ar" ? "فتح الملف الشخصي" : "Open profile"}
+                </Link>
+              ) : null}
+            </div>
+          ) : isLoading ? (
             <div className="py-10" role="status" aria-live="polite">
               <Loader size={40} className="mx-auto animate-spin" aria-hidden="true" />
               <span className="sr-only">{copy.loading}</span>

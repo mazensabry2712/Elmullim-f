@@ -16,12 +16,15 @@ export const useGetLessonFilterOptions = () =>
     queryFn: getLessonFilterOptions,
   });
 
-export const useGetLessons = (filters: ILessonFilters & { token?: string }) => {
-  const { token, ...queryFilters } = filters;
+export const useGetLessons = (
+  filters: ILessonFilters & { token?: string; enabled?: boolean }
+) => {
+  const { token, enabled = true, ...queryFilters } = filters;
 
   return useQuery({
     queryKey: [QueryKeys.LESSONS, queryFilters],
     queryFn: () => getAllLessons({ ...queryFilters, token }),
+    enabled,
   });
 };
 

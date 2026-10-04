@@ -56,6 +56,10 @@ export interface ILesson {
   operational_status?: LessonOperationalStatus;
   is_bookable?: boolean;
   seats_remaining?: number | null;
+  location_match?: {
+    eligible: boolean;
+    distance_km: number;
+  } | null;
   bookings_count?: number;
   active_bookings_count?: number;
   availability?: ILessonAvailabilitySlot[];

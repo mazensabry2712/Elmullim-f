@@ -162,10 +162,10 @@ const Schedule = () => {
       <div className="container">
         <div className="mb-8">
           <h1 className="text-3xl md:text-5xl font-bold text-black-blue">
-            {isTeacher ? copy.teacherTitle : copy.studentTitle}
+            {isTeacher ? copy.teacherTitle : isParent ? copy.parentTitle : copy.studentTitle}
           </h1>
           <p className="mt-3 font-sora text-[#4D5756]">
-            {isTeacher ? copy.teacherDescription : copy.studentDescription}
+            {isTeacher ? copy.teacherDescription : isParent ? copy.parentDescription : copy.studentDescription}
           </p>
         </div>
 

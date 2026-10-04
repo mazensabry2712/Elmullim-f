@@ -257,6 +257,12 @@ describe("Schedule", () => {
     expect(screen.getAllByRole("button", { name: "Rate student" })).toHaveLength(1);
   });
 
+  it("shows a parent the children schedule heading", () => {
+    mocks.role = "parent";
+    render(<I18nProvider><Schedule /></I18nProvider>);
+    expect(screen.getByRole("heading", { name: "My Children’s Schedule" })).toBeInTheDocument();
+  });
+
   it("renders the student schedule in Arabic", () => {
     localStorage.setItem("elmullim-language", "ar");
     render(<I18nProvider><Schedule /></I18nProvider>);

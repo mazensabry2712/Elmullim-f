@@ -271,62 +271,57 @@ const BookLessonDialog = ({
       return [];
     }
 
-    const explicitDates = slots.filter((slot) => slot.available_on);
+    const now = new Date();
+    const dates = new Map<string, { value: string; timezone: string }>();
 
-    if (explicitDates.length > 0) {
-      const now = new Date();
-      const dates = new Map<string, { value: string; timezone: string }>();
+    // One-off dates are exact calendar dates and must always remain available
+    // alongside recurring weekly rules.
+    for (const slot of slots) {
+      if (!slot.available_on) {
+        continue;
+      }
 
-      for (const slot of explicitDates) {
-        const value = slot.available_on as string;
-        const todayInSlotTimezone = getCalendarDateInTimezone(
-          now,
+      const value = slot.available_on;
+      const todayInSlotTimezone = getCalendarDateInTimezone(now, slot.timezone);
+
+      if (!todayInSlotTimezone || value < todayInSlotTimezone) {
+        continue;
+      }
+
+      if (endsAt) {
+        const lessonEndDate = getCalendarDateInTimezone(
+          new Date(endsAt),
           slot.timezone
         );
 
-        if (!todayInSlotTimezone || value < todayInSlotTimezone) {
+        if (lessonEndDate && value > lessonEndDate) {
           continue;
-        }
-
-        if (endsAt) {
-          const lessonEndDate = getCalendarDateInTimezone(
-            new Date(endsAt),
-            slot.timezone
-          );
-
-          if (lessonEndDate && value > lessonEndDate) {
-            continue;
-          }
-        }
-
-        if (!dates.has(value)) {
-          dates.set(value, {
-            value,
-            timezone: slot.timezone,
-          });
         }
       }
 
-      return Array.from(dates.values()).sort((a, b) =>
-        a.value.localeCompare(b.value)
-      );
+      if (!dates.has(value)) {
+        dates.set(value, {
+          value,
+          timezone: slot.timezone,
+        });
+      }
     }
 
-    // Legacy availability: keep existing weekly slots functional until the
-    // teacher saves them in the new date-specific format.
-    const now = new Date();
+    // Weekly recurring rules generate concrete dates for the next year.
+    // This intentionally runs even when one-off dates exist, because the
+    // backend supports both schedule types simultaneously.
     const start = new Date(
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12)
     );
-    const dates = new Map<string, { value: string; timezone: string }>();
 
     for (let offset = 0; offset < 366; offset += 1) {
       const instant = new Date(start.getTime() + offset * 24 * 60 * 60 * 1000);
 
       for (const slot of slots) {
         if (
+          slot.available_on ||
           getIsoWeekdayInTimezone(instant, slot.timezone) !==
-          Number(slot.day_of_week)
+            Number(slot.day_of_week)
         ) {
           continue;
         }

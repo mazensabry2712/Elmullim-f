@@ -32,7 +32,10 @@ const requiredPositiveInteger = (english: string, arabic: string) =>
   z.preprocess(
     normalizeNumberInput,
     z
-      .number({ message: validationMessage(english, arabic) })
+      .number({
+        required_error: validationMessage(english, arabic),
+        invalid_type_error: validationMessage(english, arabic),
+      })
       .int({ message: validationMessage(english, arabic) })
       .min(1, { message: validationMessage(english, arabic) })
   );
@@ -91,7 +94,10 @@ const availabilitySlotSchema = z.object({
   day_of_week: z.preprocess(
     normalizeNumberInput,
     z
-      .number({ message: validationMessage("day of week is required", "يوم الأسبوع مطلوب") })
+      .number({
+        required_error: validationMessage("day of week is required", "يوم الأسبوع مطلوب"),
+        invalid_type_error: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح"),
+      })
       .int({ message: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح") })
       .min(1, { message: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح") })
       .max(7, { message: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح") })

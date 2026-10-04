@@ -305,7 +305,7 @@ const copy = {
       fawryPayment: "فوري / كشك",
       fawryPaymentDescription: "استخدم مرجع فوري أو ادفع من الكشك.",
       walletPayment: "المحافظ الإلكترونية",
-      walletPaymentDescription: "ادفع مباشرة من محفظتك الإلكترونية."
+      walletPaymentDescription: "ادفع مباشرة من محفظتك الإلكترونية.",
       confirmFree: "تأكيد الحجز المجاني",
       confirmRequest: "إرسال طلب الحجز",
       chooseDateHint: "اختر التاريخ لتظهر لك المواعيد التي حددها المعلم لذلك اليوم.",

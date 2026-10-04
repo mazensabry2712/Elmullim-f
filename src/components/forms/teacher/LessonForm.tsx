@@ -230,6 +230,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     fields: availabilityFields,
     append,
     remove,
+    replace,
   } = useFieldArray({
     control: form.control,
     name: "availability",
@@ -538,11 +539,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       timezone: row.timezone,
     }));
 
-    form.setValue("availability", [...recurringSlots, ...customSlots], {
-      shouldDirty: true,
-      shouldTouch: true,
-      shouldValidate: true,
-    });
+    replace([...recurringSlots, ...customSlots]);
+    void form.trigger("availability");
   };
 
   const toggleWeeklyDay = (day: number) => {

@@ -88,12 +88,14 @@ const availabilitySlotSchema = z.object({
     })
     .optional()
     .or(z.literal("")),
-  day_of_week: requiredPositiveInteger(
-    "day of week is required",
-    "يوم الأسبوع مطلوب"
-  ).max(7, {
-    message: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح"),
-  }),
+  day_of_week: z.preprocess(
+    normalizeNumberInput,
+    z
+      .number({ message: validationMessage("day of week is required", "يوم الأسبوع مطلوب") })
+      .int({ message: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح") })
+      .min(1, { message: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح") })
+      .max(7, { message: validationMessage("day of week is invalid", "يوم الأسبوع غير صحيح") })
+  ),
   start_time: timeOnly("start time is invalid", "وقت البداية غير صحيح"),
   end_time: timeOnly("end time is invalid", "وقت النهاية غير صحيح"),
   timezone: requiredText("timezone is required", "المنطقة الزمنية مطلوبة"),

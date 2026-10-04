@@ -602,7 +602,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
     customAvailabilityEntries.forEach(({ index }) => {
       form.setValue(
-        "availability." + index + ".meeting_url",
+        `availability.${index}.meeting_url` as `availability.${number}.meeting_url`,
         source.trim(),
         {
           shouldDirty: true,
@@ -1647,7 +1647,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                             <Input
                               type="time"
                               {...form.register(
-                                "availability." + index + ".start_time"
+                                `availability.${index}.start_time` as `availability.${number}.start_time`
                               )}
                               className={commonInput + " mt-2 h-11 rounded-xl"}
                             />
@@ -1659,7 +1659,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                             <Input
                               type="time"
                               {...form.register(
-                                "availability." + index + ".end_time"
+                                `availability.${index}.end_time` as `availability.${number}.end_time`
                               )}
                               className={commonInput + " mt-2 h-11 rounded-xl"}
                             />
@@ -1693,7 +1693,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                             ) : (
                               <select
                                 {...form.register(
-                                  "availability." + index + ".timezone"
+                                  `availability.${index}.timezone` as `availability.${number}.timezone`
                                 )}
                                 className={commonInput + " mt-2 block h-11 w-full rounded-xl px-3"}
                               >

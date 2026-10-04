@@ -11,7 +11,6 @@ import {
   updateTeacherLesson,
 } from "@/services/teacher/lessons";
 import { ICreateLesson, IUpdateLesson } from "@/interfaces/teachers/teacherLessons";
-import { ITeacherLessonsRes } from "@/interfaces/lessons/lesson";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetTeacherLessons = (token: string, enabled = true) =>
@@ -92,35 +91,7 @@ export const usePublishTeacherLesson = () => {
   return useMutation({
     mutationFn: ({ token, id }: { token: string; id: number }) =>
       publishTeacherLesson({ token, id }),
-    onSuccess: (response, variables) => {
-      queryClient.setQueryData([QueryKeys.TEACHER_LESSONS], (cached: ITeacherLessonsRes | undefined) => {
-        if (!cached?.data || !response.data) {
-          return cached;
-        }
-
-        return {
-          ...cached,
-          data: cached.data.map((item) =>
-            item.id === variables.id
-              ? {
-                  ...item,
-                  ...response.data,
-                  id: item.id,
-                  availability_count: item.availability_count,
-                  service_area_count: item.service_area_count,
-                  bookings_count: item.bookings_count,
-                  active_bookings_count: item.active_bookings_count,
-                }
-              : item
-          ),
-        };
-      });
-
-      queryClient.setQueryData(
-        [QueryKeys.TEACHER_LESSON, String(variables.id)],
-        response
-      );
-
+    onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS] });
       void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_LESSONS, "summary"] });
       void queryClient.invalidateQueries({

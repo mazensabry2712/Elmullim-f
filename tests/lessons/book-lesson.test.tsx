@@ -162,7 +162,7 @@ describe("BookLessonDialog", () => {
     const timeButton = await screen.findByRole("button", { name: /18:00/ });
     expect(timeButton).toBeInTheDocument();
     fireEvent.click(timeButton);
-    fireEvent.click(screen.getByRole("button", { name: "Continue to payment" }));
+    fireEvent.click(screen.getByRole("button", { name: "Send booking request" }));
 
     await waitFor(() =>
       expect(mocks.mutateAsync).toHaveBeenCalledWith({
@@ -174,6 +174,8 @@ describe("BookLessonDialog", () => {
         },
       })
     );
+
+    expect(mocks.initiatePayment).not.toHaveBeenCalled();
   });
 
   it("loads linked students and submits the selected child for a parent", async () => {

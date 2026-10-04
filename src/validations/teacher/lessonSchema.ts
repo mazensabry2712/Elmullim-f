@@ -23,6 +23,14 @@ const timeOnly = (english: string, arabic: string) =>
   });
 
 const availabilitySlotSchema = z.object({
+  available_on: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, {
+      message: validationMessage(
+        "availability date is required",
+        "تاريخ الإتاحة مطلوب"
+      ),
+    }),
   day_of_week: z.coerce.number().int().min(1).max(7),
   start_time: timeOnly("start time is invalid", "وقت البداية غير صحيح"),
   end_time: timeOnly("end time is invalid", "وقت النهاية غير صحيح"),
@@ -185,6 +193,49 @@ export const lessonSchema = z
     }
 
     data.availability.forEach((slot, index) => {
+      const availableDate = new Date(slot.available_on + "T00:00:00Z");
+
+      if (Number.isNaN(availableDate.getTime())) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["availability", index, "available_on"],
+          message: validationMessage(
+            "availability date is invalid",
+            "تاريخ الإتاحة غير صحيح"
+          ),
+        });
+      } else {
+        const today = new Date();
+        const todayStart = Date.UTC(
+          today.getUTCFullYear(),
+          today.getUTCMonth(),
+          today.getUTCDate()
+        );
+
+        if (availableDate.getTime() < todayStart) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["availability", index, "available_on"],
+            message: validationMessage(
+              "availability date must be today or later",
+              "تاريخ الإتاحة يجب أن يكون اليوم أو بعده"
+            ),
+          });
+        }
+
+        const derivedDay = ((availableDate.getUTCDay() + 6) % 7) + 1;
+        if (derivedDay !== Number(slot.day_of_week)) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["availability", index, "day_of_week"],
+            message: validationMessage(
+              "availability day does not match the selected date",
+              "يوم الإتاحة لا يطابق التاريخ المحدد"
+            ),
+          });
+        }
+      }
+
       if (slot.start_time >= slot.end_time) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
@@ -211,7 +262,7 @@ export const lessonSchema = z
 
       data.availability.forEach((other, otherIndex) => {
         if (index >= otherIndex) return;
-        if (slot.day_of_week !== other.day_of_week || slot.timezone !== other.timezone) return;
+        if (slot.available_on !== other.available_on || slot.timezone !== other.timezone) return;
         if (slot.start_time < other.end_time && slot.end_time > other.start_time) {
           ctx.addIssue({
             code: z.ZodIssueCode.custom,

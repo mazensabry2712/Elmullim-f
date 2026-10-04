@@ -36,7 +36,7 @@ import {
   Wand2,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { useFieldArray, useForm, useWatch } from "react-hook-form";
+import { FieldErrors, useFieldArray, useForm, useWatch } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
@@ -659,6 +659,35 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     );
   };
 
+  const handleInvalidSubmit = (errors: FieldErrors<LessonFormValues>) => {
+    console.error("Lesson publish blocked by client validation:", errors);
+
+    const findFirstMessage = (value: unknown): string | null => {
+      if (!value || typeof value !== "object") return null;
+
+      const record = value as Record<string, unknown>;
+      if (typeof record.message === "string" && record.message.trim()) {
+        return record.message;
+      }
+
+      for (const nested of Object.values(record)) {
+        const message = findFirstMessage(nested);
+        if (message) return message;
+      }
+
+      return null;
+    };
+
+    toast.error(
+      findFirstMessage(errors) ||
+        label(
+          "Complete the highlighted fields before publishing the lesson.",
+          "أكمل الحقول الموضحة قبل نشر الدرس."
+        ),
+      { autoClose: 6000 }
+    );
+  };
+
   const submit = async (values: LessonFormValues) => {
     try {
       if (!file && action === "create") {
@@ -773,7 +802,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
 
   return (
     <form
-      onSubmit={form.handleSubmit(submit)}
+      onSubmit={form.handleSubmit(submit, handleInvalidSubmit)}
       className="space-y-6"
       noValidate
     >

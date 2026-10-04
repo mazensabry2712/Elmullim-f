@@ -692,7 +692,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     );
   };
 
-  const handleInvalidSubmit = (errors: FieldErrors<LessonFormValues>) => {
+  const handleInvalidSubmit = (errors: FieldErrors<LessonFormInput>) => {
     console.error("Lesson publish blocked by client validation:", errors);
 
     const findFirstMessage = (value: unknown): string | null => {

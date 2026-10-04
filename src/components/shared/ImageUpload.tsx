@@ -135,16 +135,7 @@ const ImageUpload = ({ title, file, setFile, existingUrl }: IProps) => {
             </Dropzone>
           </>
         ) : (
-          <Dropzone
-            onDrop={(acceptedFiles) => {
-              const nextFile = acceptedFiles[0];
-              if (nextFile) setFile(nextFile);
-            }}
-            accept={{
-              "image/png": [".png", ".jpg", ".jpeg", ".webp"],
-            }}
-            maxFiles={1}
-          >
+          <Dropzone {...dropzoneProps}>
             {({
               getRootProps,
               getInputProps,

@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { ImageIcon, XCircleIcon } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import Dropzone from "react-dropzone";
 import { useI18n } from "@/i18n";
 
@@ -42,7 +42,37 @@ interface IProps {
 }
 const ImageUpload = ({ title, file, setFile, existingUrl }: IProps) => {
   const { language } = useI18n();
+  const [rejectionMessage, setRejectionMessage] = useState<string | null>(null);
   const removeImageLabel = language === "ar" ? "حذف الصورة" : "Remove image";
+  const handleAcceptedFile = (acceptedFiles: File[]) => {
+    const nextFile = acceptedFiles[0];
+
+    if (nextFile) {
+      setRejectionMessage(null);
+      setFile(nextFile);
+    }
+  };
+
+  const handleRejectedFile = () => {
+    setRejectionMessage(
+      language === "ar"
+        ? "الصورة يجب أن تكون PNG أو JPG أو JPEG أو WEBP أو SVG وبحجم لا يتجاوز 15 ميجابايت."
+        : "Use PNG, JPG, JPEG, WEBP or SVG, up to 15 MB."
+    );
+  };
+
+  const dropzoneProps = {
+    accept: {
+      "image/png": [".png"],
+      "image/jpeg": [".jpg", ".jpeg"],
+      "image/webp": [".webp"],
+      "image/svg+xml": [".svg"],
+    },
+    maxSize: 15_000_000,
+    maxFiles: 1,
+    onDrop: handleAcceptedFile,
+    onDropRejected: handleRejectedFile,
+  };
   const dragDropLabel = language === "ar" ? "اسحب الصورة وأفلتها" : "Drag and Drop";
   const imageTitle = title ?? (language === "ar" ? "الصورة" : "Image");
 
@@ -71,17 +101,7 @@ const ImageUpload = ({ title, file, setFile, existingUrl }: IProps) => {
               />
             </div>
             <Dropzone
-              onDrop={(acceptedFiles) => {
-                const nextFile = acceptedFiles[0];
-                if (nextFile) setFile(nextFile);
-              }}
-              accept={{
-                "image/png": [".png"],
-                "image/jpeg": [".jpg", ".jpeg"],
-                "image/webp": [".webp"],
-                "image/svg+xml": [".svg"],
-              }}
-              maxFiles={1}
+              {...dropzoneProps}
             >
               {({
                 getRootProps,
@@ -153,6 +173,11 @@ const ImageUpload = ({ title, file, setFile, existingUrl }: IProps) => {
           </Dropzone>
         )}
       </div>
+      {rejectionMessage ? (
+        <p className="mt-2 text-xs font-semibold text-red-600" role="alert">
+          {rejectionMessage}
+        </p>
+      ) : null}
     </div>
   );
 };

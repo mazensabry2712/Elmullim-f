@@ -331,6 +331,7 @@ const LessonDetails = () => {
                           price={lessonData.price}
                           durationMinutes={lessonData.duration_minutes ?? 60}
                           language={language}
+                            endsAt={lessonData.ends_at}
                         />
                       ) : bookingEnabled && role !== "teacher" ? (
                         <Link
@@ -598,6 +599,7 @@ const LessonDetails = () => {
                             price={lessonData.price}
                             durationMinutes={lessonData.duration_minutes ?? 60}
                             language={language}
+                            endsAt={lessonData.ends_at}
                           />
                         </div>
                       ) : bookingEnabled && role !== "teacher" ? (
@@ -660,6 +662,7 @@ const LessonDetails = () => {
                     price={lessonData.price}
                     durationMinutes={lessonData.duration_minutes ?? 60}
                     language={language}
+                            endsAt={lessonData.ends_at}
                   />
                 ) : (
                   <Link

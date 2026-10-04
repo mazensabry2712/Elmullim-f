@@ -11,6 +11,7 @@ import {
   updateTeacherLesson,
 } from "@/services/teacher/lessons";
 import { ICreateLesson, IUpdateLesson } from "@/interfaces/teachers/teacherLessons";
+import { ITeacherLessonsRes } from "@/interfaces/lessons/lesson";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetTeacherLessons = (token: string, enabled = true) =>

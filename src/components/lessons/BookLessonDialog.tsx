@@ -279,8 +279,12 @@ const BookLessonDialog = ({
 
       for (const slot of explicitDates) {
         const value = slot.available_on as string;
-        const slotDate = new Date(value + "T23:59:59");
-        if (Number.isNaN(slotDate.getTime()) || slotDate.getTime() < now.getTime()) {
+        const todayInSlotTimezone = getCalendarDateInTimezone(
+          now,
+          slot.timezone
+        );
+
+        if (!todayInSlotTimezone || value < todayInSlotTimezone) {
           continue;
         }
 

@@ -10,6 +10,7 @@ export interface ILessonBookingOption {
 export interface ILessonAvailabilitySlot {
   id: number;
   lesson_id?: number;
+  available_on?: string | null;
   day_of_week: number;
   start_time: string;
   end_time: string;
@@ -48,6 +49,7 @@ export interface ITeacherAvailabilityBlocksRes {
 }
 
 export interface ICreateLessonAvailabilitySlot {
+  available_on?: string;
   day_of_week: number;
   start_time: string;
   end_time: string;

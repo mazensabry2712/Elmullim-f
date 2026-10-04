@@ -1,10 +1,10 @@
-import { useState } from "react";
 import { Link } from "react-router-dom";
 import { EyeOff, Loader2, RotateCcw, UploadCloud } from "lucide-react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { ITeacherLessonListItem } from "@/interfaces/lessons/lesson";
 import {
+  usePublishTeacherLesson,
   useResubmitTeacherLesson,
   useUnpublishTeacherLesson,
 } from "@/lib/react-query/teacher/lessons";
@@ -20,56 +20,83 @@ interface Props {
 const LessonStatusActions = ({ lesson, compact = false }: Props) => {
   const { language } = useI18n();
   const isArabic = language === "ar";
-  const [isWorking, setIsWorking] = useState(false);
+  const publishMutation = usePublishTeacherLesson();
   const resubmitMutation = useResubmitTeacherLesson();
   const unpublishMutation = useUnpublishTeacherLesson();
+  const isWorking =
+    publishMutation.isPending ||
+    resubmitMutation.isPending ||
+    unpublishMutation.isPending;
 
   const text = isArabic
     ? {
-        resubmit: lesson.publishing_status === "rejected" ? "إعادة الإرسال للمراجعة" : "إرسال للمراجعة",
+        publish: "نشر الدرس",
+        resubmit: "إعادة الإرسال للمراجعة",
+        pending: "قيد المراجعة",
+        pendingDescription: "تم إرسال الدرس للمراجعة. سيظهر للطلاب بعد اعتماد الإدارة.",
         unpublish: "إلغاء نشر الدرس",
         unpublishTitle: "إلغاء نشر الدرس؟",
         unpublishDescription: "سيختفي الدرس من البحث العام ولن يمكن للطلاب حجزه. لا يمكن تنفيذ ذلك مع وجود حجوزات نشطة.",
         cancel: "إلغاء",
         confirm: "إلغاء النشر",
         successResubmit: "تم إرسال الدرس للمراجعة.",
-        reopen: "إدارة وإعادة فتح",
+        manage: "إدارة الدرس",
         closedFull: "مكتمل السعة",
         closedExpired: "انتهت فترة الحجز",
         closedEnded: "انتهى الدرس",
         successUnpublish: "تم إلغاء نشر الدرس.",
       }
     : {
-        resubmit: lesson.publishing_status === "rejected" ? "Resubmit for review" : "Submit for review",
+        publish: "Publish lesson",
+        resubmit: "Resubmit for review",
+        pending: "Pending review",
+        pendingDescription: "This lesson is under review and will appear to students after approval.",
         unpublish: "Unpublish lesson",
         unpublishTitle: "Unpublish this lesson?",
         unpublishDescription: "The lesson will disappear from public discovery and new students will not be able to book it. Active bookings prevent unpublishing.",
         cancel: "Cancel",
         confirm: "Unpublish",
         successResubmit: "Lesson submitted for review.",
-        reopen: "Manage and reopen",
+        manage: "Manage lesson",
         closedFull: "Full capacity",
         closedExpired: "Booking period ended",
         closedEnded: "Lesson ended",
         successUnpublish: "Lesson unpublished successfully.",
       };
 
+  const publish = async () => {
+    try {
+      const response = await publishMutation.mutateAsync({
+        token: cookieService.getToken() || "",
+        id: lesson.id,
+      });
+
+      if (!response.status) {
+        toast.error(response.message || text.publish);
+        return;
+      }
+
+      toast.success(response.message || text.publish);
+    } catch (error) {
+      handleResError(error);
+    }
+  };
+
   const resubmit = async () => {
-    setIsWorking(true);
     try {
       const response = await resubmitMutation.mutateAsync({
         token: cookieService.getToken() || "",
         id: lesson.id,
       });
+
       if (!response.status) {
-        toast.error(response.message || text.successResubmit);
+        toast.error(response.message || text.resubmit);
         return;
       }
-      toast.success(response.message || text.successResubmit);
+
+      toast.success(response.message || text.resubmit);
     } catch (error) {
       handleResError(error);
-    } finally {
-      setIsWorking(false);
     }
   };
 
@@ -86,7 +113,6 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
 
     if (!result.isConfirmed) return;
 
-    setIsWorking(true);
     try {
       const response = await unpublishMutation.mutateAsync({
         token: cookieService.getToken() || "",
@@ -99,18 +125,34 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
       toast.success(response.message || text.successUnpublish);
     } catch (error) {
       handleResError(error);
-    } finally {
-      setIsWorking(false);
     }
   };
 
   const visible =
     lesson.publishing_status === "published" ||
+    lesson.publishing_status === "pending_approval" ||
     lesson.publishing_status === "rejected" ||
     lesson.publishing_status === "draft" ||
     lesson.publishing_status === "unpublished";
 
   if (!visible) return null;
+
+  if (lesson.publishing_status === "pending_approval") {
+    return (
+      <div
+        className={
+          compact
+            ? "w-full rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-center"
+            : "rounded-xl border border-amber-200 bg-amber-50 px-4 py-2.5 text-center"
+        }
+      >
+        <p className="text-sm font-extrabold text-amber-700">{text.pending}</p>
+        <p className="mt-1 text-[11px] font-semibold leading-5 text-amber-700/70">
+          {text.pendingDescription}
+        </p>
+      </div>
+    );
+  }
 
   if (lesson.publishing_status === "published") {
     const closedOperational =
@@ -138,7 +180,7 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
             to={`/profile/my-lessons/${lesson.id}/update`}
             className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-main/20 bg-main/[0.06] px-4 py-2.5 text-sm font-bold text-main transition hover:bg-main/[0.1]"
           >
-            {text.reopen}
+            {text.manage}
           </Link>
         </div>
       );
@@ -160,15 +202,29 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
     );
   }
 
+  if (lesson.publishing_status === "rejected") {
+    return (
+      <button
+        type="button"
+        onClick={() => void resubmit()}
+        disabled={isWorking}
+        className={`inline-flex items-center justify-center gap-2 rounded-xl border border-main/20 bg-main/[0.06] px-4 py-2.5 text-sm font-bold text-main transition hover:bg-main/[0.1] disabled:cursor-not-allowed disabled:opacity-60 ${compact ? "w-full" : ""}`}
+      >
+        {isWorking ? <Loader2 className="h-4 w-4 animate-spin" /> : <RotateCcw className="h-4 w-4" />}
+        {text.resubmit}
+      </button>
+    );
+  }
+
   return (
     <button
       type="button"
-      onClick={() => void resubmit()}
+      onClick={() => void publish()}
       disabled={isWorking}
-      className={`inline-flex items-center justify-center gap-2 rounded-xl border border-main/20 bg-main/[0.06] px-4 py-2.5 text-sm font-bold text-main transition hover:bg-main/[0.1] disabled:cursor-not-allowed disabled:opacity-60 ${compact ? "w-full" : ""}`}
+      className={`inline-flex items-center justify-center gap-2 rounded-xl bg-main px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60 ${compact ? "w-full" : ""}`}
     >
-      {isWorking ? <Loader2 className="h-4 w-4 animate-spin" /> : lesson.publishing_status === "rejected" ? <RotateCcw className="h-4 w-4" /> : <UploadCloud className="h-4 w-4" />}
-      {text.resubmit}
+      {isWorking ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
+      {text.publish}
     </button>
   );
 };

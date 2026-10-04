@@ -23,6 +23,7 @@ describe("lesson slot meeting links", () => {
       ...baseLesson,
       availability: [
         {
+          available_on: "2099-01-10",
           day_of_week: 6,
           start_time: "18:00",
           end_time: "19:00",
@@ -30,6 +31,7 @@ describe("lesson slot meeting links", () => {
           meeting_url: "https://meet.example.test/one",
         },
         {
+          available_on: "2099-01-11",
           day_of_week: 2,
           start_time: "18:00",
           end_time: "19:00",

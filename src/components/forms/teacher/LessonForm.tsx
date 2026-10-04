@@ -20,7 +20,6 @@ import {
   CalendarDays,
   Check,
   CheckCircle2,
-  ChevronDown,
   Clock3,
   Copy,
   Globe2,
@@ -121,7 +120,6 @@ const minutesBetween = (start: string, end: string) => {
 
 const SmartLessonForm = ({ action, lesson }: IProps) => {
   const [file, setFile] = useState<File | null>(null);
-  const [showAdvancedSchedule, setShowAdvancedSchedule] = useState(false);
   const [weeklyRows, setWeeklyRows] = useState<WeeklyScheduleRow[]>(() => {
     const recurringSlots =
       lesson?.availability?.filter((slot) => !slot.available_on) || [];
@@ -590,9 +588,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   };
 
   const copyMeetingLinkToAll = (sourceIndex: number) => {
-    const source = form.getValues(
-      "availability." + sourceIndex + ".meeting_url"
-    );
+    const source = availabilityValues[sourceIndex]?.meeting_url;
 
     if (!source?.trim()) {
       toast.error(
@@ -1610,7 +1606,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                                 const value = event.target.value;
 
                                 form.setValue(
-                                  "availability." + index + ".available_on",
+                                  `availability.${index}.available_on` as `availability.${number}.available_on`,
                                   value,
                                   {
                                     shouldDirty: true,
@@ -1625,7 +1621,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                                     ((date.getUTCDay() + 6) % 7) + 1;
 
                                   form.setValue(
-                                    "availability." + index + ".day_of_week",
+                                    `availability.${index}.day_of_week` as `availability.${number}.day_of_week`,
                                     dayOfWeek,
                                     {
                                       shouldDirty: true,

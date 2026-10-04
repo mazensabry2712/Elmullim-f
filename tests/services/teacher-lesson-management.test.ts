@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import axiosAPI from "@/config/axios.config";
 import {
+  publishTeacherLesson,
   resubmitTeacherLesson,
   unpublishTeacherLesson,
 } from "@/services/teacher/lessons";
@@ -16,6 +17,24 @@ describe("teacher lesson status management API", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("publishes a draft lesson", async () => {
+    postMock.mockResolvedValueOnce({
+      data: {
+        status: true,
+        message: "Lesson published successfully.",
+        data: { publishing_status: "published" },
+      },
+    });
+
+    await publishTeacherLesson({ token: "teacher-token", id: 16 });
+
+    expect(postMock).toHaveBeenCalledWith(
+      "/teacher/lessons/16/publish",
+      {},
+      { headers: { Authorization: "Bearer teacher-token" } },
+    );
   });
 
   it("resubmits a teacher lesson for review", async () => {

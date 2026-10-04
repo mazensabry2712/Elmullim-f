@@ -271,6 +271,45 @@ const BookLessonDialog = ({
       return [];
     }
 
+    const explicitDates = slots.filter((slot) => slot.available_on);
+
+    if (explicitDates.length > 0) {
+      const now = new Date();
+      const dates = new Map<string, { value: string; timezone: string }>();
+
+      for (const slot of explicitDates) {
+        const value = slot.available_on as string;
+        const slotDate = new Date(value + "T23:59:59");
+        if (Number.isNaN(slotDate.getTime()) || slotDate.getTime() < now.getTime()) {
+          continue;
+        }
+
+        if (endsAt) {
+          const lessonEndDate = getCalendarDateInTimezone(
+            new Date(endsAt),
+            slot.timezone
+          );
+
+          if (lessonEndDate && value > lessonEndDate) {
+            continue;
+          }
+        }
+
+        if (!dates.has(value)) {
+          dates.set(value, {
+            value,
+            timezone: slot.timezone,
+          });
+        }
+      }
+
+      return Array.from(dates.values()).sort((a, b) =>
+        a.value.localeCompare(b.value)
+      );
+    }
+
+    // Legacy availability: keep existing weekly slots functional until the
+    // teacher saves them in the new date-specific format.
     const now = new Date();
     const start = new Date(
       Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), 12)

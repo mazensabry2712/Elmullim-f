@@ -65,8 +65,13 @@ describe("Lessons", () => {
             { id: 2, name: "Primary" },
           ],
           subjects: [
-            { id: 11, name: "Mathematics" },
-            { id: 12, name: "Physics" },
+            { id: 11, name: "Mathematics", education_level: { id: 1, name: "Secondary" } },
+            { id: 12, name: "Physics", education_level: { id: 2, name: "Primary" } },
+          ],
+          grades: ["Grade 10", "Grade 12"],
+          service_areas: [
+            { id: 101, name: "Cairo" },
+            { id: 102, name: "Damanhur" },
           ],
         },
       },
@@ -106,6 +111,57 @@ describe("Lessons", () => {
     expect(screen.getByRole("option", { name: "Secondary" })).toBeInTheDocument();
     expect(screen.getByRole("combobox", { name: "Subject" })).toBeInTheDocument();
     expect(screen.getByRole("option", { name: "Mathematics" })).toBeInTheDocument();
+  });
+
+  it("cascades subjects when an education stage is selected", async () => {
+    const user = userEvent.setup();
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    renderPage(<Lessons />);
+
+    const stage = screen.getByRole("combobox", { name: "Education stage" });
+    const subject = screen.getByRole("combobox", { name: "Subject" });
+
+    await user.selectOptions(stage, "1");
+
+    expect(screen.getByRole("option", { name: "Mathematics" })).toBeInTheDocument();
+    expect(screen.queryByRole("option", { name: "Physics" })).not.toBeInTheDocument();
+    expect(subject).toHaveValue("");
+  });
+
+  it("supports real service areas and sorting controls", async () => {
+    const user = userEvent.setup();
+    mockUseGetLessons.mockReturnValue({
+      data: { data: [] },
+      isLoading: false,
+      isError: false,
+      refetch: mockRefetch,
+    });
+
+    renderPage(<Lessons />);
+
+    const delivery = screen.getByRole("combobox", { name: "Delivery" });
+    await user.selectOptions(delivery, "offline");
+
+    const serviceArea = screen.getByRole("combobox", { name: "Service area" });
+    await user.selectOptions(serviceArea, "101");
+
+    const sort = screen.getByRole("combobox", { name: "Sort by" });
+    await user.selectOptions(sort, "price_asc");
+
+    expect(screen.getByRole("option", { name: "Cairo" })).toBeInTheDocument();
+    const latestCall = mockUseGetLessons.mock.calls.at(-1)?.[0] as Record<string, unknown>;
+
+    expect(latestCall).toMatchObject({
+      delivery_mode: "offline",
+      service_area_id: 101,
+      sort: "price_asc",
+    });
   });
 
   it("renders a retryable error state", async () => {

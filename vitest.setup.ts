@@ -1,4 +1,6 @@
 import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach } from "vitest";
 
 const storage = new Map<string, string>();
 
@@ -65,4 +67,11 @@ Object.defineProperty(window, "IntersectionObserver", {
 Object.defineProperty(Element.prototype, "scrollIntoView", {
   configurable: true,
   value: () => undefined,
+});
+
+afterEach(() => {
+  cleanup();
+  localStorageMock.clear();
+  document.documentElement.lang = "en";
+  document.documentElement.dir = "ltr";
 });

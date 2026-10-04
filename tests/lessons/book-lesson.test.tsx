@@ -12,6 +12,7 @@ vi.mock("react-router-dom", () => ({
 const mocks = vi.hoisted(() => ({
   role: "student" as "student" | "parent",
   mutateAsync: vi.fn(),
+  initiatePayment: vi.fn(),
   availability: vi.fn(),
   bookingOptions: vi.fn(),
   studentProfile: vi.fn(),
@@ -20,6 +21,10 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock("@/lib/react-query/booking", () => ({
   useCreateBooking: () => ({ mutateAsync: mocks.mutateAsync, isPending: false }),
+  useInitiateBookingPayment: () => ({
+    mutateAsync: mocks.initiatePayment,
+    isPending: false,
+  }),
 }));
 
 vi.mock("@/lib/react-query/lessons/lessons", () => ({
@@ -49,7 +54,13 @@ describe("BookLessonDialog", () => {
     mocks.mutateAsync.mockResolvedValue({
       status: true,
       message: "Booking created successfully.",
-      data: { status: "pending_teacher_approval" },
+      data: { id: 701, status: "pending_teacher_approval" },
+    });
+    mocks.initiatePayment.mockReset();
+    mocks.initiatePayment.mockResolvedValue({
+      status: true,
+      message: "payment initialized",
+      data: { redirect_url: "https://payment.example/checkout" },
     });
     mocks.studentProfile.mockReset();
     mocks.studentProfile.mockReturnValue({
@@ -151,7 +162,7 @@ describe("BookLessonDialog", () => {
     const timeButton = await screen.findByRole("button", { name: /18:00/ });
     expect(timeButton).toBeInTheDocument();
     fireEvent.click(timeButton);
-    fireEvent.click(screen.getByRole("button", { name: "Send booking request" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue to payment" }));
 
     await waitFor(() =>
       expect(mocks.mutateAsync).toHaveBeenCalledWith({
@@ -212,7 +223,7 @@ describe("BookLessonDialog", () => {
     fireEvent.change(screen.getByRole("combobox", { name: "Choose student" }), { target: { value: "43" } });
     fireEvent.change(screen.getByLabelText("Choose date"), { target: { value: "2099-01-11" } });
     fireEvent.click(await screen.findByRole("button", { name: /18:00/ }));
-    fireEvent.click(screen.getByRole("button", { name: "Send booking request" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue to payment" }));
 
     await waitFor(() =>
       expect(mocks.mutateAsync).toHaveBeenCalledWith({
@@ -224,6 +235,62 @@ describe("BookLessonDialog", () => {
         },
       })
     );
+
+    expect(mocks.initiatePayment).toHaveBeenCalledWith({
+      token: "test-token",
+      bookingId: 701,
+      paymentMethod: "card",
+      isParent: true,
+    });
+  });
+
+  it("sends a paid group booking into the payment flow", async () => {
+    mocks.bookingOptions.mockReturnValue({
+      isLoading: false,
+      data: {
+        status: true,
+        message: null,
+        data: [{
+          slot_id: 1,
+          local_time: "18:00",
+          requested_start_at: "2099-01-10T16:00:00.000Z",
+          available_seats: 3,
+          is_available: true,
+          timezone: "Africa/Cairo",
+        }],
+      },
+    });
+
+    const assignSpy = vi.spyOn(window.location, "assign").mockImplementation(() => undefined);
+
+    render(
+      <BookLessonDialog
+        lessonId={12}
+        bookingType="group"
+        price="500.00"
+        durationMinutes={120}
+        language="en"
+      />
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Book now" }));
+    fireEvent.change(await screen.findByLabelText("Choose date"), {
+      target: { value: "2099-01-10" },
+    });
+    fireEvent.click(await screen.findByRole("button", { name: /18:00.*3 seats available/ }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue to payment" }));
+
+    await waitFor(() =>
+      expect(mocks.initiatePayment).toHaveBeenCalledWith({
+        token: "test-token",
+        bookingId: 701,
+        paymentMethod: "card",
+        isParent: false,
+      })
+    );
+
+    expect(assignSpy).toHaveBeenCalledWith("https://payment.example/checkout");
+    assignSpy.mockRestore();
   });
 
   it("uses the saved student location for teacher-to-student offline lessons", async () => {

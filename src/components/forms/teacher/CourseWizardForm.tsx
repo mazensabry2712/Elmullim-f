@@ -640,9 +640,9 @@ const CourseWizardForm = () => {
             );
           }
 
-          contentId = getResourceId(contentResponse);
+          const createdContentId = getResourceId(contentResponse);
 
-          if (!contentId) {
+          if (!createdContentId) {
             throw new Error(
               isArabic
                 ? "تم حفظ المحتوى لكن تعذر الحصول على رقمه."
@@ -650,7 +650,8 @@ const CourseWizardForm = () => {
             );
           }
 
-          persistedContentIds.current[content.id] = contentId;
+          contentId = createdContentId;
+          persistedContentIds.current[content.id] = createdContentId;
         }
 
         for (const lecture of content.lectures) {
@@ -676,9 +677,9 @@ const CourseWizardForm = () => {
               );
             }
 
-            lectureId = getResourceId(lectureResponse);
+            const createdLectureId = getResourceId(lectureResponse);
 
-            if (!lectureId) {
+            if (!createdLectureId) {
               throw new Error(
                 isArabic
                   ? "تم حفظ المحاضرة لكن تعذر الحصول على رقمها."
@@ -686,7 +687,8 @@ const CourseWizardForm = () => {
               );
             }
 
-            persistedLectureIds.current[lecture.id] = lectureId;
+            lectureId = createdLectureId;
+            persistedLectureIds.current[lecture.id] = createdLectureId;
           }
 
           if (lecture.video && !uploadedLectureIds.current.has(lecture.id)) {

@@ -88,7 +88,6 @@ const UploadCourseVideo = ({
     });
     setCourseId(fixedCourseId?.toString() || "");
     setContentId(fixedContentId?.toString() || "");
-    setLectureId(fixedLectureId?.toString() || "");
     setProgress(0);
     setFile(null);
   };

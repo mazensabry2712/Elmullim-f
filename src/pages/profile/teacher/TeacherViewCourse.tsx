@@ -1,3 +1,5 @@
+import CreateCourseContent from "@/components/profiles/teacher/courses/CreateCourseContent";
+import CreateCourseLecture from "@/components/profiles/teacher/courses/CreateCourseLecture";
 import TeacherViewCourseContent from "@/components/profiles/teacher/courses/TeacherViewCourseContent";
 import InstructorDetails from "@/components/shared/InstructorDetails";
 import VideoPlayer from "@/components/shared/VideoPlayer";
@@ -113,6 +115,22 @@ const TeacherViewCourse = () => {
             <Loader size={40} className="mx-auto animate-spin" />
           ) : (
             <>
+              {course?.data &&
+              course.data.publishing_status !== "published" ? (
+                <div className="mb-6 flex flex-col gap-3 px-6 xl:px-16 sm:flex-row">
+                  <CreateCourseContent courseId={course.data.id}>
+                    <Button type="button" className="w-full bg-main hover:bg-main/90 sm:w-auto">
+                      {language === "ar" ? "إضافة محتوى" : "Add content"}
+                    </Button>
+                  </CreateCourseContent>
+                  <CreateCourseLecture courseId={course.data.id}>
+                    <Button type="button" className="w-full border border-main bg-white text-main hover:bg-main hover:text-white sm:w-auto">
+                      {language === "ar" ? "إضافة محاضرة" : "Add lecture"}
+                    </Button>
+                  </CreateCourseLecture>
+                </div>
+              ) : null}
+
               <div className="flex flex-col lg:flex-row px-2 md:px-6 xl:px-12">
                 <div className="flex-1">
                   <div className="flex flex-col gap-3 px-6 xl:px-16 mb-5">

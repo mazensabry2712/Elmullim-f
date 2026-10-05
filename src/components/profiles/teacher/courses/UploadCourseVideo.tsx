@@ -1,12 +1,6 @@
 import VideoUpload from "@/components/shared/VideoUpload";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormField } from "@/components/ui/form";
 import {
   useGetTeacherCourseLectures,
@@ -17,7 +11,7 @@ import {
 import cookieService from "@/utils/cookieService";
 import handleResError from "@/utils/handleResponseError";
 import { Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "react-toastify";
 import { motion } from "framer-motion";
@@ -30,20 +24,37 @@ import Swal from "sweetalert2";
 import { Progress } from "@/components/ui/progress";
 import { useI18n } from "@/i18n";
 
-const UploadCourseVideo = () => {
+interface IProps {
+  children?: ReactNode;
+  courseId?: number;
+  contentId?: number;
+  lectureId?: number;
+}
+
+const UploadCourseVideo = ({
+  children,
+  courseId: fixedCourseId,
+  contentId: fixedContentId,
+  lectureId: fixedLectureId,
+}: IProps) => {
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File | null>(null);
-  const [courseId, setCourseId] = useState("");
-  const [contentId, setContentId] = useState("");
+  const [courseId, setCourseId] = useState(fixedCourseId?.toString() || "");
+  const [contentId, setContentId] = useState(fixedContentId?.toString() || "");
+  const [lectureId, setLectureId] = useState(fixedLectureId?.toString() || "");
   const { language } = useI18n();
 
   const token = cookieService.getToken()!;
-  const { data: courses } = useGetTeacherCourses(token);
+  const { data: courses } = useGetTeacherCourses(token, !fixedCourseId);
   const coursesOptions = courses?.data.map((course) => ({
     label: course.title,
     value: course.id.toString(),
   }));
-  const { data: contents } = useGetTeacherCourseContents({ courseId, token });
+  const { data: contents } = useGetTeacherCourseContents({
+    courseId,
+    token,
+    enabled: !!courseId && !fixedContentId,
+  });
   const contentsOptions = contents?.data.map((content) => ({
     label: content.title,
     value: content.id.toString(),
@@ -52,6 +63,7 @@ const UploadCourseVideo = () => {
     contentId,
     courseId,
     token,
+    enabled: !!courseId && !!contentId && !fixedLectureId,
   });
   const lecturesOptions = lectures?.data.map((lecture) => ({
     label: lecture.title,
@@ -61,46 +73,64 @@ const UploadCourseVideo = () => {
   const { mutateAsync: uploadVideo, isPending } =
     useUploadCourseVideo(setProgress);
 
-  const form = useForm<z.infer<typeof courseVideoSchema>>();
+  const form = useForm<z.infer<typeof courseVideoSchema>>({
+    defaultValues: {
+      courseId: fixedCourseId?.toString() || "",
+      contentId: fixedContentId?.toString() || "",
+      lectureId: fixedLectureId?.toString() || "",
+    },
+  });
+
+  const resetForm = () => {
+    form.reset({
+      courseId: fixedCourseId?.toString() || "",
+      contentId: fixedContentId?.toString() || "",
+      lectureId: fixedLectureId?.toString() || "",
+    });
+    setCourseId(fixedCourseId?.toString() || "");
+    setContentId(fixedContentId?.toString() || "");
+    setLectureId(fixedLectureId?.toString() || "");
+    setProgress(0);
+    setFile(null);
+  };
 
   const onSubmit = async ({
-    contentId,
-    courseId,
-    lectureId,
+    contentId: submittedContentId,
+    courseId: submittedCourseId,
+    lectureId: submittedLectureId,
   }: z.infer<typeof courseVideoSchema>) => {
     try {
-      if (!file)
-        return toast.error(
-          language === "ar" ? "الفيديو مطلوب" : "Video is required"
-        );
+      if (!file) {
+        toast.error(language === "ar" ? "الفيديو مطلوب" : "Video is required");
+        return;
+      }
 
       const { message, status } = await uploadVideo({
         token,
         video: {
-          contentId,
-          courseId,
-          lectureId,
+          contentId: submittedContentId,
+          courseId: submittedCourseId,
+          lectureId: submittedLectureId,
           video: file,
         },
       });
 
-      if (!status)
-        return Swal.fire({
+      if (!status) {
+        await Swal.fire({
           icon: "error",
           title: language === "ar" ? "حدث خطأ" : "Oops..",
           text: message,
         });
+        return;
+      }
 
-      Swal.fire({
+      await Swal.fire({
         icon: "success",
         title: language === "ar" ? "تم بنجاح" : "Done",
         text: message,
       });
-      form.reset();
-      setCourseId("");
-      setContentId("");
-      setProgress(0);
-      setFile(null);
+
+      resetForm();
     } catch (error) {
       handleResError(error);
     }
@@ -108,63 +138,61 @@ const UploadCourseVideo = () => {
 
   useEffect(() => {
     const subscription = form.watch((value, { name }) => {
-      if (name === "courseId") {
+      if (name === "courseId" && !fixedCourseId) {
         setCourseId(value.courseId as string);
         form.setValue("contentId", "");
         form.setValue("lectureId", "");
         setContentId("");
+        setLectureId("");
       }
-      if (name === "contentId") {
+      if (name === "contentId" && !fixedContentId) {
         setContentId(value.contentId as string);
         form.setValue("lectureId", "");
+        setLectureId("");
+      }
+      if (name === "lectureId") {
+        setLectureId(value.lectureId as string);
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [form]);
+  }, [fixedContentId, fixedCourseId, form]);
 
-  return (
-    <Card>
-      <CardHeader>
-        <CardTitle>
-          {language === "ar" ? "رفع فيديو" : "Upload Video"}
-        </CardTitle>
-        <CardDescription>
-          {language === "ar" ? "رفع فيديو للمحاضرة" : "Upload video to lecture"}
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-2">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <div className="flex flex-col gap-6 xl:flex-row">
-              <div className="max-w-4xl w-full xl:w-[70%] space-y-4">
-                <VideoUpload
-                  title={
-                    language === "ar"
-                      ? "اضغط لرفع الفيديو"
-                      : "Click to upload video"
-                  }
-                  file={file}
-                  setFile={setFile}
-                />
-                {progress ? (
-                  <div className="flex items-center justify-center gap-4">
-                    <Progress value={progress} className="[&>div]:bg-main" />
-                    <p className="font-semibold flex justify-center items-center">
-                      {progress}%
-                    </p>
-                  </div>
-                ) : null}
-              </div>
+  const fields = fixedCourseId
+    ? VIDEO_INPUTS.filter((input) =>
+        fixedContentId
+          ? input.name === "lectureId"
+          : input.name !== "courseId",
+      )
+    : VIDEO_INPUTS;
+
+  const content = (
+    <CardContent className="space-y-2">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+          <div className="flex flex-col gap-6 xl:flex-row">
+            <div className="max-w-4xl w-full xl:w-[70%] space-y-4">
+              <VideoUpload
+                title={language === "ar" ? "اضغط لرفع الفيديو" : "Click to upload video"}
+                file={file}
+                setFile={setFile}
+              />
+              {progress ? (
+                <div className="flex items-center justify-center gap-4">
+                  <Progress value={progress} className="[&>div]:bg-main" />
+                  <p className="font-semibold">{progress}%</p>
+                </div>
+              ) : null}
+            </div>
+            {!!fields.length && (
               <div className="xl:w-[30%]">
                 <motion.div
                   initial="hidden"
                   animate="visible"
                   variants={containerVariants}
-                  onSubmit={form.handleSubmit(onSubmit)}
                   className="text-black-blue grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-1"
                 >
-                  {VIDEO_INPUTS.map((input) => (
+                  {fields.map((input) => (
                     <motion.div
                       variants={itemVariants}
                       key={input.name}
@@ -172,9 +200,7 @@ const UploadCourseVideo = () => {
                     >
                       <FormField
                         control={form.control}
-                        name={
-                          input.name as keyof z.infer<typeof courseVideoSchema>
-                        }
+                        name={input.name as keyof z.infer<typeof courseVideoSchema>}
                         render={({ field }) =>
                           input.name === "courseId" ? (
                             <SelectFormItem
@@ -204,17 +230,44 @@ const UploadCourseVideo = () => {
                   ))}
                 </motion.div>
               </div>
-            </div>
-            <Button
-              className="bg-main hover:bg-main/90 h-auto py-3 w-full sm:w-fit px-4"
-              disabled={isPending}
-            >
-              {language === "ar" ? "رفع الفيديو" : "Upload Video"}
-              {isPending && <Loader2 className="animate-spin" size={24} />}
-            </Button>
-          </form>
-        </Form>
-      </CardContent>
+            )}
+          </div>
+          <Button
+            className="bg-main hover:bg-main/90 h-auto py-3 w-full sm:w-fit px-4"
+            disabled={isPending}
+          >
+            {fixedCourseId
+              ? language === "ar"
+                ? "رفع فيديو للمحاضرة"
+                : "Upload lecture video"
+              : language === "ar"
+                ? "رفع الفيديو"
+                : "Upload Video"}
+            {isPending && <Loader2 className="animate-spin" size={24} />}
+          </Button>
+        </form>
+      </Form>
+    </CardContent>
+  );
+
+  if (children) {
+    return (
+      <>
+        <div className="mt-3">{children}</div>
+        {content}
+      </>
+    );
+  }
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{language === "ar" ? "رفع فيديو" : "Upload Video"}</CardTitle>
+        <CardDescription>
+          {language === "ar" ? "رفع فيديو للمحاضرة" : "Upload video to lecture"}
+        </CardDescription>
+      </CardHeader>
+      {content}
     </Card>
   );
 };

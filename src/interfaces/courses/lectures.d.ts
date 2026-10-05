@@ -12,6 +12,7 @@ export interface ILecture {
   description: string;
   duration: null | string;
   videoUrl: string;
+  hasVideo: boolean;
   quiz?: ICourseLectureQuiz | null;
 }
 

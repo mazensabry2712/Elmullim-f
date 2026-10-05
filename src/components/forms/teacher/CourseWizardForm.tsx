@@ -151,6 +151,10 @@ const CourseWizardForm = () => {
     lectureId: string,
     updates: Partial<LectureDraft>
   ) => {
+    if (updates.video !== undefined) {
+      uploadedLectureIds.current.delete(lectureId);
+    }
+
     setContents((current) =>
       current.map((content) =>
         content.id !== contentId

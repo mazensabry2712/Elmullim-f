@@ -338,6 +338,31 @@ export const getTeacherCourseQuiz = async ({
 };
 
 // ============= Lecture quizzes ============= //
+export const updateTeacherCourseQuiz = async ({
+  token,
+  quiz,
+}: {
+  token: string;
+  quiz: ICreateCourseQuiz;
+}): Promise<IStatusMsg> => {
+  const { data } = await axiosAPI.put(
+    "/teacher/courses/" +
+      quiz.courseId +
+      "/contents/" +
+      quiz.contentId +
+      "/lectures/" +
+      quiz.lectureId +
+      "/quiz",
+    {
+      title: quiz.title,
+      time_limit: quiz.timeLimit,
+      questions: quiz.questions,
+    },
+    { headers: { Authorization: "Bearer " + token } }
+  );
+  return data;
+};
+
 export const createTeacherCourseQuiz = async ({
   token,
   quiz,

@@ -27,6 +27,7 @@ enum QueryKeys {
   TEACHER_COURSE_CONTENT = "teacherCourseContent",
   TEACHER_COURSE_LECTURES = "teacherCourseLectures",
   TEACHER_COURSE_LECTURE = "teacherCourseLecture",
+  TEACHER_COURSE_QUIZ = "teacherCourseQuiz",
   TEACHER_LESSONS = "teacherLessons",
   TEACHER_LESSON = "teacherLesson",
   TEACHER_SERVICE_AREAS = "teacherServiceAreas",

@@ -8,6 +8,10 @@ import {
   useCreateTeacherCourseContent,
   useCreateTeacherCourseLecture,
   useCreateTeacherCourseQuiz,
+  useUpdateTeacherCourse,
+  useUpdateTeacherCourseContent,
+  useUpdateTeacherCourseLecture,
+  useUpdateTeacherCourseQuiz,
   useSubmitTeacherCourseForReview,
   useUploadCourseVideo,
 } from "@/lib/react-query/teacher/courses";
@@ -67,14 +71,14 @@ const makeLecture = (): LectureDraft => ({
   quizEnabled: false,
   quizTitle: "",
   quizTimeLimit: 0,
-  questions: [makeQuestion()],
+  questions: [],
 });
 
 const makeContent = (): ContentDraft => ({
   id: crypto.randomUUID(),
   title: "",
   description: "",
-  lectures: [makeLecture()],
+  lectures: [],
 });
 
 const getResourceId = (response: unknown): number | null => {
@@ -95,7 +99,7 @@ const CourseWizardForm = () => {
   const [level, setLevel] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [subCategoryId, setSubCategoryId] = useState("");
-  const [contents, setContents] = useState<ContentDraft[]>([makeContent()]);
+  const [contents, setContents] = useState<ContentDraft[]>([]);
   const [createdCourseId, setCreatedCourseId] = useState<number | null>(null);
   const [uploadingLectureId, setUploadingLectureId] = useState<string | null>(
     null
@@ -113,8 +117,12 @@ const CourseWizardForm = () => {
   const createCourse = useCreateTeacherCourse();
   const createContent = useCreateTeacherCourseContent();
   const createLecture = useCreateTeacherCourseLecture();
+  const updateCourse = useUpdateTeacherCourse();
+  const updateContent = useUpdateTeacherCourseContent();
+  const updateLecture = useUpdateTeacherCourseLecture();
   const uploadVideo = useUploadCourseVideo(setUploadProgress);
   const createQuiz = useCreateTeacherCourseQuiz();
+  const updateQuiz = useUpdateTeacherCourseQuiz();
   const submitForReview = useSubmitTeacherCourseForReview();
 
   const categoryOptions = useMemo(
@@ -471,8 +479,15 @@ const CourseWizardForm = () => {
       return false;
     }
 
-    for (let contentIndex = 0; contentIndex < contents.length; contentIndex += 1) {
-      const content = contents[contentIndex];
+    const activeContents = contents.filter(
+      (content) =>
+        content.title.trim() ||
+        content.description.trim() ||
+        content.lectures.length > 0
+    );
+
+    for (let contentIndex = 0; contentIndex < activeContents.length; contentIndex += 1) {
+      const content = activeContents[contentIndex];
 
       if (!content.title.trim()) {
         toast.error(
@@ -515,7 +530,7 @@ const CourseWizardForm = () => {
 
         if (!lecture.quizEnabled) continue;
 
-        if (!lecture.video) {
+        if (submitForReviewMode && !lecture.video) {
           toast.error(
             isArabic
               ? `ارفع الفيديو أولًا قبل إضافة اختبار للمحاضرة "${lecture.title}".`
@@ -529,6 +544,15 @@ const CourseWizardForm = () => {
             isArabic
               ? `عنوان الاختبار للمحاضرة "${lecture.title}" مطلوب.`
               : `Quiz title for "${lecture.title}" is required.`
+          );
+          return false;
+        }
+
+        if (lecture.questions.length === 0) {
+          toast.error(
+            isArabic
+              ? `أضف سؤالًا واحدًا على الأقل للاختبار "${lecture.quizTitle}".`
+              : `Add at least one question to "${lecture.quizTitle}".`
           );
           return false;
         }
@@ -587,6 +611,7 @@ const CourseWizardForm = () => {
 
     try {
       let courseId = createdCourseId;
+      let courseWasCreatedNow = false;
 
       if (!courseId) {
         const response = await createCourse.mutateAsync({
@@ -618,9 +643,40 @@ const CourseWizardForm = () => {
         }
 
         setCreatedCourseId(courseId);
+        courseWasCreatedNow = true;
+      }
+
+      if (!courseWasCreatedNow) {
+        const response = await updateCourse.mutateAsync({
+          token,
+          course: {
+            id: courseId,
+            title: title.trim(),
+            description: description.trim(),
+            price: Number(price),
+            level,
+            sub_category_id: subCategoryId,
+            image,
+          },
+        });
+
+        if (!response.status) {
+          throw new Error(
+            response.message ||
+              (isArabic
+                ? "تعذر حفظ بيانات الكورس."
+                : "Unable to save course details.")
+          );
+        }
       }
 
       for (const content of contents) {
+        const hasContentData =
+          content.title.trim() ||
+          content.description.trim() ||
+          content.lectures.length > 0;
+
+        if (!hasContentData) continue;
         let contentId = persistedContentIds.current[content.id];
 
         if (!contentId) {
@@ -652,6 +708,23 @@ const CourseWizardForm = () => {
 
           contentId = createdContentId;
           persistedContentIds.current[content.id] = createdContentId;
+        } else if (!courseWasCreatedNow) {
+          const contentResponse = await updateContent.mutateAsync({
+            token,
+            content: {
+              id: contentId.toString(),
+              courseId: courseId.toString(),
+              title: content.title.trim(),
+              description: content.description.trim(),
+            },
+          });
+
+          if (!contentResponse.status) {
+            throw new Error(
+              contentResponse.message ||
+                (isArabic ? "تعذر تحديث محتوى الكورس." : "Unable to update course content.")
+            );
+          }
         }
 
         for (const lecture of content.lectures) {
@@ -689,6 +762,24 @@ const CourseWizardForm = () => {
 
             lectureId = createdLectureId;
             persistedLectureIds.current[lecture.id] = createdLectureId;
+          } else if (!courseWasCreatedNow) {
+            const lectureResponse = await updateLecture.mutateAsync({
+              token,
+              lecture: {
+                id: lectureId.toString(),
+                courseId: courseId.toString(),
+                contentId: contentId.toString(),
+                title: lecture.title.trim(),
+                description: lecture.description.trim(),
+              },
+            });
+
+            if (!lectureResponse.status) {
+              throw new Error(
+                lectureResponse.message ||
+                  (isArabic ? "تعذر تحديث المحاضرة." : "Unable to update the lecture.")
+              );
+            }
           }
 
           if (lecture.video && !uploadedLectureIds.current.has(lecture.id)) {
@@ -723,9 +814,28 @@ const CourseWizardForm = () => {
             lecture.quizEnabled &&
             !createdQuizLectureIds.current.has(lecture.id)
           ) {
-            const quizResponse = await createQuiz.mutateAsync({
-              token,
-              quiz: {
+            const quizResponse = createdQuizLectureIds.current.has(lecture.id)
+              ? await updateQuiz.mutateAsync({
+                  token,
+                  quiz: {
+                    courseId: courseId.toString(),
+                    contentId: contentId.toString(),
+                    lectureId: lectureId.toString(),
+                    title: lecture.quizTitle.trim(),
+                    timeLimit: Math.max(0, Number(lecture.quizTimeLimit) || 0),
+                    questions: lecture.questions.map((question) => ({
+                      title: question.title.trim(),
+                      score: Math.max(1, Number(question.score) || 1),
+                      options: question.options.map((option) => ({
+                        title: option.title.trim(),
+                        is_correct: option.is_correct,
+                      })),
+                    })),
+                  },
+                })
+              : await createQuiz.mutateAsync({
+                  token,
+                  quiz: {
                 courseId: courseId.toString(),
                 contentId: contentId.toString(),
                 lectureId: lectureId.toString(),
@@ -740,7 +850,7 @@ const CourseWizardForm = () => {
                   })),
                 })),
               },
-            });
+                });
 
             if (!quizResponse.status) {
               throw new Error(

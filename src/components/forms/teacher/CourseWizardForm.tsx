@@ -14,7 +14,7 @@ import {
 import { COURSE_LEVELS } from "@/constant";
 import cookieService from "@/utils/cookieService";
 import { Loader2, Plus, Trash2, UploadCloud } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import Swal from "sweetalert2";
 import { useI18n } from "@/i18n";
@@ -102,6 +102,10 @@ const CourseWizardForm = () => {
   );
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
+  const persistedContentIds = useRef<Record<string, number>>({});
+  const persistedLectureIds = useRef<Record<string, number>>({});
+  const uploadedLectureIds = useRef<Set<string>>(new Set());
+  const createdQuizLectureIds = useRef<Set<string>>(new Set());
 
   const { data: categories } = useGetCategories();
   const { data: subCategories } = useGetSubCategory(categoryId);
@@ -613,64 +617,75 @@ const CourseWizardForm = () => {
       }
 
       for (const content of contents) {
-        let contentResponse;
-        contentResponse = await createContent.mutateAsync({
-          token,
-          content: {
-            courseId: courseId.toString(),
-            title: content.title.trim(),
-            description: content.description.trim(),
-          },
-        });
-
-        if (!contentResponse.status) {
-          throw new Error(
-            contentResponse.message ||
-              (isArabic ? "تعذر حفظ محتوى الكورس." : "Unable to save course content.")
-          );
-        }
-
-        const contentId = getResourceId(contentResponse);
+        let contentId = persistedContentIds.current[content.id];
 
         if (!contentId) {
-          throw new Error(
-            isArabic
-              ? "تم حفظ المحتوى لكن تعذر الحصول على رقمه."
-              : "Content was saved but its ID was not returned."
-          );
-        }
-
-        for (const lecture of content.lectures) {
-          const lectureResponse = await createLecture.mutateAsync({
+          const contentResponse = await createContent.mutateAsync({
             token,
-            lecture: {
+            content: {
               courseId: courseId.toString(),
-              contentId: contentId.toString(),
-              title: lecture.title.trim(),
-              description: lecture.description.trim(),
+              title: content.title.trim(),
+              description: content.description.trim(),
             },
           });
 
-          if (!lectureResponse.status) {
+          if (!contentResponse.status) {
             throw new Error(
-              lectureResponse.message ||
-                (isArabic
-                  ? "تعذر حفظ المحاضرة."
-                  : "Unable to save the lecture.")
+              contentResponse.message ||
+                (isArabic ? "تعذر حفظ محتوى الكورس." : "Unable to save course content.")
             );
           }
 
-          const lectureId = getResourceId(lectureResponse);
+          contentId = getResourceId(contentResponse);
 
-          if (!lectureId) {
+          if (!contentId) {
             throw new Error(
               isArabic
-                ? "تم حفظ المحاضرة لكن تعذر الحصول على رقمها."
-                : "Lecture was saved but its ID was not returned."
+                ? "تم حفظ المحتوى لكن تعذر الحصول على رقمه."
+                : "Content was saved but its ID was not returned."
             );
           }
 
-          if (lecture.video) {
+          persistedContentIds.current[content.id] = contentId;
+        }
+
+        for (const lecture of content.lectures) {
+          let lectureId = persistedLectureIds.current[lecture.id];
+
+          if (!lectureId) {
+            const lectureResponse = await createLecture.mutateAsync({
+              token,
+              lecture: {
+                courseId: courseId.toString(),
+                contentId: contentId.toString(),
+                title: lecture.title.trim(),
+                description: lecture.description.trim(),
+              },
+            });
+
+            if (!lectureResponse.status) {
+              throw new Error(
+                lectureResponse.message ||
+                  (isArabic
+                    ? "تعذر حفظ المحاضرة."
+                    : "Unable to save the lecture.")
+              );
+            }
+
+            lectureId = getResourceId(lectureResponse);
+
+            if (!lectureId) {
+              throw new Error(
+                isArabic
+                  ? "تم حفظ المحاضرة لكن تعذر الحصول على رقمها."
+                  : "Lecture was saved but its ID was not returned."
+              );
+            }
+
+            persistedLectureIds.current[lecture.id] = lectureId;
+          }
+
+          if (lecture.video && !uploadedLectureIds.current.has(lecture.id)) {
             setUploadingLectureId(lecture.id);
             setUploadProgress(0);
 
@@ -693,11 +708,15 @@ const CourseWizardForm = () => {
               );
             }
 
+            uploadedLectureIds.current.add(lecture.id);
             setUploadingLectureId(null);
             setUploadProgress(0);
           }
 
-          if (lecture.quizEnabled) {
+          if (
+            lecture.quizEnabled &&
+            !createdQuizLectureIds.current.has(lecture.id)
+          ) {
             const quizResponse = await createQuiz.mutateAsync({
               token,
               quiz: {
@@ -725,6 +744,8 @@ const CourseWizardForm = () => {
                     : "Unable to save the quiz.")
               );
             }
+
+            createdQuizLectureIds.current.add(lecture.id);
           }
         }
       }

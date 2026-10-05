@@ -1,5 +1,6 @@
 import CreateCourseContent from "@/components/profiles/teacher/courses/CreateCourseContent";
 import CreateCourseLecture from "@/components/profiles/teacher/courses/CreateCourseLecture";
+import { Button } from "@/components/ui/button";
 import TeacherViewCourseContent from "@/components/profiles/teacher/courses/TeacherViewCourseContent";
 import InstructorDetails from "@/components/shared/InstructorDetails";
 import VideoPlayer from "@/components/shared/VideoPlayer";

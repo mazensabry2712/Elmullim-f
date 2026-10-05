@@ -44,6 +44,8 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
   const noContentsText =
     language === "ar" ? "لم يتم العثور على محتوى" : "No contents found";
 
+  const canEdit = courseStatus === "draft" || courseStatus === "rejected";
+
   return (
     <>
       {isLoadingContents ? (
@@ -84,14 +86,18 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                             className="flex shrink-0 gap-2"
                             onClick={(event) => event.stopPropagation()}
                           >
-                            <UpdateCourseContent
-                              courseContent={content}
-                              courseId={courseId}
-                            />
-                            <DeleteCourseContent
-                              id={content.id.toString()}
-                              courseId={courseId.toString()}
-                            />
+                            {canEdit ? (
+                              <>
+                                <UpdateCourseContent
+                                  courseContent={content}
+                                  courseId={courseId}
+                                />
+                                <DeleteCourseContent
+                                  id={content.id.toString()}
+                                  courseId={courseId.toString()}
+                                />
+                              </>
+                            ) : null}
                           </div>
                         </span>
                       </AccordionTrigger>
@@ -142,20 +148,24 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                     className="flex shrink-0 gap-2"
                                     onClick={(event) => event.stopPropagation()}
                                   >
-                                    <UpdateCourseLecture
-                                      lecture={lecture}
-                                      contentId={content.id}
-                                      courseLectureId={courseId}
-                                    />
-                                    <DeleteCourseLecture
-                                      id={lecture.id.toString()}
-                                      courseId={courseId.toString()}
-                                      contentId={content.id.toString()}
-                                    />
+                                    {canEdit ? (
+                                      <>
+                                        <UpdateCourseLecture
+                                          lecture={lecture}
+                                          contentId={content.id}
+                                          courseLectureId={courseId}
+                                        />
+                                        <DeleteCourseLecture
+                                          id={lecture.id.toString()}
+                                          courseId={courseId.toString()}
+                                          contentId={content.id.toString()}
+                                        />
+                                      </>
+                                    ) : null}
                                   </div>
                                 </div>
 
-                                {courseStatus !== "published" ? (
+                                {canEdit ? (
                                   <UploadCourseVideo
                                     courseId={courseId}
                                     contentId={content.id}

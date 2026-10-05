@@ -714,7 +714,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     toast.error(
       findFirstMessage(errors) ||
         label(
-          "Complete the highlighted fields before publishing the lesson.",
+          "Complete the highlighted fields before submitting the lesson for review.",
           "أكمل الحقول الموضحة قبل نشر الدرس."
         ),
       { autoClose: 6000 }
@@ -833,12 +833,12 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       await Swal.fire({
         icon: "success",
         title: action === "create"
-          ? label("Lesson published", "تم نشر الدرس")
+          ? label("Lesson submitted", "تم إرسال الدرس")
           : label("Lesson saved", "تم حفظ الدرس"),
         text: action === "create"
           ? label(
-              "Your lesson is now published and available to students.",
-              "تم نشر الدرس وأصبح متاحًا للطلاب."
+              "Your lesson was submitted for admin review. It will become available to students after approval.",
+              "تم إرسال الدرس للمراجعة من الإدارة، وسيصبح متاحًا للطلاب بعد اعتماده."
             )
           : response.message,
       });
@@ -850,7 +850,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   };
 
   const statusText = isReady
-    ? label("Ready to publish", "جاهز للنشر")
+    ? label("Ready to submit for review", "جاهز للإرسال للمراجعة")
     : label("Needs attention", "يحتاج استكمال");
 
   return (
@@ -2161,7 +2161,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 <p className="mt-1 text-xs leading-5 text-black-blue/50">
                   {label(
                     action === "create"
-                      ? "Publishing makes the lesson public immediately for eligible students."
+                      ? "Submitting sends the lesson to the admin team for review. It becomes public only after approval."
                       : "The save button below is unlocked only when the lesson is internally consistent.",
                     action === "create"
                       ? "زر النشر يجعل الدرس عامًا فورًا بعد اجتياز كل التحقق."
@@ -2204,7 +2204,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 <Check className="me-2 h-4 w-4" />
               )}
                 {action === "create"
-                  ? label("Publish lesson", "نشر الدرس")
+                  ? label("Submit for review", "إرسال للمراجعة")
                   : label(
                       hasChanges ? "Save changes" : "No changes",
                       hasChanges ? "حفظ التعديلات" : "لا توجد تعديلات"

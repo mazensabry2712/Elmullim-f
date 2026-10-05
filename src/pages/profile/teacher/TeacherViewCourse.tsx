@@ -19,9 +19,11 @@ import { Loader, Loader2, Send } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
+import { useI18n } from "@/i18n";
 
 const TeacherViewCourse = () => {
   const token = cookieService.getToken()!;
+  const { language } = useI18n();
   const { courseId } = useParams();
   const navigate = useNavigate();
   const {

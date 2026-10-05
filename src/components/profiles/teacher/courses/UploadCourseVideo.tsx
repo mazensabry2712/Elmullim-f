@@ -41,7 +41,6 @@ const UploadCourseVideo = ({
   const [file, setFile] = useState<File | null>(null);
   const [courseId, setCourseId] = useState(fixedCourseId?.toString() || "");
   const [contentId, setContentId] = useState(fixedContentId?.toString() || "");
-  const [lectureId, setLectureId] = useState(fixedLectureId?.toString() || "");
   const { language } = useI18n();
 
   const token = cookieService.getToken()!;
@@ -143,16 +142,11 @@ const UploadCourseVideo = ({
         form.setValue("contentId", "");
         form.setValue("lectureId", "");
         setContentId("");
-        setLectureId("");
-      }
+          }
       if (name === "contentId" && !fixedContentId) {
         setContentId(value.contentId as string);
         form.setValue("lectureId", "");
-        setLectureId("");
-      }
-      if (name === "lectureId") {
-        setLectureId(value.lectureId as string);
-      }
+          }
     });
 
     return () => subscription.unsubscribe();

@@ -119,7 +119,8 @@ const TeacherViewCourse = () => {
           ) : (
             <>
               {course?.data &&
-              course.data.publishing_status !== "published" ? (
+              (course.data.publishing_status === "draft" ||
+                course.data.publishing_status === "rejected") ? (
                 <div className="mb-6 flex flex-col gap-3 px-6 xl:px-16 sm:flex-row">
                   <CreateCourseContent courseId={course.data.id}>
                     <Button type="button" className="w-full bg-main hover:bg-main/90 sm:w-auto">

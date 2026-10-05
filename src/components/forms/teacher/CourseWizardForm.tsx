@@ -477,8 +477,8 @@ const CourseWizardForm = () => {
       if (!content.title.trim()) {
         toast.error(
           isArabic
-            ? \`عنوان المحتوى رقم \${contentIndex + 1} مطلوب.\`
-            : \`Content \${contentIndex + 1} title is required.\`
+            ? `عنوان المحتوى رقم ${contentIndex + 1} مطلوب.`
+            : `Content ${contentIndex + 1} title is required.`
         );
         return false;
       }
@@ -486,8 +486,8 @@ const CourseWizardForm = () => {
       if (submitForReviewMode && content.lectures.length === 0) {
         toast.error(
           isArabic
-            ? \`أضف محاضرة واحدة على الأقل للمحتوى رقم \${contentIndex + 1}.\`
-            : \`Add at least one lecture to content \${contentIndex + 1}.\`
+            ? `أضف محاضرة واحدة على الأقل للمحتوى رقم ${contentIndex + 1}.`
+            : `Add at least one lecture to content ${contentIndex + 1}.`
         );
         return false;
       }
@@ -498,8 +498,8 @@ const CourseWizardForm = () => {
         if (!lecture.title.trim()) {
           toast.error(
             isArabic
-              ? \`عنوان المحاضرة رقم \${lectureIndex + 1} في المحتوى \${contentIndex + 1} مطلوب.\`
-              : \`Lecture \${lectureIndex + 1} in content \${contentIndex + 1} needs a title.\`
+              ? `عنوان المحاضرة رقم ${lectureIndex + 1} في المحتوى ${contentIndex + 1} مطلوب.`
+              : `Lecture ${lectureIndex + 1} in content ${contentIndex + 1} needs a title.`
           );
           return false;
         }
@@ -507,8 +507,8 @@ const CourseWizardForm = () => {
         if (submitForReviewMode && !lecture.video) {
           toast.error(
             isArabic
-              ? \`ارفع فيديو للمحاضرة "\${lecture.title || lectureIndex + 1}" قبل الإرسال للمراجعة.\`
-              : \`Upload a video for "\${lecture.title || lectureIndex + 1}" before review.\`
+              ? `ارفع فيديو للمحاضرة "${lecture.title || lectureIndex + 1}" قبل الإرسال للمراجعة.`
+              : `Upload a video for "${lecture.title || lectureIndex + 1}" before review.`
           );
           return false;
         }
@@ -518,8 +518,8 @@ const CourseWizardForm = () => {
         if (!lecture.video) {
           toast.error(
             isArabic
-              ? \`ارفع الفيديو أولًا قبل إضافة اختبار للمحاضرة "\${lecture.title}".\`
-              : \`Upload the video before adding a quiz to "\${lecture.title}".\`
+              ? `ارفع الفيديو أولًا قبل إضافة اختبار للمحاضرة "${lecture.title}".`
+              : `Upload the video before adding a quiz to "${lecture.title}".`
           );
           return false;
         }
@@ -527,8 +527,8 @@ const CourseWizardForm = () => {
         if (!lecture.quizTitle.trim()) {
           toast.error(
             isArabic
-              ? \`عنوان الاختبار للمحاضرة "\${lecture.title}" مطلوب.\`
-              : \`Quiz title for "\${lecture.title}" is required.\`
+              ? `عنوان الاختبار للمحاضرة "${lecture.title}" مطلوب.`
+              : `Quiz title for "${lecture.title}" is required.`
           );
           return false;
         }
@@ -543,8 +543,8 @@ const CourseWizardForm = () => {
           if (!question.title.trim()) {
             toast.error(
               isArabic
-                ? \`السؤال رقم \${questionIndex + 1} مطلوب.\`
-                : \`Question \${questionIndex + 1} is required.\`
+                ? `السؤال رقم ${questionIndex + 1} مطلوب.`
+                : `Question ${questionIndex + 1} is required.`
             );
             return false;
           }
@@ -556,8 +556,8 @@ const CourseWizardForm = () => {
           ) {
             toast.error(
               isArabic
-                ? \`راجع إجابات السؤال رقم \${questionIndex + 1}: مطلوب من 2 إلى 4 إجابات وإجابة صحيحة واحدة.\`
-                : \`Question \${questionIndex + 1} needs 2-4 options and exactly one correct answer.\`
+                ? `راجع إجابات السؤال رقم ${questionIndex + 1}: مطلوب من 2 إلى 4 إجابات وإجابة صحيحة واحدة.`
+                : `Question ${questionIndex + 1} needs 2-4 options and exactly one correct answer.`
             );
             return false;
           }
@@ -568,8 +568,8 @@ const CourseWizardForm = () => {
           if (new Set(normalized).size !== normalized.length) {
             toast.error(
               isArabic
-                ? \`إجابات السؤال رقم \${questionIndex + 1} يجب أن تكون مختلفة.\`
-                : \`Options in question \${questionIndex + 1} must be unique.\`
+                ? `إجابات السؤال رقم ${questionIndex + 1} يجب أن تكون مختلفة.`
+                : `Options in question ${questionIndex + 1} must be unique.`
             );
             return false;
           }
@@ -1078,13 +1078,13 @@ const CourseWizardForm = () => {
                           <div className="flex items-center gap-3 text-sm font-semibold">
                             <UploadCloud className="h-4 w-4 text-main" />
                             {isArabic
-                              ? \`جاري رفع الفيديو... \${uploadProgress}%\`
-                              : \`Uploading video... \${uploadProgress}%\`}
+                              ? `جاري رفع الفيديو... ${uploadProgress}%`
+                              : `Uploading video... ${uploadProgress}%`}
                           </div>
                           <div className="mt-2 h-2 overflow-hidden rounded-full bg-gray-200">
                             <div
                               className="h-full bg-main transition-all"
-                              style={{ width: \`\${uploadProgress}%\` }}
+                              style={{ width: `${uploadProgress}%` }}
                             />
                           </div>
                         </div>
@@ -1227,14 +1227,14 @@ const CourseWizardForm = () => {
                                       }
                                       placeholder={
                                         isArabic
-                                          ? \`الإجابة \${optionIndex + 1}\`
-                                          : \`Option \${optionIndex + 1}\`
+                                          ? `الإجابة ${optionIndex + 1}`
+                                          : `Option ${optionIndex + 1}`
                                       }
                                       className="min-w-0 flex-1 rounded-xl border border-black-blue/10 bg-white px-4 py-3 outline-none focus:border-main"
                                     />
                                     <input
                                       type="radio"
-                                      name={\`correct-\${lecture.id}-\${questionIndex}\`}
+                                      name={`correct-${lecture.id}-${questionIndex}`}
                                       checked={option.is_correct}
                                       onChange={() =>
                                         markCorrect(

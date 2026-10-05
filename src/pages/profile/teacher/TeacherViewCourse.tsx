@@ -7,11 +7,12 @@ import {
   useGetTeacherCourseById,
   useGetTeacherCourseContents,
   useGetTeacherCourseLectures,
+  useSubmitTeacherCourseForReview,
 } from "@/lib/react-query/teacher/courses";
 import { AxiosResErr } from "@/types";
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
-import { Loader } from "lucide-react";
+import { Loader, Loader2, Send } from "lucide-react";
 import { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -26,6 +27,45 @@ const TeacherViewCourse = () => {
     failureReason,
   } = useGetTeacherCourseById({ token, id: courseId! });
   const courseFailure = failureReason as AxiosResErr;
+  const { mutateAsync: submitForReview, isPending: isSubmittingForReview } =
+    useSubmitTeacherCourseForReview();
+
+  const handleSubmitForReview = async () => {
+    if (!course?.data || isSubmittingForReview) return;
+
+    try {
+      const response = await submitForReview({
+        token,
+        id: course.data.id.toString(),
+      });
+
+      if (!response.status) {
+        toast.error(
+          response.message ||
+            (language === "ar"
+              ? "تعذر إرسال الكورس للمراجعة"
+              : "Unable to submit the course for review")
+        );
+        return;
+      }
+
+      toast.success(
+        language === "ar"
+          ? "تم إرسال الكورس للمراجعة"
+          : "Course submitted for review"
+      );
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error ? error.message : undefined;
+      toast.error(
+        message ||
+          (language === "ar"
+            ? "تعذر إرسال الكورس للمراجعة"
+            : "Unable to submit the course for review")
+      );
+    }
+  };
+
   const { data: contents, isLoading: isLoadingContent } =
     useGetTeacherCourseContents({ token, courseId: courseId! });
   const { data: lectures, isLoading: isLoadingLectures } =
@@ -75,9 +115,65 @@ const TeacherViewCourse = () => {
             <>
               <div className="flex flex-col lg:flex-row px-2 md:px-6 xl:px-12">
                 <div className="flex-1">
-                  <h1 className="pl-6 xl:pl-16 text-2xl font-bold mb-4 text-black-blue">
-                    {course?.data?.title}
-                  </h1>
+                  <div className="flex flex-col gap-3 px-6 xl:px-16 mb-5">
+                    <div className="flex flex-wrap items-center justify-between gap-3">
+                      <h1 className="text-2xl font-bold text-black-blue">
+                        {course?.data?.title}
+                      </h1>
+                      {course?.data?.publishing_status === "pending_approval" ? (
+                        <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
+                          {language === "ar" ? "قيد المراجعة" : "Pending review"}
+                        </span>
+                      ) : course?.data?.publishing_status === "published" ? (
+                        <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-bold text-emerald-800">
+                          {language === "ar" ? "منشور" : "Published"}
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-gray-100 px-3 py-1 text-xs font-bold text-gray-700">
+                          {course?.data?.publishing_status === "rejected"
+                            ? language === "ar"
+                              ? "مرفوض"
+                              : "Rejected"
+                            : language === "ar"
+                              ? "مسودة"
+                              : "Draft"}
+                        </span>
+                      )}
+                    </div>
+
+                    {course?.data?.publishing_status === "rejected" &&
+                    course.data.publishing_note ? (
+                      <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                        <strong>
+                          {language === "ar" ? "ملاحظة الإدارة: " : "Admin note: "}
+                        </strong>
+                        {course.data.publishing_note}
+                      </div>
+                    ) : null}
+
+                    {(course?.data?.publishing_status === "draft" ||
+                      course?.data?.publishing_status === "rejected") && (
+                      <Button
+                        type="button"
+                        onClick={() => void handleSubmitForReview()}
+                        disabled={isSubmittingForReview}
+                        className="w-full bg-main hover:bg-main/90 sm:w-fit"
+                      >
+                        {isSubmittingForReview ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Send className="h-4 w-4" />
+                        )}
+                        {course?.data?.publishing_status === "rejected"
+                          ? language === "ar"
+                            ? "إعادة الإرسال للمراجعة"
+                            : "Resubmit for review"
+                          : language === "ar"
+                            ? "إرسال للمراجعة"
+                            : "Submit for review"}
+                      </Button>
+                    )}
+                  </div>
 
                   {!contents?.data.length ? (
                     <p className="text-lg text-muted text-center">
@@ -105,7 +201,10 @@ const TeacherViewCourse = () => {
                     Course Content
                   </h3>
                   <div className="max-h-screen overflow-y-auto">
-                    <TeacherViewCourseContent courseId={Number(courseId)} />
+                    <TeacherViewCourseContent
+                      courseId={Number(courseId)}
+                      courseStatus={course?.data?.publishing_status || "draft"}
+                    />
                   </div>
                 </aside>
               </div>

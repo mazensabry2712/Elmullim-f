@@ -16,6 +16,8 @@ export interface ICourse {
   updated_at: string;
   hasEnrolled: null | boolean;
   teacher: ITeacher;
+  publishing_status: CoursePublishingStatus;
+  publishing_note: string | null;
 }
 
 export interface ICourseRes {

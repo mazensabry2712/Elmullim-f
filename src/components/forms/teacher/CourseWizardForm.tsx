@@ -118,8 +118,8 @@ const CourseWizardForm = () => {
   const createContent = useCreateTeacherCourseContent();
   const createLecture = useCreateTeacherCourseLecture();
   const updateCourse = useUpdateTeacherCourse();
-  const updateContent = useUpdateTeacherCourseContent();
-  const updateLecture = useUpdateTeacherCourseLecture();
+  const updateContentMutation = useUpdateTeacherCourseContent();
+  const updateLectureMutation = useUpdateTeacherCourseLecture();
   const uploadVideo = useUploadCourseVideo(setUploadProgress);
   const createQuiz = useCreateTeacherCourseQuiz();
   const updateQuiz = useUpdateTeacherCourseQuiz();
@@ -709,7 +709,7 @@ const CourseWizardForm = () => {
           contentId = createdContentId;
           persistedContentIds.current[content.id] = createdContentId;
         } else if (!courseWasCreatedNow) {
-          const contentResponse = await updateContent.mutateAsync({
+          const contentResponse = await updateContentMutation.mutateAsync({
             token,
             content: {
               id: contentId.toString(),
@@ -763,7 +763,7 @@ const CourseWizardForm = () => {
             lectureId = createdLectureId;
             persistedLectureIds.current[lecture.id] = createdLectureId;
           } else if (!courseWasCreatedNow) {
-            const lectureResponse = await updateLecture.mutateAsync({
+            const lectureResponse = await updateLectureMutation.mutateAsync({
               token,
               lecture: {
                 id: lectureId.toString(),

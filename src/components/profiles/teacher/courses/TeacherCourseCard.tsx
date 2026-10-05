@@ -29,6 +29,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
           : isArabic
             ? "مسودة"
             : "Draft";
+  const canEdit = status === "draft" || status === "rejected";
   const statusClass =
     status === "pending_approval"
       ? "bg-amber-100 text-amber-800"
@@ -99,7 +100,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
             {isArabic ? "مشاهدة الكورس" : "View course"}
           </Link>
           <div className="flex gap-2 sm:shrink-0">
-            {status !== "pending_approval" ? (
+            {canEdit ? (
               <Link
                 to={`/profile/my-courses/${course.id}/update`}
                 aria-label={isArabic ? "تحديث الكورس" : "Update course"}
@@ -109,7 +110,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
                 <Pen className="h-4 w-4" />
               </Link>
             ) : null}
-            <DeleteCourse id={course.id.toString()} />
+            {canEdit ? <DeleteCourse id={course.id.toString()} /> : null}
           </div>
         </div>
       </div>

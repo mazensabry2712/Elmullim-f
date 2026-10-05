@@ -81,7 +81,7 @@ const CourseForm = ({ action, course }: IProps) => {
           return Swal.fire({
             icon: "error",
             title: language === "ar" ? "حدث خطأ" : "Oops...",
-            text: message,
+            text: message ?? undefined,
           });
 
         Swal.fire({

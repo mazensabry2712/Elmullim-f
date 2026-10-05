@@ -7,10 +7,12 @@ import {
 import {
   useCreateTeacherCourseQuiz,
   useDeleteTeacherCourseQuiz,
+  useGetTeacherCourseQuiz,
+  useUpdateTeacherCourseQuiz,
 } from "@/lib/react-query/teacher/courses";
 import cookieService from "@/utils/cookieService";
-import { AlertCircle, CheckCircle2, Loader2, Plus, Trash2 } from "lucide-react";
-import { type FormEvent, useState } from "react";
+import { AlertCircle, CheckCircle2, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { type FormEvent, useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
@@ -64,10 +66,19 @@ const ManageCourseQuiz = ({
 
   const { mutateAsync: createQuiz, isPending: isCreating } =
     useCreateTeacherCourseQuiz();
+  const { mutateAsync: updateQuiz, isPending: isUpdating } =
+    useUpdateTeacherCourseQuiz();
   const { mutateAsync: deleteQuiz, isPending: isDeleting } =
     useDeleteTeacherCourseQuiz();
 
   const quiz = lecture.quiz;
+  const { data: fullQuiz, isLoading: isLoadingQuiz } = useGetTeacherCourseQuiz({
+    token,
+    courseId: courseId.toString(),
+    contentId: contentId.toString(),
+    lectureId: lecture.id.toString(),
+    enabled: isOpen && !!quiz,
+  });
   const canEdit =
     courseStatus === "draft" || courseStatus === "rejected";
 
@@ -76,6 +87,25 @@ const ManageCourseQuiz = ({
     setTimeLimit(0);
     setQuestions([makeQuestion()]);
   };
+
+  useEffect(() => {
+    if (!fullQuiz?.data || !isOpen) return;
+
+    setTitle(fullQuiz.data.title || "");
+    setTimeLimit(Number(fullQuiz.data.time_limit) || 0);
+    setQuestions(
+      fullQuiz.data.questions.map((question) => ({
+        id: "question-" + question.id,
+        title: question.title || "",
+        score: Number(question.score) || 1,
+        options: question.options.map((option) => ({
+          id: "option-" + option.id,
+          title: option.title || "",
+          is_correct: option.is_correct,
+        })),
+      }))
+    );
+  }, [fullQuiz, isOpen]);
 
   const openEditor = () => {
     resetForm();
@@ -256,7 +286,7 @@ const ManageCourseQuiz = ({
     return payload;
   };
 
-  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
+  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!lecture.hasVideo) {
@@ -272,17 +302,18 @@ const ManageCourseQuiz = ({
     if (!payload) return;
 
     try {
-      const response = await createQuiz({
-        token,
-        quiz: {
-          courseId: courseId.toString(),
-          contentId: contentId.toString(),
-          lectureId: lecture.id.toString(),
-          title: title.trim(),
-          timeLimit: Math.max(0, Number(timeLimit) || 0),
-          questions: payload,
-        },
-      });
+      const quizPayload = {
+        courseId: courseId.toString(),
+        contentId: contentId.toString(),
+        lectureId: lecture.id.toString(),
+        title: title.trim(),
+        timeLimit: Math.max(0, Number(timeLimit) || 0),
+        questions: payload,
+      };
+
+      const response = quiz
+        ? await updateQuiz({ token, quiz: quizPayload })
+        : await createQuiz({ token, quiz: quizPayload });
 
       if (!response.status) {
         toast.error(response.message || (isArabic ? "تعذر إنشاء الاختبار" : "Unable to create quiz"));
@@ -292,9 +323,13 @@ const ManageCourseQuiz = ({
       setIsOpen(false);
       resetForm();
       toast.success(
-        isArabic
-          ? "تم إضافة الاختبار للمحاضرة"
-          : "Quiz added to the lecture"
+        quiz
+          ? isArabic
+            ? "تم تحديث الاختبار"
+            : "Quiz updated"
+          : isArabic
+            ? "تم إضافة الاختبار للمحاضرة"
+            : "Quiz added to the lecture"
       );
     } catch (error: unknown) {
       const message =
@@ -366,20 +401,36 @@ const ManageCourseQuiz = ({
             </p>
           </div>
           {canEdit && (
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => void handleDelete()}
-              disabled={isDeleting}
-              className="shrink-0 border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-            >
-              {isDeleting ? (
-                <Loader2 className="h-4 w-4 animate-spin" />
-              ) : (
-                <Trash2 className="h-4 w-4" />
-              )}
-              <span>{isArabic ? "حذف الاختبار" : "Delete quiz"}</span>
-            </Button>
+            <div className="flex shrink-0 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={openEditor}
+                disabled={isLoadingQuiz}
+                className="border-main text-main hover:bg-main hover:text-white"
+              >
+                {isLoadingQuiz ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Pencil className="h-4 w-4" />
+                )}
+                <span>{isArabic ? "تعديل الاختبار" : "Edit quiz"}</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void handleDelete()}
+                disabled={isDeleting}
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+              >
+                {isDeleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+                <span>{isArabic ? "حذف الاختبار" : "Delete quiz"}</span>
+              </Button>
+            </div>
           )}
         </div>
       </div>
@@ -405,7 +456,13 @@ const ManageCourseQuiz = ({
       <Modal
         isOpen={isOpen}
         onOpenChange={closeEditor}
-        title={isArabic ? "إضافة اختبار للمحاضرة" : "Add lecture quiz"}
+        title={quiz
+          ? isArabic
+            ? "تعديل اختبار المحاضرة"
+            : "Edit lecture quiz"
+          : isArabic
+            ? "إضافة اختبار للمحاضرة"
+            : "Add lecture quiz"}
         description={{
           text: isArabic
             ? "أضف أسئلة اختيار من متعدد. يمكنك جعل الاختبار بدون حد زمني."
@@ -414,7 +471,7 @@ const ManageCourseQuiz = ({
         showFooter={false}
       >
         <form
-          onSubmit={(event) => void handleCreate(event)}
+          onSubmit={(event) => void handleSave(event)}
           className="max-h-[75vh] space-y-5 overflow-y-auto px-1 pb-2 text-black-blue"
         >
           <div>
@@ -583,7 +640,13 @@ const ManageCourseQuiz = ({
               className="bg-main hover:bg-main/90"
             >
               {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}
-              {isArabic ? "حفظ الاختبار" : "Save quiz"}
+              {quiz
+                ? isArabic
+                  ? "حفظ التعديلات"
+                  : "Save changes"
+                : isArabic
+                  ? "حفظ الاختبار"
+                  : "Save quiz"}
             </Button>
           </div>
         </form>

@@ -2,10 +2,7 @@ import ImageUpload from "@/components/shared/ImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  useGetAllEducationLevels,
-  useGetAllSubjects,
-} from "@/lib/react-query/main";
+import { useGetAllSubjects } from "@/lib/react-query/main";
 import { useGetTeacherProfile } from "@/lib/react-query/teacher/teacherProfile";
 import { useGetTeacherServiceAreas } from "@/lib/react-query/teacher/serviceAreas";
 import {
@@ -176,12 +173,6 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
     createMutation.isPending || updateMutation.isPending;
 
   const teacherEducationLevel = teacherProfile?.data?.education_level;
-  const educationSystemId =
-    teacherEducationLevel?.education_system?.id?.toString() || "";
-
-  const { data: educationLevels, isLoading: isLoadingLevels } =
-    useGetAllEducationLevels(educationSystemId);
-
   const initialAvailability = useMemo(
     () =>
       lesson?.availability?.length
@@ -441,13 +432,20 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const isReady = readyCount === readiness.length;
 
   useEffect(() => {
-    if (
-      action === "create" &&
-      !form.getValues("education_level_id") &&
-      teacherEducationLevel?.id
-    ) {
+    if (!teacherEducationLevel?.id) return;
+
+    const currentEducationLevelId = Number(
+      form.getValues("education_level_id") || 0
+    );
+
+    if (currentEducationLevelId !== Number(teacherEducationLevel.id)) {
       form.setValue("education_level_id", teacherEducationLevel.id, {
-        shouldDirty: false,
+        shouldDirty: action === "update",
+        shouldTouch: false,
+        shouldValidate: true,
+      });
+      form.setValue("subject_id", 0, {
+        shouldDirty: action === "update",
         shouldTouch: false,
         shouldValidate: true,
       });
@@ -747,6 +745,19 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
       }
 
       if (
+        !teacherEducationLevel?.id ||
+        Number(values.education_level_id) !== Number(teacherEducationLevel.id)
+      ) {
+        toast.error(
+          label(
+            "The lesson stage must match your teacher profile.",
+            "مرحلة الدرس يجب أن تطابق المرحلة المسجلة في ملف المعلم."
+          )
+        );
+        return;
+      }
+
+      if (
         !availableSubjects.some(
           (subject) => subject.id === Number(values.subject_id)
         )
@@ -974,19 +985,27 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                       });
                     },
                   })}
-                  disabled={isLoadingTeacher || isLoadingLevels}
+                  disabled={isLoadingTeacher || !teacherEducationLevel?.id}
                   className={`${commonInput} block h-12 w-full rounded-xl px-3`}
                 >
                   <option value="">
-                    {label("Select a stage", "اختر المرحلة")}
+                    {isLoadingTeacher
+                      ? label("Loading...", "جاري التحميل...")
+                      : label("Teacher stage", "مرحلة المعلم")}
                   </option>
-                  {educationLevels?.data?.map((level) => (
-                    <option key={level.id} value={level.id}>
-                      {level.name}
+                  {teacherEducationLevel?.id ? (
+                    <option value={teacherEducationLevel.id}>
+                      {teacherEducationLevel.name}
                     </option>
-                  ))}
+                  ) : null}
                 </select>
                 {error("education_level_id")}
+                <p className="mt-2 text-xs font-semibold text-black-blue/45">
+                  {label(
+                    "This stage is taken from your teacher profile and cannot be changed here.",
+                    "المرحلة مأخوذة من ملف المعلم ولا يمكن تغييرها من نموذج الدرس."
+                  )}
+                </p>
               </label>
 
               <label className="text-sm font-bold text-black-blue">

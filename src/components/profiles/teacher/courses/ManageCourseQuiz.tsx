@@ -258,7 +258,7 @@ const ManageCourseQuiz = ({
   const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!lecture.videoUrl) {
+    if (!lecture.hasVideo) {
       toast.error(
         isArabic
           ? "ارفع فيديو المحاضرة أولًا قبل إضافة الاختبار"
@@ -385,7 +385,7 @@ const ManageCourseQuiz = ({
     );
   }
 
-  if (!canEdit || !lecture.videoUrl) {
+  if (!canEdit || !lecture.hasVideo) {
     return null;
   }
 

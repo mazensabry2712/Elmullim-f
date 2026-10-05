@@ -99,14 +99,16 @@ const TeacherCourseCard = ({ course }: IProps) => {
             {isArabic ? "مشاهدة الكورس" : "View course"}
           </Link>
           <div className="flex gap-2 sm:shrink-0">
-            <Link
-              to={`/profile/my-courses/${course.id}/update`}
-              aria-label={isArabic ? "تحديث الكورس" : "Update course"}
-              title={isArabic ? "تحديث الكورس" : "Update course"}
-              className="flex h-10 w-10 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-600 hover:text-white"
-            >
-              <Pen className="h-4 w-4" />
-            </Link>
+            {status !== "pending_approval" ? (
+              <Link
+                to={`/profile/my-courses/${course.id}/update`}
+                aria-label={isArabic ? "تحديث الكورس" : "Update course"}
+                title={isArabic ? "تحديث الكورس" : "Update course"}
+                className="flex h-10 w-10 items-center justify-center rounded-md border border-blue-200 bg-blue-50 text-blue-600 transition hover:bg-blue-600 hover:text-white"
+              >
+                <Pen className="h-4 w-4" />
+              </Link>
+            ) : null}
             <DeleteCourse id={course.id.toString()} />
           </div>
         </div>

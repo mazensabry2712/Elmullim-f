@@ -68,7 +68,8 @@ const ManageCourseQuiz = ({
     useDeleteTeacherCourseQuiz();
 
   const quiz = lecture.quiz;
-  const canEdit = courseStatus !== "published";
+  const canEdit =
+    courseStatus === "draft" || courseStatus === "rejected";
 
   const resetForm = () => {
     setTitle("");

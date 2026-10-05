@@ -31,15 +31,16 @@ import { useI18n } from "@/i18n";
 
 interface IProps {
   children: ReactNode;
+  courseId?: number;
 }
 
-const CreateCourseLecture = ({ children }: IProps) => {
+const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
-  const [courseId, setCourseId] = useState("");
+  const [courseId, setCourseId] = useState(fixedCourseId?.toString() || "");
   const { language } = useI18n();
 
-  const { data: courses } = useGetTeacherCourses(token);
+  const { data: courses } = useGetTeacherCourses(token, !fixedCourseId);
   const coursesOptions = courses?.data.map((course) => ({
     label: course.title,
     value: course.id.toString(),
@@ -54,7 +55,7 @@ const CreateCourseLecture = ({ children }: IProps) => {
   const form = useForm<z.infer<typeof courseLectureSchema>>({
     resolver: zodResolver(courseLectureSchema),
     defaultValues: {
-      courseId: "",
+      courseId: fixedCourseId?.toString() || "",
       contentId: "",
       description: "",
       title: "",
@@ -102,7 +103,12 @@ const CreateCourseLecture = ({ children }: IProps) => {
 
   const handleCloseModal = () => {
     setIsOpen(false);
-    form.reset();
+    form.reset({
+      courseId: fixedCourseId?.toString() || "",
+      contentId: "",
+      description: "",
+      title: "",
+    });
   };
 
   useEffect(() => {
@@ -142,7 +148,10 @@ const CreateCourseLecture = ({ children }: IProps) => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-3 text-black-blue"
           >
-            {COURSE_LECTURE_INPUTS.map((input) => (
+            {(fixedCourseId
+              ? COURSE_LECTURE_INPUTS.filter((input) => input.name !== "courseId")
+              : COURSE_LECTURE_INPUTS
+            ).map((input) => (
               <motion.div
                 variants={itemVariants}
                 key={input.name}

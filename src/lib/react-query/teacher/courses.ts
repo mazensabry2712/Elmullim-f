@@ -69,7 +69,7 @@ export const useSubmitTeacherCourseForReview = () => {
   return useMutation({
     mutationFn: ({ token, id }: { token: string; id: string }) =>
       submitTeacherCourseForReview({ token, id }),
-    onSuccess: (_data, variables) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_COURSES],
       });

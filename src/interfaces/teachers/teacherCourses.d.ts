@@ -25,3 +25,29 @@ export interface IUploadCourseVideo {
   contentId: string;
   video: File;
 }
+
+export interface ICourseQuizOptionInput {
+  title: string;
+  is_correct: boolean;
+}
+
+export interface ICourseQuizQuestionInput {
+  title: string;
+  score: number;
+  options: ICourseQuizOptionInput[];
+}
+
+export interface ICreateCourseQuiz {
+  courseId: string;
+  contentId: string;
+  lectureId: string;
+  title: string;
+  timeLimit: number;
+  questions: ICourseQuizQuestionInput[];
+}
+
+export interface IDeleteCourseQuiz {
+  courseId: string;
+  contentId: string;
+  lectureId: string;
+}

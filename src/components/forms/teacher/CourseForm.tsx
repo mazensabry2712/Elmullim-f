@@ -87,7 +87,7 @@ const CourseForm = ({ action, course }: IProps) => {
         Swal.fire({
           icon: "success",
           title: language === "ar" ? "تم بنجاح" : "Done",
-          text: message,
+          text: message ?? undefined,
         });
         navigate("/profile", {
           state: {

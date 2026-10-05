@@ -6,7 +6,9 @@ import {
 import { IGetCourseLecture } from "@/interfaces/courses/lectures";
 import {
   ICreateCourse,
+  ICreateCourseQuiz,
   IDeleteCourseLecture,
+  IDeleteCourseQuiz,
   IUpdateCourse,
   IUploadCourseVideo,
 } from "@/interfaces/teachers/teacherCourses";
@@ -31,6 +33,9 @@ import {
   updateTeacherCourse,
   updateTeacherCourseContent,
   uploadCourseVideo,
+  createTeacherCourseQuiz,
+  deleteTeacherCourseQuiz,
+  submitTeacherCourseForReview,
 } from "@/services/teacher/courses";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
@@ -55,6 +60,23 @@ export const useGetTeacherCourseById = ({
     queryFn: () => getTeacherCourseById({ token, id }),
     enabled: enabled && !!id && !!token,
   });
+
+export const useSubmitTeacherCourseForReview = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ token, id }: { token: string; id: string }) =>
+      submitTeacherCourseForReview({ token, id }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_COURSES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_COURSE, variables.id],
+      });
+    },
+  });
+};
 
 export const useCreateTeacherCourse = () => {
   const queryClient = useQueryClient();
@@ -256,6 +278,45 @@ export const useDeleteTeacherCourseLecture = () => {
     mutationFn: ({ token, id, contentId, courseId }: IDeleteCourseLecture) =>
       deleteTeacherCourseLecture({ token, id, contentId, courseId }),
     onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_COURSE_LECTURES],
+      });
+    },
+  });
+};
+
+// ============= Lecture quizzes =========== //
+export const useCreateTeacherCourseQuiz = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      token,
+      quiz,
+    }: {
+      token: string;
+      quiz: ICreateCourseQuiz;
+    }) => createTeacherCourseQuiz({ token, quiz }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, variables.quiz.contentId, variables.quiz.courseId],
+      });
+    },
+  });
+};
+
+export const useDeleteTeacherCourseQuiz = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      token,
+      quiz,
+    }: {
+      token: string;
+      quiz: IDeleteCourseQuiz;
+    }) => deleteTeacherCourseQuiz({ token, quiz }),
+    onSuccess: (_data, variables) => {
       queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_COURSE_LECTURES],
       });

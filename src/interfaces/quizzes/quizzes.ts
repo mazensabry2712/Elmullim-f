@@ -21,6 +21,8 @@ export interface IStudentQuiz {
   end_time: string | null;
   time_limit: number;
   date: string | null;
+  course_id: number | null;
+  lecture_id: number | null;
   total_score: number;
   subject?: IQuizSubject | null;
   education_level?: IQuizEducationLevel | null;

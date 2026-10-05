@@ -35,6 +35,7 @@ import {
   uploadCourseVideo,
   createTeacherCourseQuiz,
   deleteTeacherCourseQuiz,
+  getTeacherCourseQuiz,
   submitTeacherCourseForReview,
 } from "@/services/teacher/courses";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -284,6 +285,42 @@ export const useDeleteTeacherCourseLecture = () => {
     },
   });
 };
+
+// ============= Lecture quizzes =========== //
+export const useGetTeacherCourseQuiz = ({
+  token,
+  courseId,
+  contentId,
+  lectureId,
+  enabled = true,
+}: {
+  token: string;
+  courseId: string;
+  contentId: string;
+  lectureId: string;
+  enabled?: boolean;
+}) =>
+  useQuery({
+    queryKey: [
+      QueryKeys.TEACHER_COURSE_QUIZ,
+      courseId,
+      contentId,
+      lectureId,
+    ],
+    queryFn: () =>
+      getTeacherCourseQuiz({
+        token,
+        courseId,
+        contentId,
+        lectureId,
+      }),
+    enabled:
+      enabled &&
+      !!token &&
+      !!courseId &&
+      !!contentId &&
+      !!lectureId,
+  });
 
 // ============= Lecture quizzes =========== //
 export const useCreateTeacherCourseQuiz = () => {

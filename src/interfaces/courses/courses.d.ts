@@ -2,6 +2,8 @@ import { ISubCategory } from "@/interfaces/main";
 import { TLevel } from "@/types";
 import { ITeacher } from "../teachers/teacherProfile";
 
+export type CoursePublishingStatus = "draft" | "pending_approval" | "published" | "rejected";
+
 export interface ICourse {
   id: number;
   title: string;

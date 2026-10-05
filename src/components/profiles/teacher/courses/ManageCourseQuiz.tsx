@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import Modal from "@/components/shared/Modal";
 import type { ILecture } from "@/interfaces/courses/lectures";
-import {
+import type {
   ICourseQuizQuestionInput,
 } from "@/interfaces/teachers/teacherCourses";
 import {
@@ -113,7 +113,7 @@ const ManageCourseQuiz = ({
   };
 
   const closeEditor = () => {
-    if (!isCreating) {
+    if (!isCreating && !isUpdating) {
       setIsOpen(false);
       resetForm();
     }
@@ -630,16 +630,16 @@ const ManageCourseQuiz = ({
               type="button"
               variant="outline"
               onClick={closeEditor}
-              disabled={isCreating}
+              disabled={isCreating || isUpdating}
             >
               {isArabic ? "إلغاء" : "Cancel"}
             </Button>
             <Button
               type="submit"
-              disabled={isCreating || (Boolean(quiz) && isLoadingQuiz)}
+              disabled={isCreating || isUpdating || (Boolean(quiz) && isLoadingQuiz)}
               className="bg-main hover:bg-main/90"
             >
-              {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}
+              {(isCreating || isUpdating) && <Loader2 className="h-4 w-4 animate-spin" />}
               {quiz
                 ? isArabic
                   ? "حفظ التعديلات"

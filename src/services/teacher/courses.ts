@@ -318,7 +318,7 @@ export const createTeacherCourseQuiz = async ({
 }: {
   token: string;
   quiz: ICreateCourseQuiz;
-}): Promise<ILectureRes> => {
+}): Promise<IStatusMsg> => {
   const { data } = await axiosAPI.post(
     "/teacher/courses/" +
       quiz.courseId +

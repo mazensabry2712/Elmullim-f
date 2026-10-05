@@ -810,10 +810,7 @@ const CourseWizardForm = () => {
             setUploadProgress(0);
           }
 
-          if (
-            lecture.quizEnabled &&
-            !createdQuizLectureIds.current.has(lecture.id)
-          ) {
+          if (lecture.quizEnabled) {
             const quizResponse = createdQuizLectureIds.current.has(lecture.id)
               ? await updateQuiz.mutateAsync({
                   token,
@@ -836,20 +833,20 @@ const CourseWizardForm = () => {
               : await createQuiz.mutateAsync({
                   token,
                   quiz: {
-                courseId: courseId.toString(),
-                contentId: contentId.toString(),
-                lectureId: lectureId.toString(),
-                title: lecture.quizTitle.trim(),
-                timeLimit: Math.max(0, Number(lecture.quizTimeLimit) || 0),
-                questions: lecture.questions.map((question) => ({
-                  title: question.title.trim(),
-                  score: Math.max(1, Number(question.score) || 1),
-                  options: question.options.map((option) => ({
-                    title: option.title.trim(),
-                    is_correct: option.is_correct,
-                  })),
-                })),
-              },
+                    courseId: courseId.toString(),
+                    contentId: contentId.toString(),
+                    lectureId: lectureId.toString(),
+                    title: lecture.quizTitle.trim(),
+                    timeLimit: Math.max(0, Number(lecture.quizTimeLimit) || 0),
+                    questions: lecture.questions.map((question) => ({
+                      title: question.title.trim(),
+                      score: Math.max(1, Number(question.score) || 1),
+                      options: question.options.map((option) => ({
+                        title: option.title.trim(),
+                        is_correct: option.is_correct,
+                      })),
+                    })),
+                  },
                 });
 
             if (!quizResponse.status) {
@@ -1211,6 +1208,10 @@ const CourseWizardForm = () => {
                           onChange={(event) =>
                             updateLecture(content.id, lecture.id, {
                               quizEnabled: event.target.checked,
+                              questions:
+                                event.target.checked && lecture.questions.length === 0
+                                  ? [makeQuestion()]
+                                  : lecture.questions,
                             })
                           }
                         />

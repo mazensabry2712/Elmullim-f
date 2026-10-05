@@ -27,14 +27,15 @@ import { useI18n } from "@/i18n";
 
 interface IProps {
   children: ReactNode;
+  courseId?: number;
 }
 
-const CreateCourseContent = ({ children }: IProps) => {
+const CreateCourseContent = ({ children, courseId }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken()!;
   const { language } = useI18n();
 
-  const { data: courses } = useGetTeacherCourses(token);
+  const { data: courses } = useGetTeacherCourses(token, !courseId);
   const coursesOptions = courses?.data.map((course) => ({
     label: course.title,
     value: course.id.toString(),
@@ -43,7 +44,7 @@ const CreateCourseContent = ({ children }: IProps) => {
   const form = useForm<z.infer<typeof courseContentSchema>>({
     resolver: zodResolver(courseContentSchema),
     defaultValues: {
-      courseId: "",
+      courseId: courseId?.toString() || "",
       description: "",
       title: "",
     },
@@ -88,7 +89,11 @@ const CreateCourseContent = ({ children }: IProps) => {
 
   const handleCloseModal = () => {
     setIsOpen(false);
-    form.reset();
+    form.reset({
+      courseId: courseId?.toString() || "",
+      description: "",
+      title: "",
+    });
   };
 
   return (
@@ -117,7 +122,10 @@ const CreateCourseContent = ({ children }: IProps) => {
             onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-3 text-black-blue"
           >
-            {COURSE_CONTENT_INPUTS.map((input) => (
+            {(courseId
+              ? COURSE_CONTENT_INPUTS.filter((input) => input.name !== "courseId")
+              : COURSE_CONTENT_INPUTS
+            ).map((input) => (
               <motion.div
                 variants={itemVariants}
                 key={input.name}

@@ -102,7 +102,7 @@ const CourseForm = ({ action, course }: IProps) => {
           return toast.error(
             language === "ar" ? "صورة الكورس مطلوبة" : "Course picture is required"
           );
-        const { message, status } = await createCourse({
+        const { message, status, data: createdCourse } = await createCourse({
           token,
           course: {
             title: data.title,
@@ -120,11 +120,18 @@ const CourseForm = ({ action, course }: IProps) => {
             text: message,
           });
 
-        Swal.fire({
+        await Swal.fire({
           icon: "success",
-          title: language === "ar" ? "تم بنجاح" : "Done",
-          text: message,
+          title: language === "ar" ? "تم إنشاء الكورس" : "Course created",
+          text:
+            language === "ar"
+              ? "تم إنشاء الكورس كمسودة. أضف المحتوى والفيديو ثم أرسله للمراجعة."
+              : "The course was created as a draft. Add content and video, then submit it for review.",
         });
+
+        if (createdCourse?.id) {
+          navigate(`/profile/my-courses/${createdCourse.id}/view`);
+        }
         form.reset();
       }
     } catch (error) {

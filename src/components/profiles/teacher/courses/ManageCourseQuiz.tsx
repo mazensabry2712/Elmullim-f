@@ -636,7 +636,7 @@ const ManageCourseQuiz = ({
             </Button>
             <Button
               type="submit"
-              disabled={isCreating}
+              disabled={isCreating || (Boolean(quiz) && isLoadingQuiz)}
               className="bg-main hover:bg-main/90"
             >
               {isCreating && <Loader2 className="h-4 w-4 animate-spin" />}

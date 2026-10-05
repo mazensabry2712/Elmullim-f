@@ -12,6 +12,31 @@ interface IProps {
 const TeacherCourseCard = ({ course }: IProps) => {
   const { language } = useI18n();
   const isArabic = language === "ar";
+  const status = course.publishing_status;
+  const statusLabel =
+    status === "pending_approval"
+      ? isArabic
+        ? "قيد المراجعة"
+        : "Pending review"
+      : status === "published"
+        ? isArabic
+          ? "منشور"
+          : "Published"
+        : status === "rejected"
+          ? isArabic
+            ? "مرفوض"
+            : "Rejected"
+          : isArabic
+            ? "مسودة"
+            : "Draft";
+  const statusClass =
+    status === "pending_approval"
+      ? "bg-amber-100 text-amber-800"
+      : status === "published"
+        ? "bg-emerald-100 text-emerald-800"
+        : status === "rejected"
+          ? "bg-red-100 text-red-700"
+          : "bg-gray-100 text-gray-700";
 
   return (
     <article className="flex h-full min-w-0 flex-col overflow-hidden rounded-lg border border-gray-100 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
@@ -36,7 +61,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
           </p>
         </Link>
 
-        <div className="mt-4 flex items-center justify-between gap-3 border-y border-dashed border-gray-200 py-3">
+        <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-y border-dashed border-gray-200 py-3">
           <div className="flex min-w-0 items-center gap-2">
             <BookOpen className="h-4 w-4 shrink-0 text-main" />
             <span className="truncate text-sm font-semibold text-black-blue">{course.level}</span>
@@ -45,6 +70,16 @@ const TeacherCourseCard = ({ course }: IProps) => {
             {Number(course.price) === 0 ? (isArabic ? "مجاني" : "Free") : `$${course.price}`}
           </span>
         </div>
+
+        <div className={`mt-3 inline-flex w-fit rounded-full px-3 py-1 text-xs font-bold ${statusClass}`}>
+          {statusLabel}
+        </div>
+        {status === "rejected" && course.publishing_note ? (
+          <p className="mt-2 rounded-md bg-red-50 px-3 py-2 text-xs leading-5 text-red-700">
+            <span className="font-bold">{isArabic ? "ملاحظة الإدارة: " : "Admin note: "}</span>
+            {course.publishing_note}
+          </p>
+        ) : null}
 
         <div className="mt-4 flex items-center gap-2">
           <img

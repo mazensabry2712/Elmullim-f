@@ -10,7 +10,7 @@ import {
 } from "@/lib/react-query/teacher/courses";
 import cookieService from "@/utils/cookieService";
 import { AlertCircle, CheckCircle2, Loader2, Plus, Trash2 } from "lucide-react";
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
@@ -255,7 +255,7 @@ const ManageCourseQuiz = ({
     return payload;
   };
 
-  const handleCreate = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleCreate = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!lecture.hasVideo) {

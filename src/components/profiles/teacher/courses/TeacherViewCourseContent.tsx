@@ -19,6 +19,7 @@ import UpdateCourseLecture from "./UpdateCourseLecture";
 import DeleteCourseContent from "./DeleteCourseContent";
 import DeleteCourseLecture from "./DeleteCourseLecture";
 import ManageCourseQuiz from "./ManageCourseQuiz";
+import UploadCourseVideo from "./UploadCourseVideo";
 import { useI18n } from "@/i18n";
 
 interface IProps {
@@ -153,6 +154,14 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                     />
                                   </div>
                                 </div>
+
+                                {courseStatus !== "published" ? (
+                                  <UploadCourseVideo
+                                    courseId={courseId}
+                                    contentId={content.id}
+                                    lectureId={lecture.id}
+                                  />
+                                ) : null}
 
                                 <ManageCourseQuiz
                                   courseId={courseId}

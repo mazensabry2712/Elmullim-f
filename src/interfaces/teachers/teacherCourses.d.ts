@@ -51,3 +51,31 @@ export interface IDeleteCourseQuiz {
   contentId: string;
   lectureId: string;
 }
+
+export interface ITeacherCourseQuizOption {
+  id: number;
+  title: string | null;
+  is_correct: boolean;
+}
+
+export interface ITeacherCourseQuizQuestion {
+  id: number;
+  title: string | null;
+  score: number;
+  options: ITeacherCourseQuizOption[];
+}
+
+export interface ITeacherCourseQuiz {
+  id: number;
+  title: string | null;
+  time_limit: number;
+  course_id: number | null;
+  lecture_id: number | null;
+  questions: ITeacherCourseQuizQuestion[];
+}
+
+export interface ITeacherCourseQuizResponse {
+  status: boolean;
+  message: string | null;
+  data: ITeacherCourseQuiz;
+}

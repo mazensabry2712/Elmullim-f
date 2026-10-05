@@ -739,7 +739,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
         toast.error(
           label(
             `Complete these items before publishing: ${missingItems}.`,
-            `أكمل العناصر التالية قبل نشر الدرس: ${missingItems}.`
+            `أكمل العناصر التالية قبل إرسال الدرس للمراجعة: ${missingItems}.`
           ),
           { autoClose: 7000 }
         );
@@ -2089,8 +2089,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                             "جاهز. سيتم استخدام العنوان والإحداثيات المحفوظة بالفعل في ملف المعلم."
                           )
                         : label(
-                            "Your teaching location is incomplete. Complete your profile location before publishing this lesson.",
-                            "موقع التدريس في ملفك غير مكتمل. أكمل بيانات الموقع في الملف الشخصي قبل نشر الدرس."
+                            "Your teaching location is incomplete. Complete your profile location before submitting this lesson for review.",
+                            "موقع التدريس في ملفك غير مكتمل. أكمل بيانات الموقع في الملف الشخصي قبل إرسال الدرس للمراجعة."
                           )}
                     </p>
                   </div>
@@ -2143,8 +2143,8 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                 <p className="mt-2 flex items-center gap-2 text-xs font-bold text-amber-700">
                   <AlertCircle className="h-4 w-4" />
                   {label(
-                    "Required before first publish.",
-                    "مطلوبة قبل أول نشر."
+                    "Required before first submission.",
+                    "مطلوبة قبل أول إرسال للمراجعة."
                   )}
                 </p>
               ) : null}
@@ -2164,7 +2164,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
                       ? "Submitting sends the lesson to the admin team for review. It becomes public only after approval."
                       : "The save button below is unlocked only when the lesson is internally consistent.",
                     action === "create"
-                      ? "زر النشر يجعل الدرس عامًا فورًا بعد اجتياز كل التحقق."
+                      ? "إرسال الدرس يوديه للإدارة للمراجعة، ولن يصبح عامًا إلا بعد الاعتماد."
                       : "زر الحفظ لا يتفعل إلا لما يكون الدرس متسق داخليًا وكل البيانات المطلوبة مكتملة."
                   )}
                 </p>

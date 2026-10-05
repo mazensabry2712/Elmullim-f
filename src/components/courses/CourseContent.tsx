@@ -13,6 +13,7 @@ import { FileVideo, Loader, Loader2, Lock } from "lucide-react";
 import { useState } from "react";
 import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import { useI18n } from "@/i18n";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
 
 interface IProps {
@@ -22,6 +23,7 @@ interface IProps {
 }
 
 const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
+  const { language } = useI18n();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const token = cookieService.getToken() || "";
   const [openContentId, setOpenContentId] = useState("");

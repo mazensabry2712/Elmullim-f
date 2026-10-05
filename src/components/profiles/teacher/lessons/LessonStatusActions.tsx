@@ -4,7 +4,6 @@ import Swal from "sweetalert2";
 import { toast } from "react-toastify";
 import { ITeacherLessonListItem } from "@/interfaces/lessons/lesson";
 import {
-  usePublishTeacherLesson,
   useResubmitTeacherLesson,
   useUnpublishTeacherLesson,
 } from "@/lib/react-query/teacher/lessons";
@@ -20,17 +19,15 @@ interface Props {
 const LessonStatusActions = ({ lesson, compact = false }: Props) => {
   const { language } = useI18n();
   const isArabic = language === "ar";
-  const publishMutation = usePublishTeacherLesson();
   const resubmitMutation = useResubmitTeacherLesson();
   const unpublishMutation = useUnpublishTeacherLesson();
   const isWorking =
-    publishMutation.isPending ||
     resubmitMutation.isPending ||
     unpublishMutation.isPending;
 
   const text = isArabic
     ? {
-        publish: "نشر الدرس",
+        submitForReview: "إرسال للمراجعة",
         resubmit: "إعادة الإرسال للمراجعة",
         pending: "قيد المراجعة",
         pendingDescription: "تم إرسال الدرس للمراجعة. سيظهر للطلاب بعد اعتماد الإدارة.",
@@ -47,7 +44,7 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
         successUnpublish: "تم إلغاء نشر الدرس.",
       }
     : {
-        publish: "Publish lesson",
+        submitForReview: "Submit for review",
         resubmit: "Resubmit for review",
         pending: "Pending review",
         pendingDescription: "This lesson is under review and will appear to students after approval.",
@@ -63,24 +60,6 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
         closedEnded: "Lesson ended",
         successUnpublish: "Lesson unpublished successfully.",
       };
-
-  const publish = async () => {
-    try {
-      const response = await publishMutation.mutateAsync({
-        token: cookieService.getToken() || "",
-        id: lesson.id,
-      });
-
-      if (!response.status) {
-        toast.error(response.message || text.publish);
-        return;
-      }
-
-      toast.success(response.message || text.publish);
-    } catch (error) {
-      handleResError(error);
-    }
-  };
 
   const resubmit = async () => {
     try {
@@ -219,12 +198,12 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
   return (
     <button
       type="button"
-      onClick={() => void publish()}
+      onClick={() => void resubmit()}
       disabled={isWorking}
       className={`inline-flex items-center justify-center gap-2 rounded-xl bg-main px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60 ${compact ? "w-full" : ""}`}
     >
       {isWorking ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
-      {text.publish}
+      {text.submitForReview}
     </button>
   );
 };

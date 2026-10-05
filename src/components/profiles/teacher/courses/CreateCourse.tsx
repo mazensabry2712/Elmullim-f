@@ -1,7 +1,7 @@
-import CourseForm from "@/components/forms/teacher/CourseForm";
+import CourseWizardForm from "@/components/forms/teacher/CourseWizardForm";
 
 const CreateCourse = () => {
-  return <CourseForm action="create" />;
+  return <CourseWizardForm />;
 };
 
 export default CreateCourse;

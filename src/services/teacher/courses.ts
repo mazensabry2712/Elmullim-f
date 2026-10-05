@@ -14,7 +14,9 @@ import {
 } from "@/interfaces/courses/lectures";
 import {
   ICreateCourse,
+  ICreateCourseQuiz,
   IDeleteCourseLecture,
+  IDeleteCourseQuiz,
   IUpdateCourse,
   IUploadCourseVideo,
 } from "@/interfaces/teachers/teacherCourses";
@@ -47,13 +49,28 @@ export const getTeacherCourseById = async ({
   return data;
 };
 
+export const submitTeacherCourseForReview = async ({
+  token,
+  id,
+}: {
+  token: string;
+  id: string;
+}): Promise<ICourseRes> => {
+  const { data } = await axiosAPI.post(
+    "/teacher/courses/" + id + "/submit-for-review",
+    undefined,
+    { headers: { Authorization: "Bearer " + token } }
+  );
+  return data;
+};
+
 export const createTeacherCourse = async ({
   token,
   course,
 }: {
   token: string;
   course: ICreateCourse;
-}): Promise<IStatusMsg> => {
+}): Promise<ICourseRes> => {
   const formData = new FormData();
   formData.append("title", course.title);
   formData.append("description", course.description);
@@ -293,3 +310,50 @@ export const uploadCourseVideo = async ({
 
   return data;
 };
+
+// ============= Lecture quizzes ============= //
+export const createTeacherCourseQuiz = async ({
+  token,
+  quiz,
+}: {
+  token: string;
+  quiz: ICreateCourseQuiz;
+}): Promise<ILectureRes> => {
+  const { data } = await axiosAPI.post(
+    "/teacher/courses/" +
+      quiz.courseId +
+      "/contents/" +
+      quiz.contentId +
+      "/lectures/" +
+      quiz.lectureId +
+      "/quiz",
+    {
+      title: quiz.title,
+      time_limit: quiz.timeLimit,
+      questions: quiz.questions,
+    },
+    { headers: { Authorization: "Bearer " + token } }
+  );
+  return data;
+};
+
+export const deleteTeacherCourseQuiz = async ({
+  token,
+  quiz,
+}: {
+  token: string;
+  quiz: IDeleteCourseQuiz;
+}): Promise<IStatusMsg> => {
+  const { data } = await axiosAPI.delete(
+    "/teacher/courses/" +
+      quiz.courseId +
+      "/contents/" +
+      quiz.contentId +
+      "/lectures/" +
+      quiz.lectureId +
+      "/quiz",
+    { headers: { Authorization: "Bearer " + token } }
+  );
+  return data;
+};
+

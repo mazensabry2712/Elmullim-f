@@ -36,6 +36,7 @@ import {
   createTeacherCourseQuiz,
   deleteTeacherCourseQuiz,
   getTeacherCourseQuiz,
+  updateTeacherCourseQuiz,
   submitTeacherCourseForReview,
 } from "@/services/teacher/courses";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -323,6 +324,37 @@ export const useGetTeacherCourseQuiz = ({
   });
 
 // ============= Lecture quizzes =========== //
+export const useUpdateTeacherCourseQuiz = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      token,
+      quiz,
+    }: {
+      token: string;
+      quiz: ICreateCourseQuiz;
+    }) => updateTeacherCourseQuiz({ token, quiz }),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: [
+          QueryKeys.TEACHER_COURSE_QUIZ,
+          variables.quiz.courseId,
+          variables.quiz.contentId,
+          variables.quiz.lectureId,
+        ],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [
+          QueryKeys.TEACHER_COURSE_LECTURES,
+          variables.quiz.contentId,
+          variables.quiz.courseId,
+        ],
+      });
+    },
+  });
+};
+
 export const useCreateTeacherCourseQuiz = () => {
   const queryClient = useQueryClient();
 

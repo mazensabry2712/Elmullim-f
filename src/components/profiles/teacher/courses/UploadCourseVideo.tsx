@@ -159,11 +159,13 @@ const UploadCourseVideo = ({
   }, [fixedContentId, fixedCourseId, form]);
 
   const fields = fixedCourseId
-    ? VIDEO_INPUTS.filter((input) =>
-        fixedContentId
-          ? input.name === "lectureId"
-          : input.name !== "courseId",
-      )
+    ? fixedLectureId
+      ? []
+      : VIDEO_INPUTS.filter((input) =>
+          fixedContentId
+            ? input.name === "lectureId"
+            : input.name !== "courseId",
+        )
     : VIDEO_INPUTS;
 
   const content = (

@@ -16,6 +16,7 @@ import {
   ICreateCourse,
   ICreateCourseQuiz,
   IDeleteCourseLecture,
+  ITeacherCourseQuizResponse,
   IDeleteCourseQuiz,
   IUpdateCourse,
   IUploadCourseVideo,
@@ -308,6 +309,31 @@ export const uploadCourseVideo = async ({
     }
   );
 
+  return data;
+};
+
+// ============= Lecture quizzes ============= //
+export const getTeacherCourseQuiz = async ({
+  token,
+  courseId,
+  contentId,
+  lectureId,
+}: {
+  token: string;
+  courseId: string;
+  contentId: string;
+  lectureId: string;
+}): Promise<ITeacherCourseQuizResponse> => {
+  const { data } = await axiosAPI.get(
+    "/teacher/courses/" +
+      courseId +
+      "/contents/" +
+      contentId +
+      "/lectures/" +
+      lectureId +
+      "/quiz",
+    { headers: { Authorization: "Bearer " + token } }
+  );
   return data;
 };
 

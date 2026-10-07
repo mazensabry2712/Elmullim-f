@@ -9,7 +9,7 @@ import {
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
 import { formatTime } from "@/utils/dateTime";
-import { MessageCircle, MoreVertical, Send } from "lucide-react";
+import { ArrowLeft, ArrowRight, MessageCircle, Send, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -24,7 +24,6 @@ function ChatWindow({
   const token = cookieService.getToken()!;
   const [messageText, setMessageText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { language } = useI18n();
   const queryClient = useQueryClient();
 
@@ -34,24 +33,11 @@ function ChatWindow({
     isPending: isDeletingConversation,
   } = useDeleteConversation();
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
-  const menuRef = useRef<HTMLDivElement | null>(null);
 
   const { data: conv, refetch: refetchConversation } = useGetConversationById({
     token,
     id: conversationId!,
   });
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   // دالة للتمرير لأسفل المحادثة
   const scrollToBottom = () => {
@@ -135,40 +121,31 @@ function ChatWindow({
     );
   };
 
-  const handleMenuOptionClick = (option: string) => {
-    if (option === "remove") {
-      const confirmDelete = window.confirm(
-        language === "ar"
-          ? "هل تريد إزالة المحادثة من قائمتك؟"
-          : "Remove this conversation from your list?"
-      );
-      if (confirmDelete) {
-        deleteConversation(
-          {
-            token,
-            conversationId: conversationId!,
-          },
-          {
-            onSuccess: () => {
-              console.log("Conversation deleted successfully");
-              onClose();
-            },
-            onError: (error) => {
-              console.error("Error deleting conversation:", error);
-              toast.error(
-                language === "ar"
-                  ? "تعذر إزالة المحادثة. حاول مرة أخرى."
-                  : "Failed to remove the conversation. Please try again."
-              );
-            },
-          }
-        );
+  const handleRemoveConversation = () => {
+    const confirmed = window.confirm(
+      language === "ar"
+        ? "هل تريد إزالة المحادثة من قائمتك؟"
+        : "Remove this conversation from your list?"
+    );
+
+    if (!confirmed) return;
+
+    deleteConversation(
+      {
+        token,
+        conversationId: conversationId!,
+      },
+      {
+        onSuccess: onClose,
+        onError: () => {
+          toast.error(
+            language === "ar"
+              ? "تعذر إزالة المحادثة. حاول مرة أخرى."
+              : "Failed to remove the conversation. Please try again."
+          );
+        },
       }
-    } else if (option === "close") {
-      console.log("Close Chat clicked");
-      onClose();
-    }
-    setIsMenuOpen(false);
+    );
   };
 
   if (!conversationId) {
@@ -198,59 +175,40 @@ function ChatWindow({
   return (
     <div className="relative col-span-1 flex min-h-[520px] min-w-0 flex-col rounded-md bg-white shadow-md md:col-span-2">
       {/* chat header */}
-      <div className="flex min-w-0 flex-row items-center justify-between gap-3 px-3 py-4 sm:px-6 md:px-8">
-        <div className="flex flex-row items-center gap-4">
-          <div className="w-8 h-8 rounded-full">
+      <div className="flex min-w-0 items-center gap-2 px-3 py-3 sm:px-6 md:px-8">
+        <button
+          type="button"
+          onClick={onClose}
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-black-blue transition-colors hover:bg-white-gray focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main md:hidden"
+          aria-label={language === "ar" ? "العودة إلى المحادثات" : "Back to conversations"}
+        >
+          {language === "ar" ? <ArrowRight size={20} aria-hidden="true" /> : <ArrowLeft size={20} aria-hidden="true" />}
+        </button>
+
+        <div className="flex min-w-0 flex-1 items-center gap-3">
+          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
             <img
-              className="w-full h-full rounded-full object-cover flex-shrink-0"
-              src={
-                conv?.data.participant.profile_image ||
-                "/images/profile-avatar.webp"
-              }
+              className="h-full w-full object-cover"
+              src={conv?.data.participant.profile_image || "/images/profile-avatar.webp"}
               alt={language === "ar" ? "صورة المستخدم" : "User profile"}
             />
           </div>
-          <div>
-            <h4 className="font-sora font-semibold text-[16px] text-black capitalize">
-              {conv?.data.participant.name}
-            </h4>
-          </div>
+          <h4 className="min-w-0 truncate font-sora text-base font-semibold text-black">
+            {conv?.data.participant.name}
+          </h4>
         </div>
-        <div ref={menuRef} className="relative">
-          <button
-            type="button"
-            aria-label={language === "ar" ? "خيارات المحادثة" : "Chat options"}
-            aria-expanded={isMenuOpen}
-            aria-haspopup="menu"
-            onClick={() => setIsMenuOpen((value) => !value)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-md text-black-blue transition-colors hover:bg-white-gray focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
-          >
-            <MoreVertical size={20} aria-hidden="true" />
-          </button>
-          {isMenuOpen && (
-            <div role="menu" className="absolute right-0 top-full z-10 mt-2 w-40 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => handleMenuOptionClick("remove")}
-                disabled={isDeletingConversation}
-                className="w-full rounded-md px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
-              >
-                {language === "ar" ? "إزالة المحادثة" : "Remove Conversation"}
-              </button>
-              <button
-                type="button"
-                role="menuitem"
-                onClick={() => handleMenuOptionClick("close")}
-                className="w-full rounded-md px-3 py-2 text-left text-sm text-black hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
-              >
-                {language === "ar" ? "إغلاق الدردشة" : "Close Chat"}
-              </button>
-            </div>
-          )}
-        </div>
-      </div>
-      <hr />
+
+        <button
+          type="button"
+          onClick={handleRemoveConversation}
+          disabled={isDeletingConversation}
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-red-500 transition-colors hover:bg-red-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-400 disabled:cursor-not-allowed disabled:opacity-50"
+          aria-label={language === "ar" ? "إزالة المحادثة" : "Remove conversation"}
+          title={language === "ar" ? "إزالة المحادثة" : "Remove conversation"}
+        >
+          {isDeletingConversation ? <span className="text-xs">…</span> : <Trash2 size={18} aria-hidden="true" />}
+        </button>
+      </div>      <hr />
       {/* chat messages */}
       <div
         ref={messagesContainerRef}

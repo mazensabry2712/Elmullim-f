@@ -51,7 +51,7 @@ const InputFormItem = ({ input, field, label = false }: IProps) => {
           autoComplete={autoComplete}
           {...field}
           min={0}
-          className="bg-white py-6 text-black-blue border-input focus-visible:ring-0 placeholder:text-black-blue/50 placeholder:text-sm placeholder:font-sora"
+          className="bg-white !text-[#21374B] py-6 border border-[#E5ECEA] focus-visible:ring-0 focus-visible:border-[#0AB99D] placeholder:!text-[#21374B]/50 placeholder:text-sm placeholder:font-sora"
         />
       </FormControl>
       <FormMessage />

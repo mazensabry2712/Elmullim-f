@@ -169,14 +169,15 @@ input[type="range"]::-moz-range-thumb {
 
 @layer components {
   .auth-form input:not([type="range"]),
-  .auth-form button[role="combobox"] {
+  .auth-form button[role="combobox"],
+  .auth-form [data-radix-popper-content-wrapper] input {
     background-color: #FFFFFF !important;
-    color: #21374B !important;
+    color: #000000 !important;
     border-color: #E5ECEA !important;
   }
 
   .auth-form input:not([type="range"])::placeholder {
-    color: rgb(33 55 75 / 0.5) !important;
+    color: rgb(0 0 0 / 0.5) !important;
   }
 
   .auth-form input:not([type="range"]):focus,
@@ -190,8 +191,8 @@ input[type="range"]::-moz-range-thumb {
   .auth-form input:-webkit-autofill:focus,
   .auth-form input:-webkit-autofill:active {
     color: #21374B !important;
-    -webkit-text-fill-color: #21374B !important;
-    caret-color: #21374B !important;
+    -webkit-text-fill-color: #000000 !important;
+    caret-color: #000000 !important;
     opacity: 1 !important;
     filter: none !important;
     transition: background-color 999999s ease-out 0s !important;

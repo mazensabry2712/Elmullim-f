@@ -11,60 +11,32 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
 import { useI18n } from "@/i18n";
 
-const contactInfo: {
-  title: "address" | "hours" | "phone" | "email";
-  description: string;
-  subDescription?: string;
-  icon: IconDefinition;
-  href?: string;
-}[] = [
+const contactInfo = [
   {
-    title: "address",
-    description: "1564 Goosetown Drive Matthews, NC 28105",
+    title: "address" as const,
+    description: import.meta.env.VITE_CONTACT_ADDRESS?.trim(),
     icon: faLocationDot,
   },
   {
-    title: "hours",
-    description: "Mon - Fri: 9.00am to 5.00pm",
-    subDescription: "[2nd sat Holiday]",
+    title: "hours" as const,
+    description: import.meta.env.VITE_CONTACT_HOURS?.trim(),
     icon: faClock,
   },
   {
-    title: "phone",
-    description: "+99-35895-4565",
+    title: "phone" as const,
+    description: import.meta.env.VITE_CONTACT_PHONE?.trim(),
     icon: faPhone,
-    href: "tel:+99358954565",
+    href: import.meta.env.VITE_CONTACT_PHONE?.trim()
+      ? "tel:" + import.meta.env.VITE_CONTACT_PHONE.trim().replace(/\s+/g, "")
+      : undefined,
   },
   {
-    title: "email",
-    description: "support@elmullim.com",
+    title: "email" as const,
+    description: import.meta.env.VITE_CONTACT_EMAIL?.trim() || "support@elmullim.com",
     icon: faEnvelope,
-    href: "mailto:support@elmullim.com",
+    href: "mailto:" + (import.meta.env.VITE_CONTACT_EMAIL?.trim() || "support@elmullim.com"),
   },
-];
-
-const contactCopy = {
-  en: {
-    title: "Contact Us",
-    getInTouch: "Get in Touch",
-    description: "Have a question or need help? Send us a message and our team will get back to you.",
-    address: "Our Address",
-    hours: "Hours of Operation",
-    phone: "Phone",
-    email: "Email",
-    holiday: "[2nd Sat Holiday]",
-  },
-  ar: {
-    title: "تواصل معنا",
-    getInTouch: "تواصل معنا",
-    description: "هل لديك سؤال أو تحتاج إلى مساعدة؟ أرسل لنا رسالة وسيتواصل معك فريقنا.",
-    address: "العنوان",
-    hours: "ساعات العمل",
-    phone: "الهاتف",
-    email: "البريد الإلكتروني",
-    holiday: "[عطلة السبت الثاني]",
-  },
-} as const;
+].filter((item) => item.description);
 
 const ContactUs = () => {
   const { language, t } = useI18n();
@@ -128,11 +100,6 @@ const ContactUs = () => {
                             <h3 className="md:text-[21px] font-bold text-black-blue break-words">
                               {item.description}
                             </h3>
-                            {item.subDescription && (
-                              <p className="text-sm md:text-base font-sora text-[#4D5756] capitalize">
-                                {copy.holiday}
-                              </p>
-                            )}
                           </>
                         );
 

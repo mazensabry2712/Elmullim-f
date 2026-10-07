@@ -19,6 +19,23 @@ interface IProps {
 const InputFormItem = ({ input, field, label = false }: IProps) => {
   const { language } = useI18n();
 
+  const inputType = input.name === "email"
+    ? "email"
+    : input.name === "phone"
+      ? "tel"
+      : input.type;
+
+  const autoComplete =
+    input.name === "name"
+      ? "name"
+      : input.name === "email"
+        ? "email"
+        : input.name === "password"
+          ? "new-password"
+          : input.name === "phone"
+            ? "tel"
+            : "off";
+
   return (
     <FormItem>
       {label && (
@@ -29,9 +46,9 @@ const InputFormItem = ({ input, field, label = false }: IProps) => {
 
       <FormControl>
         <Input
-          type={input.type}
+          type={inputType}
           placeholder={translateFormText(language, input.placeholder)}
-          autoComplete={"on"}
+          autoComplete={autoComplete}
           {...field}
           min={0}
           className="bg-white py-6 text-black-blue border-input focus-visible:ring-0 placeholder:text-black-blue/50 placeholder:text-sm placeholder:font-sora"

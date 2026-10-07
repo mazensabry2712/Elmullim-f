@@ -10,8 +10,6 @@ import {
   faBrain,
   faEarthAsia,
   faChalkboardTeacher,
-  faUsers,
-  faEye,
   faTrophy,
   faBoltLightning,
   faVideo,
@@ -628,26 +626,6 @@ export const CAREER_CONTENT = [
     title: "Start from today",
     description: "Join our training courses &Build your skill.",
     image: "/images/career-img2.svg",
-  },
-];
-
-export const CHAT_OPTIONS = [
-  {
-    title: "Create a New Room",
-    description:
-      "Create a private chat room for focused learning conversations.",
-    icon: faChalkboardTeacher,
-  },
-  {
-    title: "Join a Room",
-    description: "Join your teacher's chat room using a room code.",
-    icon: faUsers,
-  },
-  {
-    title: "View Available Rooms",
-    description:
-      "Browse available rooms and request to join a learning conversation.",
-    icon: faEye,
   },
 ];
 

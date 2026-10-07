@@ -63,7 +63,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
               type="button"
               role="combobox"
               aria-expanded={open}
-              className="border border-[#E5ECEA] inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:border-[#0AB99D] focus-visible:ring-[#0AB99D]/15 focus-visible:ring-[3px] px-4 py-2 has-[>svg]:px-3 w-full !h-12 !text-[#21374B] justify-between overflow-hidden !bg-white hover:!bg-white hover:border-[#BBDCD5] font-sora capitalize"
+              className="border border-input inline-flex items-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] px-4 py-2 has-[>svg]:px-3 w-full !h-12 text-black-blue justify-between overflow-hidden bg-white hover:bg-white font-sora capitalize"
             >
               {field.value
                 ? options.find((option) => option.value === field.value)?.label || `${translateFormText(language, "Choose")} ${translatedLabel}...`

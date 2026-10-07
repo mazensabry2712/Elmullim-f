@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import React from "react";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 import ContactUs from "@/pages/ContactUs";
 import ContactUsForm from "@/components/forms/contactUs/ContactUsForm";
@@ -43,7 +43,6 @@ describe("Contact Us", () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
-  });
 
   it("renders contact information and form", () => {
     renderPage(<ContactUs />);
@@ -54,10 +53,11 @@ describe("Contact Us", () => {
       "href",
       "mailto:support@elmullim.com"
     );
-    expect(screen.getByRole("link", { name: /phone \+99-35895-4565/i })).toHaveAttribute(
+    expect(screen.getByRole("link", { name: /phone \+201000000000/i })).toHaveAttribute(
       "href",
-      "tel:+99358954565"
+      "tel:+201000000000"
     );
+    expect(screen.getByText("Cairo, Egypt")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /send a message/i })).toBeInTheDocument();
   });
 

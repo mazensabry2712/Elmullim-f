@@ -87,14 +87,14 @@ const MultiSelectFormItem: React.FC<MultiSelectProps> = ({
                 ? field.value.map((val: string, idx: number) => (
                     <span
                       key={idx}
-                      className="text-[13px] font-sora text-[#0AB79B] px-2 py-1 rounded-full bg-[#C2ECE5] flex items-center gap-1"
+                      className="text-[13px] font-sora text-black px-2 py-1 rounded-full bg-white border border-[#E5ECEA] flex items-center gap-1"
                       onClick={(e) => {
                         e.preventDefault();
                         handleSelect(val);
                       }}
                     >
                       {options.find((option) => option.value === val)?.label}
-                      <X size={14} className="text-[#2F927E]" />
+                      <X size={14} className="text-black" />
                     </span>
                   ))
                 : `${translateFormText(language, "Choose")} ${translatedLabel}...`}

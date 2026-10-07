@@ -289,6 +289,90 @@ describe("Course enrollment", () => {
     expect(screen.getByText("-100.00 L.E")).toBeInTheDocument();
   });
 
+
+  it("sends the server-confirmed promo code into checkout and handles a fully discounted course", async () => {
+    mockUseGetCourseById.mockReturnValue({
+      data: {
+        data: {
+          id: 9,
+          title: "Chemistry Basics",
+          description: "Chemistry course.",
+          price: 300,
+          level: "Beginner",
+          created_at: "2026-01-10T00:00:00.000Z",
+          hasEnrolled: false,
+          teacher: { name: "Teacher Three" },
+          image: "/course.jpg",
+        },
+      },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    const applyPromo = vi.fn().mockResolvedValue({
+      status: true,
+      message: "promo code applied",
+      data: {
+        code: "FREE100",
+        discount_percent: 100,
+        original_amount: 300,
+        discount_amount: 300,
+        final_amount: 0,
+      },
+    });
+
+    const startPayment = vi.fn().mockResolvedValue({
+      status: true,
+      data: {
+        payment_required: false,
+        redirect_url: null,
+        original_amount: 300,
+        discount_amount: 300,
+        final_amount: 0,
+        coupon_code: "FREE100",
+        payment_method: "card",
+      },
+    });
+
+    mockUseValidatePromoCode.mockReturnValue({
+      mutateAsync: applyPromo,
+      isPending: false,
+      reset: vi.fn(),
+    });
+    mockUseInitiatePayment.mockReturnValue({
+      mutateAsync: startPayment,
+      isPending: false,
+      isError: false,
+    });
+
+    renderPage(9);
+
+    fireEvent.change(screen.getByLabelText("Promo code"), {
+      target: { value: "free100" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Apply" }));
+
+    await waitFor(() =>
+      expect(applyPromo).toHaveBeenCalledWith({
+        token: "token",
+        courseId: 9,
+        code: "FREE100",
+      })
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: /continue to payment/i }));
+
+    await waitFor(() =>
+      expect(startPayment).toHaveBeenCalledWith({
+        token: "token",
+        courseId: 9,
+        promoCode: "FREE100",
+        paymentMethod: "card",
+      })
+    );
+  });
+
   it("does not submit a typed promo code until the student applies it", async () => {
     const startPayment = vi.fn().mockResolvedValue({
       data: { payment_required: true, redirect_url: "https://example.test/checkout" },

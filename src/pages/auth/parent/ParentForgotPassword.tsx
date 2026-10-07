@@ -89,7 +89,7 @@ const ForgotPassword = () => {
               </div>
               <Form {...form}>
                 <form
-                  className="mx-auto md:ml-0 space-y-6"
+                  className="auth-form mx-auto md:ml-0 space-y-6"
                   onSubmit={form.handleSubmit(onSubmit)}
                 >
                   <FormField
@@ -99,9 +99,9 @@ const ForgotPassword = () => {
                       <FormItem>
                         <FormControl>
                           <Input
-                            type={"text"}
+                            type="email"
                             placeholder={"Email"}
-                            autoComplete={"on"}
+                            autoComplete="email"
                             {...field}
                             className="bg-white py-6 text-black-blue focus-visible:ring-0 placeholder:text-black-blue/90 placeholder:text-sm placeholder:font-sora border-input"
                           />

@@ -103,7 +103,7 @@ const ParentResetPassword = () => {
               </div>
               <Form {...form}>
                 <form
-                  className="mx-auto md:ml-0 space-y-6"
+                  className="auth-form mx-auto md:ml-0 space-y-6"
                   onSubmit={form.handleSubmit(onSubmit)}
                 >
                   {RESET_PASSWORD_FORM_INPUTS.map((input) => (
@@ -119,7 +119,7 @@ const ParentResetPassword = () => {
                             <Input
                               type={input.type}
                               placeholder={input.placeholder}
-                              autoComplete={"on"}
+                              autoComplete={input.name === "email" ? "email" : input.name.includes("password") ? "new-password" : "off"}
                               {...field}
                               className="bg-white py-6 text-black-blue focus-visible:ring-0 placeholder:text-black-blue/90 placeholder:text-sm placeholder:font-sora border-input"
                             />

@@ -4,6 +4,7 @@ import { describe, expect, it, beforeEach, vi } from "vitest";
 import React from "react";
 import ChatRoom from "@/components/home/ChatRoom/ChatRoom";
 import { I18nProvider, useI18n } from "@/i18n";
+import { MemoryRouter } from "react-router-dom";
 
 vi.mock("framer-motion", () => ({
   motion: {
@@ -24,10 +25,12 @@ const LanguageToggle = () => {
 
 const renderChatRoom = () =>
   render(
-    <I18nProvider>
-      <LanguageToggle />
-      <ChatRoom />
-    </I18nProvider>
+    <MemoryRouter>
+      <I18nProvider>
+        <LanguageToggle />
+        <ChatRoom />
+      </I18nProvider>
+    </MemoryRouter>
   );
 
 describe("Home communication", () => {

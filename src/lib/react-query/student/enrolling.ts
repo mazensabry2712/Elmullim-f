@@ -28,8 +28,20 @@ export const useEnrollFreeCourse = () => {
   });
 };
 
-export const useInitiatePayment = () =>
-  useMutation({ mutationFn: initiatePayment });
+export const useInitiatePayment = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: initiatePayment,
+    onSuccess: (response) => {
+      if (response.data?.payment_required === false) {
+        void queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] });
+        void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] });
+        void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES] });
+      }
+    },
+  });
+};
 
 
 export const useValidatePromoCode = () =>

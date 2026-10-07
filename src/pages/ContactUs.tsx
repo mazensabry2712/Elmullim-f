@@ -10,38 +10,43 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
 import { useI18n } from "@/i18n";
 
-const contactInfo = [
-  {
-    title: "address" as const,
-    description: import.meta.env.VITE_CONTACT_ADDRESS?.trim(),
-    icon: faLocationDot,
-  },
-  {
-    title: "hours" as const,
-    description: import.meta.env.VITE_CONTACT_HOURS?.trim(),
-    icon: faClock,
-  },
-  {
-    title: "phone" as const,
-    description: import.meta.env.VITE_CONTACT_PHONE?.trim(),
-    icon: faPhone,
-    href: import.meta.env.VITE_CONTACT_PHONE?.trim()
-      ? "tel:" + import.meta.env.VITE_CONTACT_PHONE.trim().replace(/\s+/g, "")
-      : undefined,
-  },
-  {
-    title: "email" as const,
-    description: import.meta.env.VITE_CONTACT_EMAIL?.trim() || "support@elmullim.com",
-    icon: faEnvelope,
-    href: "mailto:" + (import.meta.env.VITE_CONTACT_EMAIL?.trim() || "support@elmullim.com"),
-  },
-].filter((item) => item.description);
+const getContactInfo = () =>
+  [
+    {
+      title: "address" as const,
+      description: import.meta.env.VITE_CONTACT_ADDRESS?.trim(),
+      icon: faLocationDot,
+    },
+    {
+      title: "hours" as const,
+      description: import.meta.env.VITE_CONTACT_HOURS?.trim(),
+      icon: faClock,
+    },
+    {
+      title: "phone" as const,
+      description: import.meta.env.VITE_CONTACT_PHONE?.trim(),
+      icon: faPhone,
+      href: import.meta.env.VITE_CONTACT_PHONE?.trim()
+        ? "tel:" + import.meta.env.VITE_CONTACT_PHONE.trim().replace(/\s+/g, "")
+        : undefined,
+    },
+    {
+      title: "email" as const,
+      description:
+        import.meta.env.VITE_CONTACT_EMAIL?.trim() || "support@elmullim.com",
+      icon: faEnvelope,
+      href:
+        "mailto:" +
+        (import.meta.env.VITE_CONTACT_EMAIL?.trim() || "support@elmullim.com"),
+    },
+  ].filter((item) => item.description);
 
 const contactCopy = {
   en: {
     title: "Contact Us",
     getInTouch: "Get in Touch",
-    description: "Have a question or need help? Send us a message and our team will get back to you.",
+    description:
+      "Have a question or need help? Send us a message and our team will get back to you.",
     address: "Our Address",
     hours: "Hours of Operation",
     phone: "Phone",
@@ -50,7 +55,8 @@ const contactCopy = {
   ar: {
     title: "تواصل معنا",
     getInTouch: "تواصل معنا",
-    description: "هل لديك سؤال أو تحتاج إلى مساعدة؟ أرسل لنا رسالة وسيتواصل معك فريقنا.",
+    description:
+      "هل لديك سؤال أو تحتاج إلى مساعدة؟ أرسل لنا رسالة وسيتواصل معك فريقنا.",
     address: "العنوان",
     hours: "ساعات العمل",
     phone: "الهاتف",
@@ -61,6 +67,7 @@ const contactCopy = {
 const ContactUs = () => {
   const { language, t } = useI18n();
   const copy = contactCopy[language];
+  const contactInfo = getContactInfo();
 
   return (
     <main>
@@ -78,7 +85,8 @@ const ContactUs = () => {
           {copy.title}
         </h1>
         <p className="font-sora font-light capitalize leading-[30px]">
-          <span>{t("nav.home")}</span> <span className="text-main">//</span>{" "}
+          <span>{t("nav.home")}</span>{" "}
+          <span className="text-main">//</span>{" "}
           <span>{copy.title}</span>
         </p>
       </motion.div>

@@ -42,10 +42,10 @@ const StudentSignInForm = () => {
         <h2 className="text-3xl font-bold text-main mt-10 uppercase">{copy.login}</h2>
         <div className="flex-grow border-t border-main my-5" />
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="auth-form space-y-4">
             {SIGNIN_FORM_INPUTS.map((input) => (
               <FormField key={input.name} control={form.control} name={input.name as keyof z.infer<typeof signInSchema>} render={({ field }) => (
-                <FormItem><FormControl><Input placeholder={language === "ar" ? (input.name === "email" ? "البريد الإلكتروني *" : "كلمة المرور *") : input.placeholder} type={input.type} {...field} className="bg-white py-6 text-black-blue border-white focus-visible:ring-0 placeholder:text-black-blue placeholder:text-base placeholder:font-sora" /></FormControl><FormMessage /></FormItem>
+                <FormItem><FormControl><Input placeholder={language === "ar" ? (input.name === "email" ? "البريد الإلكتروني *" : "كلمة المرور *") : input.placeholder} type={input.name === "email" ? "email" : input.type} autoComplete={input.name === "email" ? "email" : "current-password"} {...field} className="bg-white py-6 text-black-blue border-white focus-visible:ring-0 placeholder:text-black-blue placeholder:text-base placeholder:font-sora" /></FormControl><FormMessage /></FormItem>
               )} />
             ))}
             <Link to="/forgot-password" className="flex text-sm font-sora text-red-500 hover:underline transition-all duration-200 !mt-1">{copy.forgotPassword}</Link>

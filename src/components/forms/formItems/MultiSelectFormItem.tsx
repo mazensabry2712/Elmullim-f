@@ -81,7 +81,7 @@ const MultiSelectFormItem: React.FC<MultiSelectProps> = ({
               type="button"
               role="combobox"
               aria-expanded={open}
-              className="whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-[#0AB99D] focus-visible:ring-[#0AB99D]/15 focus-visible:ring-[3px] border border-[#E5ECEA] shadow-xs px-4 py-2 has-[>svg]:px-3 relative w-full min-h-12 !h-auto !text-[#21374B] overflow-hidden !bg-white hover:!bg-white hover:border-[#BBDCD5] font-sora flex justify-start items-center flex-wrap gap-1 !pr-8 capitalize"
+              className="whitespace-nowrap rounded-md text-sm font-medium transition-all disabled:pointer-events-none disabled:opacity-50 [&amp;_svg]:pointer-events-none [&amp;_svg:not([class*='size-'])]:size-4 shrink-0 [&amp;_svg]:shrink-0 outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive border shadow-xs hover:text-accent-foreground dark:bg-input/30 dark:border-input dark:hover:bg-input/50 px-4 py-2 has-[>svg]:px-3 relative border-muted w-full min-h-12 !h-auto text-black-blue overflow-hidden border-none bg-white hover:bg-white font-sora flex justify-start items-center flex-wrap gap-1 !pr-8 capitalize"
             >
               {field.value && field.value.length > 0
                 ? field.value.map((val: string, idx: number) => (

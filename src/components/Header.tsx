@@ -54,16 +54,40 @@ const Header = () => {
               variants={navItemsVariants}
               className="hidden md:flex md:pt-2 gap-4 lg:gap-6 mx-auto w-fit max-w-full flex-wrap justify-center"
             >
-              {contactItems.map((item) => (
-                <motion.div
-                  key={item.alt}
-                  variants={navItemsVariants}
-                  className="flex items-center gap-2 min-w-0 max-w-full"
-                >
-                  <img src={item.icon} alt={item.alt} className="h-5 w-5 shrink-0" />
-                  <p className="text-[15px] break-all">{item.value}</p>
-                </motion.div>
-              ))}
+              {contactItems.map((item) => {
+                const href =
+                  item.alt === text.phone
+                    ? `tel:${String(item.value).replace(/\\s+/g, "")}`
+                    : item.alt === text.email
+                      ? `mailto:${item.value}`
+                      : undefined;
+
+                const content = (
+                  <>
+                    <img src={item.icon} alt={item.alt} className="h-5 w-5 shrink-0" />
+                    <p className="text-[15px] break-all">{item.value}</p>
+                  </>
+                );
+
+                return (
+                  <motion.div
+                    key={item.alt}
+                    variants={navItemsVariants}
+                    className="flex min-w-0 max-w-full items-center gap-2"
+                  >
+                    {href ? (
+                      <a
+                        href={href}
+                        className="flex min-w-0 items-center gap-2 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+                      >
+                        {content}
+                      </a>
+                    ) : (
+                      content
+                    )}
+                  </motion.div>
+                );
+              })}
             </motion.div>
           )}
 

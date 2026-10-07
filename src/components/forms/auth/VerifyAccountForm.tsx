@@ -152,7 +152,7 @@ const VerifyAccountForm = () => {
 
       <Form {...form}>
         <form
-          className="w-full space-y-6"
+          className="auth-form w-full space-y-6"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <FormField

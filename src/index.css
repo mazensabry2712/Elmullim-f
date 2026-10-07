@@ -168,6 +168,23 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @layer components {
+  .auth-form input:not([type="range"]),
+  .auth-form button[role="combobox"] {
+    background-color: #FFFFFF !important;
+    color: #21374B !important;
+    border-color: #E5ECEA !important;
+  }
+
+  .auth-form input:not([type="range"])::placeholder {
+    color: rgb(33 55 75 / 0.5) !important;
+  }
+
+  .auth-form input:not([type="range"]):focus,
+  .auth-form button[role="combobox"]:focus-visible {
+    border-color: #0AB99D !important;
+    outline: none;
+  }
+
   .auth-form input:-webkit-autofill,
   .auth-form input:-webkit-autofill:hover,
   .auth-form input:-webkit-autofill:focus,

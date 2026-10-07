@@ -172,9 +172,11 @@ input[type="range"]::-moz-range-thumb {
   .auth-form input:-webkit-autofill:hover,
   .auth-form input:-webkit-autofill:focus,
   .auth-form input:-webkit-autofill:active {
+    color: #21374B !important;
     -webkit-text-fill-color: #21374B !important;
-    -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
-    box-shadow: 0 0 0 1000px #FFFFFF inset !important;
-    caret-color: #21374B;
+    caret-color: #21374B !important;
+    opacity: 1 !important;
+    filter: none !important;
+    transition: background-color 999999s ease-out 0s !important;
   }
 }

@@ -35,6 +35,14 @@ describe("Contact Us", () => {
     localStorage.setItem("elmullim-language", "en");
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
+    vi.stubEnv("VITE_CONTACT_PHONE", "+201000000000");
+    vi.stubEnv("VITE_CONTACT_ADDRESS", "Cairo, Egypt");
+    vi.stubEnv("VITE_CONTACT_EMAIL", "support@elmullim.com");
+  });
+
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
   });
 
   it("renders contact information and form", () => {

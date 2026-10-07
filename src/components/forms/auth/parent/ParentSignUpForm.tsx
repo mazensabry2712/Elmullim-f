@@ -121,7 +121,7 @@ const ParentSignUpForm = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 w-full"
+            className="auth-form space-y-4 w-full"
           >
             {PARENT_SIGNUP_FORM_INPUTS.map((input) => (
               <RenderSignUpFormFields

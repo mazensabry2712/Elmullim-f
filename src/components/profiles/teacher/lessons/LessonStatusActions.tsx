@@ -228,7 +228,7 @@ const LessonStatusActions = ({ lesson, compact = false }: Props) => {
       className={`inline-flex items-center justify-center gap-2 rounded-xl bg-main px-4 py-2.5 text-sm font-extrabold text-white transition hover:bg-main/90 disabled:cursor-not-allowed disabled:opacity-60 ${compact ? "w-full" : ""}`}
     >
       {isWorking ? <Loader2 className="h-4 w-4 animate-spin" /> : <UploadCloud className="h-4 w-4" />}
-      {text.submitForReview}
+      {text.publish}
     </button>
   );
 };

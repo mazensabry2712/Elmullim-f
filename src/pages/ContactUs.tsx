@@ -5,7 +5,6 @@ import {
   faEnvelope,
   faLocationDot,
   faPhone,
-  IconDefinition,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { motion } from "framer-motion";
@@ -37,6 +36,27 @@ const contactInfo = [
     href: "mailto:" + (import.meta.env.VITE_CONTACT_EMAIL?.trim() || "support@elmullim.com"),
   },
 ].filter((item) => item.description);
+
+const contactCopy = {
+  en: {
+    title: "Contact Us",
+    getInTouch: "Get in Touch",
+    description: "Have a question or need help? Send us a message and our team will get back to you.",
+    address: "Our Address",
+    hours: "Hours of Operation",
+    phone: "Phone",
+    email: "Email",
+  },
+  ar: {
+    title: "تواصل معنا",
+    getInTouch: "تواصل معنا",
+    description: "هل لديك سؤال أو تحتاج إلى مساعدة؟ أرسل لنا رسالة وسيتواصل معك فريقنا.",
+    address: "العنوان",
+    hours: "ساعات العمل",
+    phone: "الهاتف",
+    email: "البريد الإلكتروني",
+  },
+} as const;
 
 const ContactUs = () => {
   const { language, t } = useI18n();

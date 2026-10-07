@@ -1,10 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
-  Bell,
   BookOpen,
   CalendarClock,
   CalendarDays,
-  HelpCircle,
   LogOut,
   MapPin,
   MessageCircleMore,
@@ -87,9 +85,7 @@ const ProfileDropdownMenu = () => {
     serviceAreas: ar ? "مناطق الخدمة" : "Service Areas",
     schedule: ar ? "مواعيدي" : "Schedule",
     ratings: ar ? "تقييماتي" : "My Ratings",
-    notifications: ar ? "الإشعارات" : "Notifications",
     finance: ar ? "المحفظة والأرباح" : "Wallet & Earnings",
-    help: ar ? "الدعم والمساعدة" : "Help & Support",
     chat: ar ? "الدردشة" : "Chat",
     logout: copy.logout,
     logoutHint: ar
@@ -287,20 +283,6 @@ const ProfileDropdownMenu = () => {
                       </span>
                       {text.ratings}
                     </button>
-
-                    <button
-                      type="button"
-                      className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
-                      onClick={() => {
-                        navigate("/notifications");
-                        setIsOpen(false);
-                      }}
-                    >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
-                        <Bell className="h-4 w-4" />
-                      </span>
-                      {text.notifications}
-                    </button>
                   </>
                 )}
 
@@ -362,20 +344,6 @@ const ProfileDropdownMenu = () => {
                         <WalletCards className="h-4 w-4" />
                       </span>
                       {text.finance}
-                    </button>
-
-                    <button
-                      type="button"
-                      className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
-                      onClick={() => {
-                        navigate("/notifications");
-                        setIsOpen(false);
-                      }}
-                    >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
-                        <Bell className="h-4 w-4" />
-                      </span>
-                      {text.notifications}
                     </button>
 
                     <button
@@ -468,7 +436,7 @@ const ProfileDropdownMenu = () => {
                   type="button"
                   className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
                   onClick={() => {
-                    navigate("/profile", { state: { chat: true } });
+                    navigate("/chat");
                     setIsOpen(false);
                   }}
                 >
@@ -477,21 +445,7 @@ const ProfileDropdownMenu = () => {
                   </span>
                   {text.chat}
                 </button>
-                
-                <button
-                  type="button"
-                  className="flex w-full items-center gap-3 rounded-lg px-2.5 py-2.5 text-start font-sora text-sm font-medium text-black-blue transition-colors hover:bg-black-blue/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
-                  onClick={() => {
-                    navigate("/faqs");
-                    setIsOpen(false);
-                  }}
-                >
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-black-blue/5">
-                    <HelpCircle className="h-4 w-4" />
-                  </span>
-                  {text.help}
-                </button>
-              </div>
+                              </div>
             </div>
 
             <div className="border-t border-black-blue/10 px-1.5 pt-1.5 pb-1">

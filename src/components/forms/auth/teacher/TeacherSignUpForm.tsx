@@ -139,7 +139,7 @@ const TeacherSignUpForm = () => {
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="space-y-4 w-full"
+            className="auth-form space-y-4 w-full"
           >
             {TEACHER_SIGNUP_FORM_INPUTS.map((input) => (
               <RenderSignUpFormFields

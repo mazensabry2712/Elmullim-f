@@ -166,3 +166,15 @@ input[type="range"]::-webkit-slider-thumb {
 input[type="range"]::-moz-range-thumb {
   pointer-events: auto;
 }
+
+@layer components {
+  .auth-form input:-webkit-autofill,
+  .auth-form input:-webkit-autofill:hover,
+  .auth-form input:-webkit-autofill:focus,
+  .auth-form input:-webkit-autofill:active {
+    -webkit-text-fill-color: #21374B !important;
+    -webkit-box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+    box-shadow: 0 0 0 1000px #FFFFFF inset !important;
+    caret-color: #21374B;
+  }
+}

@@ -190,7 +190,7 @@ input[type="range"]::-moz-range-thumb {
   .auth-form input:-webkit-autofill:hover,
   .auth-form input:-webkit-autofill:focus,
   .auth-form input:-webkit-autofill:active {
-    color: #21374B !important;
+    color: #000000 !important;
     -webkit-text-fill-color: #000000 !important;
     caret-color: #000000 !important;
     opacity: 1 !important;

@@ -34,13 +34,16 @@ vi.mock("@/i18n", () => ({
   }),
 }));
 
+const deleteConversationMock = vi.fn();
+
 vi.mock("@/lib/react-query/chat/chat", () => ({
   useCreateMessage: () => ({
     mutate: sendMessageMock,
     isPending: false,
   }),
   useDeleteConversation: () => ({
-    mutate: vi.fn(),
+    mutate: deleteConversationMock,
+    isPending: false,
   }),
   useGetConversationById: () => ({
     data: {
@@ -73,28 +76,34 @@ vi.mock("@/lib/react-query/chat/chat", () => ({
 }));
 
 describe("ChatWindow accessibility", () => {
-  it("provides keyboard-accessible chat controls and closes from the menu", () => {
+  it("provides essential chat controls and a mobile back action", () => {
     renderChatWindow();
 
-    const optionsButton = screen.getByRole("button", { name: "Chat options" });
-    expect(optionsButton).toHaveAttribute("aria-haspopup", "menu");
-    expect(optionsButton).toHaveAttribute("aria-expanded", "false");
-
+    expect(screen.getByRole("button", { name: "Back to conversations" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Remove conversation" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Attach image" })).toBeInTheDocument();
     expect(screen.getByPlaceholderText("Type your message.....")).toBeInTheDocument();
 
-    fireEvent.click(optionsButton);
-
-    expect(optionsButton).toHaveAttribute("aria-expanded", "true");
-    const closeButton = screen.getByRole("menuitem", { name: "Close Chat" });
-    expect(closeButton).toBeInTheDocument();
-
-    fireEvent.click(closeButton);
-
+    fireEvent.click(screen.getByRole("button", { name: "Back to conversations" }));
     expect(onCloseMock).toHaveBeenCalledOnce();
   });
 
-  it("sends an image even when the message body is empty", () => {
+  it("removes a conversation from the list after confirmation", () => {
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+    renderChatWindow();
+
+    fireEvent.click(screen.getByRole("button", { name: "Remove conversation" }));
+
+    expect(deleteConversationMock).toHaveBeenCalledOnce();
+    expect(deleteConversationMock.mock.calls[0][0]).toEqual({
+      token: "token",
+      conversationId: "1",
+    });
+
+    vi.restoreAllMocks();
+  });
+
+  it("sends an image  it("sends an image even when the message body is empty", () => {
     renderChatWindow();
 
     const fileInput = document.getElementById("hiddenFileInput");

@@ -103,7 +103,7 @@ describe("ChatWindow accessibility", () => {
     vi.restoreAllMocks();
   });
 
-  it("sends an image  it("sends an image even when the message body is empty", () => {
+  it("sends an image even when the message body is empty", () => {
     renderChatWindow();
 
     const fileInput = document.getElementById("hiddenFileInput");

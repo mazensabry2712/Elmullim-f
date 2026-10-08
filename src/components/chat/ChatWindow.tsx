@@ -90,6 +90,43 @@ function ChatWindow({
     scrollToBottom();
   }, [conv]);
 
+  const handleImageSelection = (file: File | null) => {
+    if (!file) {
+      setImageFile(null);
+      return;
+    }
+
+    const maxImageSize = 2 * 1024 * 1024;
+    const allowedTypes = new Set([
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+    ]);
+
+    if (!allowedTypes.has(file.type)) {
+      toast.error(
+        language === "ar"
+          ? "يسمح فقط بصور JPG وPNG وGIF وWebP."
+          : "Only JPG, PNG, GIF and WebP images are allowed."
+      );
+      setImageFile(null);
+      return;
+    }
+
+    if (file.size > maxImageSize) {
+      toast.error(
+        language === "ar"
+          ? "حجم الصورة يجب ألا يتجاوز 2MB."
+          : "Image size must not exceed 2MB."
+      );
+      setImageFile(null);
+      return;
+    }
+
+    setImageFile(file);
+  };
+
   const handleSend = () => {
     if (!messageText.trim() && !imageFile) return;
 
@@ -289,10 +326,9 @@ function ChatWindow({
           type="file"
           id="hiddenFileInput"
           className="hidden"
-          accept="image/*"
+          accept=".jpg,.jpeg,.png,.gif,.webp,image/jpeg,image/png,image/gif,image/webp"
           onChange={(e) => {
-            const file = e.target.files?.[0] || null;
-            setImageFile(file);
+            handleImageSelection(e.target.files?.[0] || null);
             e.currentTarget.value = "";
           }}
         />
@@ -318,6 +354,7 @@ function ChatWindow({
           placeholder={language === "ar" ? "اكتب رسالتك....." : "Type your message....."}
           className="w-full min-w-0 flex-1 rounded-2xl border border-main px-3 py-2 text-sm placeholder:text-sm focus:outline-none sm:max-w-[300px]"
           value={messageText}
+          maxLength={1000}
           onChange={(e) => setMessageText(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleSend()}
         />

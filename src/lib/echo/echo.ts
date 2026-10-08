@@ -21,9 +21,13 @@ type RuntimePusherConfig = {
 let echoInstance: Echo<any> | null = null;
 let echoToken: string | undefined;
 
+const configuredApiUrl = String(import.meta.env.VITE_API || "").trim();
 const apiBaseUrl =
-  import.meta.env.VITE_API ||
+  configuredApiUrl ||
   (import.meta.env.DEV ? "http://Elmullim-b.test" : "https://api.elmullim.com");
+const apiOrigin = apiBaseUrl.endsWith("/api")
+  ? apiBaseUrl.slice(0, -4)
+  : apiBaseUrl.replace(/\/$/, "");
 
 const getRuntimePusherConfig = async (token: string): Promise<RuntimePusherConfig | null> => {
   try {
@@ -102,7 +106,7 @@ export const getEcho = async (): Promise<Echo<any> | null> => {
     cluster: runtimeConfig.cluster,
     ...hostOptions,
     enabledTransports: ["ws", "wss"],
-    authEndpoint: `${apiBaseUrl.replace(/\/$/, "")}/api/broadcasting/auth`,
+    authEndpoint: `${apiOrigin}/api/broadcasting/auth`,
     auth: {
       headers: {
         Authorization: `Bearer ${token}`,

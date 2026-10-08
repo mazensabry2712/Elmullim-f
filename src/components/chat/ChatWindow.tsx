@@ -280,7 +280,7 @@ function ChatWindow({
     );
 
   return (
-    <div className="relative col-span-1 flex min-h-[520px] min-w-0 flex-col rounded-md bg-white shadow-md md:col-span-2">
+    <div className="relative col-span-1 flex h-[clamp(420px,calc(100svh-220px),560px)] min-h-[420px] min-w-0 flex-col rounded-md bg-white shadow-md md:h-[500px] md:min-h-0 md:col-span-2">
       {/* chat header */}
       <div className="flex min-w-0 items-center gap-2 px-3 py-3 sm:px-6 md:px-8">
         <button

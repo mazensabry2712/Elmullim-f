@@ -4,12 +4,14 @@ import getEcho from "@/lib/echo/echo";
 import {
   useCreateMessage,
   useDeleteConversation,
+  useDeleteMessage,
+  useFlagMessage,
   useGetConversationById,
 } from "@/lib/react-query/chat/chat";
 import cookieService from "@/utils/cookieService";
 import { useI18n } from "@/i18n";
 import { formatTime } from "@/utils/dateTime";
-import { ArrowLeft, ArrowRight, MessageCircle, Send, Trash2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Flag, MessageCircle, MoreVertical, Send, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "react-toastify";
@@ -26,6 +28,7 @@ function ChatWindow({
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { language } = useI18n();
   const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
+  const [openMessageMenuId, setOpenMessageMenuId] = useState<number | null>(null);
   const queryClient = useQueryClient();
 
   const { mutate: sendMessage, isPending: isSending } = useCreateMessage();
@@ -33,6 +36,8 @@ function ChatWindow({
     mutate: deleteConversation,
     isPending: isDeletingConversation,
   } = useDeleteConversation();
+  const { mutate: deleteMessage, isPending: isDeletingMessage } = useDeleteMessage();
+  const { mutate: flagMessage, isPending: isFlaggingMessage } = useFlagMessage();
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
   const previousMessageCountRef = useRef(0);
   const previousConversationIdRef = useRef<string | null>(null);
@@ -316,47 +321,218 @@ function ChatWindow({
         ref={messagesContainerRef}
         className="min-h-0 flex-1 overflow-y-auto px-3 py-4 sm:px-6 md:px-10 md:py-5"
       >
-        {allMessages.map((msg, index) => (
-          <div
-            key={msg.id || index}
-            className={`flex ${
-              msg.side === "left" ? "justify-end" : "justify-start"
-            } mb-4`}
-          >
+        {allMessages.map((msg, index) => {
+          const isOwnMessage = msg.side === "left";
+          const canAct = !msg.deleted_at;
+          const isMenuOpen = openMessageMenuId === msg.id;
+
+          return (
             <div
-              className={`max-w-[85%] rounded-lg p-2 font-sora text-xs sm:max-w-[70%] md:text-sm ${
-                msg.side === "left"
-                  ? "bg-main text-white"
-                  : "bg-white border border-main text-main"
-              }`}
+              key={msg.id || index}
+              className={`group relative flex ${
+                isOwnMessage ? "justify-end" : "justify-start"
+              } mb-4`}
             >
               <div
-                className={`${
-                  msg.side === "left" ? "text-white" : "text-black"
-                } min-w-0 break-words`}
+                className={`flex min-w-0 max-w-[92%] items-start gap-1 sm:max-w-[78%] md:max-w-[70%] ${
+                  isOwnMessage ? "flex-row-reverse" : "flex-row"
+                }`}
               >
-                {msg.data.image ? (
-                  <>
-                    <img
-                      src={msg.data.image.url}
-                      className="block w-auto max-w-full max-h-72 rounded-lg object-contain object-center"
-                      alt={language === "ar" ? "صورة مرفقة" : "Shared image"}
-                      loading="lazy"
-                    />
-                    {msg.data.body}
-                  </>
-                ) : (
-                  <>{msg.data.body}</>
+                {canAct && (
+                  <div className="relative mt-1 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setOpenMessageMenuId((current) =>
+                          current === msg.id ? null : msg.id
+                        )
+                      }
+                      aria-label={
+                        language === "ar" ? "خيارات الرسالة" : "Message options"
+                      }
+                      aria-expanded={isMenuOpen}
+                      className="inline-flex h-7 w-7 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-black-blue focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                    >
+                      <MoreVertical size={16} aria-hidden="true" />
+                    </button>
+
+                    {isMenuOpen && (
+                      <div
+                        className={`absolute top-8 z-20 w-44 rounded-lg border border-gray-200 bg-white p-1 shadow-lg ${
+                          isOwnMessage ? "right-0" : "left-0"
+                        }`}
+                      >
+                        <button
+                          type="button"
+                          onClick={() => {
+                            deleteMessage(
+                              {
+                                token,
+                                conversationId: conversationId!,
+                                messageId: String(msg.id),
+                                type: "0",
+                              },
+                              {
+                                onSuccess: () => {
+                                  setOpenMessageMenuId(null);
+                                  toast.success(
+                                    language === "ar"
+                                      ? "تم حذف الرسالة من محادثتك."
+                                      : "Message removed from your chat."
+                                  );
+                                },
+                                onError: () => {
+                                  toast.error(
+                                    language === "ar"
+                                      ? "تعذر حذف الرسالة."
+                                      : "Could not delete the message."
+                                  );
+                                },
+                              }
+                            );
+                          }}
+                          disabled={isDeletingMessage}
+                          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          <Trash2 size={14} aria-hidden="true" />
+                          {language === "ar" ? "حذف لديّ" : "Delete for me"}
+                        </button>
+
+                        {isOwnMessage && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const confirmed = window.confirm(
+                                language === "ar"
+                                  ? "هل تريد حذف الرسالة للجميع؟"
+                                  : "Delete this message for everyone?"
+                              );
+
+                              if (!confirmed) return;
+
+                              deleteMessage(
+                                {
+                                  token,
+                                  conversationId: conversationId!,
+                                  messageId: String(msg.id),
+                                  type: "1",
+                                },
+                                {
+                                  onSuccess: () => {
+                                    setOpenMessageMenuId(null);
+                                    toast.success(
+                                      language === "ar"
+                                        ? "تم حذف الرسالة للجميع."
+                                        : "Message deleted for everyone."
+                                    );
+                                  },
+                                  onError: () => {
+                                    toast.error(
+                                      language === "ar"
+                                        ? "تعذر حذف الرسالة للجميع."
+                                        : "Could not delete the message for everyone."
+                                    );
+                                  },
+                                }
+                              );
+                            }}
+                            disabled={isDeletingMessage}
+                            className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start text-xs font-semibold text-red-600 hover:bg-red-50 disabled:opacity-50"
+                          >
+                            <Trash2 size={14} aria-hidden="true" />
+                            {language === "ar" ? "حذف للجميع" : "Delete for everyone"}
+                          </button>
+                        )}
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            flagMessage(
+                              {
+                                token,
+                                conversationId: conversationId!,
+                                messageId: String(msg.id),
+                              },
+                              {
+                                onSuccess: () => {
+                                  setOpenMessageMenuId(null);
+                                  toast.success(
+                                    language === "ar"
+                                      ? msg.flagged
+                                        ? "تم إلغاء الإبلاغ."
+                                        : "تم الإبلاغ عن الرسالة."
+                                      : msg.flagged
+                                        ? "Message unflagged."
+                                        : "Message flagged."
+                                  );
+                                },
+                                onError: () => {
+                                  toast.error(
+                                    language === "ar"
+                                      ? "تعذر تحديث حالة الإبلاغ."
+                                      : "Could not update the flag."
+                                  );
+                                },
+                              }
+                            );
+                          }}
+                          disabled={isFlaggingMessage}
+                          className="flex w-full items-center gap-2 rounded-md px-3 py-2 text-start text-xs font-semibold text-gray-700 hover:bg-gray-50 disabled:opacity-50"
+                        >
+                          <Flag size={14} aria-hidden="true" />
+                          {msg.flagged
+                            ? language === "ar"
+                              ? "إلغاء الإبلاغ"
+                              : "Unflag"
+                            : language === "ar"
+                              ? "إبلاغ"
+                              : "Flag message"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 )}
-              </div>
-              <div className="flex justify-end items-center gap-2">
-                <span>
-{formatTime(msg.created_at, language)}
-                </span>
+
+                <div
+                  className={`min-w-0 flex-1 rounded-lg p-2 font-sora text-xs sm:p-3 sm:text-sm ${
+                    isOwnMessage
+                      ? "bg-main text-white"
+                      : "border border-main bg-white text-main"
+                  }`}
+                >
+                  <div
+                    className={`${
+                      isOwnMessage ? "text-white" : "text-black"
+                    } min-w-0 break-words`}
+                  >
+                    {msg.data.image && !msg.deleted_at ? (
+                      <>
+                        <img
+                          src={msg.data.image.url}
+                          className="block max-h-72 max-w-full rounded-lg object-contain object-center"
+                          alt={
+                            language === "ar"
+                              ? "صورة مرفقة"
+                              : "Shared image"
+                          }
+                          loading="lazy"
+                        />
+                        {msg.data.body}
+                      </>
+                    ) : (
+                      <>{msg.data.body}</>
+                    )}
+                  </div>
+                  <div className="mt-1 flex items-center justify-end gap-2">
+                    <span className="text-[10px] opacity-70">
+                      {formatTime(msg.created_at, language)}
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
       {/* send */}
       <div className="flex w-full shrink-0 flex-wrap items-center justify-center gap-2 border-t border-gray-100 px-3 py-3 sm:gap-3 sm:px-6">

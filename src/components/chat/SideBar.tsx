@@ -228,7 +228,7 @@ function SideBar({ selectedConversationId = null, setSelectedConversationId }: S
           </button>
         </div>
         {/* conversation list */}
-        <div className="min-h-0 flex-grow overflow-y-auto py-5">
+        <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain py-5">
           {isLoading ? (
             <p className="text-black text-base text-center" role="status">{text.loading}</p>
           ) : isError ? (
@@ -383,7 +383,7 @@ function SideBar({ selectedConversationId = null, setSelectedConversationId }: S
             {text.contact}
           </h3>
         </div>
-        <div className="min-h-0 flex-grow overflow-y-auto px-2">
+        <div className="flex-1 min-h-0 overflow-y-scroll overscroll-contain px-2">
           {isLoadingUsers ? (
             <p className="pt-4 text-center text-gray-500" role="status">{text.searching}</p>
           ) : users && users.length > 0 ? (

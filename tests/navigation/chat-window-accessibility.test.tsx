@@ -78,6 +78,18 @@ vi.mock("@/lib/react-query/chat/chat", () => ({
             read: true,
             sender: null,
           },
+          {
+            id: 2,
+            data: {
+              body: "My reply",
+            },
+            side: "left",
+            flagged: false,
+            created_at: "2026-09-29T10:01:00.000Z",
+            deleted_at: null,
+            read: true,
+            sender: null,
+          },
         ],
       },
     },
@@ -128,14 +140,18 @@ describe("ChatWindow accessibility", () => {
     ).toBeInTheDocument();
   });
 
-  it("exposes message actions with sender-safe delete options", () => {
+  it("exposes sender-safe delete options for messages", () => {
     renderChatWindow();
 
-    fireEvent.click(screen.getByRole("button", { name: "Message options" }));
+    const optionButtons = screen.getAllByRole("button", { name: "Message options" });
 
+    fireEvent.click(optionButtons[0]);
     expect(screen.getByRole("button", { name: "Delete for me" })).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Delete for everyone" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Delete for everyone" })).not.toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Flag message" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByRole("button", { name: "Message options" })[1]);
+    expect(screen.getByRole("button", { name: "Delete for everyone" })).toBeInTheDocument();
   });
 
   it("sends an image even when the message body is empty", () => {

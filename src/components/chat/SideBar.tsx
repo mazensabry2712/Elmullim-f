@@ -185,7 +185,7 @@ function SideBar({ selectedConversationId = null, setSelectedConversationId }: S
   const isPaginating = isFetching && !isLoading;
 
   return (
-    <div className="relative col-span-1 h-[clamp(360px,calc(100svh-220px),520px)] min-h-[360px] w-full min-w-0 overflow-hidden rounded-md bg-[#FFFFFF] shadow-md md:h-[500px]">
+    <div className="relative col-span-1 h-[clamp(360px,calc(100svh-220px),520px)] min-h-[360px] w-full min-w-0 overflow-hidden rounded-md bg-[#FFFFFF] shadow-md lg:h-[500px]">
       {/* Main View: Conversation List */}
       <div
         className={`h-full min-h-0 flex flex-col transform transition-transform duration-300 ease-in-out ${

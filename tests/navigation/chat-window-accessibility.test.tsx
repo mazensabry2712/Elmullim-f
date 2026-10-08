@@ -103,6 +103,21 @@ describe("ChatWindow accessibility", () => {
     vi.restoreAllMocks();
   });
 
+  it("shows a bounded preview for a valid image attachment", () => {
+    renderChatWindow();
+
+    const fileInput = document.getElementById("hiddenFileInput");
+    const image = new File(["image"], "lesson.png", { type: "image/png" });
+
+    fireEvent.change(fileInput as HTMLInputElement, {
+      target: { files: [image] },
+    });
+
+    expect(
+      screen.getByRole("img", { name: "Attached image preview" })
+    ).toBeInTheDocument();
+  });
+
   it("sends an image even when the message body is empty", () => {
     renderChatWindow();
 

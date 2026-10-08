@@ -64,6 +64,20 @@ Object.defineProperty(window, "IntersectionObserver", {
   value: IntersectionObserverMock,
 });
 
+if (typeof URL.createObjectURL !== "function") {
+  Object.defineProperty(URL, "createObjectURL", {
+    configurable: true,
+    value: () => "blob:vitest-preview",
+  });
+}
+
+if (typeof URL.revokeObjectURL !== "function") {
+  Object.defineProperty(URL, "revokeObjectURL", {
+    configurable: true,
+    value: () => undefined,
+  });
+}
+
 Object.defineProperty(Element.prototype, "scrollIntoView", {
   configurable: true,
   value: () => undefined,

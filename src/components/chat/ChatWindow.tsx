@@ -25,6 +25,7 @@ function ChatWindow({
   const [messageText, setMessageText] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { language } = useI18n();
+  const [imagePreviewUrl, setImagePreviewUrl] = useState<string | null>(null);
   const queryClient = useQueryClient();
 
   const { mutate: sendMessage, isPending: isSending } = useCreateMessage();
@@ -33,6 +34,8 @@ function ChatWindow({
     isPending: isDeletingConversation,
   } = useDeleteConversation();
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
+  const previousMessageCountRef = useRef(0);
+  const previousConversationIdRef = useRef<string | null>(null);
 
   const {
     data: conv,
@@ -44,13 +47,27 @@ function ChatWindow({
     id: conversationId!,
   });
 
-  // دالة للتمرير لأسفل المحادثة
+  // Keep the scroll position stable while receiving new messages.
   const scrollToBottom = () => {
     const container = messagesContainerRef.current;
     if (container) {
       container.scrollTop = container.scrollHeight;
     }
   };
+
+  useEffect(() => {
+    if (!imageFile) {
+      setImagePreviewUrl(null);
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(imageFile);
+    setImagePreviewUrl(previewUrl);
+
+    return () => {
+      URL.revokeObjectURL(previewUrl);
+    };
+  }, [imageFile]);
 
   useEffect(() => {
     if (!conversationId) return;
@@ -92,8 +109,27 @@ function ChatWindow({
   }, [conversationId, refetchConversation, queryClient]);
 
   useEffect(() => {
-    scrollToBottom();
-  }, [conv]);
+    if (!conversationId) {
+      previousConversationIdRef.current = null;
+      previousMessageCountRef.current = 0;
+      return;
+    }
+
+    const container = messagesContainerRef.current;
+    const messageCount = conv?.data.messages?.length ?? 0;
+    const isConversationChange =
+      previousConversationIdRef.current !== String(conversationId);
+    const wasNearBottom = container
+      ? container.scrollHeight - container.scrollTop - container.clientHeight <= 96
+      : true;
+
+    if (container && (isConversationChange || (messageCount > previousMessageCountRef.current && wasNearBottom))) {
+      requestAnimationFrame(scrollToBottom);
+    }
+
+    previousConversationIdRef.current = String(conversationId);
+    previousMessageCountRef.current = messageCount;
+  }, [conversationId, conv?.data.messages?.length]);
 
   const handleImageSelection = (file: File | null) => {
     if (!file) {
@@ -362,8 +398,15 @@ function ChatWindow({
           }}
         />
         {imageFile && (
-          <div className="order-3 flex w-full items-center justify-between gap-2 rounded-lg border border-main/20 bg-[#F0FEFC] px-3 py-2 text-xs text-black-blue sm:order-none sm:w-auto sm:min-w-0 sm:max-w-[220px]">
-            <span className="min-w-0 truncate">{imageFile.name}</span>
+          <div className="order-3 flex w-full min-w-0 items-center gap-2 rounded-lg border border-main/20 bg-[#F0FEFC] px-2 py-2 text-xs text-black-blue sm:order-none sm:w-auto sm:max-w-[260px]">
+            {imagePreviewUrl && (
+              <img
+                src={imagePreviewUrl}
+                alt={language === "ar" ? "معاينة الصورة المرفقة" : "Attached image preview"}
+                className="h-14 w-14 shrink-0 rounded-md object-cover"
+              />
+            )}
+            <span className="min-w-0 flex-1 truncate">{imageFile.name}</span>
             <button
               type="button"
               onClick={() => setImageFile(null)}

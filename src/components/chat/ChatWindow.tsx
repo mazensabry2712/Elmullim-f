@@ -34,7 +34,12 @@ function ChatWindow({
   } = useDeleteConversation();
   const messagesContainerRef = useRef<HTMLDivElement | null>(null);
 
-  const { data: conv, refetch: refetchConversation } = useGetConversationById({
+  const {
+    data: conv,
+    isLoading: isConversationLoading,
+    isError: isConversationError,
+    refetch: refetchConversation,
+  } = useGetConversationById({
     token,
     id: conversationId!,
   });
@@ -184,6 +189,30 @@ function ChatWindow({
       }
     );
   };
+
+  if (conversationId && (isConversationLoading || isConversationError)) {
+    return (
+      <div className="col-span-1 flex min-h-[520px] min-w-0 items-center justify-center rounded-md bg-white px-6 py-10 text-center shadow-md md:col-span-2">
+        <div className="flex max-w-sm flex-col items-center justify-center gap-4">
+          <MessageCircle className="h-16 w-16 text-main" aria-hidden="true" />
+          <h3 className="font-sora text-xl font-bold text-main">
+            {isConversationLoading
+              ? (language === "ar" ? "جاري تحميل المحادثة..." : "Loading conversation...")
+              : (language === "ar" ? "تعذر تحميل المحادثة" : "Could not load conversation")}
+          </h3>
+          {isConversationError && (
+            <button
+              type="button"
+              onClick={() => void refetchConversation()}
+              className="inline-flex min-h-10 items-center justify-center rounded-lg bg-main px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
+            >
+              {language === "ar" ? "إعادة المحاولة" : "Retry"}
+            </button>
+          )}
+        </div>
+      </div>
+    );
+  }
 
   if (!conversationId) {
     return (

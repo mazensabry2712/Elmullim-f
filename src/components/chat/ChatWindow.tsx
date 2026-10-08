@@ -286,7 +286,7 @@ function ChatWindow({
         <button
           type="button"
           onClick={onClose}
-          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-black-blue transition-colors hover:bg-white-gray focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main md:hidden"
+          className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-black-blue transition-colors hover:bg-white-gray focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main lg:hidden"
           aria-label={language === "ar" ? "العودة إلى المحادثات" : "Back to conversations"}
         >
           {language === "ar" ? <ArrowRight size={20} aria-hidden="true" /> : <ArrowLeft size={20} aria-hidden="true" />}

@@ -111,6 +111,7 @@ const MultiSelectFormItem: React.FC<MultiSelectProps> = ({
                 placeholder={translateFormText(language, "choose")}
                 value={searchValue}
                 onValueChange={setSearchValue}
+                className="bg-white text-black placeholder:text-black/50 focus-visible:ring-0"
               />
               <CommandList id={input.name}>
                 <CommandEmpty>{translateFormText(language, "Not found")}</CommandEmpty>

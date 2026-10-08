@@ -297,7 +297,7 @@ function ChatWindow({
               <div
                 className={`${
                   msg.side === "left" ? "text-white" : "text-black"
-                }`}
+                } min-w-0 break-words`}
               >
                 {msg.data.image ? (
                   <>

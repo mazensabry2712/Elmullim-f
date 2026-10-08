@@ -35,6 +35,8 @@ vi.mock("@/i18n", () => ({
 }));
 
 const deleteConversationMock = vi.fn();
+const deleteMessageMock = vi.fn();
+const flagMessageMock = vi.fn();
 
 vi.mock("@/lib/react-query/chat/chat", () => ({
   useCreateMessage: () => ({
@@ -43,6 +45,14 @@ vi.mock("@/lib/react-query/chat/chat", () => ({
   }),
   useDeleteConversation: () => ({
     mutate: deleteConversationMock,
+    isPending: false,
+  }),
+  useDeleteMessage: () => ({
+    mutate: deleteMessageMock,
+    isPending: false,
+  }),
+  useFlagMessage: () => ({
+    mutate: flagMessageMock,
     isPending: false,
   }),
   useGetConversationById: () => ({
@@ -116,6 +126,16 @@ describe("ChatWindow accessibility", () => {
     expect(
       screen.getByRole("img", { name: "Attached image preview" })
     ).toBeInTheDocument();
+  });
+
+  it("exposes message actions with sender-safe delete options", () => {
+    renderChatWindow();
+
+    fireEvent.click(screen.getByRole("button", { name: "Message options" }));
+
+    expect(screen.getByRole("button", { name: "Delete for me" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete for everyone" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Flag message" })).toBeInTheDocument();
   });
 
   it("sends an image even when the message body is empty", () => {

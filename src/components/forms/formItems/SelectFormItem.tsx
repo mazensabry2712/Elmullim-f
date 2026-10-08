@@ -81,6 +81,7 @@ const SelectFormItem = ({ field, options, input, label }: IProps) => {
                 placeholder={translateFormText(language, "choose")}
                 value={searchValue}
                 onValueChange={setSearchValue}
+                className="bg-white text-black placeholder:text-black/50 focus-visible:ring-0"
               />
               <CommandList
                 className="max-h-[300px] overflow-y-auto"

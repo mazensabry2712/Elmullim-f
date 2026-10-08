@@ -46,6 +46,10 @@ let conversationData: {
   },
 };
 
+vi.mock("@/lib/echo/echo", () => ({
+  default: vi.fn(async () => null),
+}));
+
 vi.mock("@/utils/cookieService", () => ({
   default: {
     getToken: () => "token",
@@ -63,6 +67,7 @@ vi.mock("@/lib/react-query/chat/chat", () => ({
     data: conversationData,
     isLoading: false,
     isFetching: false,
+    isError: false,
     refetch: vi.fn(),
   }),
   useCreateConversation: () => ({

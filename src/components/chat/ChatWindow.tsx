@@ -233,7 +233,7 @@ function ChatWindow({
 
   if (conversationId && (isConversationLoading || isConversationError)) {
     return (
-      <div className="col-span-1 flex min-h-[520px] min-w-0 items-center justify-center rounded-md bg-white px-6 py-10 text-center shadow-md md:col-span-2">
+      <div className="col-span-1 flex h-[clamp(420px,calc(100svh-220px),560px)] min-h-[420px] min-w-0 items-center justify-center rounded-md bg-white px-6 py-10 text-center shadow-md md:h-[500px] md:min-h-0 md:col-span-2">
         <div className="flex max-w-sm flex-col items-center justify-center gap-4">
           <MessageCircle className="h-16 w-16 text-main" aria-hidden="true" />
           <h3 className="font-sora text-xl font-bold text-main">
@@ -257,7 +257,7 @@ function ChatWindow({
 
   if (!conversationId) {
     return (
-      <div className="col-span-1 flex min-h-[520px] min-w-0 items-center justify-center rounded-md bg-white px-6 py-10 text-center shadow-md md:col-span-2">
+      <div className="col-span-1 flex h-[clamp(420px,calc(100svh-220px),560px)] min-h-[420px] min-w-0 items-center justify-center rounded-md bg-white px-6 py-10 text-center shadow-md md:h-[500px] md:min-h-0 md:col-span-2">
         <div className="flex max-w-sm flex-col items-center justify-center gap-4">
           <MessageCircle className="h-20 w-20 text-main" aria-hidden="true" />
           <h3 className="font-sora text-2xl font-bold text-main sm:text-3xl">

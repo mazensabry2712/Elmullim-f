@@ -54,6 +54,8 @@ function SideBar({ selectedConversationId = null, setSelectedConversationId }: S
         closeNewChat: "Close new chat",
         previousConversations: "Previous conversations",
         nextConversations: "Next conversations",
+        loadFailed: "Could not load conversations.",
+        retry: "Retry",
       };
   const userTypeLabel = (type: IUserSearch["type"]) =>
     type === "teachers"
@@ -69,6 +71,8 @@ function SideBar({ selectedConversationId = null, setSelectedConversationId }: S
     data: conversations,
     isLoading,
     isFetching,
+    isError,
+    refetch: refetchConversations,
   } = useGetAllConversations({
     token,
     page: conversationPage,
@@ -225,6 +229,19 @@ function SideBar({ selectedConversationId = null, setSelectedConversationId }: S
         <div className="flex-grow overflow-y-auto py-5">
           {isLoading ? (
             <p className="text-black text-base text-center" role="status">{text.loading}</p>
+          ) : isError ? (
+            <div className="flex flex-col items-center justify-center gap-3 px-4 py-8 text-center">
+              <MessageCircle className="h-12 w-12 text-red-400" aria-hidden="true" />
+              <p className="text-sm font-sora text-gray-600">{text.loadFailed}</p>
+              <button
+                type="button"
+                onClick={() => void refetchConversations()}
+                disabled={isFetching}
+                className="inline-flex min-h-10 items-center justify-center rounded-lg border border-main px-4 py-2 text-sm font-semibold text-main transition hover:bg-[#F0FEFC] disabled:opacity-50"
+              >
+                {isFetching ? text.loading : text.retry}
+              </button>
+            </div>
           ) : displayedConversations.length === 0 && !debouncedConversationSearch ? (
             <div className="flex flex-col items-center justify-center gap-2">
              <MessageCircle className="h-16 w-16 text-main" aria-hidden="true" />

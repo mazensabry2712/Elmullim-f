@@ -38,6 +38,8 @@ function SideBar({ selectedConversationId = null, setSelectedConversationId }: S
         closeNewChat: "إغلاق بدء محادثة جديدة",
         previousConversations: "المحادثات السابقة",
         nextConversations: "المحادثات التالية",
+        loadFailed: "تعذر تحميل المحادثات.",
+        retry: "إعادة المحاولة",
       }
     : {
         search: "🔍 Search Here...",

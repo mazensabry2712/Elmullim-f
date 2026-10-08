@@ -175,7 +175,7 @@ const VerifyAccountForm = () => {
                             <InputOTPSlot
                               key={index}
                               index={index}
-                              className="h-10 w-10 rounded-md border-2 border-main focus-visible:border-main sm:h-12 sm:w-12 md:h-16 md:w-16 md:text-xl"
+                              className="h-10 w-10 rounded-md border-2 border-main bg-white text-black focus-visible:border-main focus-visible:bg-white focus-visible:text-black sm:h-12 sm:w-12 md:h-16 md:w-16 md:text-xl"
                             />
                           ))}
                         </InputOTPGroup>

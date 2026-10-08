@@ -10,7 +10,7 @@ interface ISender {
 
 interface IImage {
   url: string;
-  size: string;
+  size: number | string;
   type: string;
 }
 

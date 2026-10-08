@@ -237,8 +237,9 @@ function ChatWindow({
                   <>
                     <img
                       src={msg.data.image.url}
-                      className="w-full h-30 object-fill rounded-lg"
+                      className="block w-auto max-w-full max-h-72 rounded-lg object-contain object-center"
                       alt={language === "ar" ? "صورة مرفقة" : "Shared image"}
+                      loading="lazy"
                     />
                     {msg.data.body}
                   </>

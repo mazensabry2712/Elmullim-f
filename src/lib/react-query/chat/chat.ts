@@ -32,6 +32,9 @@ export const useGetAllConversations = ({
     queryFn: () => getAllConversations({ token, page, search }),
     enabled: enabled && !!token,
     placeholderData: (previous) => previous,
+    staleTime: 5_000,
+    refetchInterval: 15_000,
+    refetchIntervalInBackground: false,
   });
 
 export const useGetConversationById = ({

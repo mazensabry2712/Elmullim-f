@@ -4,11 +4,14 @@ import {
 } from "@/lib/react-query/chat/chat";
 import cookieService from "@/utils/cookieService";
 import { ChevronDown, ChevronLeft, ChevronRight, MessageCircle, Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "react-toastify";
 import { IUserSearch } from "@/interfaces/main";
 import { useGetUserSearch } from "@/lib/react-query/main";
 import { useI18n } from "@/i18n";
+import getEcho from "@/lib/echo/echo";
+import { useQueryClient } from "@tanstack/react-query";
+import QueryKeys from "@/enums";
 import useDebounce from "@/hooks/useDebounce";
 
 interface SideBarProps {
@@ -18,6 +21,7 @@ interface SideBarProps {
 function SideBar({ selectedConversationId = null, setSelectedConversationId }: SideBarProps) {
   const token = cookieService.getToken()!;
   const { language } = useI18n();
+  const queryClient = useQueryClient();
   const text = language === "ar"
     ? {
         search: "🔍 ابحث هنا...",
@@ -110,6 +114,58 @@ function SideBar({ selectedConversationId = null, setSelectedConversationId }: S
 
   const displayedConversations = conversations?.data ?? [];
   const pagination = conversations?.meta;
+
+  useEffect(() => {
+    const channelIds = displayedConversations
+      .map((conversation) => String(conversation.conversation_id))
+      .filter((id) => id !== String(selectedConversationId ?? ""));
+
+    if (!channelIds.length) {
+      return;
+    }
+
+    let cancelled = false;
+    let echo: Awaited<ReturnType<typeof getEcho>> = null;
+
+    const subscribe = async () => {
+      const instance = await getEcho();
+
+      if (cancelled || !instance) {
+        return;
+      }
+
+      echo = instance;
+
+      channelIds.forEach((conversationId) => {
+        echo
+          ?.private(`chat-conversation.${conversationId}`)
+          .listen("ConversationEvent", (data: { conversation_id?: string | number }) => {
+            if (String(data.conversation_id) !== conversationId) {
+              return;
+            }
+
+            void queryClient.invalidateQueries({
+              queryKey: [QueryKeys.CONVERSATIONS],
+            });
+          })
+          .error((error: unknown) => {
+            console.error("Pusher channel error:", error);
+          });
+      });
+    };
+
+    void subscribe();
+
+    return () => {
+      cancelled = true;
+
+      if (echo) {
+        channelIds.forEach((conversationId) => {
+          echo?.leave(`chat-conversation.${conversationId}`);
+        });
+      }
+    };
+  }, [displayedConversations, selectedConversationId, queryClient]);
 
   const formatConversationTime = (value: string | null | undefined) => {
     if (!value) return "";

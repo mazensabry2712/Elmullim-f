@@ -213,10 +213,4 @@ input[type="range"]::-moz-range-thumb {
     transition: none !important;
   }
 
-  .auth-form [data-auth-field="true"] {
-    background-color: #FFFFFF !important;
-    color: #000000 !important;
-    -webkit-text-fill-color: #000000 !important;
-    caret-color: #000000 !important;
-  }
 }

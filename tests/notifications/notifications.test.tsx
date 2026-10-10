@@ -104,6 +104,33 @@ describe("Notifications", () => {
     );
   });
 
+  it("renders legacy notification title and message fields", () => {
+    mocks.query.mockReturnValue({
+      data: {
+        data: {
+          unread_count: 1,
+          items: [{
+            id: "n-legacy",
+            type: "App\\Notifications\\NewBooking",
+            data: {
+              title: "Legacy booking title",
+              message: "Legacy booking message content.",
+            },
+            read_at: null,
+            created_at: "2026-09-18T10:00:00Z",
+          }],
+        },
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<I18nProvider><Notifications /></I18nProvider>);
+
+    expect(screen.getByText("Legacy booking title")).toBeInTheDocument();
+    expect(screen.getByText("Legacy booking message content.")).toBeInTheDocument();
+  });
+
   it("supports Arabic notification content", () => {
     localStorage.setItem("elmullim-language", "ar");
     mocks.query.mockReturnValue({

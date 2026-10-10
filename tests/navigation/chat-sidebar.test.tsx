@@ -1,4 +1,5 @@
 import { fireEvent, render, screen } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 import SideBar from "@/components/chat/SideBar";
@@ -82,6 +83,18 @@ vi.mock("@/lib/react-query/main", () => ({
   }),
 }));
 
+const renderSidebar = () => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <SideBar setSelectedConversationId={setSelectedConversationIdMock} />
+    </QueryClientProvider>
+  );
+};
+
 describe("Chat sidebar", () => {
   beforeEach(() => {
     conversationData = {
@@ -99,9 +112,7 @@ describe("Chat sidebar", () => {
     setSelectedConversationIdMock.mockReset();
   });
   it("exposes accessible new-chat controls and a way back", () => {
-    render(
-      <SideBar setSelectedConversationId={setSelectedConversationIdMock} />
-    );
+    renderSidebar();
 
     const newChatButton = screen.getByRole("button", {
       name: "Start a new chat",
@@ -161,9 +172,7 @@ describe("Chat sidebar", () => {
       },
     };
 
-    render(
-      <SideBar setSelectedConversationId={setSelectedConversationIdMock} />
-    );
+    renderSidebar();
 
     const conversation = screen.getByRole("button", { name: "Teacher" });
     expect(conversation).toHaveAttribute("type", "button");
@@ -187,9 +196,7 @@ describe("Chat sidebar", () => {
       },
     };
 
-    render(
-      <SideBar setSelectedConversationId={setSelectedConversationIdMock} />
-    );
+    renderSidebar();
 
     expect(screen.getByRole("button", { name: "Previous conversations" })).toBeDisabled();
     const next = screen.getByRole("button", { name: "Next conversations" });

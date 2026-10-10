@@ -3,7 +3,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeacherMainProfile from "./TeacherMainProfile";
 import TeacherCourses from "./TeacherCourses";
 import TeacherLessons from "./TeacherLessons";
+import TeacherAvailabilityBlocks from "./TeacherAvailabilityBlocks";
 import Chat from "@/components/chat/Chat";
+import Schedule from "@/pages/bookings/Schedule";
+import TeacherBookings from "@/pages/profile/teacher/TeacherBookings";
+import TeacherWallet from "@/pages/profile/teacher/TeacherWallet";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import { useQueryClient } from "@tanstack/react-query";
@@ -33,14 +37,41 @@ const TeacherProfile = () => {
           main: "الرئيسية",
           courses: "كورساتي",
           lessons: "دروسي",
+          bookings: "حجوزات الطلاب",
+          schedule: "جدول الحصص",
           chat: "الدردشة",
+          wallet: "الأرباح",
+          availability: "أوقات عدم التوفر",
         }
       : {
           main: "Main",
           courses: "My Courses",
           lessons: "My Lessons",
+          bookings: "Student Bookings",
+          schedule: "Schedule",
           chat: "Chat",
+          wallet: "Earnings",
+          availability: "Availability",
         };
+
+  const defaultTab = state?.myCourses
+    ? "courses"
+    : state?.myLessons
+      ? "lessons"
+      : state?.teacherBookings
+        ? "bookings"
+        : state?.teacherSchedule
+          ? "schedule"
+          : state?.teacherWallet
+            ? "wallet"
+            : state?.teacherAvailability
+              ? "availability"
+              : state?.chat
+                ? "chat"
+                : "main-profile";
+
+  const triggerClassName =
+    "h-full shrink-0 whitespace-nowrap rounded-none border-b-4 border-transparent px-1.5 py-3 text-xs font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B] sm:px-2.5 sm:text-sm lg:text-base";
 
   return (
     <motion.section
@@ -50,31 +81,17 @@ const TeacherProfile = () => {
       className="container mb-10"
     >
       <div className="mt-10">
-        <Tabs
-          defaultValue={
-            state?.myCourses
-              ? "courses"
-              : state?.myLessons
-                ? "lessons"
-                : state?.chat
-                  ? "chat"
-                  : "main-profile"
-          }
-          className="w-full"
-        >
-          <TabsList className="!mx-auto h-auto w-full justify-center overflow-hidden rounded-lg bg-[#21374B] p-0 px-2 sm:px-4">
-            <div className="mx-auto flex max-w-3xl items-stretch justify-center gap-6 sm:gap-12 md:gap-16">
-              <TabsTrigger
-                value="main-profile"
-                className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-sm font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B] sm:text-base md:text-lg"
-              >
+        <Tabs defaultValue={defaultTab} className="w-full">
+          <TabsList
+            aria-label={language === "ar" ? "أقسام حساب المعلم" : "Teacher account sections"}
+            className="!mx-auto flex h-auto w-full max-w-full justify-start overflow-x-auto overscroll-x-contain rounded-lg bg-[#21374B] p-0 px-2 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            <div className="mx-auto flex w-max min-w-full items-stretch justify-start gap-4 sm:justify-center sm:gap-6 lg:gap-8">
+              <TabsTrigger value="main-profile" className={triggerClassName}>
                 {text.main}
               </TabsTrigger>
 
-              <TabsTrigger
-                value="courses"
-                className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-sm font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B] sm:text-base md:text-lg"
-              >
+              <TabsTrigger value="courses" className={triggerClassName}>
                 {text.courses}
               </TabsTrigger>
 
@@ -83,16 +100,29 @@ const TeacherProfile = () => {
                 onPointerEnter={prefetchLessons}
                 onPointerDown={prefetchLessons}
                 onFocus={prefetchLessons}
-                className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-sm font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B] sm:text-base md:text-lg"
+                className={triggerClassName}
               >
                 {text.lessons}
               </TabsTrigger>
 
-              <TabsTrigger
-                value="chat"
-                className="h-full rounded-none border-b-4 border-transparent px-0 py-3 text-sm font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B] sm:text-base md:text-lg"
-              >
+              <TabsTrigger value="bookings" className={triggerClassName}>
+                {text.bookings}
+              </TabsTrigger>
+
+              <TabsTrigger value="schedule" className={triggerClassName}>
+                {text.schedule}
+              </TabsTrigger>
+
+              <TabsTrigger value="chat" className={triggerClassName}>
                 {text.chat}
+              </TabsTrigger>
+
+              <TabsTrigger value="wallet" className={triggerClassName}>
+                {text.wallet}
+              </TabsTrigger>
+
+              <TabsTrigger value="availability" className={triggerClassName}>
+                {text.availability}
               </TabsTrigger>
             </div>
           </TabsList>
@@ -109,8 +139,24 @@ const TeacherProfile = () => {
             <TeacherLessons />
           </TabsContent>
 
+          <TabsContent value="bookings">
+            <TeacherBookings />
+          </TabsContent>
+
+          <TabsContent value="schedule">
+            <Schedule />
+          </TabsContent>
+
           <TabsContent value="chat">
             <Chat />
+          </TabsContent>
+
+          <TabsContent value="wallet">
+            <TeacherWallet />
+          </TabsContent>
+
+          <TabsContent value="availability">
+            <TeacherAvailabilityBlocks />
           </TabsContent>
         </Tabs>
       </div>

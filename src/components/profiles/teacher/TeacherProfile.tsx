@@ -1,19 +1,21 @@
+import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import TeacherMainProfile from "./TeacherMainProfile";
 import TeacherCourses from "./TeacherCourses";
 import TeacherLessons from "./TeacherLessons";
-import TeacherAvailabilityBlocks from "./TeacherAvailabilityBlocks";
 import Chat from "@/components/chat/Chat";
-import Schedule from "@/pages/bookings/Schedule";
-import TeacherBookings from "@/pages/profile/teacher/TeacherBookings";
-import TeacherWallet from "@/pages/profile/teacher/TeacherWallet";
 import { useLocation } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import { useQueryClient } from "@tanstack/react-query";
 import QueryKeys from "@/enums";
 import { getTeacherLessons } from "@/services/teacher/lessons";
 import cookieService from "@/utils/cookieService";
+
+const TeacherAvailabilityBlocks = lazy(() => import("./TeacherAvailabilityBlocks"));
+const Schedule = lazy(() => import("@/pages/bookings/Schedule"));
+const TeacherBookings = lazy(() => import("@/pages/profile/teacher/TeacherBookings"));
+const TeacherWallet = lazy(() => import("@/pages/profile/teacher/TeacherWallet"));
 
 const TeacherProfile = () => {
   const location = useLocation();
@@ -141,11 +143,15 @@ const TeacherProfile = () => {
           </TabsContent>
 
           <TabsContent value="bookings">
-            <TeacherBookings />
+            <Suspense fallback={<div className="py-16 text-center text-sm text-black-blue/50" role="status">{language === "ar" ? "جاري تحميل الحجوزات..." : "Loading bookings..."}</div>}>
+              <TeacherBookings />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="schedule">
-            <Schedule />
+            <Suspense fallback={<div className="py-16 text-center text-sm text-black-blue/50" role="status">{language === "ar" ? "جاري تحميل جدول الحصص..." : "Loading schedule..."}</div>}>
+              <Schedule />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="chat">
@@ -153,11 +159,15 @@ const TeacherProfile = () => {
           </TabsContent>
 
           <TabsContent value="wallet">
-            <TeacherWallet />
+            <Suspense fallback={<div className="py-16 text-center text-sm text-black-blue/50" role="status">{language === "ar" ? "جاري تحميل الأرباح..." : "Loading earnings..."}</div>}>
+              <TeacherWallet />
+            </Suspense>
           </TabsContent>
 
           <TabsContent value="availability">
-            <TeacherAvailabilityBlocks />
+            <Suspense fallback={<div className="py-16 text-center text-sm text-black-blue/50" role="status">{language === "ar" ? "جاري تحميل أوقات عدم التوفر..." : "Loading unavailable times..."}</div>}>
+              <TeacherAvailabilityBlocks />
+            </Suspense>
           </TabsContent>
         </Tabs>
       </div>

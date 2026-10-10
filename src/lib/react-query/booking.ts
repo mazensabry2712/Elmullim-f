@@ -28,6 +28,7 @@ export const bookingKeys = {
 
 const invalidateBookingViews = (queryClient: ReturnType<typeof useQueryClient>, _token: string, bookingId?: number) => {
   queryClient.invalidateQueries({ queryKey: bookingKeys.mine() });
+  queryClient.invalidateQueries({ queryKey: bookingKeys.teacher() });
   queryClient.invalidateQueries({ queryKey: bookingKeys.detail(bookingId) });
   queryClient.invalidateQueries({ queryKey: bookingKeys.schedule() });
   queryClient.invalidateQueries({ queryKey: bookingKeys.teacherSchedule() });

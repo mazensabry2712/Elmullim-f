@@ -103,11 +103,11 @@ const Notifications = () => {
         <div className="space-y-3">
           {items.map((notification) => {
             const title = isArabic
-              ? notification.data.title_ar || notification.data.title_en || copy.title
-              : notification.data.title_en || notification.data.title_ar || copy.title;
+              ? notification.data.title_ar || notification.data.title_en || notification.data.title || copy.title
+              : notification.data.title_en || notification.data.title_ar || notification.data.title || copy.title;
             const body = isArabic
-              ? notification.data.body_ar || notification.data.body_en || ""
-              : notification.data.body_en || notification.data.body_ar || "";
+              ? notification.data.body_ar || notification.data.body_en || notification.data.message || ""
+              : notification.data.body_en || notification.data.body_ar || notification.data.message || "";
 
             return (
               <article

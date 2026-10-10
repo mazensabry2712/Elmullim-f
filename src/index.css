@@ -168,9 +168,12 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @layer components {
-  .auth-form input:not([type="range"]),
+  /* input-otp renders one real invisible input beneath the visible slots.
+     Keep the auth-wide white-input override off that control, or it can
+     paint a white layer over the OTP slots. */
+  .auth-form input:not([type="range"]):not([data-input-otp]),
   .auth-form button[role="combobox"],
-  .auth-form [data-radix-popper-content-wrapper] input {
+  .auth-form [data-radix-popper-content-wrapper] input:not([data-input-otp]) {
     background-color: #FFFFFF !important;
     background-image: none !important;
     color: #000000 !important;
@@ -180,12 +183,12 @@ input[type="range"]::-moz-range-thumb {
     color-scheme: light;
   }
 
-  .auth-form input:not([type="range"])::placeholder {
+  .auth-form input:not([type="range"]):not([data-input-otp])::placeholder {
     color: #000000 !important;
     opacity: 0.5 !important;
   }
 
-  .auth-form input:not([type="range"]):focus,
+  .auth-form input:not([type="range"]):not([data-input-otp]):focus,
   .auth-form button[role="combobox"]:focus-visible {
     background-color: #FFFFFF !important;
     background-image: none !important;
@@ -196,10 +199,10 @@ input[type="range"]::-moz-range-thumb {
     outline: none;
   }
 
-  .auth-form input:-webkit-autofill,
-  .auth-form input:-webkit-autofill:hover,
-  .auth-form input:-webkit-autofill:focus,
-  .auth-form input:-webkit-autofill:active {
+  .auth-form input:not([data-input-otp]):-webkit-autofill,
+  .auth-form input:not([data-input-otp]):-webkit-autofill:hover,
+  .auth-form input:not([data-input-otp]):-webkit-autofill:focus,
+  .auth-form input:not([data-input-otp]):-webkit-autofill:active {
     background-color: #FFFFFF !important;
     background-image: none !important;
     -webkit-box-shadow: 0 0 0 100px #FFFFFF inset !important;

@@ -16,7 +16,8 @@ import { getTeacherLessons } from "@/services/teacher/lessons";
 import cookieService from "@/utils/cookieService";
 
 const TeacherProfile = () => {
-  const { state } = useLocation();
+  const location = useLocation();
+  const { state } = location;
   const { language } = useI18n();
   const queryClient = useQueryClient();
   const token = cookieService.getToken() || "";
@@ -41,7 +42,7 @@ const TeacherProfile = () => {
           schedule: "جدول الحصص",
           chat: "الدردشة",
           wallet: "الأرباح",
-          availability: "أوقات عدم التوفر",
+          availability: "فترات عدم التوفر",
         }
       : {
           main: "Main",
@@ -51,7 +52,7 @@ const TeacherProfile = () => {
           schedule: "Schedule",
           chat: "Chat",
           wallet: "Earnings",
-          availability: "Availability",
+          availability: "Unavailable Times",
         };
 
   const defaultTab = state?.myCourses
@@ -81,7 +82,7 @@ const TeacherProfile = () => {
       className="container mb-10"
     >
       <div className="mt-10">
-        <Tabs defaultValue={defaultTab} className="w-full">
+        <Tabs key={location.key} defaultValue={defaultTab} className="w-full">
           <TabsList
             aria-label={language === "ar" ? "أقسام حساب المعلم" : "Teacher account sections"}
             className="!mx-auto flex h-auto w-full max-w-full justify-start overflow-x-auto overscroll-x-contain rounded-lg bg-[#21374B] p-0 px-2 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

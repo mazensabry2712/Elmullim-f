@@ -44,7 +44,7 @@ describe("teacher lesson schedule schema", () => {
       ...baseLesson,
       availability: [
         {
-          available_on: "2026-10-08",
+          available_on: "2026-10-15",
           day_of_week: 4,
           start_time: "16:00",
           end_time: "17:00",

@@ -12,6 +12,9 @@ export interface IAppNotification {
     title_ar?: string;
     body_en?: string;
     body_ar?: string;
+    /** Legacy notification payload fields still present in historical records. */
+    title?: string;
+    message?: string;
     event?: string;
     booking_id?: number;
     lesson_id?: number;

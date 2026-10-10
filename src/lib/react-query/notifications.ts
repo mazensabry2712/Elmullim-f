@@ -15,9 +15,6 @@ export const useGetNotifications = ({ token, enabled = true }: { token: string; 
     queryKey: notificationKeys.mine(),
     queryFn: () => getNotifications({ token }),
     enabled: enabled && !!token,
-    // Keep the shared navbar badge fresh while the user stays on the site.
-    refetchInterval: 30_000,
-    refetchIntervalInBackground: false,
   });
 
 export const useMarkNotificationRead = () => {

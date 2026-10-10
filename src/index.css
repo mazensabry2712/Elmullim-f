@@ -168,6 +168,46 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @layer components {
+  /* Platform-wide field styling: typed text stays readable in every theme and page.
+     Exclude controls such as checkboxes and the hidden input-otp input. */
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([data-input-otp]),
+  select,
+  textarea,
+  [role="combobox"] {
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    caret-color: #000000 !important;
+    color-scheme: light;
+  }
+
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([data-input-otp])::placeholder,
+  textarea::placeholder {
+    color: #333333 !important;
+    -webkit-text-fill-color: #333333 !important;
+    opacity: 0.6 !important;
+  }
+
+  select option {
+    background-color: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([data-input-otp]):-webkit-autofill,
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([data-input-otp]):-webkit-autofill:hover,
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([data-input-otp]):-webkit-autofill:focus,
+  input:not([type="range"]):not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]):not([type="image"]):not([data-input-otp]):-webkit-autofill:active {
+    background-color: #FFFFFF !important;
+    background-image: none !important;
+    -webkit-box-shadow: 0 0 0 100px #FFFFFF inset !important;
+    box-shadow: 0 0 0 100px #FFFFFF inset !important;
+    color: #000000 !important;
+    -webkit-text-fill-color: #000000 !important;
+    caret-color: #000000 !important;
+    color-scheme: light;
+  }
+
   /* input-otp renders one real invisible input beneath the visible slots.
      Keep the auth-wide white-input override off that control, or it can
      paint a white layer over the OTP slots. */

@@ -208,28 +208,36 @@ const VerifyAccountForm = () => {
               className="w-full sm:flex-1"
             />
 
-            <div className="flex min-w-0 flex-1 flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-md border border-main/20 px-3 py-2 sm:min-h-12 sm:flex-nowrap">
-              <span className="shrink-0 text-xs font-sora text-black-blue/75 sm:text-sm">
+            <div className="flex min-w-0 flex-1 flex-col items-center justify-center gap-2 rounded-md border border-main/20 px-3 py-3 text-center sm:min-h-12 sm:flex-row sm:flex-wrap sm:gap-x-2 sm:gap-y-1 sm:py-2">
+              <span className="text-xs leading-relaxed font-sora text-black-blue/75 sm:text-sm">
                 {copy.didNotReceiveCode}
               </span>
 
               <Button
                 type="button"
                 variant="link"
-                className="h-auto min-h-0 min-w-0 p-0 text-xs font-sora font-semibold text-main hover:bg-transparent hover:text-main sm:text-sm"
+                className="h-auto min-h-0 min-w-0 whitespace-normal p-0 text-center text-xs font-sora font-semibold text-main hover:bg-transparent hover:text-main sm:text-sm"
                 onClick={resendOtpCode}
                 disabled={
                   resendCooldown > 0 || resendIsPending || isVerifying
                 }
                 aria-live="polite"
               >
-                <span className="truncate">
-                  {resendIsPending
-                    ? copy.sending
-                    : resendCooldown > 0
-                      ? `${copy.resendIn} ${resendCooldown} ${copy.seconds}`
-                      : copy.resendCode}
-                </span>
+                {resendIsPending ? (
+                  copy.sending
+                ) : resendCooldown > 0 ? (
+                  <span className="inline-flex max-w-full flex-wrap items-center justify-center gap-1.5 whitespace-normal leading-relaxed">
+                    <span>{copy.resendIn}</span>
+                    <span
+                      dir="ltr"
+                      className="inline-flex shrink-0 items-center justify-center rounded-md bg-main/10 px-2 py-1 font-mono font-bold tabular-nums text-main"
+                    >
+                      {resendCooldown} {copy.seconds}
+                    </span>
+                  </span>
+                ) : (
+                  copy.resendCode
+                )}
               </Button>
             </div>
           </div>

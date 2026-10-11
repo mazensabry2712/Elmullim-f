@@ -27,6 +27,7 @@ const Notifications = () => {
         error: "تعذر تحميل الإشعارات.",
         read: "تمت القراءة",
         reviewParentRequest: "مراجعة طلب الربط",
+        viewParentLinks: "عرض الطلاب المرتبطين",
       }
     : {
         title: "Notifications",
@@ -37,6 +38,7 @@ const Notifications = () => {
         error: "Could not load notifications.",
         read: "Read",
         reviewParentRequest: "Review parent request",
+        viewParentLinks: "View linked students",
       };
 
   const items = query.data?.data?.items ?? [];
@@ -130,6 +132,15 @@ const Notifications = () => {
                       >
                         <ExternalLink size={14} />
                         {copy.reviewParentRequest}
+                      </a>
+                    ) : null}
+                    {notification.data.event === "parent_link_status_changed" && notification.data.student_id ? (
+                      <a
+                        href="/profile"
+                        className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-main/20 bg-main/[0.05] px-3 py-2 text-xs font-bold text-main transition hover:bg-main/[0.1]"
+                      >
+                        <ExternalLink size={14} />
+                        {copy.viewParentLinks}
                       </a>
                     ) : null}
                     {notification.data.event === "lesson_publishing_rejected" && notification.data.lesson_id ? (

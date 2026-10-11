@@ -196,4 +196,40 @@ describe("Notifications", () => {
     );
   });
 
+  it("links parent link status notifications to the parent profile", () => {
+    mocks.query.mockReturnValue({
+      data: {
+        data: {
+          unread_count: 1,
+          items: [{
+            id: "n-parent-status",
+            type: "ParentLinkStatusChanged",
+            data: {
+              event: "parent_link_status_changed",
+              status: "accepted",
+              student_id: 12,
+              student_name: "Linked Student",
+              title_en: "Parent link approved",
+              title_ar: "تمت الموافقة على ربط وليّ الأمر",
+              body_en: "Linked Student approved your parent link request.",
+              body_ar: "وافق الطالب على طلب ربط وليّ الأمر.",
+            },
+            read_at: null,
+            created_at: "2026-10-11T10:00:00Z",
+          }],
+        },
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<I18nProvider><Notifications /></I18nProvider>);
+
+    expect(screen.getByText("Parent link approved")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "View linked students" })).toHaveAttribute(
+      "href",
+      "/profile",
+    );
+  });
+
 });

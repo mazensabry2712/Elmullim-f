@@ -22,6 +22,7 @@ const links = [
   { key: "services", path: "/services" },
   { key: "courses", path: "/courses" },
   { key: "lessons", path: "/lessons" },
+  { key: "forTeachers", path: "/teacher/sign-up" },
   { key: "contactUs", path: "/contact-us" },
   { key: "faqs", path: "/faqs" },
 ] as const;
@@ -35,7 +36,7 @@ const loginLinks = [
 const Navbar = () => {
   const [openNav, setOpenNav] = useState(false);
   const [openLogin, setOpenLogin] = useState(false);
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, role } = useSelector((state: RootState) => state.auth);
   const path = useLocation().pathname;
   const { language, t, toggleLanguage } = useI18n();
   const token = cookieService.getToken() || "";
@@ -59,6 +60,9 @@ const Navbar = () => {
     setOpenNav(false);
     setOpenLogin(false);
   };
+
+  const getLinkPath = (link: (typeof links)[number]) =>
+    link.key === "forTeachers" && role === "teacher" ? "/profile" : link.path;
 
   const isLinkActive = (linkPath: string) =>
     linkPath === "/"
@@ -96,12 +100,13 @@ const Navbar = () => {
           transition={{ duration: 0.5 }}
         >
           {links.map((link) => {
-            const active = isLinkActive(link.path);
+            const linkPath = getLinkPath(link);
+            const active = isLinkActive(linkPath);
 
             return (
               <motion.li key={link.key} variants={navItemsVariants} className="flex items-center justify-center">
                 <NavLink
-                  to={link.path}
+                  to={linkPath}
                   aria-current={active ? "page" : undefined}
                   className={`font-semibold text-[17px] ${active ? "text-main" : "text-black-blue hover:text-main transition-all duration-200"}`}
                 >
@@ -217,12 +222,13 @@ const Navbar = () => {
             <motion.div variants={navItemsVariants} className="mx-auto w-full max-w-xl py-2">
               <motion.ul className="flex w-full flex-col gap-1">
                 {links.map((link) => {
-                  const active = isLinkActive(link.path);
+                  const linkPath = getLinkPath(link);
+                  const active = isLinkActive(linkPath);
 
                   return (
                     <motion.li key={link.key} variants={navItemsVariants} className="flex w-full items-center justify-center">
                       <NavLink
-                        to={link.path}
+                        to={linkPath}
                         aria-current={active ? "page" : undefined}
                         className={`w-full rounded-md px-3 py-2.5 font-semibold text-[16px] transition-all duration-200 sm:px-4 sm:text-[17px] ${active ? "bg-main/10 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`}
                         onClick={() => setOpenNav(false)}

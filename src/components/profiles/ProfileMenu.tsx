@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 import {
   Popover,
   PopoverContent,
@@ -31,7 +33,9 @@ import { getAuthCopy } from "@/i18n/authCopy";
 const ProfileDropdownMenu = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
-  const role = cookieService.getRole();
+  // Prefer the role validated by /check-auth; the cookie may be stale.
+  const validatedRole = useSelector((state: RootState) => state.auth.role);
+  const role = validatedRole ?? cookieService.getRole();
   const token = cookieService.getToken() || "";
   const { language } = useI18n();
   const ar = language === "ar";

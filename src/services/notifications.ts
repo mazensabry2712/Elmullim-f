@@ -16,6 +16,12 @@ export interface IAppNotification {
     title?: string;
     message?: string;
     event?: string;
+    /** Parent/student link lifecycle notification payload fields. */
+    family_id?: number;
+    student_id?: number;
+    parent_name?: string;
+    student_name?: string;
+    legacy_link_review?: boolean;
     booking_id?: number;
     lesson_id?: number;
     lesson_title?: string;

@@ -40,7 +40,6 @@ export interface IParentRegister {
   name: string;
   education_level_id: string;
   phone: string;
-  students: string[];
   gender: string;
   country_id: string;
   education_system_id: string;

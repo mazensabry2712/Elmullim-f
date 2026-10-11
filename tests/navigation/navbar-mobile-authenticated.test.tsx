@@ -19,7 +19,7 @@ vi.mock("@/i18n", () => ({
         "nav.services": "Services",
         "nav.courses": "Courses",
         "nav.lessons": "Lessons",
-        "nav.forTeachers": "For Teachers",
+        "nav.forTeachers": "Teachers",
         "nav.contactUs": "Contact Us",
         "nav.faqs": "FAQs",
         "nav.login": "Login",
@@ -78,6 +78,23 @@ vi.mock("framer-motion", () => {
 describe("Navbar mobile authenticated actions", () => {
   beforeEach(() => {
     useSelectorMock.mockReturnValue({ isAuthenticated: true });
+  });
+
+  it("keeps the public teachers directory available to signed-in teachers", async () => {
+    useSelectorMock.mockReturnValue({ isAuthenticated: true, role: "teacher" });
+
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Navbar />
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Toggle Menu" }));
+
+    const mobileNavigation = document.getElementById("mobile-navigation");
+    expect(mobileNavigation).not.toBeNull();
+    expect(within(mobileNavigation as HTMLElement).getByRole("link", { name: "Teachers" }))
+      .toHaveAttribute("href", "/teachers");
   });
 
   it("exposes notifications and profile actions from the mobile menu", async () => {

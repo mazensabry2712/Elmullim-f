@@ -4,7 +4,7 @@ export const bookingCopy = {
   en: {
     bookings: {
       title: "My Bookings", parentDescription: "Manage bookings created for your linked students.", studentDescription: "Track your lesson booking requests and status.",
-      viewSchedule: "View schedule", couldNotCancel: "Could not cancel booking.", couldNotUpdate: "Could not update booking.", couldNotLoad: "Could not load your bookings.", retry: "Retry", noBookings: "No bookings found.",
+      viewSchedule: "View schedule", couldNotCancel: "Could not cancel booking.", cancelConfirmation: "Are you sure you want to cancel this booking?", couldNotUpdate: "Could not update booking.", couldNotLoad: "Could not load your bookings.", retry: "Retry", noBookings: "No bookings found.",
       student: "Student", type: "Type", private: "Private", group: "Group", currency: "EGP", lesson: "Lesson", requested: "Requested", proposed: "Proposed", confirmed: "Confirmed", price: "Price", teacherNote: "Teacher note", acceptNewTime: "Accept new time", rejectNewTime: "Reject new time", cancel: "Cancel",
       previous: "Previous", next: "Next", page: "Page", of: "of", paginationLabel: "Bookings pagination",
       status: { booking_requested: "Booking requested", pending_teacher_approval: "Pending teacher approval", accepted: "Accepted — payment required", confirmed: "Confirmed", upcoming: "Upcoming", in_progress: "In progress", completed: "Completed", cancelled: "Cancelled", rejected: "Rejected", rescheduled: "Rescheduled", no_show: "No show", disputed: "Disputed" },
@@ -16,7 +16,7 @@ export const bookingCopy = {
   ar: {
     bookings: {
       title: "حجوزاتي", parentDescription: "إدارة الحجوزات التي تم إنشاؤها لأبنائك المرتبطين بالحساب.", studentDescription: "تابع طلبات حجز الدروس وحالاتها.",
-      viewSchedule: "عرض الجدول", couldNotCancel: "تعذر إلغاء الحجز.", couldNotUpdate: "تعذر تحديث الحجز.", couldNotLoad: "تعذر تحميل حجوزاتك.", retry: "حاول مرة أخرى", noBookings: "لا توجد حجوزات.",
+      viewSchedule: "عرض الجدول", couldNotCancel: "تعذر إلغاء الحجز.", cancelConfirmation: "هل أنت متأكد أنك تريد إلغاء هذا الحجز؟", couldNotUpdate: "تعذر تحديث الحجز.", couldNotLoad: "تعذر تحميل حجوزاتك.", retry: "حاول مرة أخرى", noBookings: "لا توجد حجوزات.",
       student: "الطالب", type: "النوع", private: "خاص", group: "جماعي", currency: "جنيه", lesson: "درس", requested: "الموعد المطلوب", proposed: "الموعد المقترح", confirmed: "الموعد المؤكد", price: "السعر", teacherNote: "ملاحظة المعلم", acceptNewTime: "قبول الموعد الجديد", rejectNewTime: "رفض الموعد الجديد", cancel: "إلغاء",
       previous: "السابق", next: "التالي", page: "صفحة", of: "من", paginationLabel: "تنقل الحجوزات",
       status: { booking_requested: "تم إرسال طلب الحجز", pending_teacher_approval: "في انتظار موافقة المعلم", accepted: "تم قبول الحجز — الدفع مطلوب", confirmed: "تم تأكيد الحجز", upcoming: "قادم", in_progress: "جارٍ", completed: "مكتمل", cancelled: "ملغي", rejected: "مرفوض", rescheduled: "تمت إعادة الجدولة", no_show: "لم يحضر الطالب", disputed: "محل نزاع" },

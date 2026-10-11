@@ -25,6 +25,7 @@ const CourseEnroll = lazy(() => import("@/pages/courses/EnrollCourse"));
 const PaymentResult = lazy(() => import("@/pages/courses/PaymentResult"));
 const ViewCourse = lazy(() => import("@/pages/courses/ViewCourse"));
 const Lessons = lazy(() => import("@/pages/lessons/Lessons"));
+const TeachersDirectory = lazy(() => import("@/pages/teachers/TeachersDirectory"));
 const LessonDetails = lazy(() => import("@/pages/lessons/LessonDetails"));
 const UploadCourse = lazy(() => import("@/pages/profile/teacher/UploadCourse"));
 const UpdateCourse = lazy(() => import("@/pages/profile/teacher/UpdateCourse"));
@@ -57,6 +58,7 @@ export const routes = createRoutesFromElements(
       <Route path="/course/:courseId/enroll" element={<CourseEnroll />} id="courseId" />
       <Route path="/payment/result" element={<PaymentResult />} id="payment-result" />
       <Route path="/lessons" element={<Lessons />} id="lessons" />
+      <Route path="/teachers" element={<TeachersDirectory />} id="teachers" />
       <Route path="/lessons/:lessonId" element={<LessonDetails />} id="lesson-details" />
       <Route path="/view-quiz" element={<ProtectedRoute requiredRole="student"><ViewQuiz /></ProtectedRoute>} />
       <Route path="/chat" element={<ProtectedRoute><Chat /></ProtectedRoute>} id="chat" />

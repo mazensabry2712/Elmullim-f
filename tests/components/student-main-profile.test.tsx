@@ -121,6 +121,10 @@ vi.mock("@/components/profiles/student/StudentLocation", () => ({
   default: () => <div data-testid="student-location" />,
 }));
 
+vi.mock("@/components/profiles/student/StudentParentLinks", () => ({
+  default: () => <div data-testid="student-parent-links" />,
+}));
+
 vi.mock("@/components/profiles/student/StudentRating", () => ({
   default: ({ rate }: { rate: { reply: { name: string } } }) => (
     <div data-testid="student-rating">{rate.reply.name}</div>

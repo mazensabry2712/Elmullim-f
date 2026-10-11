@@ -1,7 +1,7 @@
 import { itemVariants } from "@/animations";
 import { motion } from "framer-motion";
 import { Star, BookOpen } from "lucide-react";
-import { IPublicTeacher } from "@/services/main";
+import type { IPublicTeacher } from "@/services/main";
 
 interface IProps {
   teacher: IPublicTeacher;

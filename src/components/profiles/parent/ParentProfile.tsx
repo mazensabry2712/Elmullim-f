@@ -1,56 +1,102 @@
-import Loader from "@/components/Loader";
-import { useGetParentProfile } from "@/lib/react-query/parent/parentProfile";
-import cookieService from "@/utils/cookieService";
+import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
-import ProfileHeader from "../ProfileHeader";
-import ParentStudentLocation from "./ParentStudentLocation";
-import ParentStudentLinks from "./ParentStudentLinks";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useLocation } from "react-router-dom";
 import { useI18n } from "@/i18n";
 
-const ParentProfiles = () => {
-  const token = cookieService.getToken()!;
-  const { data: parent, isLoading } = useGetParentProfile(token);
-  const { language } = useI18n();
-  const text = language === "ar"
-    ? { account: "حساب ولي الأمر", description: "الوصف", nothing: "لا يوجد", following: "الطلاب الذين تتابعهم" }
-    : { account: "parent account", description: "description", nothing: "Nothing", following: "following students" };
+const ParentMainProfile = lazy(() => import("./ParentMainProfile"));
+const Bookings = lazy(() => import("@/pages/bookings/Bookings"));
+const Schedule = lazy(() => import("@/pages/bookings/Schedule"));
+const Chat = lazy(() => import("@/components/chat/Chat"));
 
-  if (isLoading) return <div className="container overflow-hidden"><div className="flex items-center justify-center py-20 my-20 overflow-hidden bg-white rounded-lg"><Loader /></div></div>;
-  const { name, description, profile_image, students } = parent?.data || {};
+const ParentProfile = () => {
+  const location = useLocation();
+  const state = location.state as
+    | { chat?: boolean; bookings?: boolean; schedule?: boolean }
+    | null;
+  const { language } = useI18n();
+  const isArabic = language === "ar";
+
+  const text = isArabic
+    ? {
+        main: "الرئيسية",
+        bookings: "الحجوزات",
+        schedule: "جدول الحصص",
+        chat: "الدردشة",
+        loading: "جاري تحميل القسم...",
+        sections: "أقسام حساب ولي الأمر",
+      }
+    : {
+        main: "Main",
+        bookings: "Bookings",
+        schedule: "Schedule",
+        chat: "Chat",
+        loading: "Loading section...",
+        sections: "Parent account sections",
+      };
+
+  const defaultTab = state?.bookings
+    ? "bookings"
+    : state?.schedule
+      ? "schedule"
+      : state?.chat
+        ? "chat"
+        : "main-profile";
+
+  const triggerClassName =
+    "h-full shrink-0 whitespace-nowrap rounded-none border-b-4 border-transparent px-2 py-3 text-xs font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B] sm:px-3 sm:text-sm md:px-4 md:text-base";
+
+  const fallback = (
+    <div className="flex min-h-56 items-center justify-center rounded-xl border border-gray-100 bg-white p-8 text-sm text-black-blue/55" role="status">
+      {text.loading}
+    </div>
+  );
 
   return (
-    <motion.section initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1 }} viewport={{ once: true }} className="container">
-      <div className="pb-10 my-20 overflow-hidden bg-white rounded-lg">
-        <ProfileHeader profileImage={profile_image!} />
-        <motion.div initial={{ opacity: 0, y: -20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} viewport={{ once: true }} className="px-2 text-center md:px-20 md:text-left">
-          <div className="mb-8">
-            <h2 className="text-4xl min-w-[314px] font-bold text-black-blue font-epilogue capitalize">{name}</h2>
-            <p className="md:text-[20px] text-black-blue font-exo font-medium capitalize mb-2">{text.account}</p>
-            <div>
-              <p className="h-[46px] w-[133px] m-auto md:m-0 flex items-center justify-center text-[20px] capitalize text-main font-exo bg-[url('/icons/verification-code-circle.svg')] bg-contain bg-no-repeat bg-center">{text.description}:</p>
-              <p className="text-[20px] max-w-[520px] m-auto md:m-0 text-black-blue font-exo font-medium mt-2 capitalize">{description || text.nothing}</p>
+    <motion.section
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.45 }}
+      className="container mb-10"
+    >
+      <div className="mt-8 sm:mt-10">
+        <Tabs key={location.key} defaultValue={defaultTab} className="w-full">
+          <TabsList
+            aria-label={text.sections}
+            className="flex h-auto w-full max-w-full justify-start overflow-x-auto overscroll-x-contain rounded-lg bg-[#21374B] p-0 px-2 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            <div className="mx-auto flex w-max min-w-full items-stretch justify-start gap-4 sm:justify-center sm:gap-6 lg:gap-8">
+              <TabsTrigger value="main-profile" className={triggerClassName}>
+                {text.main}
+              </TabsTrigger>
+              <TabsTrigger value="bookings" className={triggerClassName}>
+                {text.bookings}
+              </TabsTrigger>
+              <TabsTrigger value="schedule" className={triggerClassName}>
+                {text.schedule}
+              </TabsTrigger>
+              <TabsTrigger value="chat" className={triggerClassName}>
+                {text.chat}
+              </TabsTrigger>
             </div>
-          </div>
-          <div>
-            <h2 className="text-2xl md:text-[36px] font-sora text-black-blue capitalize my-4">{text.following}:</h2>
-            <ParentStudentLinks students={students ?? []} />
-            {!students?.length && <p className="my-4 rounded-lg border border-dashed p-5 text-sm text-black-blue/70">{language === "ar" ? "لا يوجد أبناء مرتبطون حاليًا. أرسل طلب ربط برقم هاتف الطالب، ولن تظهر بياناته إلا بعد موافقته." : "No students are linked yet. Send a link request using the student's phone number. Their information will remain private until they approve it."}</p>}
-            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }} className="flex flex-col gap-4">
-              {students?.map((student, index) => (
-                <div key={student.id ?? index} className="rounded-lg border bg-white p-4 shadow-sm">
-                  <div className="flex flex-wrap items-center gap-4">
-                    <img src={student.profile_image || "/images/profile-avatar.webp"} alt={student.name} className="h-20 w-20 rounded-full border object-cover" />
-                    <p className="text-xl font-semibold text-black-blue">{student.name}</p>
-                  </div>
-                  <ParentStudentLocation student={student} />
-                </div>
-              ))}
-            </motion.div>
-          </div>
-        </motion.div>
+          </TabsList>
+
+          <TabsContent value="main-profile" className="mt-0">
+            <Suspense fallback={fallback}><ParentMainProfile /></Suspense>
+          </TabsContent>
+          <TabsContent value="bookings" className="mt-0">
+            <Suspense fallback={fallback}><Bookings /></Suspense>
+          </TabsContent>
+          <TabsContent value="schedule" className="mt-0">
+            <Suspense fallback={fallback}><Schedule /></Suspense>
+          </TabsContent>
+          <TabsContent value="chat" className="mt-0">
+            <Suspense fallback={fallback}><Chat /></Suspense>
+          </TabsContent>
+        </Tabs>
       </div>
     </motion.section>
   );
 };
 
-export default ParentProfiles;
+export default ParentProfile;

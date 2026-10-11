@@ -32,6 +32,8 @@ const Bookings = () => {
   const isPaginating = isFetching && !isLoading;
 
   const cancel = async (bookingId: number) => {
+    if (!window.confirm(copy.cancelConfirmation)) return;
+
     setError("");
     try {
       await cancelMutation.mutateAsync({ token, bookingId });

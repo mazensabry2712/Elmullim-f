@@ -124,20 +124,22 @@ describe("Navbar mobile authenticated actions", () => {
     fireEvent.click(screen.getByRole("button", { name: "Toggle Menu" }));
     expect(document.getElementById("mobile-navigation")).not.toBeNull();
 
-    Object.defineProperty(window, "innerWidth", {
-      configurable: true,
-      writable: true,
-      value: 1280,
-    });
-    fireEvent.resize(window);
+    try {
+      Object.defineProperty(window, "innerWidth", {
+        configurable: true,
+        writable: true,
+        value: 1280,
+      });
+      fireEvent.resize(window);
 
-    expect(document.getElementById("mobile-navigation")).toBeNull();
-
-    Object.defineProperty(window, "innerWidth", {
-      configurable: true,
-      writable: true,
-      value: originalWidth,
-    });
+      expect(document.getElementById("mobile-navigation")).toBeNull();
+    } finally {
+      Object.defineProperty(window, "innerWidth", {
+        configurable: true,
+        writable: true,
+        value: originalWidth,
+      });
+    }
   });
 
   it("exposes notifications and profile actions from the mobile menu", async () => {

@@ -16,7 +16,7 @@ import { useI18n } from "@/i18n";
 import cookieService from "@/utils/cookieService";
 import { useGetNotifications } from "@/lib/react-query/notifications";
 
-const DESKTOP_NAV_BREAKPOINT = 1536;
+const DESKTOP_NAV_BREAKPOINT = 1280;
 
 const links = [
   { key: "home", path: "/" },
@@ -100,7 +100,7 @@ const Navbar = () => {
           className={
             mobile
               ? `w-full rounded-lg px-3 py-3 text-start text-[15px] font-semibold transition-colors sm:px-4 sm:py-3.5 sm:text-base ${active ? "bg-main/10 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`
-              : `whitespace-nowrap rounded-lg px-1.5 py-2 text-center text-[13px] font-semibold transition-colors 2xl:px-2 2xl:text-sm ${active ? "bg-main/5 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`
+              : `whitespace-nowrap rounded-lg px-1.5 py-2 text-center text-[13px] font-semibold transition-colors xl:px-2 xl:text-sm ${active ? "bg-main/5 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`
           }
         >
           {t(`nav.${link.key}`)}
@@ -130,7 +130,7 @@ const Navbar = () => {
               variants={logoVariants}
               initial="hidden"
               animate="visible"
-              className="h-9 w-9 shrink-0 cursor-pointer object-contain xs:h-10 xs:w-10 sm:h-12 sm:w-12 2xl:h-14 2xl:w-14"
+              className="h-9 w-9 shrink-0 cursor-pointer object-contain sm:h-12 sm:w-12 2xl:h-14 2xl:w-14"
             />
             <span className="whitespace-nowrap font-epilogue text-[19px] font-extrabold leading-none tracking-[-0.045em] text-black-blue sm:text-[22px] 2xl:text-2xl">
               Elm<span className="text-main">ullim</span>
@@ -139,7 +139,7 @@ const Navbar = () => {
         </motion.div>
 
         <motion.ul
-          className="hidden min-w-0 flex-1 items-center justify-center gap-1 2xl:flex 2xl:gap-1.5"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-1 xl:flex xl:gap-1.5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.25 }}
@@ -151,12 +151,12 @@ const Navbar = () => {
           className="relative flex shrink-0 items-center gap-1.5 sm:gap-2"
           variants={navItemsVariants}
         >
-          <div className="hidden items-center gap-2 2xl:flex">
+          <div className="hidden items-center gap-2 xl:flex">
             <motion.button
               type="button"
               onClick={switchLanguage}
               aria-label={isArabic ? t("language.english") : t("language.arabic")}
-              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-black-blue/10 px-2.5 py-2 text-sm font-semibold text-black-blue transition-colors hover:border-main hover:text-main 2xl:px-3"
+              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-black-blue/10 px-2.5 py-2 text-sm font-semibold text-black-blue transition-colors hover:border-main hover:text-main xl:px-3"
             >
               <Languages size={17} aria-hidden="true" />
               <span>{isArabic ? t("language.english") : t("language.arabic")}</span>
@@ -187,7 +187,7 @@ const Navbar = () => {
                   aria-expanded={openLogin}
                   aria-haspopup="menu"
                   onClick={() => setOpenLogin((value) => !value)}
-                  className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-main px-3 py-2 font-sora text-sm font-semibold text-white shadow-sm transition-colors hover:bg-main/90 2xl:px-4"
+                  className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-main px-3 py-2 font-sora text-sm font-semibold text-white shadow-sm transition-colors hover:bg-main/90 xl:px-4"
                 >
                   <span>{t("nav.login")}</span>
                   <ChevronDown
@@ -229,7 +229,7 @@ const Navbar = () => {
             aria-label={t("nav.toggleMenu")}
             aria-expanded={openNav}
             aria-controls="mobile-navigation"
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black-blue/10 text-black-blue transition-colors hover:border-main hover:bg-white-gray hover:text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 2xl:hidden sm:h-11 sm:w-11"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black-blue/10 text-black-blue transition-colors hover:border-main hover:bg-white-gray hover:text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 xl:hidden sm:h-11 sm:w-11"
             onClick={() => setOpenNav((value) => !value)}
           >
             <AnimatePresence mode="wait" initial={false}>
@@ -256,7 +256,7 @@ const Navbar = () => {
             animate="visible"
             exit="hidden"
             variants={navVariants}
-            className="w-full border-t border-black-blue/10 px-3 pt-3 sm:px-4 sm:pt-4 md:px-6 2xl:hidden"
+            className="w-full border-t border-black-blue/10 px-3 pt-3 sm:px-4 sm:pt-4 md:px-6 xl:hidden"
           >
             <motion.div
               variants={navItemsVariants}

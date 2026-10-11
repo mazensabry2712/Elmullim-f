@@ -24,8 +24,8 @@ vi.mock("@tanstack/react-query", () => ({
 
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => <div {...props}>{children}</div>,
-    article: ({ children, ...props }: { children?: React.ReactNode; [key: string]: unknown }) => <article {...props}>{children}</article>,
+    div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
+    article: ({ children }: { children?: React.ReactNode }) => <article>{children}</article>,
   },
 }));
 

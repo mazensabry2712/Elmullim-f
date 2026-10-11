@@ -13,14 +13,14 @@ describe("getPublicTeachers", () => {
     vi.clearAllMocks();
   });
 
-  it("requests the public teachers endpoint with a bounded list size", async () => {
+  it("requests the public teachers endpoint with the requested list size", async () => {
     vi.mocked(axiosAPI.get).mockResolvedValue({
       data: {
         status: true,
         message: null,
         data: [],
       },
-    });
+    } as never);
 
     const response = await getPublicTeachers(8);
 

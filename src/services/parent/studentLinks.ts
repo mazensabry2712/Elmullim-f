@@ -9,7 +9,7 @@ export interface IParentStudentLinkRequestsResponse {
   message: string | null;
   data: {
     pending_count: number;
-    requests: Array<{ requested_at: string }>;
+    requests: Array<{ student_id: number; phone_suffix: string; requested_at: string }>;
   };
 }
 

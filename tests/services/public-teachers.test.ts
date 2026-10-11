@@ -1,5 +1,5 @@
 import axiosAPI from "@/config/axios.config";
-import { getPublicTeachers } from "@/services/main";
+import { getPublicTeacherDirectory, getPublicTeachers } from "@/services/main";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@/config/axios.config", () => ({
@@ -28,6 +28,26 @@ describe("getPublicTeachers", () => {
       params: { limit: 8 },
     });
     expect(response.data).toEqual([]);
+  });
+
+  it("requests a page from the full public teachers directory", async () => {
+    vi.mocked(axiosAPI.get).mockResolvedValue({
+      data: {
+        status: true,
+        message: null,
+        data: {
+          teachers: [],
+          pagination: { current_page: 2, last_page: 3, per_page: 12, total: 25 },
+        },
+      },
+    } as never);
+
+    const response = await getPublicTeacherDirectory(2, 12);
+
+    expect(axiosAPI.get).toHaveBeenCalledWith("/main/teachers/directory", {
+      params: { page: 2, per_page: 12 },
+    });
+    expect(response.data.pagination.total).toBe(25);
   });
 
   it("uses eight teachers by default", async () => {

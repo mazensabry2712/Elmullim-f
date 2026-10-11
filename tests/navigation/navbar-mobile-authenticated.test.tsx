@@ -118,9 +118,9 @@ describe("Navbar mobile authenticated actions", () => {
         "/notifications"
       );
       expect(mobileMenu.getByRole("button", { name: "Profile" })).toBeInTheDocument();
-      expect(mobileMenu.getByRole("link", { name: "For Teachers" })).toHaveAttribute(
+      expect(mobileMenu.getByRole("link", { name: "Teachers" })).toHaveAttribute(
         "href",
-        "/teacher/sign-up"
+        "/teachers"
       );
     });
   });

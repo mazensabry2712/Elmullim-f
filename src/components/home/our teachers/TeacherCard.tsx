@@ -12,7 +12,7 @@ const TeacherCard = ({ teacher }: IProps) => {
   const subjectNames = teacher.subjects?.map((subject) => subject.name).filter(Boolean) ?? [];
   const initials = teacher.name
     .trim()
-    .split(/\\s+/)
+    .split(/\s+/)
     .slice(0, 2)
     .map((part) => part[0])
     .join("")

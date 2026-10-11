@@ -196,11 +196,6 @@ export const PARENT_SIGNUP_FORM_INPUTS: IFormInput[] = [
     type: "select",
     label: "Education Level *",
   },
-  {
-    name: "students",
-    type: "text",
-    placeholder: "Student Phone Number *",
-  },
 ];
 
 export const TEACHER_SIGNUP_FORM_INPUTS: IFormInput[] = [
@@ -444,11 +439,6 @@ export const UPDATE_PARENT_PROFILE: IFormInput[] = [
     name: "education_level_id",
     type: "select",
     label: "Education Level",
-  },
-  {
-    name: "students",
-    type: "text",
-    placeholder: "Student Phone Number *",
   },
   {
     name: "profile_image",

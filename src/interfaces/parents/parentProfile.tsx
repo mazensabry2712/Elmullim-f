@@ -26,7 +26,6 @@ export interface IUpdateParentProfile {
     gender: string;
     description?: string;
     phone: string;
-    students: string[];
     profile_image?: File;
     country_id: string;
     education_system_id: string;

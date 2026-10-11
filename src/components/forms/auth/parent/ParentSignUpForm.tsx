@@ -54,7 +54,6 @@ const ParentSignUpForm = () => {
       gender: "",
       name: "",
       phone: "",
-      students: [],
       country_id: "",
       education_system_id: "",
       education_level_id: "",

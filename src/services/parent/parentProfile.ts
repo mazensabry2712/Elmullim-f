@@ -31,11 +31,6 @@ export const updateParentProfile = async ({
   if (dataForm.profile_image)
     formData.append("profile_image", dataForm.profile_image);
   formData.append("description", dataForm.description ?? "");
-  if (dataForm.students) {
-    dataForm.students.map((student, idx) =>
-      formData.append(`students[${idx}]`, student)
-    );
-  }
   const { data } = await axiosAPI.post("/parent/me", formData, {
     headers: {
       Authorization: `Bearer ${token}`,

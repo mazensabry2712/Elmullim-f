@@ -20,6 +20,7 @@ import { useNavigate } from "react-router-dom";
 import ProfileHeader from "../ProfileHeader";
 import StudentRating from "./StudentRating";
 import StudentLocation from "./StudentLocation";
+import StudentParentLinks from "./StudentParentLinks";
 import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 
@@ -198,6 +199,8 @@ const StudentMainProfile = () => {
             ))}
           </div>
         </section>
+
+        <StudentParentLinks />
 
         <section className="mt-8 rounded-xl border border-gray-100 bg-[#FAFCFB] p-5">
           <div className="mb-3 flex items-center gap-2 text-main">

@@ -178,29 +178,6 @@ export const parentSignUpSchema = z.object({
   email: z.string().email({
     message: validationMessage("Please enter a valid email.", "يرجى إدخال بريد إلكتروني صحيح."),
   }),
-  students: z
-    .array(
-      z
-        .string()
-        .min(10, {
-          message: validationMessage(
-            "Each student number must be at least 10 digits long",
-            "يجب أن يتكون رقم كل طالب من 10 أرقام على الأقل"
-          ),
-        })
-        .regex(/^\d+$/, {
-          message: validationMessage(
-            "Each student number must contain only digits",
-            "يجب أن يحتوي رقم كل طالب على أرقام فقط"
-          ),
-        })
-    )
-    .min(1, {
-      message: validationMessage(
-        "Please add at least one student phone number",
-        "يرجى إضافة رقم هاتف طالب واحد على الأقل"
-      ),
-    }),
   password: z.string().min(8, {
     message: validationMessage(
       "Password must be at least 8 characters.",

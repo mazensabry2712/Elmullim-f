@@ -75,7 +75,6 @@ const UpdateParentProfileForm = () => {
       profile_image: undefined,
       country_id: "",
       description: "",
-      students: [],
     },
   });
 
@@ -89,7 +88,6 @@ const UpdateParentProfileForm = () => {
     education_system_id,
     profile_image,
     description,
-    students,
   }: z.infer<typeof updateParentProfileSchema>) => {
     try {
       const { status, message } = await updateParentProfile({
@@ -103,7 +101,6 @@ const UpdateParentProfileForm = () => {
           name,
           phone,
           description,
-          students,
           profile_image,
         },
       });
@@ -141,7 +138,6 @@ const UpdateParentProfileForm = () => {
       education_system_id:
         parent?.education_level.education_system.id.toString() || "",
       education_level_id: parent?.education_level.id.toString() || "",
-      students: parent?.students.map((student) => student.phone),
     });
   }, [form, parent]);
 

@@ -4,6 +4,7 @@ import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import ProfileHeader from "../ProfileHeader";
 import ParentStudentLocation from "./ParentStudentLocation";
+import ParentStudentLinks from "./ParentStudentLinks";
 import { useI18n } from "@/i18n";
 
 const ParentProfiles = () => {
@@ -32,6 +33,8 @@ const ParentProfiles = () => {
           </div>
           <div>
             <h2 className="text-2xl md:text-[36px] font-sora text-black-blue capitalize my-4">{text.following}:</h2>
+            <ParentStudentLinks students={students ?? []} />
+            {!students?.length && <p className="my-4 rounded-lg border border-dashed p-5 text-sm text-black-blue/70">{language === "ar" ? "لا يوجد أبناء مرتبطون حاليًا. أرسل طلب ربط برقم هاتف الطالب، ولن تظهر بياناته إلا بعد موافقته." : "No students are linked yet. Send a link request using the student's phone number. Their information will remain private until they approve it."}</p>}
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} viewport={{ once: true }} className="flex flex-col gap-4">
               {students?.map((student, index) => (
                 <div key={student.id ?? index} className="rounded-lg border bg-white p-4 shadow-sm">

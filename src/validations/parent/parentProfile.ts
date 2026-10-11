@@ -90,21 +90,6 @@ export const updateParentProfileSchema = z.object({
         "يرجى اختيار مرحلة تعليمية صحيحة."
       ),
     }),
-  students: z
-    .array(
-      z.string().regex(/^\d{10,20}$/, {
-        message: validationMessage(
-          "Each student number must contain 10 to 20 digits.",
-          "يجب أن يحتوي رقم كل طالب على 10 إلى 20 رقمًا."
-        ),
-      })
-    )
-    .min(1, {
-      message: validationMessage(
-        "Please add at least one student phone number",
-        "يرجى إضافة رقم هاتف طالب واحد على الأقل"
-      ),
-    }),
   profile_image: z.union([
     z.undefined(),
     z

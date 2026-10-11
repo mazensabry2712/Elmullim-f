@@ -19,6 +19,7 @@ vi.mock("@/i18n", () => ({
         "nav.services": "Services",
         "nav.courses": "Courses",
         "nav.lessons": "Lessons",
+        "nav.forTeachers": "For Teachers",
         "nav.contactUs": "Contact Us",
         "nav.faqs": "FAQs",
         "nav.login": "Login",
@@ -100,6 +101,10 @@ describe("Navbar mobile authenticated actions", () => {
         "/notifications"
       );
       expect(mobileMenu.getByRole("button", { name: "Profile" })).toBeInTheDocument();
+      expect(mobileMenu.getByRole("link", { name: "For Teachers" })).toHaveAttribute(
+        "href",
+        "/teacher/sign-up"
+      );
     });
   });
 });

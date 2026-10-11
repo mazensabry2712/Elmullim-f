@@ -9,6 +9,28 @@ import {
 } from "@/interfaces/main";
 import { ITeacherProfileRes } from "@/interfaces/teachers/teacherProfile";
 
+export interface IPublicTeacher {
+  id: number;
+  name: string;
+  description?: string | null;
+  profile_image?: string | null;
+  rating: number;
+  rating_count: number;
+  lessons_count: number;
+  subjects: Array<{ id: number; name: string }>;
+}
+
+export interface IPublicTeachersRes {
+  data: IPublicTeacher[];
+}
+
+
+
+export const getPublicTeachers = async (limit = 8): Promise<IPublicTeachersRes> => {
+  const { data } = await axiosAPI.get("/main/teachers", { params: { limit } });
+  return data;
+};
+
 export const getAllCountries = async (): Promise<ICountriesRes> => {
   const { data } = await axiosAPI.get("/main/countries");
   return data;

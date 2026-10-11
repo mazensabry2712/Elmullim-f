@@ -18,9 +18,6 @@ export const parentRegister = async (
   formData.append("country_id", user.country_id);
   formData.append("education_system_id", user.education_system_id);
   formData.append("education_level_id", user.education_level_id);
-  user.students.map((student, idx) => {
-    formData.append(`students[${idx}]`, student);
-  });
   const { data } = await axiosAPI.post("/parent/register", formData);
   return data;
 };

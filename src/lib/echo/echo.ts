@@ -39,6 +39,12 @@ const getRuntimePusherConfig = async (token: string): Promise<RuntimePusherConfi
 
     return data?.data ?? null;
   } catch {
+    // Production integration settings are controlled by the backend admin panel.
+    // Do not bypass an unavailable/disabled runtime configuration with a stale build-time key.
+    if (!import.meta.env.DEV) {
+      return null;
+    }
+
     const key = String(import.meta.env.VITE_PUSHER_APP_KEY || "").trim();
 
     if (!key) {

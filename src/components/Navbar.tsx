@@ -16,6 +16,8 @@ import { useI18n } from "@/i18n";
 import cookieService from "@/utils/cookieService";
 import { useGetNotifications } from "@/lib/react-query/notifications";
 
+const DESKTOP_NAV_BREAKPOINT = 1536;
+
 const links = [
   { key: "home", path: "/" },
   { key: "about", path: "/about" },
@@ -41,10 +43,14 @@ const Navbar = () => {
   const { language, t, toggleLanguage } = useI18n();
   const token = cookieService.getToken() || "";
   const notifications = useGetNotifications({ token, enabled: isAuthenticated && !!token });
+  const isArabic = language === "ar";
 
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth >= 1024) setOpenNav(false);
+      if (window.innerWidth >= DESKTOP_NAV_BREAKPOINT) {
+        setOpenNav(false);
+        setOpenLogin(false);
+      }
     };
 
     window.addEventListener("resize", handleResize);
@@ -53,7 +59,19 @@ const Navbar = () => {
 
   useEffect(() => {
     setOpenLogin(false);
+    setOpenNav(false);
   }, [path]);
+
+  useEffect(() => {
+    if (!openNav) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setOpenNav(false);
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [openNav]);
 
   const switchLanguage = () => {
     toggleLanguage();
@@ -61,88 +79,106 @@ const Navbar = () => {
     setOpenLogin(false);
   };
 
-  const getLinkPath = (link: (typeof links)[number]) => link.path;
-
   const isLinkActive = (linkPath: string) =>
     linkPath === "/"
       ? path === "/"
       : path === linkPath || path.startsWith(`${linkPath}/`);
 
+  const renderNavigationLink = (link: (typeof links)[number], mobile = false) => {
+    const active = isLinkActive(link.path);
+
+    return (
+      <motion.li
+        key={link.key}
+        variants={navItemsVariants}
+        className={mobile ? "flex min-w-0 w-full" : "flex min-w-0 items-center"}
+      >
+        <NavLink
+          to={link.path}
+          aria-current={active ? "page" : undefined}
+          onClick={mobile ? () => setOpenNav(false) : undefined}
+          className={
+            mobile
+              ? `w-full rounded-lg px-3 py-3 text-start text-[15px] font-semibold transition-colors sm:px-4 sm:py-3.5 sm:text-base ${active ? "bg-main/10 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`
+              : `whitespace-nowrap rounded-lg px-1.5 py-2 text-center text-[13px] font-semibold transition-colors 2xl:px-2 2xl:text-sm ${active ? "bg-main/5 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`
+          }
+        >
+          {t(`nav.${link.key}`)}
+        </NavLink>
+      </motion.li>
+    );
+  };
+
   return (
     <motion.nav
+      aria-label={isArabic ? "القائمة الرئيسية" : "Main navigation"}
       initial="hidden"
       animate="visible"
       variants={navItemsVariants}
-      className="flex w-full flex-wrap items-center justify-between py-2"
+      className="relative z-40 flex w-full flex-col py-2"
     >
-      <div className="flex w-full min-w-0 items-center justify-between px-2 sm:px-3">
-        <motion.div variants={logoVariants} className="min-w-0 shrink">
-          <Link to="/" className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+      <div className="mx-auto flex min-h-12 w-full max-w-[1600px] min-w-0 items-center justify-between gap-2 px-3 sm:min-h-14 sm:gap-3 sm:px-4 md:px-6 2xl:gap-4 2xl:px-8">
+        <motion.div variants={logoVariants} className="min-w-0 shrink-0">
+          <Link
+            to="/"
+            aria-label={isArabic ? "العودة إلى الرئيسية" : "Go to homepage"}
+            className="flex min-w-0 items-center gap-1.5 sm:gap-2"
+          >
             <motion.img
               src="/images/logo.webp"
               alt="Elmullim"
               variants={logoVariants}
               initial="hidden"
               animate="visible"
-              className="h-12 w-12 shrink-0 cursor-pointer sm:h-14 sm:w-14"
+              className="h-9 w-9 shrink-0 cursor-pointer object-contain xs:h-10 xs:w-10 sm:h-12 sm:w-12 2xl:h-14 2xl:w-14"
             />
-            <span className="whitespace-nowrap font-epilogue text-[21px] font-extrabold leading-none tracking-[-0.035em] text-black-blue sm:text-2xl lg:text-[23px] xl:text-[25px]">
+            <span className="whitespace-nowrap font-epilogue text-[19px] font-extrabold leading-none tracking-[-0.045em] text-black-blue sm:text-[22px] 2xl:text-2xl">
               Elm<span className="text-main">ullim</span>
             </span>
           </Link>
         </motion.div>
 
         <motion.ul
-          className="hidden w-full justify-center gap-4 lg:flex"
+          className="hidden min-w-0 flex-1 items-center justify-center gap-1 2xl:flex 2xl:gap-1.5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.25 }}
         >
-          {links.map((link) => {
-            const linkPath = getLinkPath(link);
-            const active = isLinkActive(linkPath);
-
-            return (
-              <motion.li key={link.key} variants={navItemsVariants} className="flex items-center justify-center">
-                <NavLink
-                  to={linkPath}
-                  aria-current={active ? "page" : undefined}
-                  className={`font-semibold text-[17px] ${active ? "text-main" : "text-black-blue hover:text-main transition-all duration-200"}`}
-                >
-                  {t(`nav.${link.key}`)}
-                </NavLink>
-              </motion.li>
-            );
-          })}
+          {links.map((link) => renderNavigationLink(link))}
         </motion.ul>
 
-        <motion.div className="relative flex shrink-0 items-center gap-2" variants={navItemsVariants}>
-          <div className="hidden items-center gap-2 lg:flex">
+        <motion.div
+          className="relative flex shrink-0 items-center gap-1.5 sm:gap-2"
+          variants={navItemsVariants}
+        >
+          <div className="hidden items-center gap-2 2xl:flex">
             <motion.button
               type="button"
               onClick={switchLanguage}
-              aria-label={language === "en" ? t("language.arabic") : t("language.english")}
-              className="inline-flex items-center gap-1.5 rounded-md border border-black-blue/10 px-2.5 py-2 text-sm font-semibold text-black-blue transition-colors hover:border-main hover:text-main"
+              aria-label={isArabic ? t("language.english") : t("language.arabic")}
+              className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg border border-black-blue/10 px-2.5 py-2 text-sm font-semibold text-black-blue transition-colors hover:border-main hover:text-main 2xl:px-3"
             >
               <Languages size={17} aria-hidden="true" />
-              <span>{language === "en" ? t("language.arabic") : t("language.english")}</span>
+              <span>{isArabic ? t("language.english") : t("language.arabic")}</span>
             </motion.button>
 
             {isAuthenticated ? (
               <>
                 <Link
                   to="/notifications"
-                  aria-label={language === "ar" ? "الإشعارات" : "Notifications"}
-                  className="relative inline-flex h-10 w-10 items-center justify-center rounded-md text-black-blue transition-colors hover:bg-white-gray hover:text-main"
+                  aria-label={isArabic ? "الإشعارات" : "Notifications"}
+                  className="relative inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-black-blue transition-colors hover:bg-white-gray hover:text-main"
                 >
-                  <Bell size={19} />
+                  <Bell size={19} aria-hidden="true" />
                   {(notifications.data?.data?.unread_count ?? 0) > 0 && (
-                    <span className="absolute -right-0.5 -top-0.5 min-w-5 rounded-full bg-main px-1 text-center text-[10px] font-bold leading-5 text-white">
+                    <span className="absolute -end-0.5 -top-0.5 min-w-5 rounded-full bg-main px-1 text-center text-[10px] font-bold leading-5 text-white">
                       {Math.min(notifications.data?.data?.unread_count ?? 0, 99)}
                     </span>
                   )}
                 </Link>
-                <motion.div><ProfileDropdownMenu /></motion.div>
+                <motion.div className="shrink-0">
+                  <ProfileDropdownMenu />
+                </motion.div>
               </>
             ) : (
               <motion.div className="relative">
@@ -151,10 +187,14 @@ const Navbar = () => {
                   aria-expanded={openLogin}
                   aria-haspopup="menu"
                   onClick={() => setOpenLogin((value) => !value)}
-                  className="flex items-center justify-center gap-2 rounded-[5px] bg-main px-3 py-2 font-sora font-medium text-white shadow transition-all duration-300 hover:bg-main/90 hover:shadow-md sm:px-5"
+                  className="inline-flex min-h-10 items-center justify-center gap-1.5 rounded-lg bg-main px-3 py-2 font-sora text-sm font-semibold text-white shadow-sm transition-colors hover:bg-main/90 2xl:px-4"
                 >
-                  {t("nav.login")}
-                  <ChevronDown size={18} className={`transition-transform ${openLogin ? "rotate-180" : ""}`} />
+                  <span>{t("nav.login")}</span>
+                  <ChevronDown
+                    size={17}
+                    aria-hidden="true"
+                    className={`transition-transform ${openLogin ? "rotate-180" : ""}`}
+                  />
                 </motion.button>
 
                 <AnimatePresence>
@@ -163,7 +203,7 @@ const Navbar = () => {
                       initial={{ opacity: 0, y: -5 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -5 }}
-                      className="absolute right-0 top-full z-50 mt-2 min-w-40 rounded-lg border border-black/5 bg-white p-2 shadow-xl"
+                      className="absolute end-0 top-full z-50 mt-2 min-w-48 rounded-xl border border-black/5 bg-white p-2 shadow-xl"
                       role="menu"
                     >
                       {loginLinks.map((loginLink) => (
@@ -172,7 +212,7 @@ const Navbar = () => {
                           to={loginLink.path}
                           role="menuitem"
                           onClick={() => setOpenLogin(false)}
-                          className="block rounded-md px-4 py-2 text-sm font-semibold text-black-blue hover:bg-white-gray hover:text-main"
+                          className="block rounded-lg px-3 py-2.5 text-start text-sm font-semibold text-black-blue transition-colors hover:bg-white-gray hover:text-main"
                         >
                           {t(`nav.${loginLink.key}`)}
                         </Link>
@@ -189,17 +229,17 @@ const Navbar = () => {
             aria-label={t("nav.toggleMenu")}
             aria-expanded={openNav}
             aria-controls="mobile-navigation"
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md text-black-blue transition-colors hover:bg-white-gray lg:hidden"
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-black-blue/10 text-black-blue transition-colors hover:border-main hover:bg-white-gray hover:text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 2xl:hidden sm:h-11 sm:w-11"
             onClick={() => setOpenNav((value) => !value)}
           >
             <AnimatePresence mode="wait" initial={false}>
               {openNav ? (
                 <motion.span key="close-icon" initial="hidden" animate="visible" exit="hidden" variants={menuIconVariants}>
-                  <X size={34} aria-hidden="true" />
+                  <X size={25} aria-hidden="true" />
                 </motion.span>
               ) : (
                 <motion.span key="menu-icon" initial="hidden" animate="visible" exit="hidden" variants={menuIconVariants}>
-                  <AlignJustify size={34} aria-hidden="true" />
+                  <AlignJustify size={25} aria-hidden="true" />
                 </motion.span>
               )}
             </AnimatePresence>
@@ -216,60 +256,61 @@ const Navbar = () => {
             animate="visible"
             exit="hidden"
             variants={navVariants}
-            className="w-full overflow-hidden px-2 sm:px-3"
+            className="w-full border-t border-black-blue/10 px-3 pt-3 sm:px-4 sm:pt-4 md:px-6 2xl:hidden"
           >
-            <motion.div variants={navItemsVariants} className="mx-auto w-full max-w-xl py-2">
-              <motion.ul className="flex w-full flex-col gap-1">
-                {links.map((link) => {
-                  const linkPath = getLinkPath(link);
-                  const active = isLinkActive(linkPath);
+            <motion.div
+              variants={navItemsVariants}
+              className="mx-auto w-full max-w-[1100px] rounded-2xl border border-black-blue/10 bg-white p-2 shadow-lg sm:p-3 md:p-4"
+            >
+              <motion.ul className="grid w-full grid-cols-1 gap-1.5 sm:grid-cols-2 sm:gap-2">
+                {links.map((link) => renderNavigationLink(link, true))}
 
-                  return (
-                    <motion.li key={link.key} variants={navItemsVariants} className="flex w-full items-center justify-center">
-                      <NavLink
-                        to={linkPath}
-                        aria-current={active ? "page" : undefined}
-                        className={`w-full rounded-md px-3 py-2.5 font-semibold text-[16px] transition-all duration-200 sm:px-4 sm:text-[17px] ${active ? "bg-main/10 text-main" : "text-black-blue hover:bg-white-gray hover:text-main"}`}
-                        onClick={() => setOpenNav(false)}
-                      >
-                        {t(`nav.${link.key}`)}
-                      </NavLink>
-                    </motion.li>
-                  );
-                })}
-
-                <motion.li variants={navItemsVariants} className="pt-2">
-                  <button type="button" onClick={switchLanguage} className="flex w-full items-center justify-center gap-2 rounded-md border border-main/20 px-4 py-2.5 text-sm font-semibold text-black-blue hover:text-main">
+                <motion.li variants={navItemsVariants} className="flex min-w-0 w-full">
+                  <button
+                    type="button"
+                    onClick={switchLanguage}
+                    className="flex min-h-11 w-full items-center justify-center gap-2 rounded-lg border border-main/20 px-4 py-3 text-sm font-semibold text-black-blue transition-colors hover:border-main hover:text-main sm:min-h-full"
+                  >
                     <Languages size={17} aria-hidden="true" />
-                    {language === "en" ? t("language.arabic") : t("language.english")}
+                    <span>{isArabic ? t("language.english") : t("language.arabic")}</span>
                   </button>
                 </motion.li>
 
-                {isAuthenticated && (
-                  <motion.li variants={navItemsVariants} className="pt-3">
-                    <div className="flex items-center justify-center gap-2 rounded-lg border border-main/20 bg-white-gray p-2">
+                {isAuthenticated ? (
+                  <motion.li variants={navItemsVariants} className="flex min-w-0 w-full sm:col-span-2">
+                    <div className="flex w-full min-w-0 items-center gap-2 rounded-xl border border-main/15 bg-white-gray p-2">
                       <Link
                         to="/notifications"
                         onClick={() => setOpenNav(false)}
-                        className="inline-flex flex-1 items-center justify-center rounded-md px-3 py-2 text-sm font-semibold text-black-blue hover:bg-white hover:text-main"
+                        className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-black-blue transition-colors hover:bg-white hover:text-main"
                       >
-                        <Bell size={17} className="mr-2" aria-hidden="true" />
-                        {language === "ar" ? "الإشعارات" : "Notifications"}
+                        <Bell size={17} aria-hidden="true" />
+                        <span>{isArabic ? "الإشعارات" : "Notifications"}</span>
+                        {(notifications.data?.data?.unread_count ?? 0) > 0 && (
+                          <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-main px-1.5 text-[10px] font-bold leading-5 text-white">
+                            {Math.min(notifications.data?.data?.unread_count ?? 0, 99)}
+                          </span>
+                        )}
                       </Link>
-                      <div className="shrink-0 rounded-md bg-white">
+                      <div className="min-w-0 shrink-0 rounded-lg bg-white">
                         <ProfileDropdownMenu />
                       </div>
                     </div>
                   </motion.li>
-                )}
-
-                {!isAuthenticated && (
-                  <motion.li variants={navItemsVariants} className="pt-3">
-                    <div className="rounded-lg border border-main/20 bg-white-gray p-2">
-                      <p className="px-2 pb-2 text-sm font-semibold text-black-blue">{t("nav.signInAs")}</p>
-                      <div className="grid grid-cols-1 gap-1">
+                ) : (
+                  <motion.li variants={navItemsVariants} className="flex min-w-0 w-full sm:col-span-2">
+                    <div className="w-full rounded-xl border border-main/15 bg-white-gray p-2.5 sm:p-3">
+                      <p className="px-2 pb-2 text-start text-sm font-semibold text-black-blue">
+                        {t("nav.signInAs")}
+                      </p>
+                      <div className="grid grid-cols-1 gap-1 sm:grid-cols-3 sm:gap-2">
                         {loginLinks.map((loginLink) => (
-                          <Link key={loginLink.key} to={loginLink.path} onClick={() => setOpenNav(false)} className="rounded-md px-3 py-2 text-sm font-semibold text-black-blue hover:bg-white hover:text-main">
+                          <Link
+                            key={loginLink.key}
+                            to={loginLink.path}
+                            onClick={() => setOpenNav(false)}
+                            className="flex min-h-10 min-w-0 items-center justify-center rounded-lg px-3 py-2 text-center text-sm font-semibold text-black-blue transition-colors hover:bg-white hover:text-main"
+                          >
                             {t(`nav.${loginLink.key}`)}
                           </Link>
                         ))}

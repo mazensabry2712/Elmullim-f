@@ -37,7 +37,7 @@ describe("getPublicTeachers", () => {
         message: null,
         data: [],
       },
-    });
+    } as never);
 
     await getPublicTeachers();
 

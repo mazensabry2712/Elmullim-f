@@ -3,15 +3,22 @@ import userEvent from "@testing-library/user-event";
 import { describe, expect, it, vi } from "vitest";
 import ProfileDropdownMenu from "@/components/profiles/ProfileMenu";
 
-const { performLogoutMock, swalFireMock } = vi.hoisted(() => ({
+const { performLogoutMock, swalFireMock, authState, cookieState } = vi.hoisted(() => ({
   performLogoutMock: vi.fn(),
   swalFireMock: vi.fn(),
+  authState: { role: "student" as string | null },
+  cookieState: { role: "student" as string | undefined },
 }));
 
 let latestPopoverOnOpenChange: ((open: boolean) => void) | undefined;
 
 vi.mock("react-router-dom", () => ({
   useNavigate: () => vi.fn(),
+}));
+
+vi.mock("react-redux", () => ({
+  useSelector: (selector: (state: { auth: { role: string | null } }) => unknown) =>
+    selector({ auth: { role: authState.role } }),
 }));
 
 vi.mock("@/hooks/useLogout", () => ({
@@ -29,7 +36,7 @@ vi.mock("sweetalert2", () => ({
 
 vi.mock("@/utils/cookieService", () => ({
   default: {
-    getRole: () => "student",
+    getRole: () => cookieState.role,
     getToken: () => "student-token",
   },
 }));
@@ -131,6 +138,8 @@ vi.mock("@/components/ui/popover", () => ({
 describe("ProfileDropdownMenu", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    authState.role = "student";
+    cookieState.role = "student";
     swalFireMock.mockResolvedValue({ isConfirmed: false });
     performLogoutMock.mockResolvedValue({
       response: {
@@ -170,6 +179,20 @@ describe("ProfileDropdownMenu", () => {
       latestPopoverOnOpenChange?.(false);
     });
     expect(screen.queryByText("My Account")).not.toBeInTheDocument();
+  });
+
+  it("shows teacher course links when the validated role corrects a stale student cookie", () => {
+    authState.role = "teacher";
+    cookieState.role = "student";
+
+    render(<ProfileDropdownMenu />);
+
+    act(() => {
+      latestPopoverOnOpenChange?.(true);
+    });
+
+    expect(screen.getByRole("button", { name: "Upload Courses" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "My Lessons" })).toBeInTheDocument();
   });
 
   it("confirms and executes logout from the profile menu", async () => {

@@ -24,10 +24,32 @@ export interface IPublicTeachersRes {
   data: IPublicTeacher[];
 }
 
+export interface IPublicTeacherDirectoryRes {
+  data: {
+    teachers: IPublicTeacher[];
+    pagination: {
+      current_page: number;
+      last_page: number;
+      per_page: number;
+      total: number;
+    };
+  };
+}
+
 
 
 export const getPublicTeachers = async (limit = 8): Promise<IPublicTeachersRes> => {
   const { data } = await axiosAPI.get("/main/teachers", { params: { limit } });
+  return data;
+};
+
+export const getPublicTeacherDirectory = async (
+  page = 1,
+  perPage = 12
+): Promise<IPublicTeacherDirectoryRes> => {
+  const { data } = await axiosAPI.get("/main/teachers/directory", {
+    params: { page, per_page: perPage },
+  });
   return data;
 };
 

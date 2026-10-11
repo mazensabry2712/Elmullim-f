@@ -281,6 +281,7 @@ const Navbar = () => {
                     <div className="flex w-full min-w-0 items-center gap-2 rounded-xl border border-main/15 bg-white-gray p-2">
                       <Link
                         to="/notifications"
+                        aria-label={isArabic ? "الإشعارات" : "Notifications"}
                         onClick={() => setOpenNav(false)}
                         className="inline-flex min-h-11 min-w-0 flex-1 items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm font-semibold text-black-blue transition-colors hover:bg-white hover:text-main"
                       >

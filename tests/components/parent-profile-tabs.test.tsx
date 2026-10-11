@@ -1,4 +1,5 @@
-import { fireEvent, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import ParentProfile from "@/components/profiles/parent/ParentProfile";
@@ -28,6 +29,7 @@ describe("ParentProfile tabs", () => {
   });
 
   it("provides the same responsive profile section pattern as student and teacher", async () => {
+    const user = userEvent.setup();
     render(
       <MemoryRouter initialEntries={["/profile"]}>
         <ParentProfile />
@@ -40,13 +42,16 @@ describe("ParentProfile tabs", () => {
     expect(screen.getByRole("tab", { name: "Chat" })).toBeInTheDocument();
     expect(await screen.findByText("Parent overview content")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Bookings" }));
+    await user.click(screen.getByRole("tab", { name: "Bookings" }));
+    expect(screen.getByRole("tab", { name: "Bookings" })).toHaveAttribute("aria-selected", "true");
     expect(await screen.findByText("Parent bookings content")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Schedule" }));
+    await user.click(screen.getByRole("tab", { name: "Schedule" }));
+    expect(screen.getByRole("tab", { name: "Schedule" })).toHaveAttribute("aria-selected", "true");
     expect(await screen.findByText("Parent schedule content")).toBeInTheDocument();
 
-    fireEvent.click(screen.getByRole("tab", { name: "Chat" }));
+    await user.click(screen.getByRole("tab", { name: "Chat" }));
+    expect(screen.getByRole("tab", { name: "Chat" })).toHaveAttribute("aria-selected", "true");
     expect(await screen.findByText("Parent chat content")).toBeInTheDocument();
   });
 

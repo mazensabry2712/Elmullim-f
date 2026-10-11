@@ -94,7 +94,7 @@ const StudentParentLinks = () => {
   };
 
   return (
-    <section className="mt-8 rounded-xl border border-gray-100 bg-[#FAFCFB] p-5">
+    <section id="parent-links" className="mt-8 scroll-mt-24 rounded-xl border border-gray-100 bg-[#FAFCFB] p-5">
       <div className="flex items-start gap-3">
         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-main/10 text-main">
           <ShieldCheck className="h-5 w-5" aria-hidden="true" />

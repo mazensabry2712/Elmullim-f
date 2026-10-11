@@ -161,4 +161,39 @@ describe("Notifications", () => {
     expect(screen.getByText("تم تأكيد الحجز")).toBeInTheDocument();
     expect(screen.getByText("تم تأكيد حجزك.")).toBeInTheDocument();
   });
+  it("links parent link request notifications to the student approval section", () => {
+    mocks.query.mockReturnValue({
+      data: {
+        data: {
+          unread_count: 1,
+          items: [{
+            id: "n-parent-link",
+            type: "ParentLinkRequested",
+            data: {
+              event: "parent_link_requested",
+              family_id: 41,
+              parent_name: "Parent Requester",
+              title_en: "Parent link request",
+              title_ar: "طلب ربط من وليّ أمر",
+              body_en: "A parent requested to link your account.",
+              body_ar: "طلب ولي أمر ربط حسابك.",
+            },
+            read_at: null,
+            created_at: "2026-10-11T10:00:00Z",
+          }],
+        },
+      },
+      isLoading: false,
+      isError: false,
+    });
+
+    render(<I18nProvider><Notifications /></I18nProvider>);
+
+    expect(screen.getByText("Parent link request")).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "Review parent request" })).toHaveAttribute(
+      "href",
+      "/profile#parent-links",
+    );
+  });
+
 });

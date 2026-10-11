@@ -26,6 +26,7 @@ const Notifications = () => {
         loading: "جاري تحميل الإشعارات...",
         error: "تعذر تحميل الإشعارات.",
         read: "تمت القراءة",
+        reviewParentRequest: "مراجعة طلب الربط",
       }
     : {
         title: "Notifications",
@@ -35,6 +36,7 @@ const Notifications = () => {
         loading: "Loading notifications...",
         error: "Could not load notifications.",
         read: "Read",
+        reviewParentRequest: "Review parent request",
       };
 
   const items = query.data?.data?.items ?? [];
@@ -121,6 +123,15 @@ const Notifications = () => {
                       <h2 className="font-bold text-black-blue">{title}</h2>
                     </div>
                     <p className="mt-2 font-sora text-sm text-[#4D5756]">{body}</p>
+                    {notification.data.event === "parent_link_requested" && notification.data.family_id ? (
+                      <a
+                        href="/profile#parent-links"
+                        className="mt-3 inline-flex items-center gap-1.5 rounded-lg border border-main/20 bg-main/[0.05] px-3 py-2 text-xs font-bold text-main transition hover:bg-main/[0.1]"
+                      >
+                        <ExternalLink size={14} />
+                        {copy.reviewParentRequest}
+                      </a>
+                    ) : null}
                     {notification.data.event === "lesson_publishing_rejected" && notification.data.lesson_id ? (
                       <a
                         href={`/profile/my-lessons/${notification.data.lesson_id}/preview`}

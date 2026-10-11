@@ -97,6 +97,49 @@ describe("Navbar mobile authenticated actions", () => {
       .toHaveAttribute("href", "/teachers");
   });
 
+  it("closes the responsive menu when Escape is pressed", () => {
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Navbar />
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Toggle Menu" }));
+    expect(document.getElementById("mobile-navigation")).not.toBeNull();
+
+    fireEvent.keyDown(window, { key: "Escape" });
+
+    expect(document.getElementById("mobile-navigation")).toBeNull();
+  });
+
+  it("closes the expanded menu when the viewport reaches the desktop breakpoint", () => {
+    const originalWidth = window.innerWidth;
+
+    render(
+      <MemoryRouter initialEntries={["/"]}>
+        <Navbar />
+      </MemoryRouter>
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Toggle Menu" }));
+    expect(document.getElementById("mobile-navigation")).not.toBeNull();
+
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: 1280,
+    });
+    fireEvent.resize(window);
+
+    expect(document.getElementById("mobile-navigation")).toBeNull();
+
+    Object.defineProperty(window, "innerWidth", {
+      configurable: true,
+      writable: true,
+      value: originalWidth,
+    });
+  });
+
   it("exposes notifications and profile actions from the mobile menu", async () => {
     render(
       <MemoryRouter initialEntries={["/"]}>

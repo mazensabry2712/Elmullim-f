@@ -22,7 +22,7 @@ const links = [
   { key: "services", path: "/services" },
   { key: "courses", path: "/courses" },
   { key: "lessons", path: "/lessons" },
-  { key: "forTeachers", path: "/teacher/sign-up" },
+  { key: "forTeachers", path: "/teachers" },
   { key: "contactUs", path: "/contact-us" },
   { key: "faqs", path: "/faqs" },
 ] as const;
@@ -36,7 +36,7 @@ const loginLinks = [
 const Navbar = () => {
   const [openNav, setOpenNav] = useState(false);
   const [openLogin, setOpenLogin] = useState(false);
-  const { isAuthenticated, role } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const path = useLocation().pathname;
   const { language, t, toggleLanguage } = useI18n();
   const token = cookieService.getToken() || "";
@@ -61,8 +61,7 @@ const Navbar = () => {
     setOpenLogin(false);
   };
 
-  const getLinkPath = (link: (typeof links)[number]) =>
-    link.key === "forTeachers" && role === "teacher" ? "/profile" : link.path;
+  const getLinkPath = (link: (typeof links)[number]) => link.path;
 
   const isLinkActive = (linkPath: string) =>
     linkPath === "/"

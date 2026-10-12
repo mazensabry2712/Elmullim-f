@@ -34,6 +34,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Keep production publishing gated on this exact commit's code checks.
+      # This avoids racing the separate CI workflow on the same push.
+      - name: Run unit and component tests
+        run: npm run test:run
+
+      - name: Lint
+        run: npm run lint
+
       - name: Build production bundle
         env:
           VITE_API: https://api.elmullim.com

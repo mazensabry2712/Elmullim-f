@@ -3,6 +3,15 @@ import { expect, request as playwrightRequest, test } from "@playwright/test";
 const apiBaseURL =
   process.env.E2E_API_BASE_URL ||
   (process.env.CI ? "" : "http://Elmullim-b.test");
+
+// This E2E creates and cancels a real booking; never allow it to write to production.
+const apiHost = apiBaseURL ? new URL(apiBaseURL).hostname.toLowerCase() : "";
+if (apiHost === "elmullim.com" || apiHost.endsWith(".elmullim.com")) {
+  throw new Error(
+    "Refusing to run booking E2E against production. Configure E2E_API_BASE_URL for a dedicated test/staging API."
+  );
+}
+
 const browserBaseURL = process.env.E2E_BASE_URL || "http://127.0.0.1:5173";
 const studentEmail = process.env.E2E_STUDENT_EMAIL || "student@elmullim.test";
 const studentPassword = process.env.E2E_STUDENT_PASSWORD || "Student@12345";

@@ -1,14 +1,17 @@
 name: Build Hostinger Static Site
-# Production deploy source of truth: main -> generated hostinger branch
-# Deployment refresh: rebuild static production output from the current main commit.
+# Production deploy source of truth: tested main commit -> generated hostinger branch.
+# Only run after the complete Frontend CI workflow succeeds.
 
 on:
-  push:
+  workflow_run:
+    workflows: ["Frontend CI"]
+    types:
+      - completed
     branches:
       - main
-  workflow_dispatch:
 
 permissions:
+  actions: read
   contents: write
 
 concurrency:
@@ -17,12 +20,14 @@ concurrency:
 
 jobs:
   build-and-publish:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout main
+      - name: Checkout the exact tested main commit
         uses: actions/checkout@v4
         with:
+          ref: ${{ github.event.workflow_run.head_sha }}
           fetch-depth: 0
 
       - name: Setup Node.js
@@ -33,14 +38,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
-
-      # Keep production publishing gated on this exact commit's code checks.
-      # This avoids racing the separate CI workflow on the same push.
-      - name: Run unit and component tests
-        run: npm run test:run
-
-      - name: Lint
-        run: npm run lint
 
       - name: Build production bundle
         env:
@@ -53,10 +50,20 @@ jobs:
           test -s dist/index.html
           test -d dist/assets
           test -n "$(find dist/assets -maxdepth 1 -type f -print -quit)"
-          echo "Production bundle verified for commit $GITHUB_SHA"
+          echo "Production bundle built from tested commit $GITHUB_SHA"
 
-      - name: Prepare static deployment
+      - name: Publish only if the tested commit is still main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TESTED_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
+          git fetch origin main
+          CURRENT_MAIN_SHA="$(git rev-parse FETCH_HEAD)"
+          if [[ "$CURRENT_MAIN_SHA" != "$TESTED_SHA" ]]; then
+            echo "Skipping deployment: tested SHA $TESTED_SHA is no longer the latest main ($CURRENT_MAIN_SHA)."
+            exit 0
+          fi
+
           mkdir -p /tmp/hostinger-deploy
           cp -R dist/. /tmp/hostinger-deploy/
           cat > /tmp/hostinger-deploy/.htaccess <<'EOF'
@@ -80,16 +87,12 @@ jobs:
           </IfModule>
           EOF
 
-      - name: Publish hostinger branch
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
           cd /tmp/hostinger-deploy
           git init
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git commit -m "deploy: build main [skip ci]"
+          git commit -m "deploy: build tested main $TESTED_SHA [skip ci]"
           git branch -M hostinger
           git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git"
           git push --force origin hostinger

@@ -60,7 +60,7 @@ describe("Home hero responsive layout", () => {
     const heading = container.querySelector("h1");
     const benefitsGrid = container.querySelector("#home-hero-benefits");
     const image = container.querySelector('img[alt="home.hero.imageAlt"]');
-    const cap = container.querySelector('img[alt=""]');
+    const cap = container.querySelector('img[src="/icons/cap-icon.svg"]');
 
     expect(section).toHaveClass("overflow-hidden");
     expect(heading).toHaveClass("text-[clamp(2rem,6vw,3.5rem)]");

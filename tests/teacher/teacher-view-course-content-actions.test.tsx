@@ -1,6 +1,7 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { MemoryRouter } from "react-router-dom";
 import { I18nProvider } from "@/i18n";
 import TeacherViewCourseContent from "@/components/profiles/teacher/courses/TeacherViewCourseContent";
 
@@ -93,9 +94,11 @@ const lecture = {
 
 const renderList = (courseStatus: "draft" | "pending_approval" | "published" | "rejected") =>
   render(
-    <I18nProvider>
-      <TeacherViewCourseContent courseId={10} courseStatus={courseStatus} />
-    </I18nProvider>
+    <MemoryRouter initialEntries={["/profile/my-courses/10/view"]}>
+      <I18nProvider>
+        <TeacherViewCourseContent courseId={10} courseStatus={courseStatus} />
+      </I18nProvider>
+    </MemoryRouter>
   );
 
 describe("TeacherViewCourseContent actions", () => {

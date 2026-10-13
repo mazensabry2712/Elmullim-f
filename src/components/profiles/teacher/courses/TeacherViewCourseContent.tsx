@@ -6,6 +6,10 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import DeleteCourseContent from "./DeleteCourseContent";
+import DeleteCourseLecture from "./DeleteCourseLecture";
+import UpdateCourseContent from "./UpdateCourseContent";
+import UpdateCourseLecture from "./UpdateCourseLecture";
 import {
   useGetTeacherCourseContents,
   useGetTeacherCourseLectures,
@@ -153,7 +157,8 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                     value={content.id.toString()}
                     className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition-shadow data-[state=open]:border-emerald-200 data-[state=open]:shadow-md"
                   >
-                    <AccordionTrigger className="px-4 py-4 text-start text-base font-extrabold text-slate-900 hover:bg-slate-50 hover:no-underline data-[state=open]:bg-emerald-50/60 sm:px-5">
+                    <div className="flex items-center gap-1.5 px-2 sm:px-3">
+                    <AccordionTrigger className="min-w-0 flex-1 px-2 py-4 text-start text-base font-extrabold text-slate-900 hover:bg-slate-50 hover:no-underline data-[state=open]:bg-emerald-50/60">
                       <span className="flex min-w-0 flex-1 items-center gap-3">
                         <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
                           <BookOpen className="h-4 w-4" aria-hidden="true" />
@@ -174,6 +179,13 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                         </span>
                       </span>
                     </AccordionTrigger>
+                    {canEdit ? (
+                      <div className="flex shrink-0 items-center gap-1.5 pb-1">
+                        <UpdateCourseContent courseContent={content} courseId={courseId} />
+                        <DeleteCourseContent id={content.id.toString()} courseId={courseId.toString()} />
+                      </div>
+                    ) : null}
+                    </div>
 
                     <AccordionContent className="border-t border-slate-100 bg-white px-3 pb-4 pt-3 sm:px-4">
                       {!contentDescriptionIsValid ? (
@@ -225,7 +237,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                               >
                                 <Link
                                   to={"/profile/my-courses/" + courseId + "/view"}
-                                  state={{ lecture }}
+                                  state={{ lecture, contentId: content.id }}
                                   className="block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                                 >
                                   <div className="flex min-w-0 items-start gap-3">
@@ -267,6 +279,12 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                     {lecture.hasVideo ? <CheckCircle2 className="h-3.5 w-3.5" /> : <VideoOff className="h-3.5 w-3.5" />}
                                     {lecture.hasVideo ? text.videoReady : text.videoMissing}
                                   </span>
+                                  {canEdit ? (
+                                    <div className="flex shrink-0 items-center gap-1.5">
+                                      <UpdateCourseLecture lecture={lecture} courseLectureId={courseId} contentId={content.id} />
+                                      <DeleteCourseLecture id={lecture.id.toString()} courseId={courseId.toString()} contentId={content.id.toString()} />
+                                    </div>
+                                  ) : null}
                                 </div>
 
                                 {canEdit ? (

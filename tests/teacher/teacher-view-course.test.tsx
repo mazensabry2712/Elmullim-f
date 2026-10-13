@@ -34,6 +34,10 @@ vi.mock("@/components/profiles/teacher/courses/CreateCourseLecture", () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
+vi.mock("@/components/profiles/teacher/courses/DeleteCourse", () => ({
+  default: () => <button type="button" aria-label="Delete course">Delete course</button>,
+}));
+
 vi.mock("@/components/profiles/teacher/courses/TeacherViewCourseContent", () => ({
   default: () => <div data-testid="course-content-list">Course content list</div>,
 }));
@@ -110,8 +114,21 @@ describe("TeacherViewCourse", () => {
     expect(screen.getByRole("button", { name: /add lecture/i })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /submit for review/i })).toBeInTheDocument();
     expect(screen.getByTestId("course-content-list")).toBeInTheDocument();
-    expect(screen.queryByText(/edit course details/i)).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /delete/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /edit course/i })).toHaveAttribute("href", "/profile/my-courses/10/update");
+    expect(screen.getByRole("button", { name: /delete course/i })).toBeInTheDocument();
+  });
+
+  it("hides course edit/delete actions once the course is published", () => {
+    mocks.useGetTeacherCourseById.mockReturnValue({
+      data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },
+      isLoading: false,
+      failureReason: undefined,
+    });
+
+    renderPage();
+
+    expect(screen.queryByRole("link", { name: /edit course/i })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /delete course/i })).not.toBeInTheDocument();
   });
 
   it("shows a short course description as entered and explains what needs review", () => {

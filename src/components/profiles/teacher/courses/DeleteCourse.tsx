@@ -23,24 +23,26 @@ const DeleteCourse = ({ id }: IProps) => {
     ? {
         success: "تم حذف الكورس بنجاح",
         title: "حذف الكورس",
-        description: "هل أنت متأكد أنك تريد حذف هذا الكورس؟",
+        description: "هل أنت متأكد أنك تريد حذف هذا الكورس؟ لا يمكن التراجع عن العملية.",
         confirm: "حذف",
+        error: "تعذر حذف الكورس",
       }
     : {
         success: "Course deleted successfully",
         title: "Delete Course",
-        description: "Are you sure you want to delete this course?",
+        description: "Are you sure you want to delete this course? This action cannot be undone.",
         confirm: "Delete",
+        error: "Unable to delete this course",
       };
 
   const handleDelete = async () => {
     try {
       const { message, status } = await deleteCourse({ id, token });
-      if (!status) return toast.error(message || text.success);
+      if (!status) return toast.error(message || text.error);
 
       toast.success(message || text.success);
       setIsOpen(false);
-      navigate("/login");
+      navigate("/profile", { replace: true, state: { myCourses: true } });
     } catch (error) {
       handleResError(error);
     } finally {
@@ -50,7 +52,7 @@ const DeleteCourse = ({ id }: IProps) => {
 
   return (
     <>
-      <Button onClick={() => setIsOpen(true)} variant="destructive" size="icon">
+      <Button type="button" onClick={() => setIsOpen(true)} variant="destructive" size="icon" disabled={isPending} aria-label={language === "ar" ? "حذف الكورس" : "Delete course"} title={language === "ar" ? "حذف الكورس" : "Delete course"} className="h-10 w-10 rounded-xl">
         <Trash2 className="h-4 w-4" />
       </Button>
 

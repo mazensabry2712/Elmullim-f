@@ -1,6 +1,7 @@
 import { Loader2, PencilLine, X } from "lucide-react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -35,6 +36,8 @@ const UpdateCourseLecture = ({
 }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const token = cookieService.getToken() || "";
+  const location = useLocation();
+  const navigate = useNavigate();
   const { language } = useI18n();
   const isArabic = language === "ar";
 
@@ -97,6 +100,20 @@ const UpdateCourseLecture = ({
         response.message ||
           (isArabic ? "تم تحديث المحاضرة بنجاح." : "Lecture updated successfully.")
       );
+      const routeState = location.state as { lecture?: ILecture; contentId?: number } | null;
+      if (routeState?.lecture?.id === lecture.id) {
+        navigate(location.pathname, {
+          replace: true,
+          state: {
+            ...routeState,
+            lecture: {
+              ...lecture,
+              title: values.title.trim(),
+              description: values.description.trim(),
+            },
+          },
+        });
+      }
       setIsOpen(false);
       form.reset(initialValues);
     } catch (error) {

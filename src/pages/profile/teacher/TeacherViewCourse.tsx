@@ -1,4 +1,5 @@
 import CreateCourseContent from "@/components/profiles/teacher/courses/CreateCourseContent";
+import DeleteCourse from "@/components/profiles/teacher/courses/DeleteCourse";
 import CreateCourseLecture from "@/components/profiles/teacher/courses/CreateCourseLecture";
 import { Button } from "@/components/ui/button";
 import TeacherViewCourseContent from "@/components/profiles/teacher/courses/TeacherViewCourseContent";
@@ -24,13 +25,14 @@ import {
   GraduationCap,
   Layers3,
   Loader2,
+  PencilLine,
   Send,
   Video,
   VideoOff,
   Wallet,
 } from "lucide-react";
 import { useEffect } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 import { hasRepeatedTextPattern, isDisplayableProfileText } from "@/utils/textQuality";
@@ -63,6 +65,7 @@ const TeacherViewCourse = () => {
         rejected: "مرفوض",
         addContent: "إضافة محتوى",
         addLecture: "إضافة محاضرة",
+        editCourse: "تعديل الكورس",
         submitForReview: "إرسال للمراجعة",
         resubmitForReview: "إعادة الإرسال للمراجعة",
         resubmitting: "جارٍ الإرسال...",
@@ -124,6 +127,7 @@ const TeacherViewCourse = () => {
         rejected: "Rejected",
         addContent: "Add content",
         addLecture: "Add lecture",
+        editCourse: "Edit course",
         submitForReview: "Submit for review",
         resubmitForReview: "Resubmit for review",
         resubmitting: "Submitting...",
@@ -370,9 +374,24 @@ const TeacherViewCourse = () => {
                     </p>
                   ) : null}
                 </div>
-                <span className={"inline-flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-extrabold " + statusClass}>
-                  {statusLabel}
-                </span>
+                <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  <span className={"inline-flex items-center rounded-full border px-3 py-1 text-xs font-extrabold " + statusClass}>
+                    {statusLabel}
+                  </span>
+                  {canEdit ? (
+                    <>
+                      <Link
+                        to={"/profile/my-courses/" + course.data.id + "/update"}
+                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                        aria-label={text.editCourse}
+                      >
+                        <PencilLine className="h-4 w-4" aria-hidden="true" />
+                        <span>{text.editCourse}</span>
+                      </Link>
+                      <DeleteCourse id={course.data.id.toString()} />
+                    </>
+                  ) : null}
+                </div>
               </div>
 
               <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-3">

@@ -1,5 +1,5 @@
 import ChatRoom from "@/components/home/ChatRoom/ChatRoom";
-import Comments from "@/components/home/comments/Comments";
+import HomeHighlights from "@/components/home/comments/Comments";
 import Hero from "@/components/home/hero/Hero";
 import Category from "@/components/home/categories/Categories";
 import PopularCourses from "@/components/home/PopularCourses";
@@ -12,12 +12,12 @@ const Home = () => {
     <main className="w-full overflow-x-clip">
       <Hero />
       <Category />
-      <ChatRoom />
-      <Comments />
+      <HomeHighlights />
       <Career />
       <PopularCourses />
       <PopularLessons />
       <OurTeachers />
+      <ChatRoom />
     </main>
   );
 };

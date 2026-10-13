@@ -12,6 +12,7 @@ import {
   Video,
 } from "lucide-react";
 import { useI18n } from "@/i18n";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 interface IProps {
   course: ICourse;
@@ -21,6 +22,12 @@ const TeacherCourseCard = ({ course }: IProps) => {
   const { language } = useI18n();
   const isArabic = language === "ar";
 
+  const courseTitle = isDisplayableProfileText(course.title)
+    ? course.title
+    : isArabic ? "عنوان الكورس يحتاج إلى تصحيح" : "Course title needs correction";
+  const courseDescription = isDisplayableProfileText(course.description, 3)
+    ? truncateTxt(course.description, 110)
+    : isArabic ? "وصف الكورس يحتاج إلى تصحيح" : "Course description needs correction";
   const status = course.publishing_status ?? "draft";
 
   const statusCopy = isArabic
@@ -69,7 +76,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
       <div className="relative aspect-[16/9] overflow-hidden bg-[#F4F7F7]">
         <img
           src={course.image || "/images/placeholder-img.webp"}
-          alt={course.title || (isArabic ? "صورة الكورس" : "Course")}
+          alt={courseTitle}
           loading="lazy"
           className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
         />
@@ -94,11 +101,11 @@ const TeacherCourseCard = ({ course }: IProps) => {
           className="block"
         >
           <h3 className="line-clamp-2 text-lg font-black leading-7 text-black-blue transition-colors hover:text-main sm:text-xl">
-            {course.title}
+            {courseTitle}
           </h3>
 
           <p className="mt-2 line-clamp-3 text-sm leading-6 text-[#4D5756]">
-            {truncateTxt(course.description, 110)}
+            {courseDescription}
           </p>
         </Link>
 

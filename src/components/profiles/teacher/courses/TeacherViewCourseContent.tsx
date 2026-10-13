@@ -22,6 +22,7 @@ import ManageCourseQuiz from "./ManageCourseQuiz";
 import UploadCourseVideo from "./UploadCourseVideo";
 import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 interface IProps {
   courseId: number;
@@ -42,8 +43,21 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
       enabled: !!openContentId,
     });
 
-  const noContentsText =
-    language === "ar" ? "لم يتم العثور على محتوى" : "No contents found";
+  const text = language === "ar"
+    ? {
+        noContents: "لا يوجد محتوى بعد",
+        invalidContentTitle: "عنوان المحتوى يحتاج إلى تصحيح",
+        invalidContentDescription: "وصف المحتوى يحتاج إلى تصحيح",
+        invalidLectureTitle: "عنوان المحاضرة يحتاج إلى تصحيح",
+        invalidLectureDescription: "وصف المحاضرة يحتاج إلى تصحيح",
+      }
+    : {
+        noContents: "No course content yet",
+        invalidContentTitle: "Content title needs correction",
+        invalidContentDescription: "Content description needs correction",
+        invalidLectureTitle: "Lecture title needs correction",
+        invalidLectureDescription: "Lecture description needs correction",
+      };
 
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
 
@@ -77,11 +91,13 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
           >
             {!contents?.data.length ? (
               <p className="pt-5 text-center text-lg font-medium text-[#4D5756]">
-                {noContentsText}
+                {text.noContents}
               </p>
             ) : (
               contents.data.map((content) => {
                 const isOpen = openContentId === content.id.toString();
+                const contentTitleIsValid = isDisplayableProfileText(content.title);
+                const contentDescriptionIsValid = isDisplayableProfileText(content.description, 3);
 
                 return (
                   <motion.div key={content.id} variants={itemVariants}>
@@ -91,7 +107,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                     >
                       <AccordionTrigger className="rounded-t-[5px] px-4 text-xl font-bold text-black-blue hover:no-underline data-[state=open]:mb-2 data-[state=open]:bg-[#eaeaea]">
                         <span className="flex w-full items-center justify-between gap-3 px-2">
-                          <span className="truncate text-start">{content.title}</span>
+                          <span className="truncate text-start">{contentTitleIsValid ? content.title : text.invalidContentTitle}</span>
                           <div
                             className="flex shrink-0 gap-2"
                             onClick={(event) => event.stopPropagation()}
@@ -113,7 +129,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                       </AccordionTrigger>
 
                       <AccordionContent className="pb-3 pt-2 font-sora text-[#333931]">
-                        <p className="px-4 text-sm">{content.description}</p>
+                        {content.description ? <p className="px-4 text-sm" role={!contentDescriptionIsValid ? "status" : undefined}>{contentDescriptionIsValid ? content.description : text.invalidContentDescription}</p> : null}
 
                         {isOpen && isLoadingLectures ? (
                           <div className="py-5">
@@ -132,7 +148,10 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                           </div>
                         ) : isOpen ? (
                           <div className="mt-3 space-y-2 px-2">
-                            {lectures?.data?.map((lecture) => (
+                            {lectures?.data?.map((lecture) => {
+                              const lectureTitleIsValid = isDisplayableProfileText(lecture.title);
+                              const lectureDescriptionIsValid = isDisplayableProfileText(lecture.description, 3);
+                              return (
                               <div
                                 key={lecture.id}
                                 className="rounded-md bg-[#f1f1f1] px-2 py-2 transition-colors hover:bg-[#dcdcdc]"
@@ -145,9 +164,9 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                   >
                                     <h3 className="flex items-center gap-2 text-base font-medium">
                                       <FileVideo className="shrink-0" size={18} />
-                                      <span className="truncate">{lecture.title}</span>
+                                      <span className="truncate">{lectureTitleIsValid ? lecture.title : text.invalidLectureTitle}</span>
                                     </h3>
-                                    <p className="pl-6 text-sm">{lecture.description}</p>
+                                    {lecture.description ? <p className="pl-6 text-sm" role={!lectureDescriptionIsValid ? "status" : undefined}>{lectureDescriptionIsValid ? lecture.description : text.invalidLectureDescription}</p> : null}
                                     <p className="pl-6 text-xs text-black-blue/60">
                                       {lecture.hasVideo
                                         ? language === "ar"
@@ -195,7 +214,8 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                   courseStatus={courseStatus}
                                 />
                               </div>
-                            ))}
+                              );
+                            })}
                           </div>
                         ) : null}
                       </AccordionContent>

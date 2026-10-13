@@ -20,14 +20,15 @@ import { useEffect } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 const TeacherViewCourse = () => {
   const token = cookieService.getToken() || "";
   const { language } = useI18n();
   const isArabic = language === "ar";
   const text = isArabic
-    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", loadError: "تعذر تحميل بيانات الكورس." }
-    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", loadError: "Unable to load course details." };
+    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", loadError: "تعذر تحميل بيانات الكورس.", invalidTitle: "بيانات الكورس تحتاج إلى تصحيح.", invalidDescription: "وصف الكورس يحتاج إلى تصحيح قبل عرضه." }
+    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", loadError: "Unable to load course details.", invalidTitle: "Course title needs correction.", invalidDescription: "The course description needs correction before it can be shown." };
   const { courseId } = useParams();
   const isValidCourseId = !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
   const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
@@ -90,6 +91,14 @@ const TeacherViewCourse = () => {
   const location = useLocation();
   const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
   const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
+  const courseTitle = isDisplayableProfileText(course?.data?.title)
+    ? course!.data.title
+    : text.invalidTitle;
+  const courseDescriptionIsValid = isDisplayableProfileText(course?.data?.description, 3);
+  const lectureTitle = isDisplayableProfileText(lecture?.title)
+    ? lecture!.title
+    : text.invalidTitle;
+  const lectureDescriptionIsValid = isDisplayableProfileText(lecture?.description, 3);
 
   useEffect(() => {
     if (!isValidCourseId) {
@@ -153,14 +162,14 @@ const TeacherViewCourse = () => {
               <div className="flex flex-col lg:flex-row px-2 md:px-6 xl:px-12">
                 <div className="flex-1">
                   {course?.data?.description ? (
-                    <p className="mb-5 px-6 text-sm leading-7 text-[#4D5756] xl:px-16">
-                      {course.data.description}
+                    <p className="mb-5 px-6 text-sm leading-7 text-[#4D5756] xl:px-16" role={!courseDescriptionIsValid ? "status" : undefined}>
+                      {courseDescriptionIsValid ? course.data.description : text.invalidDescription}
                     </p>
                   ) : null}
                   <div className="flex flex-col gap-3 px-6 xl:px-16 mb-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <h1 className="text-2xl font-bold text-black-blue">
-                        {course?.data?.title}
+                        {courseTitle}
                       </h1>
                       {course?.data?.publishing_status === "pending_approval" ? (
                         <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-800">
@@ -229,9 +238,13 @@ const TeacherViewCourse = () => {
                         </div>
                         <div className="my-4">
                           <h2 className="text-2xl font-bold">
-                            {lecture?.title}
+                            {lectureTitle}
                           </h2>
-                          <p>{lecture?.description}</p>
+                          {lecture?.description ? (
+                            <p role={!lectureDescriptionIsValid ? "status" : undefined}>
+                              {lectureDescriptionIsValid ? lecture.description : text.invalidDescription}
+                            </p>
+                          ) : null}
                         </div>
                       </div>
                     </div>

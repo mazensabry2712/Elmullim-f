@@ -78,7 +78,19 @@ const TeacherViewCourse = () => {
         lectureDetails: "تفاصيل المحاضرة",
         lectureDescription: "وصف المحاضرة",
         readyTitle: "قبل إرسال الكورس للمراجعة",
-        readyHint: "راجع وضوح بيانات الكورس، وتأكد من إضافة الوحدات والمحاضرات ورفع فيديو لكل محاضرة.",
+        readyHint: "راجع العناصر التالية قبل الإرسال. بيانات المحتوى والفيديوهات تظهر لك بوضوح داخل القائمة.",
+        checkTitle: "عنوان الكورس",
+        checkDescription: "وصف الكورس",
+        checkContent: "محتوى الكورس",
+        checkVideos: "فيديوهات المحاضرات",
+        valid: "سليم",
+        needsReview: "مراجعة مطلوبة",
+        titleGood: "العنوان واضح وغير مكرر.",
+        descriptionGood: "الوصف مكتمل.",
+        contentGood: "تمت إضافة وحدة واحدة على الأقل.",
+        contentMissing: "أضف وحدة واحدة على الأقل.",
+        videosHint: "راجع حالة الفيديو داخل بطاقة كل محاضرة.",
+        checkVideosHint: "راجع وجود فيديو داخل بطاقة كل محاضرة.",
         titleNeedsReview: "راجع عنوان الكورس؛ يجب أن يكون واضحًا وغير مكرر.",
         descriptionNeedsReview: "أكمل وصف الكورس بجملة واضحة لا تقل عن 20 حرفًا و3 كلمات.",
         contentAdded: "تمت إضافة وحدات إلى الكورس",
@@ -124,7 +136,19 @@ const TeacherViewCourse = () => {
         lectureDetails: "Lecture details",
         lectureDescription: "Lecture description",
         readyTitle: "Before submitting for review",
-        readyHint: "Check the course details, add units and lectures, and upload a video for every lecture.",
+        readyHint: "Review the checklist before submitting. Content and video details are shown clearly in the course outline.",
+        checkTitle: "Course title",
+        checkDescription: "Course description",
+        checkContent: "Course content",
+        checkVideos: "Lecture videos",
+        valid: "Looks good",
+        needsReview: "Needs review",
+        titleGood: "The title is clear and not repetitive.",
+        descriptionGood: "The description is complete.",
+        contentGood: "At least one content unit has been added.",
+        contentMissing: "Add at least one content unit.",
+        videosHint: "Review video status on each lecture card.",
+        checkVideosHint: "Confirm that every lecture has a video in its card.",
         titleNeedsReview: "Review the course title and use clear, non-repeated wording.",
         descriptionNeedsReview: "Add a clear course description with at least 20 characters and 3 words.",
         contentAdded: "Content units have been added",
@@ -299,14 +323,9 @@ const TeacherViewCourse = () => {
           <p className="text-xs font-bold text-white/55">
             {text.home} <span className="mx-2 text-emerald-400">/</span> {text.myCourses} <span className="mx-2 text-emerald-400">/</span> {text.title}
           </p>
-          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-            <div>
-              <p className="text-sm font-bold text-emerald-300">{text.overview}</p>
-              <h1 className="mt-1 text-3xl font-black leading-tight md:text-4xl">{text.title}</h1>
-            </div>
-            <span className={"inline-flex w-fit items-center rounded-full border px-3.5 py-1.5 text-sm font-extrabold " + statusClass}>
-              {statusLabel}
-            </span>
+          <div className="mt-5">
+            <p className="text-sm font-bold text-emerald-300">{text.overview}</p>
+            <h1 className="mt-1 text-3xl font-black leading-tight md:text-4xl">{text.title}</h1>
           </div>
         </div>
       </motion.header>
@@ -422,6 +441,67 @@ const TeacherViewCourse = () => {
                   </Button>
                 </CreateCourseLecture>
               </div>
+            </div>
+
+            <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4" aria-label={isArabic ? "قائمة الاستعداد للمراجعة" : "Review readiness checklist"}>
+              {[
+                {
+                  key: "title",
+                  label: text.checkTitle,
+                  detail: courseTitleIsValid ? text.titleGood : text.titleNeedsReview,
+                  passed: courseTitleIsValid,
+                  icon: FileText,
+                },
+                {
+                  key: "description",
+                  label: text.checkDescription,
+                  detail: courseDescriptionIsValid ? text.descriptionGood : text.descriptionNeedsReview,
+                  passed: courseDescriptionIsValid,
+                  icon: FileText,
+                },
+                {
+                  key: "content",
+                  label: text.checkContent,
+                  detail: contentCount > 0 ? text.contentGood : text.contentMissing,
+                  passed: contentCount > 0,
+                  icon: Layers3,
+                },
+                {
+                  key: "videos",
+                  label: text.checkVideos,
+                  detail: text.checkVideosHint,
+                  passed: null as boolean | null,
+                  icon: Video,
+                },
+              ].map((item) => {
+                const Icon = item.icon;
+                const complete = item.passed === true;
+                const needsReview = item.passed === false;
+                return (
+                  <div
+                    key={item.key}
+                    className={
+                      "rounded-xl border p-3.5 " +
+                      (complete
+                        ? "border-emerald-200 bg-emerald-50/70"
+                        : needsReview
+                          ? "border-amber-200 bg-amber-50/70"
+                          : "border-slate-200 bg-slate-50")
+                    }
+                  >
+                    <div className="flex items-center gap-2">
+                      <Icon className={"h-4 w-4 shrink-0 " + (complete ? "text-emerald-700" : needsReview ? "text-amber-700" : "text-slate-500")} aria-hidden="true" />
+                      <p className="text-xs font-extrabold text-slate-800">{item.label}</p>
+                    </div>
+                    <p className={"mt-2 text-xs leading-5 " + (complete ? "text-emerald-800" : needsReview ? "text-amber-900" : "text-slate-600")}>
+                      {item.detail}
+                    </p>
+                    <p className={"mt-2 text-[10px] font-black " + (complete ? "text-emerald-700" : needsReview ? "text-amber-800" : "text-slate-500")}>
+                      {complete ? text.valid : needsReview ? text.needsReview : text.videosHint}
+                    </p>
+                  </div>
+                );
+              })}
             </div>
 
             {courseStatus === "rejected" && course.data.publishing_note ? (

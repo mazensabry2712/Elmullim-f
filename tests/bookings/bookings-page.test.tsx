@@ -92,7 +92,13 @@ describe("Parent bookings page", () => {
     renderPage();
 
     expect(screen.getByRole("heading", { name: "My Bookings" })).toBeInTheDocument();
-    expect(screen.getByText("Linked child")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element?.tagName === "P" &&
+          element.textContent?.includes("Linked child") === true,
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText("Algebra lesson")).toBeInTheDocument();
   });
 

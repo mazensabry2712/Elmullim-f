@@ -40,9 +40,10 @@ interface IProps {
   file: File | null;
   setFile: Dispatch<SetStateAction<File | null>>;
   title: string;
+  compact?: boolean;
 }
 
-const VideoUpload = ({ title, file, setFile }: IProps) => {
+const VideoUpload = ({ title, file, setFile, compact = false }: IProps) => {
   const { language } = useI18n();
 
   return (
@@ -76,7 +77,9 @@ const VideoUpload = ({ title, file, setFile }: IProps) => {
               <div
                 {...getRootProps()}
                 className={cn(
-                  "aspect-video cursor-pointer md:max-h-[600px] h-full border-[1.5px] border-main border-dashed flex items-center justify-center rounded-md focus:outline-none focus:border-primary",
+                  compact
+                    ? "min-h-28 max-h-36 w-full cursor-pointer border-[1.5px] border-main border-dashed flex items-center justify-center rounded-xl focus:outline-none focus:border-primary"
+                    : "aspect-video cursor-pointer md:max-h-[600px] h-full border-[1.5px] border-main border-dashed flex items-center justify-center rounded-md focus:outline-none focus:border-primary",
                   {
                     "border-primary bg-secondary": isDragActive && isDragAccept,
                     "border-destructive bg-destructive/20":
@@ -85,9 +88,12 @@ const VideoUpload = ({ title, file, setFile }: IProps) => {
                 )}
               >
                 <input {...getInputProps()} id="video" />
-                <div className="flex flex-col gap-2 justify-center items-center">
-                  <VideoIcon className="h-16 w-16" strokeWidth={1.25} />
-                  <p>{language === "ar" ? "اسحب وأفلت" : "Drag and Drop"}</p>
+                <div className="flex flex-col items-center justify-center gap-2 px-3 text-center">
+                  <VideoIcon className={compact ? "h-9 w-9" : "h-16 w-16"} strokeWidth={1.25} />
+                  <p className="text-sm font-semibold">{language === "ar" ? "اسحب وأفلت" : "Drag and drop"}</p>
+                  {compact ? (
+                    <p className="text-xs text-muted-foreground">{language === "ar" ? "أو اضغط لاختيار ملف فيديو" : "Or click to choose a video file"}</p>
+                  ) : null}
                 </div>
               </div>
             )}

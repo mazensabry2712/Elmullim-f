@@ -115,7 +115,8 @@ const CreateCourseContent = ({ children, courseId }: IProps) => {
       <div className="relative w-full sm:w-auto">
         <div className="w-full">{trigger}</div>
 
-      <section
+        {isOpen ? (
+          <section
         id={panelId}
         role="region"
         aria-label={language === "ar" ? "إنشاء محتوى للكورس" : "Create course content"}
@@ -191,7 +192,8 @@ const CreateCourseContent = ({ children, courseId }: IProps) => {
             </div>
           </motion.form>
         </Form>
-      </section>
+          </section>
+        ) : null}
       </div>
     </>
   );

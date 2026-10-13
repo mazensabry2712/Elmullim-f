@@ -113,9 +113,7 @@ const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
       }
     });
 
-  
-
-  return () => subscription.unsubscribe();
+    return () => subscription.unsubscribe();
   }, [form]);
 
   const childOnClick = isValidElement(children)
@@ -146,7 +144,7 @@ const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
         id={panelId}
         role="region"
         aria-label={language === "ar" ? "إنشاء محاضرة للكورس" : "Create course lecture"}
-        className="absolute start-0 top-full z-[100] mt-2 w-[min(34rem,calc(100vw-2rem))] max-h-[min(75vh,42rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow-2xl sm:p-6"
+        className="absolute start-0 top-full z-[100] mt-2 w-[min(34rem,calc(100vw_-_2rem))] max-h-[min(75vh,42rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow-2xl sm:p-6"
         dir={language === "ar" ? "rtl" : "ltr"}
       >
         <header className="mb-5 flex items-start justify-between gap-4 border-b border-slate-100 pb-4">

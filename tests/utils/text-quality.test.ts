@@ -6,12 +6,14 @@ describe("text quality safeguards", () => {
     expect(hasRepeatedTextPattern("gfdgdfdfgfdgfdgdfgf")).toBe(true);
     expect(hasRepeatedTextPattern("fdfdgfdgfdgfdgfdgfdgfdgdfgfdgfdgfdgfdgfd")).toBe(true);
     expect(hasRepeatedTextPattern("قثبقثبثقبقثبقثبقثب")).toBe(true);
+    expect(hasRepeatedTextPattern("يسؤيؤيسؤيسؤسيؤ")).toBe(true);
     expect(hasRepeatedTextPattern("ؤؤصيؤصؤسيؤسصؤسصثبؤسصثي")).toBe(true);
   });
   it("keeps ordinary subject names and sentences", () => {
     expect(hasRepeatedTextPattern("Mathematics")).toBe(false);
     expect(hasRepeatedTextPattern("الرياضيات")).toBe(false);
     expect(hasRepeatedTextPattern("A qualified teacher with classroom experience")).toBe(false);
+    expect(hasRepeatedTextPattern("اللغةالعربيةجميلةوممتعة")).toBe(false);
   });
   it("requires complete profile descriptions", () => {
     expect(hasMinimumWords("Experienced teacher with a patient teaching style", 3)).toBe(true);

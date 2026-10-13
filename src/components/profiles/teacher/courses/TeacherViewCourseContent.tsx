@@ -21,6 +21,7 @@ import DeleteCourseLecture from "./DeleteCourseLecture";
 import ManageCourseQuiz from "./ManageCourseQuiz";
 import UploadCourseVideo from "./UploadCourseVideo";
 import { useI18n } from "@/i18n";
+import { Button } from "@/components/ui/button";
 
 interface IProps {
   courseId: number;
@@ -31,9 +32,9 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
   const { language } = useI18n();
   const token = cookieService.getToken()!;
   const [openContentId, setOpenContentId] = useState("");
-  const { data: contents, isLoading: isLoadingContents } =
+  const { data: contents, isLoading: isLoadingContents, isError: contentsError, refetch: refetchContents } =
     useGetTeacherCourseContents({ token, courseId: courseId.toString() });
-  const { data: lectures, isLoading: isLoadingLectures } =
+  const { data: lectures, isLoading: isLoadingLectures, isError: lecturesError, refetch: refetchLectures } =
     useGetTeacherCourseLectures({
       token,
       contentId: openContentId,
@@ -49,8 +50,17 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
   return (
     <>
       {isLoadingContents ? (
-        <div className="py-10">
+        <div className="py-10" role="status" aria-live="polite">
           <Loader className="mx-auto animate-spin" size={40} />
+        </div>
+      ) : contentsError ? (
+        <div className="py-6 text-center" role="alert">
+          <p className="text-sm text-red-700">
+            {language === "ar" ? "تعذر تحميل محتوى الكورس." : "Unable to load course content."}
+          </p>
+          <Button type="button" variant="outline" onClick={() => void refetchContents()} className="mt-3 border-main text-main">
+            {language === "ar" ? "حاول مرة أخرى" : "Try again"}
+          </Button>
         </div>
       ) : (
         <Accordion
@@ -110,11 +120,16 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                             <Loader2 className="mx-auto animate-spin" size={32} />
                           </div>
                         ) : isOpen && !lectures?.data?.length ? (
-                          <p className="py-4 text-center text-sm text-black-blue/60">
-                            {language === "ar"
-                              ? "لا توجد محاضرات داخل هذا المحتوى."
-                              : "No lectures in this content yet."}
-                          </p>
+                          <div className="py-4 text-center text-sm text-black-blue/60" role={lecturesError ? "alert" : "status"}>
+                            <p>{lecturesError
+                              ? language === "ar" ? "تعذر تحميل المحاضرات." : "Unable to load lectures."
+                              : language === "ar" ? "لا توجد محاضرات داخل هذا المحتوى." : "No lectures in this content yet."}</p>
+                            {lecturesError ? (
+                              <Button type="button" variant="outline" size="sm" onClick={() => void refetchLectures()} className="mt-2 border-main text-main">
+                                {language === "ar" ? "حاول مرة أخرى" : "Try again"}
+                              </Button>
+                            ) : null}
+                          </div>
                         ) : isOpen ? (
                           <div className="mt-3 space-y-2 px-2">
                             {lectures?.data?.map((lecture) => (

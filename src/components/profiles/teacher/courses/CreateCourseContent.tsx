@@ -80,10 +80,9 @@ const CreateCourseContent = ({ children, courseId }: IProps) => {
         title: language === "ar" ? "تم بنجاح" : "Success",
         text: message,
       });
+      handleCloseModal();
     } catch (error) {
       handleResError(error);
-    } finally {
-      handleCloseModal();
     }
   };
 

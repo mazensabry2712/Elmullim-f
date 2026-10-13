@@ -22,16 +22,22 @@ import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 
 const TeacherViewCourse = () => {
-  const token = cookieService.getToken()!;
+  const token = cookieService.getToken() || "";
   const { language } = useI18n();
+  const isArabic = language === "ar";
+  const text = isArabic
+    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", loadError: "تعذر تحميل بيانات الكورس." }
+    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", loadError: "Unable to load course details." };
   const { courseId } = useParams();
+  const isValidCourseId = !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
+  const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
   const navigate = useNavigate();
   const {
     data: course,
     isLoading,
     failureReason,
-  } = useGetTeacherCourseById({ token, id: courseId! });
-  const courseFailure = failureReason as AxiosResErr;
+  } = useGetTeacherCourseById({ token, id: queryCourseId, enabled: isValidCourseId });
+  const courseFailure = failureReason as AxiosResErr | undefined;
   const { mutateAsync: submitForReview, isPending: isSubmittingForReview } =
     useSubmitTeacherCourseForReview();
 
@@ -60,8 +66,10 @@ const TeacherViewCourse = () => {
           : "Course submitted for review"
       );
     } catch (error: unknown) {
-      const message =
-        error instanceof Error ? error.message : undefined;
+      const apiMessage = (error as AxiosResErr | undefined)?.response?.data?.message;
+      const message = typeof apiMessage === "string"
+        ? apiMessage
+        : error instanceof Error ? error.message : undefined;
       toast.error(
         message ||
           (language === "ar"
@@ -72,23 +80,30 @@ const TeacherViewCourse = () => {
   };
 
   const { data: contents, isLoading: isLoadingContent } =
-    useGetTeacherCourseContents({ token, courseId: courseId! });
+    useGetTeacherCourseContents({ token, courseId: queryCourseId });
   const { data: lectures, isLoading: isLoadingLectures } =
     useGetTeacherCourseLectures({
       token,
-      courseId: courseId!,
-      contentId: contents?.data[0]?.id.toString() || "",
+      courseId: queryCourseId,
+      contentId: contents?.data?.[0]?.id.toString() || "",
     });
-  const { lecture } = (useLocation().state as { lecture: ILecture }) || {
-    lecture: lectures?.data?.[0] ?? null,
-  };
+  const location = useLocation();
+  const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
+  const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
+
   useEffect(() => {
-    if (!Number(courseId)) navigate("/", { replace: true });
-    if (courseFailure) {
-      toast.error(courseFailure.response?.data.message);
-      navigate(-1);
+    if (!isValidCourseId) {
+      navigate("/profile", { replace: true, state: { myCourses: true } });
+      return;
     }
-  }, [courseId, navigate, course, token, isLoading, courseFailure, lecture]);
+    if (!isLoading && courseFailure) {
+      const message = courseFailure.response?.data?.message;
+      toast.error(typeof message === "string" ? message : text.loadError);
+      navigate("/profile", { replace: true, state: { myCourses: true } });
+    }
+  }, [courseId, isValidCourseId, navigate, isLoading, courseFailure, text.loadError]);
+
+  if (!isValidCourseId) return null;
 
   return (
     <main>
@@ -100,10 +115,10 @@ const TeacherViewCourse = () => {
         className="container text-center text-white space-y-4 md:space-y-6 pt-16 md:pt-24 pb-12 md:pb-20"
       >
         <h1 className="uppercase text-4xl md:text-6xl font-bold leading-[74px]">
-          View Course
+          {text.title}
         </h1>
         <p className="font-sora font-light capitalize leading-[30px]">
-          home <span className="text-main">//</span> view Course
+          {text.home} <span className="text-main">//</span> {text.title}
         </p>
       </motion.div>
       <motion.section
@@ -137,6 +152,11 @@ const TeacherViewCourse = () => {
 
               <div className="flex flex-col lg:flex-row px-2 md:px-6 xl:px-12">
                 <div className="flex-1">
+                  {course?.data?.description ? (
+                    <p className="mb-5 px-6 text-sm leading-7 text-[#4D5756] xl:px-16">
+                      {course.data.description}
+                    </p>
+                  ) : null}
                   <div className="flex flex-col gap-3 px-6 xl:px-16 mb-5">
                     <div className="flex flex-wrap items-center justify-between gap-3">
                       <h1 className="text-2xl font-bold text-black-blue">
@@ -199,7 +219,7 @@ const TeacherViewCourse = () => {
 
                   {!contents?.data.length ? (
                     <p className="text-lg text-muted text-center">
-                      No Contents
+                      {text.noContents}
                     </p>
                   ) : (
                     <div className="flex flex-col xl:flex-row text-black-blue">
@@ -220,7 +240,7 @@ const TeacherViewCourse = () => {
 
                 <aside className="w-full lg:w-[30%] xl:w-1/4 p-4">
                   <h3 className="text-black-blue text-2xl capitalize font-bold mb-5">
-                    Course Content
+                    {text.content}
                   </h3>
                   <div className="max-h-screen overflow-y-auto">
                     <TeacherViewCourseContent

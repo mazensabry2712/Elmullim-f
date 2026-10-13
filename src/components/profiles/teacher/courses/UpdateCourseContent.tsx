@@ -80,10 +80,9 @@ const UpdateCourseContent = ({ courseContent, courseId }: IProps) => {
         title: language === "ar" ? "تم بنجاح" : "Success",
         text: message,
       });
+      handleCloseModal();
     } catch (error) {
       handleResError(error);
-    } finally {
-      handleCloseModal();
     }
   };
 

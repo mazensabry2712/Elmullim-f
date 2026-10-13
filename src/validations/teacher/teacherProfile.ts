@@ -5,6 +5,7 @@ import {
   MAX_IMAGE_SIZE,
 } from "@/utils/file";
 import { z } from "zod";
+import { hasMinimumWords, hasRepeatedTextPattern } from "@/utils/textQuality";
 
 const validationMessage = (english: string, arabic: string) => {
   return typeof document !== "undefined" && document.documentElement.lang === "ar"
@@ -40,6 +41,15 @@ export const updateTeacherProfileSchema = z.object({
         "يجب ألا يزيد الوصف عن 250 حرفًا."
       ),
     })
+    .refine((value) => !value.trim() || value.trim().length >= 20, {
+      message: validationMessage("Write at least 20 characters when adding a description.", "اكتب 20 حرفًا على الأقل عند إضافة وصف."),
+    })
+    .refine((value) => !value.trim() || hasMinimumWords(value, 3), {
+      message: validationMessage("Description must contain at least 3 words.", "يجب أن يتكون الوصف من 3 كلمات على الأقل."),
+    })
+    .refine((value) => !hasRepeatedTextPattern(value), {
+      message: validationMessage("Avoid repeated or placeholder text.", "تجنب النصوص المكررة أو التجريبية."),
+    })
     .optional(),
   email: z.string().email({
     message: validationMessage(
@@ -66,6 +76,8 @@ export const updateTeacherProfileSchema = z.object({
       "Qualification must be 250 characters or fewer.",
       "يجب ألا يزيد المؤهل عن 250 حرفًا."
     ),
+  }).refine((value) => !hasRepeatedTextPattern(value), {
+    message: validationMessage("Enter a real qualification, not placeholder text.", "أدخل مؤهلًا حقيقيًا بدلًا من النص التجريبي."),
   }),
   country_id: z
     .string()

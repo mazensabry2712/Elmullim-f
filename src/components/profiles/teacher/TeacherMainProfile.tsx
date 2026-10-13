@@ -29,6 +29,7 @@ import StudentRating from "../student/StudentRating";
 import { useI18n } from "@/i18n";
 import { Button } from "@/components/ui/button";
 import { getTeacherCv } from "@/services/teacher/teacherProfile";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 const courseTypeLabel = (type: string, language: "ar" | "en") => {
   const labels: Record<string, { ar: string; en: string }> = {
@@ -175,7 +176,7 @@ const TeacherMainProfile = () => {
     },
     {
       label: text.qualification,
-      value: profile.qualification || text.nothing,
+      value: isDisplayableProfileText(profile.qualification) ? profile.qualification : text.nothing,
       icon: Award,
     },
     {
@@ -316,7 +317,7 @@ const TeacherMainProfile = () => {
             </h3>
           </div>
           <p className="whitespace-pre-wrap break-words font-sora text-sm leading-7 text-black-blue md:text-base">
-            {profile.description?.trim() || text.nothing}
+            {isDisplayableProfileText(profile.description, 3) ? profile.description : text.nothing}
           </p>
         </section>
 

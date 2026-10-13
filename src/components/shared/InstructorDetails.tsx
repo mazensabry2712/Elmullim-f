@@ -3,6 +3,7 @@ import { ITeacher } from "@/interfaces/teachers/teacherProfile";
 import { motion } from "framer-motion";
 import { BookOpen, GraduationCap, StarIcon } from "lucide-react";
 import { useI18n } from "@/i18n";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 interface IProps {
   instructor: ITeacher;
@@ -14,6 +15,8 @@ const InstructorDetails = ({ instructor }: IProps) => {
   const rating = Number(instructor?.rating ?? 0);
   const hasRating = rating > 0;
   const experience = Number(instructor?.experince ?? 0);
+  const showQualification = isDisplayableProfileText(instructor?.qualification);
+  const showDescription = isDisplayableProfileText(instructor?.description, 3);
 
   const stats = [
     {
@@ -28,7 +31,9 @@ const InstructorDetails = ({ instructor }: IProps) => {
     },
     {
       icon: StarIcon,
-      value: experience + "+",
+      value: Number.isFinite(experience) && experience > 0
+        ? new Intl.NumberFormat(isArabic ? "ar-EG" : "en-US", { maximumFractionDigits: 0 }).format(experience)
+        : isArabic ? "غير محدد" : "Not specified",
       label: isArabic ? "سنوات الخبرة" : "Years experience",
     },
   ];
@@ -84,7 +89,7 @@ const InstructorDetails = ({ instructor }: IProps) => {
             <h3 className="text-2xl font-black capitalize text-black-blue md:text-3xl">
               {instructor?.name}
             </h3>
-            {instructor?.qualification && (
+            {showQualification && (
               <p className="mt-2 flex items-center gap-2 text-base font-bold text-black-blue/60">
                 <GraduationCap className="h-5 w-5 shrink-0 text-main" />
                 {instructor.qualification}
@@ -104,7 +109,7 @@ const InstructorDetails = ({ instructor }: IProps) => {
             )}
           </div>
 
-          {instructor?.description?.trim() && (
+          {showDescription && (
             <p className="max-w-3xl text-sm leading-7 text-[#4D5756] md:text-base">
               {instructor.description}
             </p>

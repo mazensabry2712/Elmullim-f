@@ -91,12 +91,14 @@ const TeacherViewCourse = () => {
   const location = useLocation();
   const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
   const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
-  const courseTitle = isDisplayableProfileText(course?.data?.title)
-    ? course!.data.title
+  const rawCourseTitle = course?.data?.title;
+  const courseTitle = rawCourseTitle && isDisplayableProfileText(rawCourseTitle)
+    ? rawCourseTitle
     : text.invalidTitle;
   const courseDescriptionIsValid = isDisplayableProfileText(course?.data?.description, 3);
-  const lectureTitle = isDisplayableProfileText(lecture?.title)
-    ? lecture!.title
+  const rawLectureTitle = lecture?.title;
+  const lectureTitle = rawLectureTitle && isDisplayableProfileText(rawLectureTitle)
+    ? rawLectureTitle
     : text.invalidTitle;
   const lectureDescriptionIsValid = isDisplayableProfileText(lecture?.description, 3);
 

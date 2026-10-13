@@ -15,7 +15,7 @@ import {
 import { AxiosResErr } from "@/types";
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
-import { Loader, Loader2, Send } from "lucide-react";
+import { BookPlus, FolderPlus, Loader, Loader2, Send } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
@@ -155,12 +155,14 @@ const TeacherViewCourse = () => {
                     {text.editCourse}
                   </Link>
                   <CreateCourseContent courseId={course.data.id}>
-                    <Button type="button" className="w-full bg-main hover:bg-main/90 sm:w-auto">
+                    <Button type="button" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 sm:w-auto">
+                      <FolderPlus className="h-5 w-5" aria-hidden="true" />
                       {language === "ar" ? "إضافة محتوى" : "Add content"}
                     </Button>
                   </CreateCourseContent>
                   <CreateCourseLecture courseId={course.data.id}>
-                    <Button type="button" className="w-full border border-main bg-white text-main hover:bg-main hover:text-white sm:w-auto">
+                    <Button type="button" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 font-semibold text-slate-800 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-600 hover:text-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 sm:w-auto">
+                      <BookPlus className="h-5 w-5" aria-hidden="true" />
                       {language === "ar" ? "إضافة محاضرة" : "Add lecture"}
                     </Button>
                   </CreateCourseLecture>

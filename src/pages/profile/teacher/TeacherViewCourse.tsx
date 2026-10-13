@@ -17,7 +17,7 @@ import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { BookPlus, FolderPlus, Loader, Loader2, Send } from "lucide-react";
 import { useEffect } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 import { isDisplayableProfileText } from "@/utils/textQuality";

@@ -6,12 +6,12 @@
   :root {
     /* Custom Colors */
     --main: 170 89% 38%;
-    --black-blue: 210 67 16;
-    --white: 0 0 100;
-    --white-gray: 0 0 95;
-    --mint: 166 28 91;
-    --background: 0 0 95;
-    --muted: 174 6 32;
+    --black-blue: 210 67% 16%;
+    --white: 0 0% 100%;
+    --white-gray: 0 0% 95%;
+    --mint: 166 28% 91%;
+    --background: 0 0% 95%;
+    --muted: 174 6% 32%;
     /* Shadcn Colors */
     --foreground: 0 0% 3.9%;
     --card: 0 0% 100%;

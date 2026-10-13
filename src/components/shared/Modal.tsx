@@ -44,7 +44,16 @@ const Modal = ({
 
   return (
     <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
-      <AlertDialogContent className="relative border-muted !z-[1000] rounded-lg">
+      <AlertDialogContent
+        className="relative !z-[1000] rounded-lg border border-slate-200 shadow-xl"
+        style={{
+          backgroundColor: "#ffffff",
+          color: "#0f172a",
+          width: "min(32rem, calc(100vw - 2rem))",
+          maxHeight: "90vh",
+          overflowY: "auto",
+        }}
+      >
         <button
           type="button"
           onClick={onOpenChange}

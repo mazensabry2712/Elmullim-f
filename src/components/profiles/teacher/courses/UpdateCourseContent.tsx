@@ -150,42 +150,42 @@ const UpdateCourseContent = ({ courseContent, courseId }: IProps) => {
                 <input type="hidden" {...form.register("courseId")} />
 
                 <div className="space-y-2">
-                  <label htmlFor={\`course-content-title-\${courseContent.id}\`} className="block text-sm font-bold text-slate-700">
+                  <label htmlFor={"course-content-title-" + courseContent.id} className="block text-sm font-bold text-slate-700">
                     {isArabic ? "عنوان المحتوى" : "Content title"}
                   </label>
                   <input
-                    id={\`course-content-title-\${courseContent.id}\`}
+                    id={"course-content-title-" + courseContent.id}
                     {...form.register("title")}
                     autoComplete="off"
                     maxLength={255}
                     aria-invalid={Boolean(titleError)}
-                    aria-describedby={titleError ? \`course-content-title-error-\${courseContent.id}\` : undefined}
+                    aria-describedby={titleError ? "course-content-title-error-" + courseContent.id : undefined}
                     className="min-h-12 w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 aria-[invalid=true]:border-rose-300 aria-[invalid=true]:focus:ring-rose-500/10"
                     placeholder={isArabic ? "مثال: مقدمة الوحدة الأولى" : "e.g. Introduction to unit one"}
                   />
                   {titleError ? (
-                    <p id={\`course-content-title-error-\${courseContent.id}\`} className="text-sm font-medium text-rose-600">
+                    <p id={"course-content-title-error-" + courseContent.id} className="text-sm font-medium text-rose-600">
                       {String(titleError)}
                     </p>
                   ) : null}
                 </div>
 
                 <div className="space-y-2">
-                  <label htmlFor={\`course-content-description-\${courseContent.id}\`} className="block text-sm font-bold text-slate-700">
+                  <label htmlFor={"course-content-description-" + courseContent.id} className="block text-sm font-bold text-slate-700">
                     {isArabic ? "وصف المحتوى" : "Content description"}
                   </label>
                   <textarea
-                    id={\`course-content-description-\${courseContent.id}\`}
+                    id={"course-content-description-" + courseContent.id}
                     {...form.register("description")}
                     rows={5}
                     maxLength={5000}
                     aria-invalid={Boolean(descriptionError)}
-                    aria-describedby={descriptionError ? \`course-content-description-error-\${courseContent.id}\` : undefined}
+                    aria-describedby={descriptionError ? "course-content-description-error-" + courseContent.id : undefined}
                     className="w-full resize-y rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-400 focus:bg-white focus:ring-4 focus:ring-indigo-500/10 aria-[invalid=true]:border-rose-300 aria-[invalid=true]:focus:ring-rose-500/10"
                     placeholder={isArabic ? "اكتب وصفًا واضحًا للمحتوى..." : "Describe what this section covers..."}
                   />
                   {descriptionError ? (
-                    <p id={\`course-content-description-error-\${courseContent.id}\`} className="text-sm font-medium text-rose-600">
+                    <p id={"course-content-description-error-" + courseContent.id} className="text-sm font-medium text-rose-600">
                       {String(descriptionError)}
                     </p>
                   ) : null}

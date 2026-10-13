@@ -66,8 +66,11 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
         noContentsHint: "أضف وحدة من الأزرار الموجودة أعلى الصفحة.",
         untitledContent: "محتوى بدون عنوان",
         untitledLecture: "محاضرة بدون عنوان",
-        contentReview: "راجع العنوان",
-        descriptionReview: "راجع الوصف",
+        contentReview: "العنوان يحتاج مراجعة",
+        descriptionReview: "الوصف يحتاج مراجعة",
+        descriptionMissing: "أضف وصفًا واضحًا من 20 حرفًا و3 كلمات على الأقل.",
+        lectureTitleReview: "راجع عنوان المحاضرة ليكون واضحًا وغير تجريبي.",
+        lectureDescriptionReview: "أضف وصفًا واضحًا من 20 حرفًا و3 كلمات على الأقل.",
         noLectures: "لا توجد محاضرات داخل هذا المحتوى.",
         loadingLectures: "جارٍ تحميل المحاضرات...",
         contentsError: "تعذر تحميل محتوى الكورس.",
@@ -77,15 +80,17 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
         videoMissing: "لم يُرفع فيديو",
         uploadVideo: "رفع فيديو للمحاضرة",
         replaceVideo: "استبدال الفيديو",
-        uploadHint: "افتح هذا القسم لرفع الفيديو أو استبداله.",
       }
     : {
         noContents: "No course content yet",
         noContentsHint: "Use the buttons above to add the first unit.",
         untitledContent: "Untitled content",
         untitledLecture: "Untitled lecture",
-        contentReview: "Review title",
-        descriptionReview: "Review description",
+        contentReview: "Title needs review",
+        descriptionReview: "Description needs review",
+        descriptionMissing: "Add a clear description with at least 20 characters and 3 words.",
+        lectureTitleReview: "Use a clear, non-placeholder lecture title.",
+        lectureDescriptionReview: "Add a clear description with at least 20 characters and 3 words.",
         noLectures: "No lectures in this content yet.",
         loadingLectures: "Loading lectures...",
         contentsError: "Unable to load course content.",
@@ -95,7 +100,6 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
         videoMissing: "Video not uploaded",
         uploadVideo: "Upload lecture video",
         replaceVideo: "Replace video",
-        uploadHint: "Open this section to upload or replace the video.",
       };
 
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
@@ -139,7 +143,9 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
             {contents?.data.map((content: IContent, index: number) => {
               const isOpen = openContentId === content.id.toString();
               const contentTitleIsValid = isDisplayableProfileText(content.title);
-              const contentDescriptionIsValid = isDisplayableProfileText(content.description, 3);
+              const contentDescription = content.description?.trim() || "";
+              const contentDescriptionIsValid =
+                contentDescription.length >= 20 && isDisplayableProfileText(contentDescription, 3);
 
               return (
                 <motion.div key={content.id} variants={itemVariants}>
@@ -170,16 +176,20 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                     </AccordionTrigger>
 
                     <AccordionContent className="border-t border-slate-100 bg-white px-3 pb-4 pt-3 sm:px-4">
-                      {content.description ? (
-                        <div className="mb-3 rounded-xl bg-slate-50 px-3 py-3">
-                          <p className="whitespace-pre-line break-words text-sm leading-6 text-slate-600">{content.description}</p>
-                          {!contentDescriptionIsValid ? (
-                            <p className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-amber-700" role="status">
-                              <CircleAlert className="h-3.5 w-3.5" />
-                              {text.descriptionReview}
+                      {!contentDescriptionIsValid ? (
+                        <div className="mb-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-3" role="status">
+                          <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-amber-700" />
+                          <div className="min-w-0">
+                            {contentDescription ? (
+                              <p className="whitespace-pre-line break-words text-sm leading-6 text-slate-700">{contentDescription}</p>
+                            ) : null}
+                            <p className="mt-1 text-xs font-semibold leading-5 text-amber-800">
+                              {contentDescription ? text.descriptionReview : text.descriptionMissing}
                             </p>
-                          ) : null}
+                          </div>
                         </div>
+                      ) : contentDescription ? (
+                        <p className="mb-3 rounded-xl bg-slate-50 px-3 py-3 text-sm leading-6 text-slate-600 whitespace-pre-line break-words">{contentDescription}</p>
                       ) : null}
 
                       {isOpen && isLoadingLectures ? (
@@ -203,9 +213,10 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                         <div className="space-y-3">
                           {lectures?.data?.map((lecture: ILecture, lectureIndex: number) => {
                             const lectureTitleIsValid = isDisplayableProfileText(lecture.title);
+                            const lectureDescription = lecture.description?.trim() || "";
                             const lectureDescriptionIsValid =
-                              !lecture.description ||
-                              isDisplayableProfileText(lecture.description, 3);
+                              lectureDescription.length >= 20 &&
+                              isDisplayableProfileText(lectureDescription, 3);
 
                             return (
                               <article
@@ -230,15 +241,21 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                           {isArabic ? "محاضرة " : "Lecture "}{lectureIndex + 1}
                                         </span>
                                       </span>
-                                      {lecture.description ? (
+                                      {lectureDescription ? (
                                         <span className="mt-1 block whitespace-pre-line break-words text-xs leading-5 text-slate-500">
-                                          {lecture.description}
+                                          {lectureDescription}
                                         </span>
                                       ) : null}
-                                      {!lectureTitleIsValid || !lectureDescriptionIsValid ? (
+                                      {!lectureTitleIsValid ? (
                                         <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700">
                                           <CircleAlert className="h-3 w-3" />
-                                          {isArabic ? "تحتاج بيانات المحاضرة إلى مراجعة" : "Lecture details need review"}
+                                          {text.lectureTitleReview}
+                                        </span>
+                                      ) : null}
+                                      {!lectureDescriptionIsValid ? (
+                                        <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700">
+                                          <CircleAlert className="h-3 w-3" />
+                                          {lectureDescription ? text.lectureDescriptionReview : text.descriptionMissing}
                                         </span>
                                       ) : null}
                                     </span>
@@ -262,11 +279,11 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                       <span className="text-slate-400 transition-transform group-open:rotate-180">⌄</span>
                                     </summary>
                                     <div className="border-t border-slate-200 bg-white p-3">
-                                      <p className="mb-3 text-xs leading-5 text-slate-500">{text.uploadHint}</p>
                                       <UploadCourseVideo
                                         courseId={courseId}
                                         contentId={content.id}
                                         lectureId={lecture.id}
+                                        compact
                                       />
                                     </div>
                                   </details>

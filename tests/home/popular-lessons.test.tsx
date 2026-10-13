@@ -21,7 +21,7 @@ vi.mock("@/components/home/lessons/LessonsList", () => ({
 }));
 
 vi.mock("@/lib/react-query/lessons/lessons", () => ({
-  useGetLessons: () => ({ data: { data: [] }, isLoading: false }),
+  useGetLessons: () => ({ data: { data: [] }, isLoading: false, isError: false, refetch: vi.fn() }),
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -33,45 +33,50 @@ const LanguageToggle = () => {
   return <button type="button" onClick={toggleLanguage}>toggle</button>;
 };
 
-const renderPopularLessons = () =>
+const renderPopularLessons = (withToggle = false) =>
   render(
     <MemoryRouter>
       <I18nProvider>
         <PopularLessons />
+        {withToggle && <LanguageToggle />}
       </I18nProvider>
     </MemoryRouter>
   );
 
-describe("Home popular lessons", () => {
+describe("Home lessons discovery", () => {
   beforeEach(() => {
     localStorage.setItem("elmullim-language", "en");
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
   });
 
-  it("renders the English content and lessons link", () => {
+  it("renders the English content, truthful empty state, and lessons link", () => {
     renderPopularLessons();
 
-    expect(screen.getByRole("heading", { name: /buy these lessons too and join/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "All Lessons" })).toHaveAttribute("href", "/lessons");
-    expect(screen.getByText("No lessons found")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /discover available lessons and find/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("No lessons are available right now.");
+    expect(screen.getByRole("link", { name: "All Lessons" })).toHaveAttribute(
+      "href",
+      "/lessons"
+    );
   });
 
   it("switches to Arabic and RTL", async () => {
     const user = userEvent.setup();
-    render(
-      <MemoryRouter>
-        <I18nProvider>
-          <PopularLessons />
-          <LanguageToggle />
-        </I18nProvider>
-      </MemoryRouter>
-    );
+    renderPopularLessons(true);
 
     await user.click(screen.getByRole("button", { name: "toggle" }));
 
-    expect(screen.getByRole("heading", { name: /اشترِ هذه الدروس أيضًا وانضم إلى/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "كل الدروس" })).toHaveAttribute("href", "/lessons");
+    expect(
+      screen.getByRole("heading", { name: /اكتشف الدروس المتاحة واختر/i })
+    ).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("لا توجد دروس متاحة حاليًا.");
+    expect(screen.getByRole("link", { name: "كل الدروس" })).toHaveAttribute(
+      "href",
+      "/lessons"
+    );
     expect(document.documentElement.lang).toBe("ar");
     expect(document.documentElement.dir).toBe("rtl");
   });

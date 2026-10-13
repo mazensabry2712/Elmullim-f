@@ -27,8 +27,8 @@ const TeacherViewCourse = () => {
   const { language } = useI18n();
   const isArabic = language === "ar";
   const text = isArabic
-    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", editCourse: "تعديل بيانات الكورس", loadError: "تعذر تحميل بيانات الكورس.", invalidTitle: "بيانات الكورس تحتاج إلى تصحيح.", invalidDescription: "وصف الكورس يحتاج إلى تصحيح قبل عرضه." }
-    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", editCourse: "Edit course details", loadError: "Unable to load course details.", invalidTitle: "Course title needs correction.", invalidDescription: "The course description needs correction before it can be shown." };
+    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", editCourse: "تعديل بيانات الكورس", noLectureVideo: "لا يوجد فيديو لهذه المحاضرة حتى الآن.", loadError: "تعذر تحميل بيانات الكورس.", invalidTitle: "بيانات الكورس تحتاج إلى تصحيح.", invalidDescription: "وصف الكورس يحتاج إلى تصحيح قبل عرضه." }
+    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", editCourse: "Edit course details", noLectureVideo: "No video is available for this lecture yet.", loadError: "Unable to load course details.", invalidTitle: "Course title needs correction.", invalidDescription: "The course description needs correction before it can be shown." };
   const { courseId } = useParams();
   const isValidCourseId = !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
   const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
@@ -242,7 +242,13 @@ const TeacherViewCourse = () => {
                     <div className="flex flex-col xl:flex-row text-black-blue">
                       <div className="flex-1 px-6 lg:pl-16">
                         <div className="aspect-video w-full rounded overflow-hidden mb-6">
-                          <VideoPlayer videoUrl={lecture?.videoUrl} />
+                          {lecture?.videoUrl ? (
+                            <VideoPlayer videoUrl={lecture.videoUrl} />
+                          ) : (
+                            <div className="flex aspect-video items-center justify-center rounded bg-slate-50 px-4 text-center text-sm text-slate-500" role="status">
+                              {text.noLectureVideo}
+                            </div>
+                          )}
                         </div>
                         <div className="my-4">
                           <h2 className="text-2xl font-bold">

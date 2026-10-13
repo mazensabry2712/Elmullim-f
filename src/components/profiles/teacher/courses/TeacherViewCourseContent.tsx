@@ -14,10 +14,6 @@ import { motion } from "framer-motion";
 import { FileVideo, Loader, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import UpdateCourseContent from "./UpdateCourseContent";
-import UpdateCourseLecture from "./UpdateCourseLecture";
-import DeleteCourseContent from "./DeleteCourseContent";
-import DeleteCourseLecture from "./DeleteCourseLecture";
 import ManageCourseQuiz from "./ManageCourseQuiz";
 import UploadCourseVideo from "./UploadCourseVideo";
 import { useI18n } from "@/i18n";
@@ -106,25 +102,8 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                       className="rounded-[5px] border border-[#2E1E1]"
                     >
                       <AccordionTrigger className="rounded-t-[5px] px-4 text-xl font-bold text-black-blue hover:no-underline data-[state=open]:mb-2 data-[state=open]:bg-[#eaeaea]">
-                        <span className="flex w-full items-center justify-between gap-3 px-2">
+                        <span className="flex w-full items-center gap-3 px-2">
                           <span className="truncate text-start">{contentTitleIsValid ? content.title : text.invalidContentTitle}</span>
-                          <div
-                            className="flex shrink-0 gap-2"
-                            onClick={(event) => event.stopPropagation()}
-                          >
-                            {canEdit ? (
-                              <>
-                                <UpdateCourseContent
-                                  courseContent={content}
-                                  courseId={courseId}
-                                />
-                                <DeleteCourseContent
-                                  id={content.id.toString()}
-                                  courseId={courseId.toString()}
-                                />
-                              </>
-                            ) : null}
-                          </div>
                         </span>
                       </AccordionTrigger>
 
@@ -178,25 +157,6 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                     </p>
                                   </Link>
 
-                                  <div
-                                    className="flex shrink-0 gap-2"
-                                    onClick={(event) => event.stopPropagation()}
-                                  >
-                                    {canEdit ? (
-                                      <>
-                                        <UpdateCourseLecture
-                                          lecture={lecture}
-                                          contentId={content.id}
-                                          courseLectureId={courseId}
-                                        />
-                                        <DeleteCourseLecture
-                                          id={lecture.id.toString()}
-                                          courseId={courseId.toString()}
-                                          contentId={content.id.toString()}
-                                        />
-                                      </>
-                                    ) : null}
-                                  </div>
                                 </div>
 
                                 {canEdit ? (

@@ -7,7 +7,7 @@ test("home page loads and its primary calls to action navigate correctly", async
 
   await page.goto("/");
 
-  await expect(page).toHaveTitle(/Elmullim \\| Home/i);
+  await expect(page).toHaveTitle(/Elmullim \| Home/i);
   await expect(page.locator("#root")).toBeVisible();
 
   const lessonsLink = page.getByRole("link", { name: "Explore Lessons" });

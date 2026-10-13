@@ -18,7 +18,6 @@ import {
   useGetTeacherCourses,
 } from "@/lib/react-query/teacher/courses";
 import {
-  courseContentSchema,
   courseLectureSchema,
 } from "@/validations/teacher/courseSchema";
 import { COURSE_LECTURE_INPUTS } from "@/constant";
@@ -180,7 +179,7 @@ const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
               >
                 <FormField
                   control={form.control}
-                  name={input.name as keyof z.infer<typeof courseContentSchema>}
+                  name={input.name as keyof z.infer<typeof courseLectureSchema>}
                   render={({ field }) =>
                     input.name === "courseId" ? (
                       <SelectFormItem

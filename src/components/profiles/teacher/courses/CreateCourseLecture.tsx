@@ -114,6 +114,10 @@ const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
     });
 
   
+
+  return () => subscription.unsubscribe();
+  }, [form]);
+
   const childOnClick = isValidElement(children)
     ? (children.props as { onClick?: React.MouseEventHandler }).onClick
     : undefined;
@@ -132,15 +136,13 @@ const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
       })
     : children;
 
-  return () => subscription.unsubscribe();
-  }, [form]);
-
   return (
     <>
       <div className="relative w-full sm:w-auto">
         <div className="w-full">{trigger}</div>
 
-      <section
+        {isOpen ? (
+          <section
         id={panelId}
         role="region"
         aria-label={language === "ar" ? "إنشاء محاضرة للكورس" : "Create course lecture"}
@@ -223,7 +225,8 @@ const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
             </div>
           </motion.form>
         </Form>
-      </section>
+          </section>
+        ) : null}
       </div>
     </>
   );

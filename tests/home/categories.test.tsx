@@ -16,7 +16,9 @@ vi.mock("@/components/ui/BadgeTitle", () => ({
 }));
 
 vi.mock("@/components/home/categories/CategoryCard", () => ({
-  default: ({ title }: { title: string }) => <article>{title}</article>,
+  default: ({ title, searchTerm = title }: { title: string; searchTerm?: string }) => (
+    <a href={`/courses?q=${encodeURIComponent(searchTerm)}`}>{title}</a>
+  ),
 }));
 
 const LanguageToggle = () => {
@@ -44,7 +46,7 @@ describe("Home categories", () => {
     document.documentElement.dir = "ltr";
   });
 
-  it("renders all configured categories in English", () => {
+  it("renders all configured categories in English and links them to course search", () => {
     renderCategories();
 
     expect(
@@ -61,7 +63,10 @@ describe("Home categories", () => {
       "Biology",
       "Philosophy and Logic",
     ]) {
-      expect(screen.getByText(category)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: category })).toHaveAttribute(
+        "href",
+        `/courses?q=${encodeURIComponent(category)}`
+      );
     }
   });
 

@@ -92,7 +92,10 @@ const TeacherViewCourse = () => {
         videosHint: "راجع حالة الفيديو داخل بطاقة كل محاضرة.",
         checkVideosHint: "راجع وجود فيديو داخل بطاقة كل محاضرة.",
         titleNeedsReview: "راجع عنوان الكورس؛ يجب أن يكون واضحًا وغير مكرر.",
+        titleNeedsReviewHint: "راجع التنبيه بجوار عنوان الكورس.",
         descriptionNeedsReview: "أكمل وصف الكورس بجملة واضحة لا تقل عن 20 حرفًا و3 كلمات.",
+        descriptionNeedsReviewHint: "راجع التنبيه أسفل وصف الكورس.",
+        reviewList: "افحص القائمة",
         contentAdded: "تمت إضافة وحدات إلى الكورس",
         addFirstContent: "أضف أول وحدة للمحتوى",
         selectedLecture: "المحاضرة المعروضة",
@@ -150,7 +153,10 @@ const TeacherViewCourse = () => {
         videosHint: "Review video status on each lecture card.",
         checkVideosHint: "Confirm that every lecture has a video in its card.",
         titleNeedsReview: "Review the course title and use clear, non-repeated wording.",
+        titleNeedsReviewHint: "See the note next to the course title.",
         descriptionNeedsReview: "Add a clear course description with at least 20 characters and 3 words.",
+        descriptionNeedsReviewHint: "See the note below the course description.",
+        reviewList: "Review list",
         contentAdded: "Content units have been added",
         addFirstContent: "Add the first content unit",
         selectedLecture: "Selected lecture",
@@ -357,6 +363,12 @@ const TeacherViewCourse = () => {
                   <h2 className="mt-2 break-words text-2xl font-black leading-tight text-slate-900 sm:text-3xl">
                     {rawCourseTitle || text.untitledCourse}
                   </h2>
+                  {!courseTitleIsValid ? (
+                    <p className="mt-2 flex items-start gap-2 text-xs font-semibold leading-5 text-amber-800" role="status">
+                      <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
+                      <span>{text.titleNeedsReview}</span>
+                    </p>
+                  ) : null}
                 </div>
                 <span className={"inline-flex shrink-0 items-center rounded-full border px-3 py-1 text-xs font-extrabold " + statusClass}>
                   {statusLabel}
@@ -409,13 +421,7 @@ const TeacherViewCourse = () => {
                     <span>{text.descriptionNeedsReview}</span>
                   </div>
                 ) : null}
-                {!courseTitleIsValid ? (
-                  <div className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3.5 py-3 text-sm leading-6 text-amber-900" role="status">
-                    <CircleAlert className="mt-0.5 h-4 w-4 shrink-0" />
-                    <span>{text.titleNeedsReview}</span>
-                  </div>
-                ) : null}
-              </div>
+undefined              </div>
             </div>
           </div>
         </section>
@@ -448,14 +454,14 @@ const TeacherViewCourse = () => {
                 {
                   key: "title",
                   label: text.checkTitle,
-                  detail: courseTitleIsValid ? text.titleGood : text.titleNeedsReview,
+                  detail: courseTitleIsValid ? text.titleGood : text.titleNeedsReviewHint,
                   passed: courseTitleIsValid,
                   icon: FileText,
                 },
                 {
                   key: "description",
                   label: text.checkDescription,
-                  detail: courseDescriptionIsValid ? text.descriptionGood : text.descriptionNeedsReview,
+                  detail: courseDescriptionIsValid ? text.descriptionGood : text.descriptionNeedsReviewHint,
                   passed: courseDescriptionIsValid,
                   icon: FileText,
                 },
@@ -497,7 +503,7 @@ const TeacherViewCourse = () => {
                       {item.detail}
                     </p>
                     <p className={"mt-2 text-[10px] font-black " + (complete ? "text-emerald-700" : needsReview ? "text-amber-800" : "text-slate-500")}>
-                      {complete ? text.valid : needsReview ? text.needsReview : text.videosHint}
+                      {complete ? text.valid : needsReview ? text.needsReview : text.reviewList}
                     </p>
                   </div>
                 );

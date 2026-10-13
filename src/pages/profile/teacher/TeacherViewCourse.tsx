@@ -27,8 +27,8 @@ const TeacherViewCourse = () => {
   const { language } = useI18n();
   const isArabic = language === "ar";
   const text = isArabic
-    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", editCourse: "تعديل بيانات الكورس", noLectureVideo: "لا يوجد فيديو لهذه المحاضرة حتى الآن.", loadError: "تعذر تحميل بيانات الكورس.", invalidTitle: "بيانات الكورس تحتاج إلى تصحيح.", invalidDescription: "وصف الكورس يحتاج إلى تصحيح قبل عرضه." }
-    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", editCourse: "Edit course details", noLectureVideo: "No video is available for this lecture yet.", loadError: "Unable to load course details.", invalidTitle: "Course title needs correction.", invalidDescription: "The course description needs correction before it can be shown." };
+    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", noLectureVideo: "لا يوجد فيديو لهذه المحاضرة حتى الآن.", loadError: "تعذر تحميل بيانات الكورس.", invalidTitle: "بيانات الكورس تحتاج إلى تصحيح.", invalidDescription: "وصف الكورس يحتاج إلى تصحيح قبل عرضه." }
+    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", noLectureVideo: "No video is available for this lecture yet.", loadError: "Unable to load course details.", invalidTitle: "Course title needs correction.", invalidDescription: "The course description needs correction before it can be shown." };
   const { courseId } = useParams();
   const isValidCourseId = !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
   const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
@@ -148,12 +148,6 @@ const TeacherViewCourse = () => {
               (course.data.publishing_status === "draft" ||
                 course.data.publishing_status === "rejected") ? (
                 <div className="mb-6 flex flex-col gap-3 px-6 xl:px-16 sm:flex-row">
-                  <Link
-                    to={`/profile/my-courses/${course.data.id}/update`}
-                    className="inline-flex min-h-11 items-center justify-center rounded-lg border border-main px-4 py-2.5 text-sm font-bold text-main transition hover:bg-main hover:text-white"
-                  >
-                    {text.editCourse}
-                  </Link>
                   <CreateCourseContent courseId={course.data.id}>
                     <Button type="button" className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 px-5 font-semibold text-white shadow-sm transition hover:-translate-y-0.5 hover:bg-emerald-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 sm:w-auto">
                       <FolderPlus className="h-5 w-5" aria-hidden="true" />

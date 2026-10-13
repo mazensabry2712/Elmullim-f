@@ -1,13 +1,14 @@
 import { containerVariants, itemVariants } from "@/animations";
 import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { getPublicTeachers } from "@/services/main";
 import { useI18n } from "@/i18n";
 import TeacherCard from "./TeacherCard";
 
 const OurTeachers = () => {
-  const { t } = useI18n();
-  const isArabic = typeof document !== "undefined" && document.documentElement.lang === "ar";
+  const { t, language } = useI18n();
+  const isArabic = language === "ar";
   const { data, isPending, isError } = useQuery({
     queryKey: ["public-teachers", "homepage"],
     queryFn: () => getPublicTeachers(8),
@@ -39,14 +40,19 @@ const OurTeachers = () => {
         </motion.div>
 
         {isPending ? (
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4" aria-label={isArabic ? "جاري تحميل المعلمين" : "Loading teachers"}>
+          <div
+            className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:mt-10 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4"
+            aria-label={isArabic ? "جاري تحميل المعلمين" : "Loading teachers"}
+          >
             {Array.from({ length: 4 }, (_, index) => (
               <div key={index} className="h-[25rem] animate-pulse rounded-xl bg-white/10" />
             ))}
           </div>
         ) : isError ? (
           <p role="status" className="mx-auto mt-8 max-w-2xl text-center text-white/80">
-            {isArabic ? "تعذر تحميل المعلمين حاليًا. حاول مرة أخرى لاحقًا." : "Teachers are unavailable right now. Please try again later."}
+            {isArabic
+              ? "تعذر تحميل المعلمين حاليًا. حاول مرة أخرى لاحقًا."
+              : "Teachers are unavailable right now. Please try again later."}
           </p>
         ) : teachers.length === 0 ? (
           <p role="status" className="mx-auto mt-8 max-w-2xl text-center text-white/80">
@@ -62,6 +68,15 @@ const OurTeachers = () => {
             ))}
           </motion.div>
         )}
+
+        <div className="mt-8 text-center">
+          <Link
+            to="/teachers"
+            className="inline-flex min-h-11 items-center justify-center rounded-lg border border-white/50 px-6 py-2.5 font-semibold text-white transition hover:bg-white hover:text-main focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-main"
+          >
+            {t("home.teachers.viewAll")}
+          </Link>
+        </div>
       </motion.div>
     </section>
   );

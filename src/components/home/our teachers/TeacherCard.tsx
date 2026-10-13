@@ -18,6 +18,8 @@ const TeacherCard = ({ teacher }: IProps) => {
     .join("")
     .toUpperCase();
   const hasRatings = teacher.rating_count > 0;
+  const description = teacher.description?.trim() ?? "";
+  const showDescription = description.split(/\s+/).filter(Boolean).length >= 3;
 
   return (
     <motion.article
@@ -57,8 +59,8 @@ const TeacherCard = ({ teacher }: IProps) => {
             {subjectNames.length > 0 ? subjectNames.join(isArabic ? "، " : ", ") : (isArabic ? "المواد التعليمية" : "Teaching subjects")}
           </p>
         </div>
-        {teacher.description ? (
-          <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{teacher.description}</p>
+        {showDescription ? (
+          <p className="mt-3 line-clamp-3 text-sm leading-6 text-slate-600">{description}</p>
         ) : null}
       </div>
     </motion.article>

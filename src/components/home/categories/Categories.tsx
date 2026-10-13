@@ -45,7 +45,7 @@ const Categories = () => {
               id="home-categories-title"
               className="text-center text-3xl font-bold capitalize leading-tight text-black-blue sm:text-4xl md:text-left lg:text-[45px]"
             >
-              {t("home.categories.titlePrefix")} {" "}
+              {t("home.categories.titlePrefix")}{" "}
               <span className="font-exo font-semibold text-main">
                 {t("home.categories.titleHighlight")}
               </span>
@@ -65,6 +65,7 @@ const Categories = () => {
               <CategoryCard
                 title={t(categoryTranslationKeys[category.title] ?? category.title)}
                 icon={category.icon}
+                searchTerm={category.title}
               />
             </motion.div>
           ))}

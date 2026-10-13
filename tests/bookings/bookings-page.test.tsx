@@ -1,6 +1,6 @@
-import { afterEach, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { I18nProvider } from "@/i18n";
 import Bookings from "@/pages/bookings/Bookings";
 
@@ -92,7 +92,13 @@ describe("Parent bookings page", () => {
     renderPage();
 
     expect(screen.getByRole("heading", { name: "My Bookings" })).toBeInTheDocument();
-    expect(screen.getByText("Linked child")).toBeInTheDocument();
+    expect(
+      screen.getByText(
+        (_, element) =>
+          element?.tagName === "P" &&
+          element.textContent?.includes("Linked child") === true,
+      ),
+    ).toBeInTheDocument();
     expect(screen.getByText("Algebra lesson")).toBeInTheDocument();
   });
 

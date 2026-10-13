@@ -1,28 +1,8 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
-import React from "react";
-import Comments from "@/components/home/comments/Comments";
+import { beforeEach, describe, expect, it } from "vitest";
+import HomeHighlights from "@/components/home/comments/Comments";
 import { I18nProvider, useI18n } from "@/i18n";
-
-vi.mock("framer-motion", () => ({
-  motion: {
-    div: ({ children }: { children?: React.ReactNode }) => <div>{children}</div>,
-    section: ({ children }: { children?: React.ReactNode }) => <section>{children}</section>,
-  },
-}));
-
-vi.mock("@/components/ui/BadgeTitle", () => ({
-  default: ({ title }: { title: string }) => <div>{title}</div>,
-}));
-
-vi.mock("@/components/FunFacts", () => ({
-  default: () => <div data-testid="fun-facts" />,
-}));
-
-vi.mock("@/components/home/comments/CommentCard", () => ({
-  default: () => <article>comment-card</article>,
-}));
 
 const LanguageToggle = () => {
   const { toggleLanguage } = useI18n();
@@ -33,37 +13,46 @@ const LanguageToggle = () => {
   );
 };
 
-const renderComments = () =>
+const renderHighlights = () =>
   render(
     <I18nProvider>
       <LanguageToggle />
-      <Comments />
+      <HomeHighlights />
     </I18nProvider>
   );
 
-describe("Home comments", () => {
+describe("Homepage highlights", () => {
   beforeEach(() => {
     localStorage.setItem("elmullim-language", "en");
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
   });
 
-  it("renders the comments section in English", () => {
-    renderComments();
+  it("renders platform features without placeholder testimonials or fabricated statistics", () => {
+    renderHighlights();
 
-    expect(screen.getByRole("heading", { name: /user comments/i })).toBeInTheDocument();
-    expect(screen.getByText("Comments")).toBeInTheDocument();
-    expect(screen.getAllByText("comment-card")).toHaveLength(2);
+    expect(
+      screen.getByRole("heading", { name: /everything you need to stay on track/i })
+    ).toBeInTheDocument();
+    expect(screen.getAllByRole("article")).toHaveLength(3);
+    expect(screen.getByText("Lessons that fit your needs")).toBeInTheDocument();
+    expect(screen.getByText("Flexible learning options")).toBeInTheDocument();
+    expect(screen.getByText("Keep learning connected")).toBeInTheDocument();
+
+    expect(screen.queryByText("Courtney Henry")).not.toBeInTheDocument();
+    expect(screen.queryByText("97.5k+")).not.toBeInTheDocument();
   });
 
-  it("switches the comments section to Arabic and RTL", async () => {
+  it("switches the section to Arabic and RTL", async () => {
     const user = userEvent.setup();
-    renderComments();
+    renderHighlights();
 
     await user.click(screen.getByRole("button", { name: "toggle" }));
 
-    expect(screen.getByRole("heading", { name: /آراء المستخدمين/i })).toBeInTheDocument();
-    expect(screen.getByText("التعليقات")).toBeInTheDocument();
+    expect(
+      screen.getByRole("heading", { name: /كل ما تحتاجه لمواصلة رحلتك التعليمية/i })
+    ).toBeInTheDocument();
+    expect(screen.getByText("دروس تناسب احتياجاتك")).toBeInTheDocument();
     expect(document.documentElement.lang).toBe("ar");
     expect(document.documentElement.dir).toBe("rtl");
   });

@@ -1,12 +1,23 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import React from "react";
+import { MemoryRouter } from "react-router-dom";
 import Hero from "@/components/home/hero/Hero";
 
 vi.mock("framer-motion", () => ({
   motion: {
-    div: ({ children, className }: { children?: React.ReactNode; className?: string }) => (
-      <div className={className}>{children}</div>
+    div: ({
+      children,
+      className,
+      id,
+    }: {
+      children?: React.ReactNode;
+      className?: string;
+      id?: string;
+    }) => (
+      <div id={id} className={className}>
+        {children}
+      </div>
     ),
     h1: ({ children, className }: { children?: React.ReactNode; className?: string }) => (
       <h1 className={className}>{children}</h1>
@@ -40,18 +51,39 @@ vi.mock("@/i18n", () => ({
 
 describe("Home hero responsive layout", () => {
   it("uses viewport-safe responsive layout classes", () => {
-    const { container } = render(<Hero />);
+    const { container } = render(
+      <MemoryRouter>
+        <Hero />
+      </MemoryRouter>
+    );
     const section = container.querySelector("section");
     const heading = container.querySelector("h1");
-    const benefitsGrid = container.querySelector(".grid");
+    const benefitsGrid = container.querySelector("#home-hero-benefits");
     const image = container.querySelector('img[alt="home.hero.imageAlt"]');
-    const cap = container.querySelector('img[alt="home.hero.capAlt"]');
+    const cap = container.querySelector('img[src="/icons/cap-icon.svg"]');
 
     expect(section).toHaveClass("overflow-hidden");
-    expect(heading).toHaveClass("text-[clamp(2rem,8vw,2.8125rem)]");
+    expect(heading).toHaveClass("text-[clamp(2rem,6vw,3.5rem)]");
     expect(heading).toHaveClass("leading-[1.1]");
-    expect(benefitsGrid).toHaveClass("w-full", "grid-cols-1", "sm:grid-cols-2");
+    expect(benefitsGrid).toHaveClass("grid-cols-1", "sm:grid-cols-2", "xl:grid-cols-4");
     expect(image).toHaveClass("w-full", "max-w-[30rem]");
     expect(cap).toHaveClass("left-0", "w-10", "sm:w-auto", "xl:-left-8");
+  });
+
+  it("provides working primary and secondary navigation links", () => {
+    render(
+      <MemoryRouter>
+        <Hero />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("link", { name: "home.hero.cta.lessons" })).toHaveAttribute(
+      "href",
+      "/lessons"
+    );
+    expect(screen.getByRole("link", { name: "home.hero.cta.teachers" })).toHaveAttribute(
+      "href",
+      "/teachers"
+    );
   });
 });

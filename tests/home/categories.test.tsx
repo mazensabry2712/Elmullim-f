@@ -16,7 +16,9 @@ vi.mock("@/components/ui/BadgeTitle", () => ({
 }));
 
 vi.mock("@/components/home/categories/CategoryCard", () => ({
-  default: ({ title }: { title: string }) => <article>{title}</article>,
+  default: ({ title, searchTerm = title }: { title: string; searchTerm?: string }) => (
+    <a href={`/courses?q=${encodeURIComponent(searchTerm)}`}>{title}</a>
+  ),
 }));
 
 const LanguageToggle = () => {
@@ -44,24 +46,29 @@ describe("Home categories", () => {
     document.documentElement.dir = "ltr";
   });
 
-  it("renders all configured categories in English", () => {
+  it("renders all configured categories in English and links them to course search", () => {
     renderCategories();
 
     expect(
       screen.getByRole("heading", { name: /browse by categories/i })
     ).toBeInTheDocument();
 
-    for (const category of [
-      "Physics",
-      "Maths",
-      "Languages",
-      "History",
-      "Geography",
-      "Chemistry",
-      "Biology",
-      "Philosophy and Logic",
-    ]) {
-      expect(screen.getByText(category)).toBeInTheDocument();
+    const categories = [
+      { label: "Physics", query: "Physics" },
+      { label: "Maths", query: "Maths" },
+      { label: "Languages", query: "Languages" },
+      { label: "History", query: "History" },
+      { label: "Geography", query: "Geography" },
+      { label: "Chemistry", query: "Chemistry" },
+      { label: "Biology", query: "Biology" },
+      { label: "Philosophy and Logic", query: "philosophy and Logic" },
+    ];
+
+    for (const category of categories) {
+      expect(screen.getByRole("link", { name: category.label })).toHaveAttribute(
+        "href",
+        `/courses?q=${encodeURIComponent(category.query)}`
+      );
     }
   });
 

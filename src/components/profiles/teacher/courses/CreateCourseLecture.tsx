@@ -1,5 +1,5 @@
-import { Loader2 } from "lucide-react";
-import { ReactNode, useEffect, useState } from "react";
+import { Loader2, X } from "lucide-react";
+import { cloneElement, isValidElement, ReactElement, ReactNode, useEffect, useId, useState } from "react";
 import { ControllerRenderProps, FieldValues, useForm } from "react-hook-form";
 import { motion } from "framer-motion";
 import { containerVariants, itemVariants } from "@/animations";
@@ -8,13 +8,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import handleResError from "@/utils/handleResponseError";
 import cookieService from "@/utils/cookieService";
 import Swal from "sweetalert2";
-import Modal from "@/components/shared/Modal";
 import { Form, FormField } from "@/components/ui/form";
 import InputFormItem from "@/components/forms/formItems/InputFormItem";
-import {
-  AlertDialogCancel,
-  AlertDialogFooter,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import SelectFormItem from "@/components/forms/formItems/SelectFormItem";
 import {
@@ -36,6 +31,7 @@ interface IProps {
 
 const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const panelId = useId();
   const token = cookieService.getToken()!;
   const [courseId, setCourseId] = useState(fixedCourseId?.toString() || "");
   const { language } = useI18n();
@@ -118,27 +114,53 @@ const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
       }
     });
 
-    return () => subscription.unsubscribe();
+  
+  const childOnClick = isValidElement(children)
+    ? (children.props as { onClick?: React.MouseEventHandler }).onClick
+    : undefined;
+  const trigger = isValidElement(children)
+    ? cloneElement(children as ReactElement<{
+        onClick?: React.MouseEventHandler;
+        "aria-expanded"?: boolean;
+        "aria-controls"?: string;
+      }>, {
+        onClick: (event: React.MouseEvent) => {
+          childOnClick?.(event);
+          setIsOpen((current) => !current);
+        },
+        "aria-expanded": isOpen,
+        "aria-controls": panelId,
+      })
+    : children;
+
+  return () => subscription.unsubscribe();
   }, [form]);
 
   return (
     <>
-      <div onClick={() => setIsOpen(true)} className="w-full px-2 py-3">
-        {children}
-      </div>
+      <div className="relative w-full sm:w-auto">
+        <div className="w-full">{trigger}</div>
 
-      <Modal
-        isOpen={isOpen}
-        onOpenChange={handleCloseModal}
-        title={language === "ar" ? "إنشاء محاضرة للكورس" : "Create Course Lecture"}
-        description={{
-          text:
-            language === "ar"
-              ? "إنشاء محاضرة جديدة للكورس"
-              : "Create new course lecture",
-        }}
-        showFooter={false}
+      <section
+        id={panelId}
+        role="region"
+        aria-label={language === "ar" ? "إنشاء محاضرة للكورس" : "Create course lecture"}
+        className="absolute start-0 top-full z-[100] mt-2 w-[min(34rem,calc(100vw-2rem))] max-h-[min(75vh,42rem)] overflow-y-auto rounded-2xl border border-slate-200 bg-white p-5 text-slate-900 shadow-2xl sm:p-6"
+        dir={language === "ar" ? "rtl" : "ltr"}
       >
+        <header className="mb-5 flex items-start justify-between gap-4 border-b border-slate-100 pb-4">
+          <div>
+            <h2 className="text-lg font-bold text-slate-900">
+              {language === "ar" ? "إضافة محاضرة للكورس" : "Add course lecture"}
+            </h2>
+            <p className="mt-1 text-sm leading-6 text-slate-500">
+              {language === "ar" ? "اختر قسم المحتوى ثم أدخل بيانات المحاضرة." : "Choose a content section, then enter the lecture details."}
+            </p>
+          </div>
+          <button type="button" onClick={handleCloseModal} disabled={isPending} aria-label={language === "ar" ? "إغلاق النموذج" : "Close form"} className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 disabled:opacity-50">
+            <X className="h-5 w-5" />
+          </button>
+        </header>
         <Form {...form}>
           <motion.form
             initial="hidden"
@@ -191,25 +213,19 @@ const CreateCourseLecture = ({ children, courseId: fixedCourseId }: IProps) => {
               </motion.div>
             ))}
 
-            <AlertDialogFooter className="text-start gap-2">
-              <AlertDialogCancel
-                onClick={handleCloseModal}
-                className="text-black py-2.5 h-auto"
-              >
+            <div className="flex flex-col-reverse gap-2 border-t border-slate-100 pt-4 sm:flex-row sm:justify-end">
+              <Button type="button" variant="outline" onClick={handleCloseModal} disabled={isPending} className="min-h-11">
                 {language === "ar" ? "إلغاء" : "Cancel"}
-              </AlertDialogCancel>
-              <Button
-                type="submit"
-                disabled={isPending}
-                className="py-2.5 h-auto bg-main hover:bg-main/90"
-              >
-                {language === "ar" ? "إنشاء" : "Create"}
-                {isPending && <Loader2 className="animate-spin ml-2" />}
               </Button>
-            </AlertDialogFooter>
+              <Button type="submit" disabled={isPending} className="min-h-11 bg-emerald-600 text-white hover:bg-emerald-700">
+                {isPending ? <Loader2 className="me-2 h-4 w-4 animate-spin" /> : null}
+                {language === "ar" ? "إنشاء المحاضرة" : "Create lecture"}
+              </Button>
+            </div>
           </motion.form>
         </Form>
-      </Modal>
+      </section>
+      </div>
     </>
   );
 };

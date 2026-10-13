@@ -8,6 +8,13 @@ export const hasRepeatedTextPattern = (value: string | null | undefined): boolea
   return raw.split(/\s+/u).filter(Boolean).some((token) => {
     const chars = Array.from(token.replace(/[^\p{L}\p{N}]/gu, ""));
     if (chars.length < 12) return false;
+
+    // Catch long keyboard mashing with very low character variety, including
+    // short repeating Arabic/Latin patterns that do not repeat one n-gram four times.
+    const uniqueCharacters = new Set(chars).size;
+    if (chars.length >= 14 && uniqueCharacters <= 5 && uniqueCharacters / chars.length <= 0.36) {
+      return true;
+    }
     for (let size = 2; size <= 4; size += 1) {
       const counts = new Map<string, number>();
       let highest = 0;

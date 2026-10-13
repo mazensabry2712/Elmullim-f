@@ -17,7 +17,7 @@ vi.mock("@/components/ui/BadgeTitle", () => ({
 }));
 
 vi.mock("@/lib/react-query/courses/courses", () => ({
-  useGetCourses: () => ({ data: { data: [] }, isLoading: false }),
+  useGetCourses: () => ({ data: { data: [] }, isLoading: false, isError: false, refetch: vi.fn() }),
 }));
 
 vi.mock("@/utils/cookieService", () => ({
@@ -43,22 +43,22 @@ const renderPopularCourses = (withToggle = false) =>
     </MemoryRouter>
   );
 
-describe("Home popular courses", () => {
+describe("Home courses discovery", () => {
   beforeEach(() => {
     localStorage.setItem("elmullim-language", "en");
     document.documentElement.lang = "en";
     document.documentElement.dir = "ltr";
   });
 
-  it("renders the English content and courses link", () => {
+  it("renders the English content, truthful empty state, and courses link", () => {
     renderPopularCourses();
 
     expect(
       screen.getByRole("heading", {
-        name: /buy these courses too and join/i,
+        name: /browse available courses and find/i,
       })
     ).toBeInTheDocument();
-    expect(screen.getByText("No courses found")).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("No courses are available right now.");
     expect(screen.getByRole("link", { name: "All Courses" })).toHaveAttribute(
       "href",
       "/courses"
@@ -73,9 +73,10 @@ describe("Home popular courses", () => {
 
     expect(
       screen.getByRole("heading", {
-        name: /اشترِ هذه الكورسات أيضًا وانضم إلى/i,
+        name: /تصفح الكورسات المتاحة وابحث عن/i,
       })
     ).toBeInTheDocument();
+    expect(screen.getByRole("status")).toHaveTextContent("لا توجد كورسات متاحة حاليًا.");
     expect(screen.getByRole("link", { name: "كل الكورسات" })).toHaveAttribute(
       "href",
       "/courses"

@@ -27,8 +27,8 @@ const TeacherViewCourse = () => {
   const { language } = useI18n();
   const isArabic = language === "ar";
   const text = isArabic
-    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", noLectureVideo: "لا يوجد فيديو لهذه المحاضرة حتى الآن.", loadError: "تعذر تحميل بيانات الكورس.", invalidTitle: "بيانات الكورس تحتاج إلى تصحيح.", invalidDescription: "وصف الكورس يحتاج إلى تصحيح قبل عرضه." }
-    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", noLectureVideo: "No video is available for this lecture yet.", loadError: "Unable to load course details.", invalidTitle: "Course title needs correction.", invalidDescription: "The course description needs correction before it can be shown." };
+    ? { title: "عرض الكورس", home: "الرئيسية", content: "محتوى الكورس", noContents: "لا يوجد محتوى لهذا الكورس بعد.", noLectureVideo: "لا يوجد فيديو لهذه المحاضرة حتى الآن.", loadError: "تعذر تحميل بيانات الكورس.", invalidTitle: "بيانات الكورس تحتاج إلى تصحيح.", invalidDescription: "وصف الكورس يحتاج إلى تصحيح قبل عرضه.", invalidLectureTitle: "عنوان المحاضرة يحتاج إلى تصحيح.", invalidLectureDescription: "وصف المحاضرة يحتاج إلى تصحيح." }
+    : { title: "View Course", home: "Home", content: "Course Content", noContents: "No content has been added to this course yet.", noLectureVideo: "No video is available for this lecture yet.", loadError: "Unable to load course details.", invalidTitle: "Course title needs correction.", invalidDescription: "The course description needs correction before it can be shown.", invalidLectureTitle: "Lecture title needs correction.", invalidLectureDescription: "Lecture description needs correction." };
   const { courseId } = useParams();
   const isValidCourseId = !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
   const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
@@ -99,7 +99,7 @@ const TeacherViewCourse = () => {
   const rawLectureTitle = lecture?.title;
   const lectureTitle = rawLectureTitle && isDisplayableProfileText(rawLectureTitle)
     ? rawLectureTitle
-    : text.invalidTitle;
+    : text.invalidLectureTitle;
   const lectureDescriptionIsValid = isDisplayableProfileText(lecture?.description, 3);
 
   useEffect(() => {
@@ -252,7 +252,7 @@ const TeacherViewCourse = () => {
                           </h2>
                           {lecture?.description ? (
                             <p role={!lectureDescriptionIsValid ? "status" : undefined}>
-                              {lectureDescriptionIsValid ? lecture.description : text.invalidDescription}
+                              {lectureDescriptionIsValid ? lecture.description : text.invalidLectureDescription}
                             </p>
                           ) : null}
                         </div>

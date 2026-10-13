@@ -29,6 +29,7 @@ interface IProps {
   courseId?: number;
   contentId?: number;
   lectureId?: number;
+  compact?: boolean;
 }
 
 const UploadCourseVideo = ({
@@ -36,6 +37,7 @@ const UploadCourseVideo = ({
   courseId: fixedCourseId,
   contentId: fixedContentId,
   lectureId: fixedLectureId,
+  compact = false,
 }: IProps) => {
   const [progress, setProgress] = useState(0);
   const [file, setFile] = useState<File | null>(null);
@@ -162,15 +164,18 @@ const UploadCourseVideo = ({
     : VIDEO_INPUTS;
 
   const content = (
-    <CardContent className="space-y-2">
+    <CardContent className={compact ? "!p-0" : "space-y-2"}>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <div className="flex flex-col gap-6 xl:flex-row">
-            <div className="max-w-4xl w-full xl:w-[70%] space-y-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className={compact ? "space-y-3" : "space-y-6"}>
+          <div className={compact ? "flex flex-col gap-3" : "flex flex-col gap-6 xl:flex-row"}>
+            <div className={compact ? "w-full space-y-3" : "max-w-4xl w-full xl:w-[70%] space-y-4"}>
               <VideoUpload
-                title={language === "ar" ? "اضغط لرفع الفيديو" : "Click to upload video"}
+                title={compact
+                  ? language === "ar" ? "اختر ملف الفيديو" : "Choose a video file"
+                  : language === "ar" ? "اضغط لرفع الفيديو" : "Click to upload video"}
                 file={file}
                 setFile={setFile}
+                compact={compact}
               />
               {progress ? (
                 <div className="flex items-center justify-center gap-4">
@@ -228,22 +233,24 @@ const UploadCourseVideo = ({
             )}
           </div>
           <Button
-            className="bg-main hover:bg-main/90 h-auto py-3 w-full sm:w-fit px-4"
+            className={compact ? "min-h-10 w-full bg-main px-4 py-2 text-sm hover:bg-main/90" : "bg-main hover:bg-main/90 h-auto py-3 w-full sm:w-fit px-4"}
             disabled={isPending}
           >
-            {fixedCourseId
-              ? language === "ar"
-                ? "رفع فيديو للمحاضرة"
-                : "Upload lecture video"
-              : language === "ar"
-                ? "رفع الفيديو"
-                : "Upload Video"}
+            {compact
+              ? language === "ar" ? "رفع الفيديو" : "Upload video"
+              : fixedCourseId
+                ? language === "ar" ? "رفع فيديو للمحاضرة" : "Upload lecture video"
+                : language === "ar" ? "رفع الفيديو" : "Upload video"}
             {isPending && <Loader2 className="animate-spin" size={24} />}
           </Button>
         </form>
       </Form>
     </CardContent>
   );
+
+  if (compact) {
+    return content;
+  }
 
   if (children) {
     return (

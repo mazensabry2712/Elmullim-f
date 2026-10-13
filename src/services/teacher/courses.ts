@@ -187,7 +187,6 @@ export const updateTeacherCourseContent = async ({
     {
       title: content.title,
       description: content.description,
-      _method: "put",
     },
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -264,7 +263,7 @@ export const updateTeacherCourseLecture = async ({
 }): Promise<IStatusMsg> => {
   const { data } = await axiosAPI.post(
     `/teacher/courses/${lecture.courseId}/contents/${lecture.contentId}/lectures/${lecture.id}`,
-    { title: lecture.title, description: lecture.description, _method: "put" },
+    { title: lecture.title, description: lecture.description },
     { headers: { Authorization: `Bearer ${token}` } }
   );
   return data;

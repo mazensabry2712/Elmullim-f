@@ -56,6 +56,10 @@ test("teacher can manage a draft course and must confirm before deleting it", as
         body: JSON.stringify({ status: status < 400, message: null, data }),
       });
 
+    if (pathname.endsWith("/check-auth") && method === "POST") {
+      return respond({ auth: true, role: "teacher", "email-verified": true });
+    }
+
     if (pathname === "/api/teacher/courses/10" && method === "GET") {
       return respond(course);
     }

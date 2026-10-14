@@ -55,7 +55,19 @@ const ViewQuiz = () => {
       : null;
   const returnCourseId =
     quiz?.course_id && quiz.course_id > 0 ? quiz.course_id : safeRequestedCourseId;
-  const returnHref = returnCourseId ? `/courses/${returnCourseId}/view` : "/profile";
+  const requestedContentId = Number(searchParams.get("content"));
+  const requestedLectureId = Number(searchParams.get("lecture"));
+  const safeContentId =
+    Number.isSafeInteger(requestedContentId) && requestedContentId > 0
+      ? requestedContentId
+      : null;
+  const safeLectureId =
+    Number.isSafeInteger(requestedLectureId) && requestedLectureId > 0
+      ? requestedLectureId
+      : null;
+  const returnHref = returnCourseId
+    ? `/courses/${returnCourseId}/view${safeContentId && safeLectureId ? `?content=${safeContentId}&lecture=${safeLectureId}` : ""}`
+    : "/profile";
   const returnLabel = returnCourseId ? pageCopy.backToCourse : pageCopy.back;
 
   useEffect(() => {

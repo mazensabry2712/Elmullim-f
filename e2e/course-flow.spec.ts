@@ -259,4 +259,5 @@ test("student can browse a course, enroll for free, open a lecture quiz, and ret
   await page.getByRole("link", { name: "Back to course" }).click();
   await expect(page).toHaveURL(/courses\/7\/view$/);
   await expect(page.getByRole("heading", { name: "Physics Fundamentals" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Lecture 1" })).toBeVisible();
 });

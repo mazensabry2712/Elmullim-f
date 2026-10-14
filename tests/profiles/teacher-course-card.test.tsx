@@ -57,10 +57,7 @@ describe("TeacherCourseCard published-course actions", () => {
 
     const deleteButton = screen.getByRole("button", { name: "Delete unavailable" });
     expect(deleteButton).toBeDisabled();
-    expect(deleteButton).toHaveAttribute(
-      "title",
-      expect.stringContaining("enrolled students")
-    );
+    expect(deleteButton.getAttribute("title")).toContain("enrolled students");
 
     expect(screen.getByRole("link", { name: "Manage course" })).toHaveAttribute(
       "href",

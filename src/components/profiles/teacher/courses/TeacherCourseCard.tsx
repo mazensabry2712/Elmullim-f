@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { ICourse } from "@/interfaces/courses/courses";
 import truncateTxt from "@/utils/truncateTxt";
-import DeleteCourse from "./DeleteCourse";
+import DeleteTeacherCourseAction from "./DeleteTeacherCourseAction";
 import {
   BookOpen,
   CalendarDays,
@@ -202,7 +202,10 @@ const TeacherCourseCard = ({ course }: IProps) => {
 
           {canEdit ? (
             <div className="flex justify-end">
-              <DeleteCourse id={course.id.toString()} />
+              <DeleteTeacherCourseAction
+                id={course.id.toString()}
+                courseTitle={courseTitle}
+              />
             </div>
           ) : null}
         </div>

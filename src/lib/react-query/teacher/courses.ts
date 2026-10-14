@@ -40,6 +40,13 @@ import {
   submitTeacherCourseForReview,
 } from "@/services/teacher/courses";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
+
+const useTeacherCourseSessionScope = () =>
+  useSelector((state: RootState) =>
+    `${state.auth.sessionVersion}:${state.auth.isAuthenticated ? state.auth.role ?? "authenticated" : "guest"}`
+  );
 
 const invalidateTeacherCourseStructure = (
   queryClient: ReturnType<typeof useQueryClient>,
@@ -66,12 +73,15 @@ const invalidateTeacherCourseStructure = (
     }),
   ]);
 
-export const useGetTeacherCourses = (token: string, enabled = true) =>
-  useQuery({
-    queryKey: [QueryKeys.TEACHER_COURSES],
+export const useGetTeacherCourses = (token: string, enabled = true) => {
+  const sessionScope = useTeacherCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.TEACHER_COURSES, sessionScope],
     queryFn: () => getTeacherCourses(token),
     enabled: enabled && !!token,
   });
+};
 
 export const useGetTeacherCourseById = ({
   token,
@@ -81,12 +91,15 @@ export const useGetTeacherCourseById = ({
   token: string;
   id: string;
   enabled?: boolean;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.TEACHER_COURSE, id],
+}) => {
+  const sessionScope = useTeacherCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.TEACHER_COURSE, id, sessionScope],
     queryFn: () => getTeacherCourseById({ token, id }),
     enabled: enabled && !!id && !!token,
   });
+};
 
 export const useSubmitTeacherCourseForReview = () => {
   const queryClient = useQueryClient();
@@ -163,12 +176,15 @@ export const useGetTeacherCourseContents = ({
   token: string;
   courseId: string;
   enabled?: boolean;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS, courseId],
+}) => {
+  const sessionScope = useTeacherCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS, courseId, sessionScope],
     queryFn: () => getTeacherCourseContents({ token, courseId }),
     enabled: enabled && !!courseId && !!token,
   });
+};
 
 export const useGetTeacherCourseContentById = ({
   token,
@@ -180,12 +196,15 @@ export const useGetTeacherCourseContentById = ({
   id: string;
   courseId: string;
   enabled?: boolean;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.TEACHER_COURSE_CONTENT, id, courseId],
+}) => {
+  const sessionScope = useTeacherCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.TEACHER_COURSE_CONTENT, id, courseId, sessionScope],
     queryFn: () => getTeacherCourseContentById({ token, courseId, id }),
     enabled: enabled && !!id && !!courseId && !!token,
   });
+};
 
 export const useCreateTeacherCourseContent = () => {
   const queryClient = useQueryClient();
@@ -243,12 +262,15 @@ export const useGetTeacherCourseLectures = ({
   contentId,
   courseId,
   enabled = true,
-}: IGetCourseLecture & { enabled?: boolean }) =>
-  useQuery({
-    queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, contentId, courseId],
+}: IGetCourseLecture & { enabled?: boolean }) => {
+  const sessionScope = useTeacherCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, contentId, courseId, sessionScope],
     queryFn: () => getTeacherCourseLectures({ token, contentId, courseId }),
     enabled: enabled && !!contentId && !!courseId && !!token,
   });
+};
 
 export const useGetTeacherCourseLectureById = ({
   token,
@@ -256,13 +278,16 @@ export const useGetTeacherCourseLectureById = ({
   courseId,
   id,
   enabled = true,
-}: IGetCourseLecture & { enabled?: boolean }) =>
-  useQuery({
-    queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, id, contentId, courseId],
+}: IGetCourseLecture & { enabled?: boolean }) => {
+  const sessionScope = useTeacherCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, id, contentId, courseId, sessionScope],
     queryFn: () =>
       getTeacherCourseLectureById({ token, contentId, courseId, id }),
     enabled: enabled && !!id && !!contentId && !!courseId && !!token,
   });
+};
 
 export const useCreateTeacherCourseLecture = () => {
   const queryClient = useQueryClient();
@@ -317,13 +342,16 @@ export const useGetTeacherCourseQuiz = ({
   contentId: string;
   lectureId: string;
   enabled?: boolean;
-}) =>
-  useQuery({
+}) => {
+  const sessionScope = useTeacherCourseSessionScope();
+
+  return useQuery({
     queryKey: [
       QueryKeys.TEACHER_COURSE_QUIZ,
       courseId,
       contentId,
       lectureId,
+      sessionScope,
     ],
     queryFn: () =>
       getTeacherCourseQuiz({
@@ -339,6 +367,7 @@ export const useGetTeacherCourseQuiz = ({
       !!contentId &&
       !!lectureId,
   });
+};
 
 // ============= Lecture quizzes =========== //
 export const useUpdateTeacherCourseQuiz = () => {

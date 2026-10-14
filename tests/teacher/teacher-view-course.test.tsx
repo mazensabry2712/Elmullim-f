@@ -34,7 +34,7 @@ vi.mock("@/components/profiles/teacher/courses/CreateCourseLecture", () => ({
   default: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
 }));
 
-vi.mock("@/components/profiles/teacher/courses/DeleteCourse", () => ({
+vi.mock("@/components/profiles/teacher/courses/DeleteTeacherCourseAction", () => ({
   default: () => <button type="button" aria-label="Delete course">Delete course</button>,
 }));
 

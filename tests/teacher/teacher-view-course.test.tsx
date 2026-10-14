@@ -131,6 +131,25 @@ describe("TeacherViewCourse", () => {
     expect(screen.getByRole("button", { name: /delete course/i })).toBeInTheDocument();
   });
 
+  it("blocks review submission until every lecture has a video", () => {
+    mocks.useGetTeacherCourseReadinessLectures.mockReturnValue([
+      {
+        data: {
+          status: true,
+          message: null,
+          data: [{ id: 94, title: "Lesson one", description: "A clear lecture description with enough words.", videoUrl: "", hasVideo: false }],
+        },
+        isLoading: false,
+        isError: false,
+      },
+    ]);
+
+    renderPage();
+
+    expect(screen.getByRole("button", { name: /submit for review/i })).toBeDisabled();
+    expect(screen.getByText(/upload a video for every lecture/i)).toBeInTheDocument();
+  });
+
   it("hides course edit/delete actions once the course is published", () => {
     mocks.useGetTeacherCourseById.mockReturnValue({
       data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },

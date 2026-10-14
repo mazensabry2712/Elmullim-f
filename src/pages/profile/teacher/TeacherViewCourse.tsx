@@ -388,7 +388,11 @@ const TeacherViewCourse = () => {
                         <PencilLine className="h-4 w-4" aria-hidden="true" />
                         <span>{text.editCourse}</span>
                       </Link>
-                      <DeleteTeacherCourseAction id={course.data.id.toString()} courseTitle={rawCourseTitle || text.untitledCourse} />
+                      <DeleteTeacherCourseAction
+                        id={course.data.id.toString()}
+                        courseTitle={rawCourseTitle || text.untitledCourse}
+                        onDeleted={() => navigate("/profile", { replace: true, state: { myCourses: true } })}
+                      />
                     </>
                   ) : null}
                 </div>

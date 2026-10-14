@@ -35,10 +35,14 @@ vi.mock("@/utils/handleResponseError", () => ({
   default: vi.fn(),
 }));
 
-const renderAction = () =>
+const renderAction = (onDeleted?: () => void) =>
   render(
     <I18nProvider>
-      <DeleteTeacherCourseAction id="42" courseTitle="Physics Fundamentals" />
+      <DeleteTeacherCourseAction
+        id="42"
+        courseTitle="Physics Fundamentals"
+        onDeleted={onDeleted}
+      />
     </I18nProvider>
   );
 
@@ -75,6 +79,19 @@ describe("DeleteTeacherCourseAction", () => {
     expect(mockToastSuccess).toHaveBeenCalledWith("Physics course deleted");
     await waitFor(() => {
       expect(screen.queryByRole("alertdialog")).not.toBeInTheDocument();
+    });
+  });
+
+  it("runs the optional post-delete callback after API success", async () => {
+    const user = userEvent.setup();
+    const onDeleted = vi.fn();
+    renderAction(onDeleted);
+
+    await user.click(screen.getByRole("button", { name: "Delete course" }));
+    await user.click(screen.getByRole("button", { name: "Delete", exact: true }));
+
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalledTimes(1);
     });
   });
 

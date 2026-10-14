@@ -22,6 +22,7 @@ import handleResError from "@/utils/handleResponseError";
 interface DeleteTeacherCourseActionProps {
   id: string;
   courseTitle: string;
+  onDeleted?: () => void;
 }
 
 interface ApiErrorResponse {
@@ -32,6 +33,7 @@ interface ApiErrorResponse {
 const DeleteTeacherCourseAction = ({
   id,
   courseTitle,
+  onDeleted,
 }: DeleteTeacherCourseActionProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useI18n();
@@ -79,6 +81,7 @@ const DeleteTeacherCourseAction = ({
 
       toast.success(result.message || copy.success);
       setIsOpen(false);
+      onDeleted?.();
     } catch (error) {
       const response = axios.isAxiosError<ApiErrorResponse>(error)
         ? error.response?.data

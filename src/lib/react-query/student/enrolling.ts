@@ -34,6 +34,7 @@ export const useEnrollFreeCourse = () => {
       Promise.all([
         queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] }),
         queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.SUB_CATEGORY_COURSES] }),
         queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.courseId] }),
         queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, variables.courseId] }),
       ]),
@@ -50,6 +51,7 @@ export const useInitiatePayment = () => {
         return Promise.all([
           queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] }),
           queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.SUB_CATEGORY_COURSES] }),
           queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.courseId] }),
           queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, variables.courseId] }),
         ]);

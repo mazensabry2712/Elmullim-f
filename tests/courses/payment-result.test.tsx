@@ -98,6 +98,9 @@ describe("Payment result", () => {
         queryKey: [QueryKeys.COURSES],
       });
       expect(invalidateSpy).toHaveBeenCalledWith({
+        queryKey: [QueryKeys.SUB_CATEGORY_COURSES],
+      });
+      expect(invalidateSpy).toHaveBeenCalledWith({
         queryKey: [QueryKeys.COURSE, 7],
       });
       expect(invalidateSpy).toHaveBeenCalledWith({

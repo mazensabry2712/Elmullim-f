@@ -52,6 +52,7 @@ const PaymentResult = () => {
             await Promise.all([
               queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] }),
               queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+              queryClient.invalidateQueries({ queryKey: [QueryKeys.SUB_CATEGORY_COURSES] }),
               queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, paidCourseId] }),
               queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, paidCourseId] }),
             ]);

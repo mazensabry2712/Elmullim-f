@@ -238,7 +238,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
                 {status === "published"
                   ? isArabic
                     ? "لا يمكن للمدرّس حذف الكورسات المنشورة. تواصل مع الدعم إذا لزم إزالتها."
-                    : "Deletion is blocked to protect student enrollments and payment records."
+                    : "Teachers cannot delete published courses. Contact support if removal is needed."
                   : isArabic
                     ? "انتظر انتهاء المراجعة قبل محاولة الحذف."
                     : "Deletion is unavailable while review is pending."}

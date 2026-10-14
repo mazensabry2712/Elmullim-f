@@ -14,9 +14,10 @@ interface IProps {
   field: ControllerRenderProps<any, any>;
   input: IFormInput;
   label?: boolean;
+  disabled?: boolean;
 }
 
-const InputFormItem = ({ input, field, label = false }: IProps) => {
+const InputFormItem = ({ input, field, label = false, disabled = false }: IProps) => {
   const { language } = useI18n();
 
   const inputType = input.name === "email"
@@ -46,6 +47,7 @@ const InputFormItem = ({ input, field, label = false }: IProps) => {
 
       <FormControl>
         <Input
+          disabled={disabled}
           type={inputType}
           placeholder={translateFormText(language, input.placeholder)}
           autoComplete={autoComplete}

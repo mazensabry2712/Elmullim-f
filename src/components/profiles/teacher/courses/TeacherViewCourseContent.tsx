@@ -236,7 +236,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                 className="rounded-2xl border border-slate-100 bg-white p-3 transition-colors hover:border-emerald-200"
                               >
                                 <Link
-                                  to={"/profile/my-courses/" + courseId + "/view"}
+                                  to={"/profile/my-courses/" + courseId + "/view?content=" + content.id + "&lecture=" + lecture.id}
                                   state={{ lecture, contentId: content.id }}
                                   className="block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
                                 >

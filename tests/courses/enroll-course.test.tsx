@@ -68,6 +68,10 @@ const renderPage = (courseId = 7) => {
         <I18nProvider>
           <Routes>
             <Route path="/course/:courseId/enroll" element={<EnrollCourse />} />
+            <Route
+              path="/courses/:courseId/view"
+              element={<div data-testid="course-learning-page">Course learning page</div>}
+            />
           </Routes>
         </I18nProvider>
       </MemoryRouter>
@@ -146,6 +150,8 @@ describe("Course enrollment", () => {
         courseId: 7,
       })
     );
+
+    expect(await screen.findByTestId("course-learning-page")).toBeInTheDocument();
   });
 
   it("shows the payment methods for paid courses and sends the selected one", async () => {

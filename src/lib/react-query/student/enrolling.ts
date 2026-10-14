@@ -20,11 +20,13 @@ export const useEnrollFreeCourse = () => {
   return useMutation({
     mutationFn: ({ token, courseId }: { token: string; courseId: number }) =>
       enrollFreeCourse({ token, courseId }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] });
-      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] });
-      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES] });
-    },
+    onSuccess: (_data, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.courseId] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, variables.courseId] }),
+      ]),
   });
 };
 
@@ -33,12 +35,17 @@ export const useInitiatePayment = () => {
 
   return useMutation({
     mutationFn: initiatePayment,
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       if (response.data?.payment_required === false) {
-        void queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] });
-        void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] });
-        void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES] });
+        return Promise.all([
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] }),
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.courseId] }),
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, variables.courseId] }),
+        ]);
       }
+
+      return undefined;
     },
   });
 };

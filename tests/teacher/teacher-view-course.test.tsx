@@ -150,6 +150,47 @@ describe("TeacherViewCourse", () => {
     expect(screen.getByText(/upload a video for every lecture/i)).toBeInTheDocument();
   });
 
+  it("blocks review when any content unit has no lecture", () => {
+    mocks.useGetTeacherCourseContents.mockReturnValue({
+      data: {
+        status: true,
+        message: null,
+        data: [
+          { id: 26, title: "Unit one" },
+          { id: 27, title: "Unit two" },
+        ],
+      },
+      isLoading: false,
+    });
+    mocks.useGetTeacherCourseReadinessLectures.mockReturnValue([
+      {
+        data: {
+          status: true,
+          message: null,
+          data: [{
+            id: 94,
+            title: "Lesson one",
+            description: "A clear lecture description with enough words.",
+            videoUrl: "https://vimeo.com/123456789",
+            hasVideo: true,
+          }],
+        },
+        isLoading: false,
+        isError: false,
+      },
+      {
+        data: { status: true, message: null, data: [] },
+        isLoading: false,
+        isError: false,
+      },
+    ]);
+
+    renderPage();
+
+    expect(screen.getByRole("button", { name: /submit for review/i })).toBeDisabled();
+    expect(screen.getByText(/inside every content unit/i)).toBeInTheDocument();
+  });
+
   it("allows safe metadata edits while keeping delete locked once the course is published", () => {
     mocks.useGetTeacherCourseById.mockReturnValue({
       data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },

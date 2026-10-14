@@ -52,8 +52,9 @@ const DeleteCourse = ({ id }: IProps) => {
 
   return (
     <>
-      <Button type="button" onClick={() => setIsOpen(true)} variant="destructive" size="icon" disabled={isPending} aria-label={language === "ar" ? "حذف الكورس" : "Delete course"} title={language === "ar" ? "حذف الكورس" : "Delete course"} className="h-10 w-10 rounded-xl">
+      <Button type="button" onClick={() => setIsOpen(true)} variant="destructive" size="sm" disabled={isPending} aria-label={language === "ar" ? "حذف الكورس" : "Delete course"} title={language === "ar" ? "حذف الكورس" : "Delete course"} className="h-10 rounded-xl px-4">
         <Trash2 className="h-4 w-4" />
+        {language === "ar" ? "حذف الكورس" : "Delete course"}
       </Button>
 
       <Modal

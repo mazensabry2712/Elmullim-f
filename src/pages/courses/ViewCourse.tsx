@@ -29,7 +29,7 @@ const ViewCourse = () => {
   const validCourseId = Number.isInteger(numericCourseId) && numericCourseId > 0;
   const location = useLocation();
 
-  const { data: course, isLoading, isError, failureReason } = useGetCourseById({
+  const { data: course, isLoading, isFetching, isError, failureReason } = useGetCourseById({
     token,
     courseId: numericCourseId,
   });
@@ -58,26 +58,26 @@ const ViewCourse = () => {
       return;
     }
 
-    if (courseFailure) {
+    if (!isFetching && courseFailure) {
       toast.error(courseFailure.response?.data?.message || copy.detailsError);
       navigate("/courses", { replace: true });
       return;
     }
 
-    if (!isLoading && isError) {
+    if (!isLoading && !isFetching && isError) {
       toast.error(copy.detailsError);
       navigate("/courses", { replace: true });
       return;
     }
 
-    if (!isLoading && course?.data && !course.data.hasEnrolled) {
+    if (!isLoading && !isFetching && course?.data && !course.data.hasEnrolled) {
       navigate(`/courses/${numericCourseId}`, { replace: true });
     }
-  }, [validCourseId, navigate, courseFailure, isError, isLoading, course, numericCourseId, copy.detailsError]);
+  }, [validCourseId, navigate, courseFailure, isError, isLoading, isFetching, course, numericCourseId, copy.detailsError]);
 
   if (!validCourseId) return null;
 
-  if (isLoading) {
+  if (isLoading || isFetching) {
     return (
       <main>
         <div className="container py-24" role="status" aria-live="polite">

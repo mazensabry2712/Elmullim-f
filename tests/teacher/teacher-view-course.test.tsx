@@ -71,9 +71,22 @@ const validCourse = {
   hasEnrolled: null,
 };
 
-const renderPage = () =>
+const renderPage = (routeState?: {
+  lecture?: {
+    id: number;
+    title: string;
+    description: string;
+    videoUrl?: string;
+    hasVideo?: boolean;
+  };
+  contentId?: number;
+}) =>
   render(
-    <MemoryRouter initialEntries={["/profile/my-courses/10/view"]}>
+    <MemoryRouter
+      initialEntries={[
+        { pathname: "/profile/my-courses/10/view", state: routeState },
+      ]}
+    >
       <I18nProvider>
         <Routes>
           <Route path="/profile/my-courses/:courseId/view" element={<TeacherViewCourse />} />
@@ -116,6 +129,45 @@ describe("TeacherViewCourse", () => {
     expect(screen.getByTestId("course-content-list")).toBeInTheDocument();
     expect(screen.getByRole("link", { name: /edit course/i })).toHaveAttribute("href", "/profile/my-courses/10/update");
     expect(screen.getByRole("button", { name: /delete course/i })).toBeInTheDocument();
+  });
+
+  it("loads the selected content unit and uses the refreshed lecture returned by the API", () => {
+    const routeLecture = {
+      id: 95,
+      title: "Old lecture title",
+      description: "The cached lecture title before the edit.",
+      videoUrl: "/old-video",
+      hasVideo: true,
+    };
+    mocks.useGetTeacherCourseLectures.mockReturnValue({
+      data: {
+        status: true,
+        message: null,
+        data: [
+          {
+            ...routeLecture,
+            title: "Updated lecture title",
+            description: "Fresh API details for the updated lecture.",
+            videoUrl: "/updated-video",
+          },
+        ],
+      },
+      isLoading: false,
+    });
+
+    renderPage({ lecture: routeLecture, contentId: 27 });
+
+    expect(mocks.useGetTeacherCourseLectures).toHaveBeenCalledWith({
+      token: "teacher-test-token",
+      courseId: "10",
+      contentId: "27",
+    });
+    expect(
+      screen.getByRole("heading", { name: "Updated lecture title", level: 3 })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole("heading", { name: "Old lecture title", level: 3 })
+    ).not.toBeInTheDocument();
   });
 
   it("hides course edit/delete actions once the course is published", () => {

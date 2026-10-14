@@ -39,7 +39,7 @@ import {
   updateTeacherCourseQuiz,
   submitTeacherCourseForReview,
 } from "@/services/teacher/courses";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 
 export const useGetTeacherCourses = (token: string, enabled = true) =>
   useQuery({
@@ -230,6 +230,29 @@ export const useGetTeacherCourseLectures = ({
     queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, contentId, courseId],
     queryFn: () => getTeacherCourseLectures({ token, contentId, courseId }),
     enabled: enabled && !!contentId && !!courseId && !!token,
+  });
+
+export const useGetTeacherCourseReadinessLectures = ({
+  token,
+  courseId,
+  contents,
+  enabled = true,
+}: {
+  token: string;
+  courseId: string;
+  contents: Array<{ id: number }>;
+  enabled?: boolean;
+}) =>
+  useQueries({
+    queries: contents.map((content) => ({
+      queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, content.id.toString(), courseId],
+      queryFn: () => getTeacherCourseLectures({
+        token,
+        courseId,
+        contentId: content.id.toString(),
+      }),
+      enabled: enabled && !!content.id && !!courseId && !!token,
+    })),
   });
 
 export const useGetTeacherCourseLectureById = ({

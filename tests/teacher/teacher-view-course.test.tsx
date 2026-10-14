@@ -150,7 +150,7 @@ describe("TeacherViewCourse", () => {
     expect(screen.getByText(/upload a video for every lecture/i)).toBeInTheDocument();
   });
 
-  it("hides course edit/delete actions once the course is published", () => {
+  it("allows safe metadata edits while keeping delete locked once the course is published", () => {
     mocks.useGetTeacherCourseById.mockReturnValue({
       data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },
       isLoading: false,
@@ -159,8 +159,12 @@ describe("TeacherViewCourse", () => {
 
     renderPage();
 
-    expect(screen.queryByRole("link", { name: /edit course/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /edit details/i })).toHaveAttribute(
+      "href",
+      "/profile/my-courses/10/update"
+    );
     expect(screen.queryByRole("button", { name: /delete course/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/course is published/i)).toBeInTheDocument();
   });
 
   it("shows a short course description as entered and explains what needs review", () => {

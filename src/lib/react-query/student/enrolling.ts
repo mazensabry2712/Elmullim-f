@@ -1,4 +1,6 @@
 import QueryKeys from "@/enums";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 import {
   enrollFreeCourse,
   getMyCourses,
@@ -7,12 +9,20 @@ import {
 } from "@/services/student/enrolling";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetMyCourses = (token: string, enabled = true) =>
-  useQuery({
-    queryKey: [QueryKeys.MY_COURSES],
+const useEnrollmentSessionScope = () =>
+  useSelector((state: RootState) =>
+    `${state.auth.sessionVersion}:${state.auth.isAuthenticated ? state.auth.role ?? "authenticated" : "guest"}`
+  );
+
+export const useGetMyCourses = (token: string, enabled = true) => {
+  const sessionScope = useEnrollmentSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.MY_COURSES, sessionScope],
     queryFn: () => getMyCourses(token),
     enabled: enabled && !!token,
   });
+};
 
 export const useEnrollFreeCourse = () => {
   const queryClient = useQueryClient();

@@ -84,7 +84,7 @@ test("student can browse a course, enroll for free, open a lecture quiz, and ret
   await page.route("**/api/**", async (route) => {
     const request = route.request();
     const method = request.method();
-    const pathname = new URL(request.url()).pathname.replace(/\\/+$/, "");
+    const pathname = new URL(request.url()).pathname.replace(/\/+$/, "");
 
     const respond = (data: unknown, status = 200) =>
       route.fulfill({
@@ -166,14 +166,14 @@ test("student can browse a course, enroll for free, open a lecture quiz, and ret
   await expect(page.getByRole("heading", { name: /courses/i }).first()).toBeVisible();
   await page.getByRole("link", { name: /physics fundamentals/i }).first().click();
 
-  await expect(page).toHaveURL(/\\/courses\\/7$/);
+  await expect(page).toHaveURL(/courses\/7$/);
   await expect(page.getByRole("heading", { name: "Physics Fundamentals" })).toBeVisible();
   await page.locator('a[href="/course/7/enroll"]').click();
 
-  await expect(page).toHaveURL(/\\/course\\/7\\/enroll$/);
+  await expect(page).toHaveURL(/course\/7\/enroll$/);
   await page.getByRole("button", { name: /enroll for free/i }).click();
 
-  await expect(page).toHaveURL(/\\/courses\\/7\\/view$/);
+  await expect(page).toHaveURL(/courses\/7\/view$/);
   await expect(page.getByRole("heading", { name: "Physics Fundamentals" })).toBeVisible();
 
   await page.getByRole("button", { name: "Unit 1" }).click();
@@ -181,7 +181,7 @@ test("student can browse a course, enroll for free, open a lecture quiz, and ret
   await expect(takeQuizLink).toBeVisible();
   await takeQuizLink.click();
 
-  await expect(page).toHaveURL(/\\/view-quiz\\?quiz=91&course=7$/);
+  await expect(page).toHaveURL(/view-quiz\?quiz=91&course=7$/);
   await expect(page.getByRole("heading", { name: "Unit Quiz" }).first()).toBeVisible();
   await expect(page.getByText("What is 2 + 2?")).toBeVisible();
 });

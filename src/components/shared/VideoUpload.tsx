@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { VideoIcon, XCircleIcon } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
-import Dropzone from "react-dropzone";
+import Dropzone, { type FileRejection } from "react-dropzone";
 import { useI18n } from "@/i18n";
 
 const VideoPreview = ({
@@ -70,7 +70,7 @@ const VideoUpload = ({
   };
 
   const handleRejectedFile = (
-    fileRejections: Array<{ errors: Array<{ code: string }> }>
+    fileRejections: FileRejection[]
   ) => {
     if (!courseApiCompatible) return;
 

@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { ImageIcon, XCircleIcon } from "lucide-react";
 import { Dispatch, SetStateAction, useState } from "react";
-import Dropzone from "react-dropzone";
+import Dropzone, { type FileRejection } from "react-dropzone";
 import { useI18n } from "@/i18n";
 
 const ImagePreview = ({
@@ -66,7 +66,7 @@ const ImageUpload = ({
   };
 
   const handleRejectedFile = (
-    fileRejections: Array<{ errors: Array<{ code: string }> }>
+    fileRejections: FileRejection[]
   ) => {
     const tooLarge = fileRejections.some((rejection) =>
       rejection.errors.some((error) => error.code === "file-too-large")

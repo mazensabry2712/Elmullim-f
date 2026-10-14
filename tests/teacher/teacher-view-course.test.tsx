@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   useGetTeacherCourseById: vi.fn(),
   useGetTeacherCourseContents: vi.fn(),
   useGetTeacherCourseLectures: vi.fn(),
+  useGetTeacherCourseReadinessLectures: vi.fn(),
   submitForReview: vi.fn(),
 }));
 
@@ -16,6 +17,7 @@ vi.mock("@/lib/react-query/teacher/courses", () => ({
   useGetTeacherCourseById: (...args: unknown[]) => mocks.useGetTeacherCourseById(...args),
   useGetTeacherCourseContents: (...args: unknown[]) => mocks.useGetTeacherCourseContents(...args),
   useGetTeacherCourseLectures: (...args: unknown[]) => mocks.useGetTeacherCourseLectures(...args),
+  useGetTeacherCourseReadinessLectures: (...args: unknown[]) => mocks.useGetTeacherCourseReadinessLectures(...args),
   useSubmitTeacherCourseForReview: () => ({
     mutateAsync: mocks.submitForReview,
     isPending: false,
@@ -101,6 +103,17 @@ describe("TeacherViewCourse", () => {
       data: { status: true, message: null, data: [{ id: 94, title: "Lesson one", description: "A clear lecture description with enough words.", videoUrl: "", hasVideo: false }] },
       isLoading: false,
     });
+    mocks.useGetTeacherCourseReadinessLectures.mockReturnValue([
+      {
+        data: {
+          status: true,
+          message: null,
+          data: [{ id: 94, title: "Lesson one", description: "A clear lecture description with enough words.", videoUrl: "https://vimeo.com/123456789", hasVideo: true }],
+        },
+        isLoading: false,
+        isError: false,
+      },
+    ]);
   });
 
   it("shows a structured course overview and keeps creation/review actions", () => {

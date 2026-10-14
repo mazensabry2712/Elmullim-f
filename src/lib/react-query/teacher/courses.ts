@@ -98,9 +98,17 @@ export const useUpdateTeacherCourse = () => {
   return useMutation({
     mutationFn: ({ token, course }: { token: string; course: IUpdateCourse }) =>
       updateTeacherCourse({ token, course }),
-    onSuccess: () => {
+    onSuccess: (_response, variables) => {
+      const courseId = variables.course.id;
+
       queryClient.invalidateQueries({
         queryKey: [QueryKeys.TEACHER_COURSES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.TEACHER_COURSE, String(courseId)],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.COURSE, courseId],
       });
     },
   });

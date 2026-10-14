@@ -12,8 +12,8 @@ import {
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { FileVideo, Loader, Loader2 } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
 import { getCoursesCopy } from "@/pages/courses/courseCopy";
 import { useI18n } from "@/i18n";
@@ -27,8 +27,26 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
   const { language } = useI18n();
   const copy = providedCopy ?? getCoursesCopy(language);
   const token = cookieService.getToken() || "";
+  const [searchParams] = useSearchParams();
+  const contentParam = searchParams.get("content");
   const [contentId, setContentId] = useState<number>();
   const { data: contents, isLoading: isLoadingContents } = useGetCourseContents(courseId);
+
+  // Restore the unit from the URL, so returning from a lecture or quiz opens
+  // the same place in the course outline after navigation or a page refresh.
+  useEffect(() => {
+    if (!contents?.data) return;
+
+    const requestedContentId = Number(contentParam);
+    const requestedContentExists =
+      contentParam !== null &&
+      Number.isSafeInteger(requestedContentId) &&
+      requestedContentId > 0 &&
+      contents.data.some((content) => content.id === requestedContentId);
+
+    setContentId(requestedContentExists ? requestedContentId : undefined);
+  }, [contentParam, contents?.data]);
+
   const { data: lectures, isLoading: isLoadingLectures } = useGetCourseLectures({
     token,
     courseId,
@@ -53,7 +71,15 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
   }
 
   return (
-    <Accordion type="single" collapsible>
+    <Accordion
+      type="single"
+      collapsible
+      value={contentId ? `item-${contentId}` : undefined}
+      onValueChange={(value) => {
+        const nextId = Number(value.replace(/^item-/, ""));
+        setContentId(Number.isSafeInteger(nextId) && nextId > 0 ? nextId : undefined);
+      }}
+    >
       <motion.div
         className="w-full space-y-5"
         variants={containerVariants}
@@ -68,7 +94,6 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
             >
               <AccordionTrigger
                 className="font-bold text-black-blue text-xl data-[state=open]:bg-[#eaeaea] px-4 data-[state=open]:mb-2 rounded-t-[5px] hover:no-underline"
-                onClick={() => setContentId(id)}
               >
                 {title}
               </AccordionTrigger>

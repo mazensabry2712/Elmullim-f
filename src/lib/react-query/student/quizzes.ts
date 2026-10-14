@@ -7,14 +7,24 @@ import {
   submitStudentQuiz,
 } from "@/services/student/quizzes";
 import type { IStudentQuizSubmissionAnswer } from "@/interfaces/quizzes/quizzes";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetStudentQuizzes = (token?: string) =>
-  useQuery({
-    queryKey: [QueryKeys.STUDENT_QUIZZES],
+const useStudentSessionScope = () =>
+  useSelector((state: RootState) =>
+    `${state.auth.sessionVersion}:${state.auth.isAuthenticated ? state.auth.role ?? "authenticated" : "guest"}`
+  );
+
+export const useGetStudentQuizzes = (token?: string) => {
+  const sessionScope = useStudentSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.STUDENT_QUIZZES, sessionScope],
     queryFn: () => getStudentQuizzes(token as string),
     enabled: !!token,
   });
+};
 
 export const useGetStudentQuiz = ({
   token,
@@ -22,12 +32,15 @@ export const useGetStudentQuiz = ({
 }: {
   token?: string;
   quizId: number;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.STUDENT_QUIZ, quizId],
+}) => {
+  const sessionScope = useStudentSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.STUDENT_QUIZ, quizId, sessionScope],
     queryFn: () => getStudentQuiz({ token: token as string, quizId }),
     enabled: !!token && Number.isInteger(quizId) && quizId > 0,
   });
+};
 
 export const useStartStudentQuiz = () => {
   const queryClient = useQueryClient();
@@ -81,9 +94,12 @@ export const useGetStudentQuizResult = ({
   token?: string;
   quizId: number;
   enabled?: boolean;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.STUDENT_QUIZ_RESULT, quizId],
+}) => {
+  const sessionScope = useStudentSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.STUDENT_QUIZ_RESULT, quizId, sessionScope],
     queryFn: () => getStudentQuizResult({ token: token as string, quizId }),
     enabled: enabled && !!token && Number.isInteger(quizId) && quizId > 0,
   });
+};

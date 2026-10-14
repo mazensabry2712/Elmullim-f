@@ -41,6 +41,31 @@ import {
 } from "@/services/teacher/courses";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
+const invalidateTeacherCourseStructure = (
+  queryClient: ReturnType<typeof useQueryClient>,
+  courseId?: string | number,
+) =>
+  Promise.all([
+    queryClient.invalidateQueries({
+      queryKey: [
+        QueryKeys.TEACHER_COURSE_CONTENTS,
+        ...(courseId !== undefined ? [String(courseId)] : []),
+      ],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [QueryKeys.TEACHER_COURSE_CONTENT],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [QueryKeys.TEACHER_COURSE_LECTURES],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [
+        QueryKeys.TEACHER_COURSE_QUIZ,
+        ...(courseId !== undefined ? [String(courseId)] : []),
+      ],
+    }),
+  ]);
+
 export const useGetTeacherCourses = (token: string, enabled = true) =>
   useQuery({
     queryKey: [QueryKeys.TEACHER_COURSES],
@@ -173,11 +198,8 @@ export const useCreateTeacherCourseContent = () => {
       content: ICreateCourseContent;
     }) => createTeacherCourseContent({ token, content }),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.content.courseId),
   });
 };
 
@@ -192,11 +214,8 @@ export const useUpdateTeacherCourseContent = () => {
       content: IUpdateCourseContent;
     }) => updateTeacherCourseContent({ token, content }),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.content.courseId),
   });
 };
 
@@ -213,11 +232,8 @@ export const useDeleteTeacherCourseContent = () => {
       courseId: string;
     }) => deleteTeacherCourseContent({ token, id, courseId }),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.courseId),
   });
 };
 
@@ -258,11 +274,8 @@ export const useCreateTeacherCourseLecture = () => {
       token: string;
       lecture: ICreateLecture;
     }) => createTeacherCourseLecture({ token, lecture }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_LECTURES],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.lecture.courseId),
   });
 };
 
@@ -276,11 +289,8 @@ export const useUpdateTeacherCourseLecture = () => {
       token: string;
       lecture: IUpdateLecture;
     }) => updateTeacherCourseLecture({ token, lecture }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_LECTURES],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.lecture.courseId),
   });
 };
 
@@ -289,11 +299,8 @@ export const useDeleteTeacherCourseLecture = () => {
   return useMutation({
     mutationFn: ({ token, id, contentId, courseId }: IDeleteCourseLecture) =>
       deleteTeacherCourseLecture({ token, id, contentId, courseId }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_LECTURES],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.courseId),
   });
 };
 
@@ -345,23 +352,8 @@ export const useUpdateTeacherCourseQuiz = () => {
       token: string;
       quiz: ICreateCourseQuiz;
     }) => updateTeacherCourseQuiz({ token, quiz }),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: [
-          QueryKeys.TEACHER_COURSE_QUIZ,
-          variables.quiz.courseId,
-          variables.quiz.contentId,
-          variables.quiz.lectureId,
-        ],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [
-          QueryKeys.TEACHER_COURSE_LECTURES,
-          variables.quiz.contentId,
-          variables.quiz.courseId,
-        ],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.quiz.courseId),
   });
 };
 
@@ -376,11 +368,8 @@ export const useCreateTeacherCourseQuiz = () => {
       token: string;
       quiz: ICreateCourseQuiz;
     }) => createTeacherCourseQuiz({ token, quiz }),
-    onSuccess: (_data, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, variables.quiz.contentId, variables.quiz.courseId],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.quiz.courseId),
   });
 };
 
@@ -395,11 +384,8 @@ export const useDeleteTeacherCourseQuiz = () => {
       token: string;
       quiz: IDeleteCourseQuiz;
     }) => deleteTeacherCourseQuiz({ token, quiz }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_LECTURES],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.quiz.courseId),
   });
 };
 
@@ -415,13 +401,7 @@ export const useUploadCourseVideo = (
       token: string;
       video: IUploadCourseVideo;
     }) => uploadCourseVideo({ token, video, onUploadProgress }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_LECTURES],
-      });
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_LECTURE],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      invalidateTeacherCourseStructure(queryClient, variables.video.courseId),
   });
 };

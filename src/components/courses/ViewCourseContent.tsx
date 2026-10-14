@@ -86,19 +86,34 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
                 ) : (
                   <div className="space-y-1 mt-3">
                     {lectures.data.map((lecture) => (
-                      <Link
-                        to={`/courses/${courseId}/view`}
-                        state={{ lecture }}
-                        key={lecture.id}
-                        className="block bg-[#f1f1f1] space-y-0.5 px-4 py-2 hover:bg-[#dcdcdc] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-inset"
-                      >
-                        <h4 className="flex items-center gap-2 text-base font-medium">
-                          <FileVideo className="shrink-0" size={18} aria-hidden="true" />
-                          {lecture.title}
-                        </h4>
-                        <p className="pl-4 text-sm">{lecture.description}</p>
-                        <span className="sr-only">{copy.watchLecture}</span>
-                      </Link>
+                      <div key={lecture.id} className="space-y-1">
+                        <Link
+                          to={`/courses/${courseId}/view`}
+                          state={{ lecture }}
+                          className="block bg-[#f1f1f1] space-y-0.5 px-4 py-2 hover:bg-[#dcdcdc] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-inset"
+                        >
+                          <h4 className="flex items-center gap-2 text-base font-medium">
+                            <FileVideo className="shrink-0" size={18} aria-hidden="true" />
+                            {lecture.title}
+                          </h4>
+                          <p className="pl-4 text-sm">{lecture.description}</p>
+                          <span className="sr-only">{copy.watchLecture}</span>
+                        </Link>
+                        {lecture.quiz ? (
+                          <Link
+                            to={`/view-quiz?quiz=${lecture.quiz.id}&course=${courseId}`}
+                            className="flex items-center justify-between gap-3 rounded-md border border-main/20 bg-main/5 px-4 py-2 text-sm text-main transition hover:bg-main/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                          >
+                            <span className="min-w-0 truncate font-semibold">
+                              {language === "ar" ? "اختبار: " : "Quiz: "}
+                              {lecture.quiz.title}
+                            </span>
+                            <span className="shrink-0 text-xs font-bold">
+                              {language === "ar" ? "بدء الاختبار" : "Take quiz"}
+                            </span>
+                          </Link>
+                        ) : null}
+                      </div>
                     ))}
                   </div>
                 )}

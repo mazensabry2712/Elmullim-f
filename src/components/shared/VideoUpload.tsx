@@ -3,7 +3,7 @@
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
 import { VideoIcon, XCircleIcon } from "lucide-react";
-import { Dispatch, SetStateAction } from "react";
+import { Dispatch, SetStateAction, useState } from "react";
 import Dropzone from "react-dropzone";
 import { useI18n } from "@/i18n";
 
@@ -41,30 +41,68 @@ interface IProps {
   setFile: Dispatch<SetStateAction<File | null>>;
   title: string;
   compact?: boolean;
+  courseApiCompatible?: boolean;
 }
 
-const VideoUpload = ({ title, file, setFile, compact = false }: IProps) => {
+const COURSE_VIDEO_ACCEPT = {
+  "video/mp4": [".mp4"],
+  "video/quicktime": [".mov"],
+  "video/x-msvideo": [".avi"],
+  "video/x-ms-wmv": [".wmv"],
+};
+
+const VideoUpload = ({
+  title,
+  file,
+  setFile,
+  compact = false,
+  courseApiCompatible = false,
+}: IProps) => {
   const { language } = useI18n();
+  const [rejectionMessage, setRejectionMessage] = useState<string | null>(null);
+
+  const handleAcceptedFile = (acceptedFiles: File[]) => {
+    const nextFile = acceptedFiles[0];
+    if (nextFile) {
+      setRejectionMessage(null);
+      setFile(nextFile);
+    }
+  };
+
+  const handleRejectedFile = (
+    fileRejections: Array<{ errors: Array<{ code: string }> }>
+  ) => {
+    if (!courseApiCompatible) return;
+
+    const tooLarge = fileRejections.some((rejection) =>
+      rejection.errors.some((error) => error.code === "file-too-large")
+    );
+
+    setRejectionMessage(
+      tooLarge
+        ? language === "ar"
+          ? "حجم الفيديو يجب ألا يتجاوز 20 ميجابايت."
+          : "Video must be 20 MB or smaller."
+        : language === "ar"
+          ? "الصيغ المدعومة للفيديو: MP4 أو MOV أو AVI أو WMV فقط."
+          : "Supported video formats are MP4, MOV, AVI, and WMV only."
+    );
+  };
 
   return (
     <div className="w-full max-w-full">
       <Label htmlFor="video" className="cursor-pointer">
         {title}
       </Label>
-      <div className="mt-1 w-full">
+      <div className="mt-1 w-full space-y-3">
         {file ? (
           <VideoPreview file={file} onRemove={() => setFile(null)} />
         ) : (
           <Dropzone
-            onDrop={(acceptedFiles) => {
-              const file = acceptedFiles[0];
-              if (file) {
-                setFile(file);
-              }
-            }}
-            accept={{
-              "video/*": [],
-            }}
+            onDrop={handleAcceptedFile}
+            onDropRejected={handleRejectedFile}
+            accept={courseApiCompatible ? COURSE_VIDEO_ACCEPT : { "video/*": [] }}
+            maxSize={courseApiCompatible ? 20_000 * 1024 : undefined}
             maxFiles={1}
           >
             {({
@@ -100,6 +138,11 @@ const VideoUpload = ({ title, file, setFile, compact = false }: IProps) => {
           </Dropzone>
         )}
       </div>
+      {rejectionMessage ? (
+        <p className="mt-2 text-xs font-semibold text-red-600" role="alert">
+          {rejectionMessage}
+        </p>
+      ) : null}
     </div>
   );
 };

@@ -18,6 +18,7 @@ import {
 import { COURSE_LEVELS } from "@/constant";
 import { courseSchema } from "@/validations/teacher/courseSchema";
 import cookieService from "@/utils/cookieService";
+import { getResponseErrorMessage } from "@/utils/handleResponseError";
 import { Loader2, Plus, Trash2, UploadCloud } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
 import { toast } from "react-toastify";
@@ -521,11 +522,25 @@ const CourseWizardForm = () => {
     for (let contentIndex = 0; contentIndex < activeContents.length; contentIndex += 1) {
       const content = activeContents[contentIndex];
 
-      if (!content.title.trim()) {
+      if (content.title.trim().length < 3) {
         toast.error(
           isArabic
-            ? `عنوان المحتوى رقم ${contentIndex + 1} مطلوب.`
-            : `Content ${contentIndex + 1} title is required.`
+            ? `عنوان المحتوى رقم ${contentIndex + 1} لازم يكون 3 أحرف على الأقل.`
+            : `Content ${contentIndex + 1} title must be at least 3 characters.`
+        );
+        return false;
+      }
+
+      const contentDescription = content.description.trim();
+      if (
+        contentDescription &&
+        (contentDescription.length < 20 ||
+          contentDescription.split(/\s+/u).filter(Boolean).length < 3)
+      ) {
+        toast.error(
+          isArabic
+            ? `وصف المحتوى رقم ${contentIndex + 1} لازم يكون 20 حرفًا على الأقل و3 كلمات.`
+            : `Content ${contentIndex + 1} description must be at least 20 characters and 3 words.`
         );
         return false;
       }
@@ -542,13 +557,47 @@ const CourseWizardForm = () => {
       for (let lectureIndex = 0; lectureIndex < content.lectures.length; lectureIndex += 1) {
         const lecture = content.lectures[lectureIndex];
 
-        if (!lecture.title.trim()) {
+        if (lecture.title.trim().length < 3) {
           toast.error(
             isArabic
-              ? `عنوان المحاضرة رقم ${lectureIndex + 1} في المحتوى ${contentIndex + 1} مطلوب.`
-              : `Lecture ${lectureIndex + 1} in content ${contentIndex + 1} needs a title.`
+              ? `عنوان المحاضرة رقم ${lectureIndex + 1} في المحتوى ${contentIndex + 1} لازم يكون 3 أحرف على الأقل.`
+              : `Lecture ${lectureIndex + 1} in content ${contentIndex + 1} needs a title of at least 3 characters.`
           );
           return false;
+        }
+
+        const lectureDescription = lecture.description.trim();
+        if (
+          lectureDescription &&
+          (lectureDescription.length < 20 ||
+            lectureDescription.split(/\s+/u).filter(Boolean).length < 3)
+        ) {
+          toast.error(
+            isArabic
+              ? `وصف المحاضرة "${lecture.title}" لازم يكون 20 حرفًا على الأقل و3 كلمات.`
+              : `Lecture "${lecture.title}" description must be at least 20 characters and 3 words.`
+          );
+          return false;
+        }
+
+        if (lecture.video) {
+          const videoExtension = lecture.video.name.split(".").pop()?.toLowerCase();
+          if (!["mp4", "mov", "avi", "wmv"].includes(videoExtension ?? "")) {
+            toast.error(
+              isArabic
+                ? "فيديو المحاضرة لازم يكون بصيغة MP4 أو MOV أو AVI أو WMV."
+                : "Lecture video must be MP4, MOV, AVI, or WMV."
+            );
+            return false;
+          }
+          if (lecture.video.size > 20_000 * 1024) {
+            toast.error(
+              isArabic
+                ? "حجم فيديو المحاضرة لازم يكون 20 ميجابايت أو أقل."
+                : "Lecture video must be 20 MB or smaller."
+            );
+            return false;
+          }
         }
 
         if (submitForReviewMode && !lecture.video) {
@@ -930,12 +979,20 @@ const CourseWizardForm = () => {
     } catch (error) {
       setUploadingLectureId(null);
       setUploadProgress(0);
+      const apiMessage = getResponseErrorMessage(error);
+      const responseStatus = (error as { response?: { status?: number } } | null)
+        ?.response?.status;
       const message =
-        error instanceof Error
-          ? error.message
-          : isArabic
-            ? "حدث خطأ أثناء حفظ الكورس."
-            : "Something went wrong while saving the course.";
+        apiMessage ||
+        (responseStatus === 422
+          ? isArabic
+            ? "السيرفر رفض بعض البيانات. راجع تفاصيل الكورس والمحتوى والمحاضرات والفيديو."
+            : "The server rejected some data. Check the course, content, lecture, and video details."
+          : error instanceof Error
+            ? error.message
+            : isArabic
+              ? "حدث خطأ أثناء حفظ الكورس."
+              : "Something went wrong while saving the course.");
       toast.error(message);
     } finally {
       setIsSaving(false);
@@ -958,6 +1015,7 @@ const CourseWizardForm = () => {
 
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
           <ImageUpload
+            allowedFormats={["png", "jpg", "jpeg", "svg"]}
             file={image}
             setFile={setImage}
             title={
@@ -1236,6 +1294,7 @@ const CourseWizardForm = () => {
 
                     <div className="mt-5 rounded-xl bg-white p-4">
                       <VideoUpload
+                        courseApiCompatible
                         file={lecture.video}
                         setFile={(value) =>
                           updateLecture(content.id, lecture.id, {

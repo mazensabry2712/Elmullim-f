@@ -10,7 +10,42 @@ vi.mock("react-toastify", () => ({
   },
 }));
 
-import handleResError from "@/utils/handleResponseError";
+import handleResError, { getResponseErrorMessage } from "@/utils/handleResponseError";
+
+describe("getResponseErrorMessage", () => {
+  it("returns the API validation message instead of the Axios status text", () => {
+    expect(
+      getResponseErrorMessage({
+        isAxiosError: true,
+        response: {
+          status: 422,
+          data: { message: "The course image must be a PNG, JPG, or SVG." },
+        },
+      })
+    ).toBe("The course image must be a PNG, JPG, or SVG.");
+  });
+
+  it("returns the first validation error when the API returns an errors object", () => {
+    expect(
+      getResponseErrorMessage({
+        isAxiosError: true,
+        response: {
+          status: 422,
+          data: { errors: { title: ["Title is required."], description: ["Too short."] } },
+        },
+      })
+    ).toBe("Title is required.");
+  });
+
+  it("returns null when an Axios response has no readable message", () => {
+    expect(
+      getResponseErrorMessage({
+        isAxiosError: true,
+        response: { status: 422, data: {} },
+      })
+    ).toBeNull();
+  });
+});
 
 describe("handleResError", () => {
   beforeEach(() => {

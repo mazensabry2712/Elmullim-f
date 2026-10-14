@@ -34,16 +34,28 @@ const ImagePreview = ({
   </div>
 );
 
+type ImageFormat = "png" | "jpg" | "jpeg" | "webp" | "svg";
+
 interface IProps {
   file: File | null;
   setFile: Dispatch<SetStateAction<File | null>>;
   title?: string;
   existingUrl?: string;
+  allowedFormats?: ImageFormat[];
 }
-const ImageUpload = ({ title, file, setFile, existingUrl }: IProps) => {
+const ImageUpload = ({
+  title,
+  file,
+  setFile,
+  existingUrl,
+  allowedFormats,
+}: IProps) => {
   const { language } = useI18n();
   const [rejectionMessage, setRejectionMessage] = useState<string | null>(null);
   const removeImageLabel = language === "ar" ? "حذف الصورة" : "Remove image";
+  const acceptedFormats = allowedFormats ?? ["png", "jpg", "jpeg", "webp", "svg"];
+  const formatLabel = acceptedFormats.join(", ").toUpperCase();
+
   const handleAcceptedFile = (acceptedFiles: File[]) => {
     const nextFile = acceptedFiles[0];
 
@@ -53,21 +65,34 @@ const ImageUpload = ({ title, file, setFile, existingUrl }: IProps) => {
     }
   };
 
-  const handleRejectedFile = () => {
+  const handleRejectedFile = (
+    fileRejections: Array<{ errors: Array<{ code: string }> }>
+  ) => {
+    const tooLarge = fileRejections.some((rejection) =>
+      rejection.errors.some((error) => error.code === "file-too-large")
+    );
+
     setRejectionMessage(
-      language === "ar"
-        ? "الصورة يجب أن تكون PNG أو JPG أو JPEG أو WEBP أو SVG وبحجم لا يتجاوز 15 ميجابايت."
-        : "Use PNG, JPG, JPEG, WEBP or SVG, up to 15 MB."
+      tooLarge
+        ? language === "ar"
+          ? "حجم الصورة يجب ألا يتجاوز 15 ميجابايت."
+          : "Image must be 15 MB or smaller."
+        : language === "ar"
+          ? `الصورة يجب أن تكون بإحدى الصيغ التالية: ${formatLabel}.`
+          : `Use one of these image formats: ${formatLabel}.`
     );
   };
 
+  const accept: Record<string, string[]> = {};
+  if (acceptedFormats.includes("png")) accept["image/png"] = [".png"];
+  if (acceptedFormats.some((format) => format === "jpg" || format === "jpeg")) {
+    accept["image/jpeg"] = [".jpg", ".jpeg"];
+  }
+  if (acceptedFormats.includes("webp")) accept["image/webp"] = [".webp"];
+  if (acceptedFormats.includes("svg")) accept["image/svg+xml"] = [".svg"];
+
   const dropzoneProps = {
-    accept: {
-      "image/png": [".png"],
-      "image/jpeg": [".jpg", ".jpeg"],
-      "image/webp": [".webp"],
-      "image/svg+xml": [".svg"],
-    },
+    accept,
     maxSize: 15_000_000,
     maxFiles: 1,
     onDrop: handleAcceptedFile,

@@ -109,7 +109,7 @@ describe("course-linked quiz navigation", () => {
 
   it("returns the learner to the parent course after the quiz result", async () => {
     render(
-      <MemoryRouter initialEntries={["/view-quiz?quiz=99&course=7"]}>
+      <MemoryRouter initialEntries={["/view-quiz?quiz=99&course=7&content=12&lecture=22"]}>
         <I18nProvider>
           <Routes>
             <Route path="/view-quiz" element={<ViewQuiz />} />
@@ -119,7 +119,7 @@ describe("course-linked quiz navigation", () => {
     );
 
     const returnLink = await screen.findByRole("link", { name: "Back to course" });
-    await waitFor(() => expect(returnLink).toHaveAttribute("href", "/courses/7/view"));
+    await waitFor(() => expect(returnLink).toHaveAttribute("href", "/courses/7/view?content=12&lecture=22"));
     expect(screen.getByText("What is 2 + 2?")).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();

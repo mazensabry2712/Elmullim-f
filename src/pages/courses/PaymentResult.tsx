@@ -3,6 +3,8 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import { getCoursesCopy } from "./courseCopy";
+import QueryKeys from "@/enums";
+import { useQueryClient } from "@tanstack/react-query";
 import { getPaymentStatus } from "@/services/student/enrolling";
 import type { PaymentMethod } from "@/interfaces/payment/payment";
 
@@ -10,6 +12,7 @@ type PaymentState = "pending" | "success" | "failed" | "unknown";
 
 const PaymentResult = () => {
   const { language } = useI18n();
+  const queryClient = useQueryClient();
   const copy = getCoursesCopy(language);
   const [params] = useSearchParams();
   const orderId = Number(params.get("order"));
@@ -43,7 +46,20 @@ const PaymentResult = () => {
 
         const status = response.data?.status;
         if (response.status && status) {
-          setCourseId(response.data?.course_id ?? null);
+          const paidCourseId = response.data?.course_id ?? null;
+
+          if (status === "success" && paidCourseId) {
+            await Promise.all([
+              queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] }),
+              queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+              queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, paidCourseId] }),
+              queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, paidCourseId] }),
+            ]);
+          }
+
+          if (cancelled) return;
+
+          setCourseId(paidCourseId);
           setOrderableType(response.data?.orderable_type ?? null);
           setBookingId(response.data?.booking_id ?? null);
           setPaymentMethod(response.data?.payment_method ?? null);
@@ -81,7 +97,7 @@ const PaymentResult = () => {
       if (timer) window.clearTimeout(timer);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [orderId, signature]);
+  }, [orderId, signature, queryClient]);
 
   useEffect(() => {
     document.title = `${copy.paymentResultTitle} | Elmullim`;

@@ -120,7 +120,7 @@ describe("course-linked quiz navigation", () => {
 
     const returnLink = await screen.findByRole("link", { name: "Back to course" });
     await waitFor(() => expect(returnLink).toHaveAttribute("href", "/courses/7/view?content=12&lecture=22"));
-    expect(screen.getByText(/What is 2 \\+ 2\\?/)).toBeInTheDocument();
+    expect(screen.getByText(/What is 2 \+ 2\?/)).toBeInTheDocument();
     expect(screen.getByText("3")).toBeInTheDocument();
     expect(screen.getByText("4")).toBeInTheDocument();
   });

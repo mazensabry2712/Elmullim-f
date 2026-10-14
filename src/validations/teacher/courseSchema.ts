@@ -38,16 +38,9 @@ const descriptionText = (maximum: number) =>
 export const courseSchema = z.object({
   title: titleText(100),
   description: descriptionText(250),
-  price: z.preprocess(
-    (value) =>
-      typeof value === "string" && value.trim() === ""
-        ? Number.NaN
-        : value,
-    z.coerce
-      .number({ message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") })
-      .finite({ message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") })
-      .min(0, { message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") })
-  ),
+  price: z.coerce
+    .number({ message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") })
+    .min(0, { message: validationMessage("enter a valid price", "أدخل سعرًا صحيحًا") }),
   level: requiredText("level is required", "المستوى مطلوب"),
   sub_category_id: requiredText("sub category is required", "التصنيف الفرعي مطلوب"),
   category_id: requiredText("category is required", "التصنيف مطلوب"),

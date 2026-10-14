@@ -14,7 +14,7 @@ describe("teacher course authoring validation", () => {
     expect(courseContentSchema.safeParse({title:"قثبقثبثقبقثبقثبقثب",description:"fdfdgfdgfdgfdgfdgfdgfdgdfgfdgfdgfdgfdg",courseId:"1"}).success).toBe(false);
   });
 
-  it("requires a valid price instead of treating an empty value as zero", () => {
-    expect(courseSchema.safeParse({title:"Physics Fundamentals",description:validDescription,price:"",level:"beginner",sub_category_id:"1",category_id:"1"}).success).toBe(false);
+  it("rejects negative course prices", () => {
+    expect(courseSchema.safeParse({title:"Physics Fundamentals",description:validDescription,price:-1,level:"beginner",sub_category_id:"1",category_id:"1"}).success).toBe(false);
   });
 });

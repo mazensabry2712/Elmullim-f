@@ -452,6 +452,15 @@ const CourseWizardForm = () => {
       return false;
     }
 
+    if (!price.trim()) {
+      toast.error(
+        isArabic
+          ? "أدخل السعر أو اكتب 0 إذا كان الكورس مجانيًا."
+          : "Enter a price or use 0 if the course is free."
+      );
+      return false;
+    }
+
     const courseDetails = courseSchema.safeParse({
       title,
       description,

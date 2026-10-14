@@ -85,11 +85,11 @@ export const useCreateTeacherCourse = () => {
   return useMutation({
     mutationFn: ({ token, course }: { token: string; course: ICreateCourse }) =>
       createTeacherCourse({ token, course }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSES],
-      });
-    },
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+      ]),
   });
 };
 
@@ -98,11 +98,14 @@ export const useUpdateTeacherCourse = () => {
   return useMutation({
     mutationFn: ({ token, course }: { token: string; course: IUpdateCourse }) =>
       updateTeacherCourse({ token, course }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSES],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE, String(variables.course.id)] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS, String(variables.course.id)] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.course.id] }),
+      ]),
   });
 };
 
@@ -111,11 +114,18 @@ export const useDeleteTeacherCourse = () => {
   return useMutation({
     mutationFn: ({ token, id }: { token: string; id: string }) =>
       deleteTeacherCourse({ token, id }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSES],
-      });
-    },
+    onSuccess: (_data, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE, variables.id] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS, variables.id] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE_LECTURES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE_QUIZ] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, Number(variables.id)] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_CONTENTS, Number(variables.id)] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, Number(variables.id)] }),
+      ]),
   });
 };
 

@@ -4,6 +4,8 @@ const useQueryMock = vi.hoisted(() => vi.fn((options: unknown) => options));
 
 vi.mock("@tanstack/react-query", () => ({
   useQuery: useQueryMock,
+  useMutation: vi.fn(),
+  useQueryClient: () => ({ invalidateQueries: vi.fn() }),
 }));
 
 vi.mock("react-redux", () => ({

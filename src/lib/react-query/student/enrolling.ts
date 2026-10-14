@@ -20,9 +20,10 @@ export const useEnrollFreeCourse = () => {
   return useMutation({
     mutationFn: ({ token, courseId }: { token: string; courseId: number }) =>
       enrollFreeCourse({ token, courseId }),
-    onSuccess: () => {
+    onSuccess: (_response, variables) => {
       void queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] });
       void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.courseId] });
       void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES] });
     },
   });
@@ -33,10 +34,11 @@ export const useInitiatePayment = () => {
 
   return useMutation({
     mutationFn: initiatePayment,
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       if (response.data?.payment_required === false) {
         void queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] });
         void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] });
+        void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.courseId] });
         void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES] });
       }
     },

@@ -7,6 +7,7 @@ import {
   CalendarDays,
   Eye,
   Layers3,
+  LockKeyhole,
   Pen,
   Tag,
   Video,
@@ -70,6 +71,17 @@ const TeacherCourseCard = ({ course }: IProps) => {
     : null;
 
   const canEdit = status === "draft" || status === "rejected";
+  const canEditDetails = canEdit || status === "published";
+  const deleteUnavailableReason = status === "published"
+    ? isArabic
+      ? "لا يمكن حذف كورس منشور لحماية وصول الطلاب المسجلين إلى المحتوى."
+      : "Published courses cannot be deleted because enrolled students need continued access."
+    : isArabic
+      ? "لا يمكن حذف كورس أثناء مراجعته."
+      : "A course cannot be deleted while it is under review.";
+  const editButtonLabel = canEdit
+    ? isArabic ? "تعديل" : "Edit"
+    : isArabic ? "تعديل البيانات" : "Edit details";
 
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-3xl border border-black-blue/[0.07] bg-white shadow-[0_12px_38px_rgba(33,55,75,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_48px_rgba(33,55,75,0.1)]">
@@ -182,20 +194,23 @@ const TeacherCourseCard = ({ course }: IProps) => {
               {isArabic ? "إدارة الكورس" : "Manage course"}
             </Link>
 
-            {canEdit ? (
+            {canEditDetails ? (
               <Link
                 to={`/profile/my-courses/${course.id}/update`}
-                aria-label={isArabic ? "تعديل الكورس" : "Edit course"}
-                title={isArabic ? "تعديل الكورس" : "Edit course"}
+                aria-label={isArabic ? "تعديل بيانات الكورس" : "Edit course details"}
+                title={isArabic ? "تعديل بيانات الكورس" : "Edit course details"}
                 className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-extrabold text-blue-600 transition hover:bg-blue-600 hover:text-white"
               >
                 <Pen className="h-4 w-4" />
-                {isArabic ? "تعديل" : "Edit"}
+                {editButtonLabel}
               </Link>
             ) : (
-              <div className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-500">
-                <Layers3 className="h-4 w-4" />
-                {isArabic ? "مجمّد" : "Frozen"}
+              <div
+                title={isArabic ? "التعديل متاح بعد انتهاء مراجعة الإدارة." : "Editing becomes available after the review is complete."}
+                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-500"
+              >
+                <LockKeyhole className="h-4 w-4" />
+                {isArabic ? "بانتظار المراجعة" : "Awaiting review"}
               </div>
             )}
           </div>
@@ -207,7 +222,20 @@ const TeacherCourseCard = ({ course }: IProps) => {
                 courseTitle={courseTitle}
               />
             </div>
-          ) : null}
+          ) : (
+            <div className="flex justify-end">
+              <button
+                type="button"
+                disabled
+                title={deleteUnavailableReason}
+                aria-label={isArabic ? "حذف غير متاح" : "Delete unavailable"}
+                className="inline-flex min-h-11 cursor-not-allowed items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-4 py-2.5 text-xs font-extrabold text-slate-400"
+              >
+                <LockKeyhole className="h-4 w-4" />
+                {isArabic ? "حذف غير متاح" : "Delete unavailable"}
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </article>

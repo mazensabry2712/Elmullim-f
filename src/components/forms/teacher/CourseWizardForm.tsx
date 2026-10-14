@@ -16,6 +16,7 @@ import {
   useUploadCourseVideo,
 } from "@/lib/react-query/teacher/courses";
 import { COURSE_LEVELS } from "@/constant";
+import { courseSchema } from "@/validations/teacher/courseSchema";
 import cookieService from "@/utils/cookieService";
 import { Loader2, Plus, Trash2, UploadCloud } from "lucide-react";
 import { useMemo, useRef, useState } from "react";
@@ -85,6 +86,13 @@ const getResourceId = (response: unknown): number | null => {
   const data = response as { data?: { id?: number | string } } | null;
   const id = data?.data?.id;
   return id != null ? Number(id) : null;
+};
+
+const COURSE_LEVEL_LABELS: Record<string, { ar: string; en: string }> = {
+  beginner: { ar: "مبتدئ", en: "Beginner" },
+  intermediate: { ar: "متوسط", en: "Intermediate" },
+  advanced: { ar: "متقدم", en: "Advanced" },
+  expert: { ar: "خبير", en: "Expert" },
 };
 
 const CourseWizardForm = () => {
@@ -444,31 +452,46 @@ const CourseWizardForm = () => {
       return false;
     }
 
-    if (!title.trim()) {
-      toast.error(isArabic ? "عنوان الكورس مطلوب." : "Course title is required.");
-      return false;
-    }
+    const courseDetails = courseSchema.safeParse({
+      title,
+      description,
+      price,
+      level,
+      category_id: categoryId,
+      sub_category_id: subCategoryId,
+    });
 
-    if (!description.trim()) {
-      toast.error(
-        isArabic
-          ? "وصف الكورس مطلوب."
-          : "Course description is required."
-      );
-      return false;
-    }
+    if (!courseDetails.success) {
+      const field = courseDetails.error.issues[0]?.path[0];
+      let message: string;
 
-    if (!level || !categoryId || !subCategoryId) {
-      toast.error(
-        isArabic
-          ? "اختار المستوى والتصنيف والتصنيف الفرعي."
-          : "Choose level, category and sub category."
-      );
-      return false;
-    }
+      if (field === "title") {
+        message = !title.trim()
+          ? (isArabic ? "عنوان الكورس مطلوب." : "Course title is required.")
+          : (isArabic
+              ? "اكتب عنوانًا واضحًا من 3 إلى 100 حرف، وتجنب تكرار الكلمات."
+              : "Use a clear title of 3–100 characters and avoid repeated words.");
+      } else if (field === "description") {
+        message = !description.trim()
+          ? (isArabic ? "وصف الكورس مطلوب." : "Course description is required.")
+          : (isArabic
+              ? "اكتب وصفًا واضحًا من 20 إلى 250 حرفًا، و3 كلمات على الأقل، دون تكرار."
+              : "Use a clear 20–250 character description with at least 3 words and no repeated filler.");
+      } else if (field === "price") {
+        message = isArabic
+          ? "أدخل سعرًا صحيحًا غير سالب. اكتب 0 إذا كان الكورس مجانيًا."
+          : "Enter a valid, non-negative price. Use 0 for a free course.";
+      } else if (field === "level") {
+        message = isArabic ? "اختار مستوى الكورس." : "Choose a course level.";
+      } else if (field === "category_id") {
+        message = isArabic ? "اختار تصنيف الكورس." : "Choose a course category.";
+      } else {
+        message = isArabic
+          ? "اختار التصنيف الفرعي للكورس."
+          : "Choose a course subcategory.";
+      }
 
-    if (Number(price) < 0 || Number.isNaN(Number(price))) {
-      toast.error(isArabic ? "السعر غير صحيح." : "Invalid price.");
+      toast.error(message);
       return false;
     }
 
@@ -929,51 +952,67 @@ const CourseWizardForm = () => {
             file={image}
             setFile={setImage}
             title={
-              isArabic ? "صورة الكورس" : "Course Picture"
+              isArabic ? "صورة الكورس *" : "Course Picture *"
             }
           />
 
           <div className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
               <label className="mb-1 block text-sm font-semibold">
-                {isArabic ? "العنوان" : "Title"}
+                {isArabic ? "العنوان *" : "Title *"}
               </label>
               <input
+                id="course-title"
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
                 maxLength={100}
+                aria-required="true"
                 className="w-full rounded-xl border border-black-blue/10 px-4 py-3 outline-none focus:border-main"
               />
+              <p className="mt-1 text-end text-xs text-black-blue/50" aria-live="polite">
+                {title.length}/100
+              </p>
             </div>
 
             <div className="md:col-span-2">
               <label className="mb-1 block text-sm font-semibold">
-                {isArabic ? "الوصف" : "Description"}
+                {isArabic ? "الوصف *" : "Description *"}
               </label>
               <Textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
                 maxLength={250}
+                aria-required="true"
                 className="min-h-28 rounded-xl border-black-blue/10"
               />
+              <p className="mt-1 text-end text-xs text-black-blue/50" aria-live="polite">
+                {description.length}/250
+              </p>
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-semibold">
-                {isArabic ? "السعر" : "Price"}
+                {isArabic ? "السعر (جنيه مصري) *" : "Price (EGP) *"}
               </label>
               <input
                 type="number"
                 min={0}
+                step="0.01"
                 value={price}
                 onChange={(event) => setPrice(event.target.value)}
+                aria-required="true"
                 className="w-full rounded-xl border border-black-blue/10 px-4 py-3 outline-none focus:border-main"
               />
+              <p className="mt-1 text-xs text-black-blue/60">
+                {isArabic
+                  ? "اكتب 0 إذا كان الكورس مجانيًا."
+                  : "Enter 0 if the course is free."}
+              </p>
             </div>
 
             <div>
               <label className="mb-1 block text-sm font-semibold">
-                {isArabic ? "المستوى" : "Level"}
+                {isArabic ? "المستوى *" : "Level *"}
               </label>
               <select
                 value={level}
@@ -985,7 +1024,9 @@ const CourseWizardForm = () => {
                 </option>
                 {COURSE_LEVELS.map((item) => (
                   <option key={item.value} value={item.value}>
-                    {item.label}
+                    {isArabic
+                      ? COURSE_LEVEL_LABELS[item.value]?.ar ?? item.label
+                      : COURSE_LEVEL_LABELS[item.value]?.en ?? item.label}
                   </option>
                 ))}
               </select>
@@ -993,7 +1034,7 @@ const CourseWizardForm = () => {
 
             <div>
               <label className="mb-1 block text-sm font-semibold">
-                {isArabic ? "التصنيف" : "Category"}
+                {isArabic ? "التصنيف *" : "Category *"}
               </label>
               <select
                 value={categoryId}
@@ -1016,7 +1057,7 @@ const CourseWizardForm = () => {
 
             <div>
               <label className="mb-1 block text-sm font-semibold">
-                {isArabic ? "التصنيف الفرعي" : "Sub Category"}
+                {isArabic ? "التصنيف الفرعي *" : "Sub Category *"}
               </label>
               <select
                 value={subCategoryId}
@@ -1049,6 +1090,11 @@ const CourseWizardForm = () => {
                 ? "أضف المحتويات والمحاضرات والفيديو والاختبارات."
                 : "Add contents, lectures, videos and optional quizzes."}
             </p>
+            <p className="mt-2 max-w-3xl text-sm text-black-blue/70">
+              {isArabic
+                ? "للإرسال للمراجعة: أضف محتوى بعنوان، ومحاضرة واحدة على الأقل، وارفع فيديو لكل محاضرة. الاختبار اختياري."
+                : "For review: add a titled content section, at least one lecture, and a video for every lecture. Quizzes are optional."}
+            </p>
           </div>
 
           <Button
@@ -1062,6 +1108,21 @@ const CourseWizardForm = () => {
         </div>
 
         <div className="space-y-6">
+          {contents.length === 0 ? (
+            <div className="rounded-2xl border border-dashed border-black-blue/20 bg-white px-5 py-8 text-center">
+              <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-main/10 text-main">
+                <Plus className="h-6 w-6" />
+              </div>
+              <h3 className="mt-3 font-bold">
+                {isArabic ? "لسه مفيش محتوى للكورس" : "No course content yet"}
+              </h3>
+              <p className="mx-auto mt-1 max-w-xl text-sm text-black-blue/60">
+                {isArabic
+                  ? "ابدأ بإضافة محتوى، ثم أضف محاضرة وارفع فيديوها. تقدر تضيف اختبار للمحاضرة بشكل اختياري."
+                  : "Start by adding a content section, then add a lecture and upload its video. You can optionally add a quiz."}
+              </p>
+            </div>
+          ) : null}
           {contents.map((content, contentIndex) => (
             <div
               key={content.id}

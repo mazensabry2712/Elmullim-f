@@ -30,6 +30,26 @@ export const hasRepeatedTextPattern = (value: string | null | undefined): boolea
     return false;
   });
 };
+/**
+ * Detects obvious repeated filler such as the same word repeated three or more
+ * times in a short field. This deliberately avoids judging grammar or meaning.
+ */
+export const hasRepeatedWordPattern = (value: string | null | undefined): boolean => {
+  const words = (value ?? "")
+    .normalize("NFKC")
+    .toLocaleLowerCase()
+    .match(/[\p{L}\p{N}]+/gu) ?? [];
+  const counts = new Map<string, number>();
+
+  for (const word of words) {
+    const count = (counts.get(word) ?? 0) + 1;
+    if (count >= 3) return true;
+    counts.set(word, count);
+  }
+
+  return false;
+};
+
 export const hasMinimumWords = (value: string, minimum: number): boolean =>
   value.trim().split(/\s+/u).filter(Boolean).length >= minimum;
 export const isDisplayableProfileText = (value: string | null | undefined, minimumWords = 1): boolean => {

@@ -58,7 +58,7 @@ describe("TeacherCourseCard published-course actions", () => {
     expect(deleteButton).toBeDisabled();
     expect(deleteButton.getAttribute("title")).toContain("contact support");
     expect(
-      screen.getByText("Deletion is blocked to protect student enrollments and payment records.")
+      screen.getByText("Teachers cannot delete published courses. Contact support if removal is needed.")
     ).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Manage course" })).toHaveAttribute(

@@ -72,7 +72,7 @@ const CourseForm = ({ action, course }: IProps) => {
             id: course?.id as number,
             description: data.description,
             level: data.level,
-            price: data.price,
+            price: isPublished ? Number(course?.price ?? 0) : data.price,
             sub_category_id: data.sub_category_id,
             title: data.title,
             image: file,

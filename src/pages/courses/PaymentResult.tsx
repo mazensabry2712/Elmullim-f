@@ -1,4 +1,6 @@
 import { CheckCircle2, Clock3, Loader2, XCircle } from "lucide-react";
+import QueryKeys from "@/enums";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useI18n } from "@/i18n";
@@ -9,6 +11,7 @@ import type { PaymentMethod } from "@/interfaces/payment/payment";
 type PaymentState = "pending" | "success" | "failed" | "unknown";
 
 const PaymentResult = () => {
+  const queryClient = useQueryClient();
   const { language } = useI18n();
   const copy = getCoursesCopy(language);
   const [params] = useSearchParams();
@@ -43,10 +46,20 @@ const PaymentResult = () => {
 
         const status = response.data?.status;
         if (response.status && status) {
-          setCourseId(response.data?.course_id ?? null);
-          setOrderableType(response.data?.orderable_type ?? null);
+          const resolvedCourseId = response.data?.course_id ?? null;
+          const resolvedOrderableType = response.data?.orderable_type ?? null;
+
+          setCourseId(resolvedCourseId);
+          setOrderableType(resolvedOrderableType);
           setBookingId(response.data?.booking_id ?? null);
           setPaymentMethod(response.data?.payment_method ?? null);
+
+          if (status === "success" && resolvedCourseId && resolvedOrderableType === "courses") {
+            void queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] });
+            void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] });
+            void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, resolvedCourseId] });
+            void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, resolvedCourseId] });
+          }
 
           if (status === "success" || status === "failed") {
             setState(status);
@@ -81,7 +94,7 @@ const PaymentResult = () => {
       if (timer) window.clearTimeout(timer);
       window.removeEventListener("focus", handleFocus);
     };
-  }, [orderId, signature]);
+  }, [orderId, signature, queryClient]);
 
   useEffect(() => {
     document.title = `${copy.paymentResultTitle} | Elmullim`;

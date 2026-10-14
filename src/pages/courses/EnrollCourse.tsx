@@ -23,6 +23,18 @@ import PaymentMethodSelector from "@/components/payments/PaymentMethodSelector";
 import type { PaymentMethod } from "@/interfaces/payment/payment";
 import type { IPaymentPricing } from "@/services/student/enrolling";
 
+const getApiErrorMessage = (error: unknown): string | undefined => {
+  if (!error || typeof error !== "object") return undefined;
+  const response = (error as { response?: { data?: { message?: unknown } } }).response;
+  return typeof response?.data?.message === "string" ? response.data.message : undefined;
+};
+
+const isEmailVerificationError = (message: string): boolean =>
+  /couldn['’]t verify your email address|verify your email|email.{0,30}(not verified|unverified)/i.test(message);
+
+const isAlreadyEnrolledError = (message: string): boolean =>
+  /already enrolled/i.test(message);
+
 function EnrollCourse() {
   const { language } = useI18n();
   const copy = getCoursesCopy(language);
@@ -41,6 +53,7 @@ function EnrollCourse() {
   const [appliedPromo, setAppliedPromo] = useState<IPaymentPricing | null>(null);
   const [promoError, setPromoError] = useState("");
   const [freeEnrollmentError, setFreeEnrollmentError] = useState("");
+  const [freeEnrollmentNeedsVerification, setFreeEnrollmentNeedsVerification] = useState(false);
 
   const { data: course, isLoading, isError, refetch } = useGetCourseById({
     courseId: numericCourseId,
@@ -51,10 +64,33 @@ function EnrollCourse() {
     document.title = `${copy.enrollmentTitle} | Elmullim`;
   }, [copy.enrollmentTitle]);
 
+  const handleFreeEnrollmentFailure = async (message?: string) => {
+    const normalizedMessage = message?.trim() ?? "";
+
+    if (isEmailVerificationError(normalizedMessage)) {
+      setFreeEnrollmentNeedsVerification(true);
+      setFreeEnrollmentError(copy.emailVerificationRequired);
+      return;
+    }
+
+    if (isAlreadyEnrolledError(normalizedMessage)) {
+      // The server is authoritative. Refresh the student's course access before
+      // treating a duplicate-enrollment response as a failure.
+      const refreshedCourse = await refetch();
+      if (refreshedCourse.data?.data?.hasEnrolled) {
+        navigate(`/courses/${numericCourseId}/view`, { replace: true });
+        return;
+      }
+    }
+
+    setFreeEnrollmentError(copy.enrollmentErrorTitle);
+  };
+
   const handleFreeEnrollment = async () => {
     if (!token || !validCourseId || freeEnrollment.isPending) return;
 
     setFreeEnrollmentError("");
+    setFreeEnrollmentNeedsVerification(false);
 
     try {
       const response = await freeEnrollment.mutateAsync({
@@ -67,9 +103,9 @@ function EnrollCourse() {
         return;
       }
 
-      setFreeEnrollmentError(response.message || copy.enrollmentErrorTitle);
-    } catch {
-      setFreeEnrollmentError(copy.enrollmentErrorTitle);
+      await handleFreeEnrollmentFailure(response.message);
+    } catch (error) {
+      await handleFreeEnrollmentFailure(getApiErrorMessage(error));
     }
   };
 
@@ -506,9 +542,17 @@ function EnrollCourse() {
                   </div>
 
                   {freeEnrollmentError ? (
-                    <p role="alert" className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm leading-6 text-red-600">
-                      {freeEnrollmentError}
-                    </p>
+                    <div className="mt-4 rounded-xl border border-red-100 bg-red-50 px-4 py-3 text-sm leading-6 text-red-600">
+                      <p role="alert">{freeEnrollmentError}</p>
+                      {freeEnrollmentNeedsVerification ? (
+                        <Link
+                          to="/verify-account"
+                          className="mt-3 inline-flex font-semibold underline underline-offset-2"
+                        >
+                          {copy.verifyEmail}
+                        </Link>
+                      ) : null}
+                    </div>
                   ) : null}
 
                   {isFree ? (

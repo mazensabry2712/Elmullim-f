@@ -47,7 +47,8 @@ const DeleteTeacherCourseAction = ({
         success: "تم حذف الكورس بنجاح",
         error: "تعذر حذف الكورس. حاول مرة أخرى.",
         authError: "انتهت الجلسة أو لم يتم تسجيل الدخول. سجّل الدخول ثم حاول مرة أخرى.",
-        description: "هل أنت متأكد أنك تريد حذف الكورس؟ لا يمكن التراجع عن هذا الإجراء.",
+        descriptionStart: "هل أنت متأكد أنك تريد حذف الكورس",
+        descriptionEnd: "؟ لا يمكن التراجع عن هذا الإجراء.",
       }
     : {
         trigger: "Delete course",
@@ -57,7 +58,8 @@ const DeleteTeacherCourseAction = ({
         success: "Course deleted successfully",
         error: "Unable to delete this course. Please try again.",
         authError: "Your session is missing or expired. Sign in and try again.",
-        description: "Are you sure you want to delete this course? This action cannot be undone.",
+        descriptionStart: "Are you sure you want to delete",
+        descriptionEnd: "? This action cannot be undone.",
       };
 
   const handleDelete = async () => {
@@ -124,11 +126,11 @@ const DeleteTeacherCourseAction = ({
           <AlertDialogDescription className="max-w-sm text-sm leading-6 text-slate-600">
             {isArabic ? (
               <>
-                {copy.description} <strong>«{courseTitle}»</strong>
+                {copy.descriptionStart} <strong>«{courseTitle}»</strong>{copy.descriptionEnd}
               </>
             ) : (
               <>
-                {copy.description} <strong>“{courseTitle}”</strong>
+                {copy.descriptionStart} <strong>“{courseTitle}”</strong>{copy.descriptionEnd}
               </>
             )}
           </AlertDialogDescription>

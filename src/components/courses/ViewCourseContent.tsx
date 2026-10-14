@@ -12,7 +12,7 @@ import {
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { FileVideo, Loader, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
 import { getCoursesCopy } from "@/pages/courses/courseCopy";
@@ -29,23 +29,39 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
   const token = cookieService.getToken() || "";
   const [searchParams] = useSearchParams();
   const contentParam = searchParams.get("content");
-  const [contentId, setContentId] = useState<number>();
+  const parseContentId = (value: string | null): number | undefined => {
+    if (value === null) return undefined;
+    const parsed = Number(value);
+    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
+  };
+  const [contentId, setContentId] = useState<number | undefined>(() =>
+    parseContentId(contentParam)
+  );
+  const lastSyncedContentParam = useRef(contentParam);
   const { data: contents, isLoading: isLoadingContents } = useGetCourseContents(courseId);
 
   // Restore the unit from the URL, so returning from a lecture or quiz opens
   // the same place in the course outline after navigation or a page refresh.
+  // Keep manual accordion selection stable when the content query refreshes.
   useEffect(() => {
     if (!contents?.data) return;
 
-    const requestedContentId = Number(contentParam);
-    const requestedContentExists =
-      contentParam !== null &&
-      Number.isSafeInteger(requestedContentId) &&
-      requestedContentId > 0 &&
-      contents.data.some((content) => content.id === requestedContentId);
+    if (contentParam !== lastSyncedContentParam.current) {
+      lastSyncedContentParam.current = contentParam;
+      const requestedContentId = parseContentId(contentParam);
+      setContentId(
+        requestedContentId !== undefined &&
+          contents.data.some((content) => content.id === requestedContentId)
+          ? requestedContentId
+          : undefined
+      );
+      return;
+    }
 
-    setContentId(requestedContentExists ? requestedContentId : undefined);
-  }, [contentParam, contents?.data]);
+    if (contentId !== undefined && !contents.data.some((content) => content.id === contentId)) {
+      setContentId(undefined);
+    }
+  }, [contentId, contentParam, contents?.data]);
 
   const { data: lectures, isLoading: isLoadingLectures } = useGetCourseLectures({
     token,
@@ -74,7 +90,7 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
     <Accordion
       type="single"
       collapsible
-      value={contentId ? `item-${contentId}` : undefined}
+      value={contentId ? `item-${contentId}` : ""}
       onValueChange={(value) => {
         const nextId = Number(value.replace(/^item-/, ""));
         setContentId(Number.isSafeInteger(nextId) && nextId > 0 ? nextId : undefined);

@@ -57,6 +57,9 @@ describe("TeacherCourseCard published-course actions", () => {
     const deleteButton = screen.getByRole("button", { name: "Delete unavailable" });
     expect(deleteButton).toBeDisabled();
     expect(deleteButton.getAttribute("title")).toContain("contact support");
+    expect(
+      screen.getByText("Deletion is blocked to protect student enrollments and payment records.")
+    ).toBeInTheDocument();
 
     expect(screen.getByRole("link", { name: "Manage course" })).toHaveAttribute(
       "href",

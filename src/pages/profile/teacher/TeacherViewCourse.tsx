@@ -66,6 +66,7 @@ const TeacherViewCourse = () => {
         addContent: "إضافة محتوى",
         addLecture: "إضافة محاضرة",
         editCourse: "تعديل الكورس",
+        editPublishedDetails: "تعديل البيانات",
         submitForReview: "إرسال للمراجعة",
         resubmitForReview: "إعادة الإرسال للمراجعة",
         resubmitting: "جارٍ الإرسال...",
@@ -128,6 +129,7 @@ const TeacherViewCourse = () => {
         addContent: "Add content",
         addLecture: "Add lecture",
         editCourse: "Edit course",
+        editPublishedDetails: "Edit details",
         submitForReview: "Submit for review",
         resubmitForReview: "Resubmit for review",
         resubmitting: "Submitting...",
@@ -216,6 +218,7 @@ const TeacherViewCourse = () => {
 
   const courseStatus: CoursePublishingStatus = course?.data?.publishing_status ?? "draft";
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
+  const canEditDetails = canEdit || courseStatus === "published";
   const contentCount = contents?.data?.length ?? 0;
 
   const statusLabel =
@@ -378,22 +381,22 @@ const TeacherViewCourse = () => {
                   <span className={"inline-flex items-center rounded-full border px-3 py-1 text-xs font-extrabold " + statusClass}>
                     {statusLabel}
                   </span>
+                  {canEditDetails ? (
+                    <Link
+                      to={"/profile/my-courses/" + course.data.id + "/update"}
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                      aria-label={courseStatus === "published" ? text.editPublishedDetails : text.editCourse}
+                    >
+                      <PencilLine className="h-4 w-4" aria-hidden="true" />
+                      <span>{courseStatus === "published" ? text.editPublishedDetails : text.editCourse}</span>
+                    </Link>
+                  ) : null}
                   {canEdit ? (
-                    <>
-                      <Link
-                        to={"/profile/my-courses/" + course.data.id + "/update"}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                        aria-label={text.editCourse}
-                      >
-                        <PencilLine className="h-4 w-4" aria-hidden="true" />
-                        <span>{text.editCourse}</span>
-                      </Link>
-                      <DeleteTeacherCourseAction
-                        id={course.data.id.toString()}
-                        courseTitle={rawCourseTitle || text.untitledCourse}
-                        onDeleted={() => navigate("/profile", { replace: true, state: { myCourses: true } })}
-                      />
-                    </>
+                    <DeleteTeacherCourseAction
+                      id={course.data.id.toString()}
+                      courseTitle={rawCourseTitle || text.untitledCourse}
+                      onDeleted={() => navigate("/profile", { replace: true, state: { myCourses: true } })}
+                    />
                   ) : null}
                 </div>
               </div>
@@ -448,6 +451,17 @@ undefined              </div>
             </div>
           </div>
         </section>
+
+        {courseStatus === "published" ? (
+          <section
+            className="rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-sm leading-6 text-emerald-900 sm:px-5"
+            role="status"
+          >
+            {isArabic
+              ? "الكورس منشور. يمكنك تعديل بياناته الأساسية، لكن السعر ومحتوى المحاضرات والفيديوهات يظلون محميين حفاظًا على تجربة الطلاب المسجلين."
+              : "This course is published. You can update its basic details, while the price and lecture/video content remain locked to protect enrolled students."}
+          </section>
+        ) : null}
 
         {canEdit ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">

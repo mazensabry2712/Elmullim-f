@@ -11,28 +11,61 @@ const UpdateCourse = () => {
   const navigate = useNavigate();
   const token = cookieService.getToken() || "";
   const { language } = useI18n();
-  const { data: course, isLoading, isError } = useGetTeacherCourseById({
+  const isValidCourseId =
+    !!courseId &&
+    Number.isSafeInteger(Number(courseId)) &&
+    Number(courseId) > 0;
+  const normalizedCourseId = isValidCourseId ? String(Number(courseId)) : "";
+
+  const {
+    data: courseResponse,
+    isLoading,
+    isError,
+  } = useGetTeacherCourseById({
     token,
-    id: courseId || "",
-    enabled: Boolean(courseId),
+    id: normalizedCourseId,
+    enabled: isValidCourseId && !!token,
   });
 
+  const course = courseResponse?.data;
+  // Match the actions shown on the course card and management page. The API
+  // also enforces this rule, but the UI should not offer an edit form for a
+  // course that is pending review or already published.
+  const canEditCourse =
+    course?.publishing_status === "draft" ||
+    course?.publishing_status === "rejected";
+
   useEffect(() => {
+    if (!isValidCourseId) {
+      navigate("/profile", { replace: true, state: { myCourses: true } });
+      return;
+    }
+
     if (isError) {
       toast.error(
         language === "ar"
           ? "عذرًا، تعذر تحميل بيانات الكورس"
           : "Unable to load the course"
       );
-      navigate(-1);
+      navigate("/profile", { replace: true, state: { myCourses: true } });
+      return;
     }
-  }, [navigate, isError, language]);
 
-  if (isLoading) {
+    if (course && !canEditCourse) {
+      toast.info(
+        language === "ar"
+          ? "لا يمكن تعديل الكورس أثناء المراجعة أو بعد النشر."
+          : "Courses cannot be edited while under review or after publication."
+      );
+      navigate(`/profile/my-courses/${course.id}/view`, { replace: true });
+    }
+  }, [canEditCourse, course, isError, isValidCourseId, language, navigate]);
+
+  if (!isValidCourseId || isLoading || isError || !course || !canEditCourse) {
     return null;
   }
 
-  return <CourseForm action="update" course={course?.data} />;
+  return <CourseForm action="update" course={course} />;
 };
 
 export default UpdateCourse;

@@ -102,7 +102,7 @@ const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
                                       <p className="pl-6 text-sm">{lecture.description}</p>
                                     </div>
                                     <Link
-                                      to={"/courses/" + courseId + "/view"}
+                                      to={"/courses/" + courseId + "/view?content=" + content.id + "&lecture=" + lecture.id}
                                       state={{ lecture }}
                                       className="shrink-0 rounded-md bg-main px-4 py-2 font-sora text-sm font-medium text-white hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
                                     >

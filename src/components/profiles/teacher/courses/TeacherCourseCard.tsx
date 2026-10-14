@@ -75,7 +75,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
   const deleteUnavailableReason = status === "published"
     ? isArabic
       ? "لا يمكن حذف كورس منشور من هذه الصفحة. تواصل مع الدعم لإزالته مع الحفاظ على سجلات التسجيلات والمدفوعات."
-      : "Published courses cannot be deleted because enrolled students need continued access."
+      : "Published courses cannot be deleted here; contact support to preserve course, enrollment, and payment records."
     : isArabic
       ? "لا يمكن حذف كورس أثناء مراجعته."
       : "A course cannot be deleted while it is under review.";

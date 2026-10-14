@@ -1,5 +1,4 @@
 import { render, screen, waitFor } from "@testing-library/react";
-import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { I18nProvider } from "@/i18n";
 import { MemoryRouter, Route, Routes } from "react-router-dom";

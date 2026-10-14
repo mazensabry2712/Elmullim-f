@@ -110,6 +110,15 @@ export const useUpdateTeacherCourse = () => {
       queryClient.invalidateQueries({
         queryKey: [QueryKeys.COURSE, courseId],
       });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.COURSES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.SUB_CATEGORY_COURSES],
+      });
+      queryClient.invalidateQueries({
+        queryKey: [QueryKeys.MY_COURSES],
+      });
     },
   });
 };

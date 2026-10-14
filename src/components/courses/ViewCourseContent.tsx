@@ -18,6 +18,12 @@ import type { CoursesCopy } from "@/pages/courses/courseCopy";
 import { getCoursesCopy } from "@/pages/courses/courseCopy";
 import { useI18n } from "@/i18n";
 
+const parseContentId = (value: string | null): number | undefined => {
+  if (value === null) return undefined;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
+};
+
 interface IProps {
   courseId: number;
   copy?: CoursesCopy;
@@ -29,11 +35,6 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
   const token = cookieService.getToken() || "";
   const [searchParams] = useSearchParams();
   const contentParam = searchParams.get("content");
-  const parseContentId = (value: string | null): number | undefined => {
-    if (value === null) return undefined;
-    const parsed = Number(value);
-    return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
-  };
   const [contentId, setContentId] = useState<number | undefined>(() =>
     parseContentId(contentParam)
   );

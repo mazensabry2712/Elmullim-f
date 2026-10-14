@@ -10,6 +10,7 @@ import {
   useGetTeacherCourseById,
   useGetTeacherCourseContents,
   useGetTeacherCourseLectures,
+  useGetTeacherCourseReadinessLectures,
   useSubmitTeacherCourseForReview,
 } from "@/lib/react-query/teacher/courses";
 import type { AxiosResErr } from "@/types";
@@ -32,7 +33,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useEffect } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 import { hasRepeatedTextPattern, isDisplayableProfileText } from "@/utils/textQuality";
@@ -66,6 +67,7 @@ const TeacherViewCourse = () => {
         addContent: "إضافة محتوى",
         addLecture: "إضافة محاضرة",
         editCourse: "تعديل الكورس",
+        editPublishedDetails: "تعديل البيانات",
         submitForReview: "إرسال للمراجعة",
         resubmitForReview: "إعادة الإرسال للمراجعة",
         resubmitting: "جارٍ الإرسال...",
@@ -90,8 +92,15 @@ const TeacherViewCourse = () => {
         needsReview: "مراجعة مطلوبة",
         titleGood: "العنوان واضح وغير مكرر.",
         descriptionGood: "الوصف مكتمل.",
-        contentGood: "تمت إضافة وحدة واحدة على الأقل.",
+        contentGood: "كل وحدة تحتوي على محاضرة واحدة على الأقل.",
         contentMissing: "أضف وحدة واحدة على الأقل.",
+        contentNeedsLectures: "أضف محاضرة واحدة على الأقل داخل كل وحدة.",
+        checkingContent: "جارٍ التحقق من المحاضرات داخل كل وحدة...",
+        videosReady: "تم رفع فيديو لكل المحاضرات.",
+        videosNeedUpload: "ارفع فيديو لكل محاضرة قبل إرسال الكورس للمراجعة.",
+        videosNeedLectures: "أضف محاضرة لكل وحدة أولًا.",
+        checkingVideos: "جارٍ التحقق من فيديوهات كل المحاضرات...",
+        readinessError: "تعذر التحقق من المحتوى. أعد تحميل الصفحة وحاول مرة أخرى.",
         videosHint: "راجع حالة الفيديو داخل بطاقة كل محاضرة.",
         checkVideosHint: "راجع وجود فيديو داخل بطاقة كل محاضرة.",
         titleNeedsReview: "راجع عنوان الكورس؛ يجب أن يكون واضحًا وغير مكرر.",
@@ -128,6 +137,7 @@ const TeacherViewCourse = () => {
         addContent: "Add content",
         addLecture: "Add lecture",
         editCourse: "Edit course",
+        editPublishedDetails: "Edit details",
         submitForReview: "Submit for review",
         resubmitForReview: "Resubmit for review",
         resubmitting: "Submitting...",
@@ -152,8 +162,15 @@ const TeacherViewCourse = () => {
         needsReview: "Needs review",
         titleGood: "The title is clear and not repetitive.",
         descriptionGood: "The description is complete.",
-        contentGood: "At least one content unit has been added.",
+        contentGood: "Every content unit has at least one lecture.",
         contentMissing: "Add at least one content unit.",
+        contentNeedsLectures: "Add at least one lecture inside every content unit.",
+        checkingContent: "Checking lectures in every content unit...",
+        videosReady: "Every lecture has a video.",
+        videosNeedUpload: "Upload a video for every lecture before submitting the course for review.",
+        videosNeedLectures: "Add at least one lecture to every unit first.",
+        checkingVideos: "Checking videos for every lecture...",
+        readinessError: "Unable to verify the content. Reload the page and try again.",
         videosHint: "Review video status on each lecture card.",
         checkVideosHint: "Confirm that every lecture has a video in its card.",
         titleNeedsReview: "Review the course title and use clear, non-repeated wording.",
@@ -173,6 +190,12 @@ const TeacherViewCourse = () => {
   const isValidCourseId = !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
   const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const locationState = location.state as { lecture?: ILecture; contentId?: number } | null;
+  const requestedContentId = Number(searchParams.get("content"));
+  const requestedLectureId = Number(searchParams.get("lecture"));
+  const stateContentId = Number(locationState?.contentId);
 
   const {
     data: course,
@@ -185,16 +208,36 @@ const TeacherViewCourse = () => {
 
   const { data: contents, isLoading: isLoadingContents } =
     useGetTeacherCourseContents({ token, courseId: queryCourseId });
+  const contentUnits = contents?.data ?? [];
+  const readinessLectureQueries = useGetTeacherCourseReadinessLectures({
+    token,
+    courseId: queryCourseId,
+    contents: contentUnits,
+    enabled: Boolean(token && queryCourseId),
+  });
+  const requestedContentExists = contentUnits.some(
+    (content) => content.id === requestedContentId
+  );
+  const stateContentExists = contentUnits.some(
+    (content) => content.id === stateContentId
+  );
+  const selectedContentId = requestedContentExists
+    ? requestedContentId
+    : stateContentExists
+      ? stateContentId
+      : contentUnits[0]?.id;
   const { data: lectures, isLoading: isLoadingLectures } =
     useGetTeacherCourseLectures({
       token,
       courseId: queryCourseId,
-      contentId: contents?.data?.[0]?.id.toString() || "",
+      contentId: selectedContentId?.toString() || "",
     });
 
-  const location = useLocation();
-  const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
-  const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
+  const selectedLecture = locationState?.lecture;
+  const lectureFromUrl = lectures?.data?.find(
+    (item) => item.id === requestedLectureId
+  );
+  const lecture = selectedLecture ?? lectureFromUrl ?? lectures?.data?.[0] ?? null;
   const rawCourseTitle = course?.data?.title?.trim() || "";
   const rawCourseDescription = course?.data?.description?.trim() || "";
   const rawLectureTitle = lecture?.title?.trim() || "";
@@ -216,7 +259,23 @@ const TeacherViewCourse = () => {
 
   const courseStatus: CoursePublishingStatus = course?.data?.publishing_status ?? "draft";
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
-  const contentCount = contents?.data?.length ?? 0;
+  const canEditDetails = canEdit || courseStatus === "published";
+  const contentCount = contentUnits.length;
+  const isCheckingReadiness = isLoadingContents || readinessLectureQueries.some((query) => query.isLoading);
+  const hasReadinessError = readinessLectureQueries.some((query) => query.isError);
+  const everyUnitHasLectures = contentCount > 0 && contentUnits.every(
+    (_content, index) => (readinessLectureQueries[index]?.data?.data?.length ?? 0) > 0
+  );
+  const everyLectureHasVideo = everyUnitHasLectures && readinessLectureQueries.every(
+    (query) => (query.data?.data ?? []).every((item) => item.hasVideo)
+  );
+  const canSubmitForReview =
+    courseTitleIsValid &&
+    courseDescriptionIsValid &&
+    everyUnitHasLectures &&
+    everyLectureHasVideo &&
+    !isCheckingReadiness &&
+    !hasReadinessError;
 
   const statusLabel =
     courseStatus === "published" ? text.published :
@@ -378,22 +437,22 @@ const TeacherViewCourse = () => {
                   <span className={"inline-flex items-center rounded-full border px-3 py-1 text-xs font-extrabold " + statusClass}>
                     {statusLabel}
                   </span>
+                  {canEditDetails ? (
+                    <Link
+                      to={"/profile/my-courses/" + course.data.id + "/update"}
+                      className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
+                      aria-label={courseStatus === "published" ? text.editPublishedDetails : text.editCourse}
+                    >
+                      <PencilLine className="h-4 w-4" aria-hidden="true" />
+                      <span>{courseStatus === "published" ? text.editPublishedDetails : text.editCourse}</span>
+                    </Link>
+                  ) : null}
                   {canEdit ? (
-                    <>
-                      <Link
-                        to={"/profile/my-courses/" + course.data.id + "/update"}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                        aria-label={text.editCourse}
-                      >
-                        <PencilLine className="h-4 w-4" aria-hidden="true" />
-                        <span>{text.editCourse}</span>
-                      </Link>
-                      <DeleteTeacherCourseAction
-                        id={course.data.id.toString()}
-                        courseTitle={rawCourseTitle || text.untitledCourse}
-                        onDeleted={() => navigate("/profile", { replace: true, state: { myCourses: true } })}
-                      />
-                    </>
+                    <DeleteTeacherCourseAction
+                      id={course.data.id.toString()}
+                      courseTitle={rawCourseTitle || text.untitledCourse}
+                      onDeleted={() => navigate("/profile", { replace: true, state: { myCourses: true } })}
+                    />
                   ) : null}
                 </div>
               </div>
@@ -444,10 +503,21 @@ const TeacherViewCourse = () => {
                     <span>{text.descriptionNeedsReview}</span>
                   </div>
                 ) : null}
-undefined              </div>
+              </div>
             </div>
           </div>
         </section>
+
+        {courseStatus === "published" ? (
+          <section
+            className="rounded-2xl border border-emerald-200 bg-emerald-50/70 px-4 py-3 text-sm leading-6 text-emerald-900 sm:px-5"
+            role="status"
+          >
+            {isArabic
+              ? "الكورس منشور. يمكنك تعديل بياناته الأساسية، لكن السعر ومحتوى المحاضرات والفيديوهات يظلون محميين حفاظًا على تجربة الطلاب المسجلين."
+              : "This course is published. You can update its basic details, while the price and lecture/video content remain locked to protect enrolled students."}
+          </section>
+        ) : null}
 
         {canEdit ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm sm:p-5">
@@ -491,15 +561,27 @@ undefined              </div>
                 {
                   key: "content",
                   label: text.checkContent,
-                  detail: contentCount > 0 ? text.contentGood : text.contentMissing,
-                  passed: contentCount > 0,
+                  detail: isCheckingReadiness
+                    ? text.checkingContent
+                    : hasReadinessError
+                      ? text.readinessError
+                      : everyUnitHasLectures
+                        ? text.contentGood
+                        : contentCount > 0 ? text.contentNeedsLectures : text.contentMissing,
+                  passed: isCheckingReadiness || hasReadinessError ? null as boolean | null : everyUnitHasLectures,
                   icon: Layers3,
                 },
                 {
                   key: "videos",
                   label: text.checkVideos,
-                  detail: text.checkVideosHint,
-                  passed: null as boolean | null,
+                  detail: isCheckingReadiness
+                    ? text.checkingVideos
+                    : hasReadinessError
+                      ? text.readinessError
+                      : everyLectureHasVideo
+                        ? text.videosReady
+                        : everyUnitHasLectures ? text.videosNeedUpload : text.videosNeedLectures,
+                  passed: isCheckingReadiness || hasReadinessError ? null as boolean | null : everyLectureHasVideo,
                   icon: Video,
                 },
               ].map((item) => {
@@ -547,7 +629,7 @@ undefined              </div>
               <Button
                 type="button"
                 onClick={() => void handleSubmitForReview()}
-                disabled={isSubmittingForReview}
+                disabled={isSubmittingForReview || !canSubmitForReview}
                 className="min-h-11 w-full rounded-xl bg-[#111c31] px-5 font-bold text-white hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 sm:w-auto"
               >
                 {isSubmittingForReview ? (

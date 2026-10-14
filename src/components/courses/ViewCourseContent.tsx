@@ -12,11 +12,17 @@ import {
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { FileVideo, Loader, Loader2 } from "lucide-react";
-import { useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
 import { getCoursesCopy } from "@/pages/courses/courseCopy";
 import { useI18n } from "@/i18n";
+
+const parseContentId = (value: string | null): number | undefined => {
+  if (value === null) return undefined;
+  const parsed = Number(value);
+  return Number.isSafeInteger(parsed) && parsed > 0 ? parsed : undefined;
+};
 
 interface IProps {
   courseId: number;
@@ -27,8 +33,37 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
   const { language } = useI18n();
   const copy = providedCopy ?? getCoursesCopy(language);
   const token = cookieService.getToken() || "";
-  const [contentId, setContentId] = useState<number>();
+  const [searchParams] = useSearchParams();
+  const contentParam = searchParams.get("content");
+  const [contentId, setContentId] = useState<number | undefined>(() =>
+    parseContentId(contentParam)
+  );
+  const lastSyncedContentParam = useRef(contentParam);
   const { data: contents, isLoading: isLoadingContents } = useGetCourseContents(courseId);
+
+  // Restore the unit from the URL, so returning from a lecture or quiz opens
+  // the same place in the course outline after navigation or a page refresh.
+  // Keep manual accordion selection stable when the content query refreshes.
+  useEffect(() => {
+    if (!contents?.data) return;
+
+    if (contentParam !== lastSyncedContentParam.current) {
+      lastSyncedContentParam.current = contentParam;
+      const requestedContentId = parseContentId(contentParam);
+      setContentId(
+        requestedContentId !== undefined &&
+          contents.data.some((content) => content.id === requestedContentId)
+          ? requestedContentId
+          : undefined
+      );
+      return;
+    }
+
+    if (contentId !== undefined && !contents.data.some((content) => content.id === contentId)) {
+      setContentId(undefined);
+    }
+  }, [contentId, contentParam, contents?.data]);
+
   const { data: lectures, isLoading: isLoadingLectures } = useGetCourseLectures({
     token,
     courseId,
@@ -53,7 +88,15 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
   }
 
   return (
-    <Accordion type="single" collapsible>
+    <Accordion
+      type="single"
+      collapsible
+      value={contentId ? `item-${contentId}` : ""}
+      onValueChange={(value) => {
+        const nextId = Number(value.replace(/^item-/, ""));
+        setContentId(Number.isSafeInteger(nextId) && nextId > 0 ? nextId : undefined);
+      }}
+    >
       <motion.div
         className="w-full space-y-5"
         variants={containerVariants}
@@ -68,7 +111,6 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
             >
               <AccordionTrigger
                 className="font-bold text-black-blue text-xl data-[state=open]:bg-[#eaeaea] px-4 data-[state=open]:mb-2 rounded-t-[5px] hover:no-underline"
-                onClick={() => setContentId(id)}
               >
                 {title}
               </AccordionTrigger>
@@ -86,19 +128,34 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
                 ) : (
                   <div className="space-y-1 mt-3">
                     {lectures.data.map((lecture) => (
-                      <Link
-                        to={`/courses/${courseId}/view`}
-                        state={{ lecture }}
-                        key={lecture.id}
-                        className="block bg-[#f1f1f1] space-y-0.5 px-4 py-2 hover:bg-[#dcdcdc] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-inset"
-                      >
-                        <h4 className="flex items-center gap-2 text-base font-medium">
-                          <FileVideo className="shrink-0" size={18} aria-hidden="true" />
-                          {lecture.title}
-                        </h4>
-                        <p className="pl-4 text-sm">{lecture.description}</p>
-                        <span className="sr-only">{copy.watchLecture}</span>
-                      </Link>
+                      <div key={lecture.id} className="space-y-1">
+                        <Link
+                          to={`/courses/${courseId}/view?content=${id}&lecture=${lecture.id}`}
+                          state={{ lecture }}
+                          className="block bg-[#f1f1f1] space-y-0.5 px-4 py-2 hover:bg-[#dcdcdc] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-inset"
+                        >
+                          <h4 className="flex items-center gap-2 text-base font-medium">
+                            <FileVideo className="shrink-0" size={18} aria-hidden="true" />
+                            {lecture.title}
+                          </h4>
+                          <p className="pl-4 text-sm">{lecture.description}</p>
+                          <span className="sr-only">{copy.watchLecture}</span>
+                        </Link>
+                        {lecture.quiz ? (
+                          <Link
+                            to={`/view-quiz?quiz=${lecture.quiz.id}&course=${courseId}&content=${id}&lecture=${lecture.id}`}
+                            className="flex items-center justify-between gap-3 rounded-md border border-main/20 bg-main/5 px-4 py-2 text-sm text-main transition hover:bg-main/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                          >
+                            <span className="min-w-0 truncate font-semibold">
+                              {language === "ar" ? "اختبار: " : "Quiz: "}
+                              {lecture.quiz.title}
+                            </span>
+                            <span className="shrink-0 text-xs font-bold">
+                              {language === "ar" ? "بدء الاختبار" : "Take quiz"}
+                            </span>
+                          </Link>
+                        ) : null}
+                      </div>
                     ))}
                   </div>
                 )}

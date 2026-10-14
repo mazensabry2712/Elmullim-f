@@ -18,10 +18,11 @@ interface IProps {
     [key: string]: IOption[];
   };
   schema: ZodSchema;
+  disabled?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const RenderCourseFormItems = ({ input, form, schema, options }: IProps) => {
+const RenderCourseFormItems = ({ input, form, schema, options, disabled = false }: IProps) => {
   const renderField = ({ field }: { field: ControllerRenderProps }) => {
     switch (true) {
       case input.name === "sub_category_id":
@@ -55,7 +56,7 @@ const RenderCourseFormItems = ({ input, form, schema, options }: IProps) => {
         );
 
       default:
-        return <InputFormItem input={input} field={field} label />;
+        return <InputFormItem input={input} field={field} label disabled={disabled} />;
     }
   };
 

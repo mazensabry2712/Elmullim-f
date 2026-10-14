@@ -104,6 +104,43 @@ describe("ViewCourse", () => {
     expect(screen.getByTestId("view-course-content")).toBeInTheDocument();
   });
 
+  it("restores the requested content unit and lecture from the URL after refresh", () => {
+    mockUseGetCourseContents.mockReturnValue({
+      data: { data: [{ id: 11, title: "Unit 1" }, { id: 12, title: "Unit 2" }] },
+      isLoading: false,
+    });
+    mockUseGetCourseLectures.mockReturnValue({
+      data: {
+        data: [
+          { id: 21, title: "Lesson 1", description: "Intro", videoUrl: "/lesson-1.mp4" },
+          { id: 22, title: "Lesson 2", description: "Advanced", videoUrl: "/lesson-2.mp4" },
+        ],
+      },
+      isLoading: false,
+    });
+    mockUseGetCourseById.mockReturnValue({
+      data: {
+        data: {
+          id: 7,
+          title: "Physics Fundamentals",
+          hasEnrolled: true,
+          teacher: { id: 3, name: "Teacher One" },
+          sub_category: { id: 4 },
+        },
+      },
+      isLoading: false,
+      isError: false,
+      failureReason: undefined,
+    });
+
+    renderPage("/courses/7/view?content=12&lecture=22");
+
+    expect(screen.getByText("Lesson 2")).toBeInTheDocument();
+    expect(mockUseGetCourseLectures).toHaveBeenCalledWith(
+      expect.objectContaining({ courseId: 7, contentId: 12 })
+    );
+  });
+
   it("renders a loading state while course data is loading", () => {
     mockUseGetCourseById.mockReturnValue({
       data: undefined,

@@ -5,6 +5,13 @@ import { I18nProvider } from "@/i18n";
 import PaymentResult from "@/pages/courses/PaymentResult";
 
 const mockGetPaymentStatus = vi.fn();
+const mockQueryClient = vi.hoisted(() => ({
+  invalidateQueries: vi.fn(),
+}));
+
+vi.mock("@tanstack/react-query", () => ({
+  useQueryClient: () => mockQueryClient,
+}));
 
 vi.mock("@/services/student/enrolling", () => ({
   getPaymentStatus: (...args: unknown[]) => mockGetPaymentStatus(...args),
@@ -54,6 +61,37 @@ describe("Payment result", () => {
         "Your Fawry payment is pending. Complete the payment from the checkout screen; confirmation can arrive after the cash payment is completed."
       )
     ).toBeInTheDocument();
+  });
+
+  it("refreshes course and enrollment data after a confirmed course payment", async () => {
+    mockGetPaymentStatus.mockResolvedValue({
+      status: true,
+      data: {
+        status: "success",
+        payment_method: "card",
+        orderable_type: "courses",
+        orderable_id: 7,
+        course_id: 7,
+        transaction_id: "txn-7",
+      },
+    });
+
+    renderPage();
+
+    await waitFor(() => {
+      expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: ["myCourses"],
+      });
+      expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: ["courses"],
+      });
+      expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: ["course", 7],
+      });
+      expect(mockQueryClient.invalidateQueries).toHaveBeenCalledWith({
+        queryKey: ["courseLectures", 7],
+      });
+    });
   });
 
   it("shows an invalid reference state without polling when the signed reference is missing", () => {

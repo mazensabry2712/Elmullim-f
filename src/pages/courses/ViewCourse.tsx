@@ -14,7 +14,7 @@ import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
 import { Loader } from "lucide-react";
 import { useEffect } from "react";
-import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 import { getCoursesCopy } from "./courseCopy";
@@ -28,6 +28,9 @@ const ViewCourse = () => {
   const numericCourseId = Number(courseId);
   const validCourseId = Number.isInteger(numericCourseId) && numericCourseId > 0;
   const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const requestedContentId = Number(searchParams.get("content"));
+  const requestedLectureId = Number(searchParams.get("lecture"));
 
   const { data: course, isLoading, isError, failureReason } = useGetCourseById({
     token,
@@ -40,13 +43,20 @@ const ViewCourse = () => {
   );
   const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
   const firstContentId = contents?.data?.[0]?.id;
+  const requestedContentExists = contents?.data?.some(
+    (content) => content.id === requestedContentId
+  );
+  const selectedContentId = requestedContentExists ? requestedContentId : firstContentId;
   const { data: lectures, isLoading: isLoadingLectures } = useGetCourseLectures({
     token,
     courseId: numericCourseId,
-    contentId: firstContentId as number,
+    contentId: selectedContentId as number,
     enabled: !!course?.data?.hasEnrolled,
   });
-  const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
+  const lectureFromUrl = lectures?.data?.find(
+    (item) => item.id === requestedLectureId
+  );
+  const lecture = selectedLecture ?? lectureFromUrl ?? lectures?.data?.[0] ?? null;
 
   useEffect(() => {
     document.title = `${copy.watch} | Elmullim`;

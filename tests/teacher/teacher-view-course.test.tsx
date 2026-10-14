@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   useGetTeacherCourseById: vi.fn(),
   useGetTeacherCourseContents: vi.fn(),
   useGetTeacherCourseLectures: vi.fn(),
+  useGetTeacherCourseReadinessLectures: vi.fn(),
   submitForReview: vi.fn(),
 }));
 
@@ -16,6 +17,7 @@ vi.mock("@/lib/react-query/teacher/courses", () => ({
   useGetTeacherCourseById: (...args: unknown[]) => mocks.useGetTeacherCourseById(...args),
   useGetTeacherCourseContents: (...args: unknown[]) => mocks.useGetTeacherCourseContents(...args),
   useGetTeacherCourseLectures: (...args: unknown[]) => mocks.useGetTeacherCourseLectures(...args),
+  useGetTeacherCourseReadinessLectures: (...args: unknown[]) => mocks.useGetTeacherCourseReadinessLectures(...args),
   useSubmitTeacherCourseForReview: () => ({
     mutateAsync: mocks.submitForReview,
     isPending: false,
@@ -101,6 +103,17 @@ describe("TeacherViewCourse", () => {
       data: { status: true, message: null, data: [{ id: 94, title: "Lesson one", description: "A clear lecture description with enough words.", videoUrl: "", hasVideo: false }] },
       isLoading: false,
     });
+    mocks.useGetTeacherCourseReadinessLectures.mockReturnValue([
+      {
+        data: {
+          status: true,
+          message: null,
+          data: [{ id: 94, title: "Lesson one", description: "A clear lecture description with enough words.", videoUrl: "https://vimeo.com/123456789", hasVideo: true }],
+        },
+        isLoading: false,
+        isError: false,
+      },
+    ]);
   });
 
   it("shows a structured course overview and keeps creation/review actions", () => {
@@ -118,7 +131,67 @@ describe("TeacherViewCourse", () => {
     expect(screen.getByRole("button", { name: /delete course/i })).toBeInTheDocument();
   });
 
-  it("hides course edit/delete actions once the course is published", () => {
+  it("blocks review submission until every lecture has a video", () => {
+    mocks.useGetTeacherCourseReadinessLectures.mockReturnValue([
+      {
+        data: {
+          status: true,
+          message: null,
+          data: [{ id: 94, title: "Lesson one", description: "A clear lecture description with enough words.", videoUrl: "", hasVideo: false }],
+        },
+        isLoading: false,
+        isError: false,
+      },
+    ]);
+
+    renderPage();
+
+    expect(screen.getByRole("button", { name: /submit for review/i })).toBeDisabled();
+    expect(screen.getByText(/upload a video for every lecture/i)).toBeInTheDocument();
+  });
+
+  it("blocks review when any content unit has no lecture", () => {
+    mocks.useGetTeacherCourseContents.mockReturnValue({
+      data: {
+        status: true,
+        message: null,
+        data: [
+          { id: 26, title: "Unit one" },
+          { id: 27, title: "Unit two" },
+        ],
+      },
+      isLoading: false,
+    });
+    mocks.useGetTeacherCourseReadinessLectures.mockReturnValue([
+      {
+        data: {
+          status: true,
+          message: null,
+          data: [{
+            id: 94,
+            title: "Lesson one",
+            description: "A clear lecture description with enough words.",
+            videoUrl: "https://vimeo.com/123456789",
+            hasVideo: true,
+          }],
+        },
+        isLoading: false,
+        isError: false,
+      },
+      {
+        data: { status: true, message: null, data: [] },
+        isLoading: false,
+        isError: false,
+      },
+    ]);
+
+    renderPage();
+
+    expect(screen.getByRole("button", { name: /submit for review/i })).toBeDisabled();
+    expect(screen.getByText(/inside every content unit/i)).toBeInTheDocument();
+  });
+
+  it("allows safe metadata edits while keeping delete locked once the course is published", () => {
     mocks.useGetTeacherCourseById.mockReturnValue({
       data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },
       isLoading: false,
@@ -127,8 +200,12 @@ describe("TeacherViewCourse", () => {
 
     renderPage();
 
-    expect(screen.queryByRole("link", { name: /edit course/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /edit details/i })).toHaveAttribute(
+      "href",
+      "/profile/my-courses/10/update"
+    );
     expect(screen.queryByRole("button", { name: /delete course/i })).not.toBeInTheDocument();
+    expect(screen.getByText("Published")).toBeInTheDocument();
   });
 
   it("shows a short course description as entered and explains what needs review", () => {

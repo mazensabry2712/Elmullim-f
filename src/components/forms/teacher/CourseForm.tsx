@@ -34,6 +34,7 @@ const CourseForm = ({ action, course }: IProps) => {
   const navigate = useNavigate();
   const token = cookieService.getToken()!;
   const { language } = useI18n();
+  const isPublished = action === "update" && course?.publishing_status === "published";
   const { data: categories } = useGetCategories();
   const categoriesOptions = categories?.data.map((cate) => ({
     label: cate.name,
@@ -71,7 +72,7 @@ const CourseForm = ({ action, course }: IProps) => {
             id: course?.id as number,
             description: data.description,
             level: data.level,
-            price: data.price,
+            price: isPublished ? Number(course?.price ?? 0) : data.price,
             sub_category_id: data.sub_category_id,
             title: data.title,
             image: file,
@@ -163,6 +164,16 @@ const CourseForm = ({ action, course }: IProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {isPublished ? (
+          <div
+            role="status"
+            className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm leading-6 text-emerald-900"
+          >
+            {language === "ar"
+              ? "الكورس منشور بالفعل. يمكنك تعديل العنوان والوصف والتصنيف والمستوى والصورة. السعر ثابت بعد النشر، ومحتوى المحاضرات والفيديوهات يُدار من صفحة إدارة الكورس مع الحفاظ على وصول الطلاب الحاليين."
+              : "This course is already published. You can update its title, description, category, level, and image. Pricing is locked after publishing, and lecture/video content stays protected to preserve access for enrolled students."}
+          </div>
+        ) : null}
         <div className="flex flex-col gap-4 lg:flex-row">
           <div className="max-w-full w-full lg:max-w-[40%]">
             <ImageUpload
@@ -183,6 +194,7 @@ const CourseForm = ({ action, course }: IProps) => {
                   form={form}
                   input={input}
                   schema={courseSchema}
+                  disabled={isPublished && input.name === "price"}
                   options={{
                     categories: categoriesOptions!,
                     subCategories: subCategoriesOptions!,
@@ -198,8 +210,8 @@ const CourseForm = ({ action, course }: IProps) => {
         >
           {action === "update"
             ? language === "ar"
-              ? "تحديث الكورس"
-              : "Update Course"
+              ? isPublished ? "حفظ البيانات الأساسية" : "تحديث الكورس"
+              : isPublished ? "Save course details" : "Update Course"
             : language === "ar"
               ? "إنشاء كورس جديد"
               : "Create New course"}

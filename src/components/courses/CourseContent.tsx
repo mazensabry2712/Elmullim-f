@@ -102,7 +102,7 @@ const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
                                       <p className="pl-6 text-sm">{lecture.description}</p>
                                     </div>
                                     <Link
-                                      to={"/courses/" + courseId + "/view"}
+                                      to={"/courses/" + courseId + "/view?content=" + content.id + "&lecture=" + lecture.id}
                                       state={{ lecture }}
                                       className="shrink-0 rounded-md bg-main px-4 py-2 font-sora text-sm font-medium text-white hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2"
                                     >
@@ -115,7 +115,7 @@ const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
 
                                   {lecture.quiz ? (
                                     <Link
-                                      to={"/view-quiz?quiz=" + lecture.quiz.id}
+                                      to={"/view-quiz?quiz=" + lecture.quiz.id + "&course=" + courseId + "&content=" + content.id + "&lecture=" + lecture.id}
                                       className="mt-2 flex items-center justify-between gap-3 rounded-md border border-main/20 bg-main/5 px-3 py-2 text-sm text-main hover:bg-main/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
                                     >
                                       <span className="min-w-0 truncate font-semibold">

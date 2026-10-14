@@ -53,7 +53,7 @@ export const useGetCourseLectures = ({
   enabled?: boolean;
 }) =>
   useQuery({
-    queryKey: [QueryKeys.COURSE_CONTENTS, courseId, contentId],
+    queryKey: [QueryKeys.COURSE_LECTURES, courseId, contentId],
     queryFn: () => getCourseLectures({ token, courseId, contentId }),
     enabled: enabled && !!courseId && !!contentId && !!token,
   });

@@ -33,7 +33,7 @@ import {
   Wallet,
 } from "lucide-react";
 import { useEffect } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 import { hasRepeatedTextPattern, isDisplayableProfileText } from "@/utils/textQuality";
@@ -190,6 +190,12 @@ const TeacherViewCourse = () => {
   const isValidCourseId = !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
   const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const locationState = location.state as { lecture?: ILecture; contentId?: number } | null;
+  const requestedContentId = Number(searchParams.get("content"));
+  const requestedLectureId = Number(searchParams.get("lecture"));
+  const stateContentId = Number(locationState?.contentId);
 
   const {
     data: course,
@@ -209,16 +215,29 @@ const TeacherViewCourse = () => {
     contents: contentUnits,
     enabled: Boolean(token && queryCourseId),
   });
+  const requestedContentExists = contentUnits.some(
+    (content) => content.id === requestedContentId
+  );
+  const stateContentExists = contentUnits.some(
+    (content) => content.id === stateContentId
+  );
+  const selectedContentId = requestedContentExists
+    ? requestedContentId
+    : stateContentExists
+      ? stateContentId
+      : contentUnits[0]?.id;
   const { data: lectures, isLoading: isLoadingLectures } =
     useGetTeacherCourseLectures({
       token,
       courseId: queryCourseId,
-      contentId: contents?.data?.[0]?.id.toString() || "",
+      contentId: selectedContentId?.toString() || "",
     });
 
-  const location = useLocation();
-  const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
-  const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
+  const selectedLecture = locationState?.lecture;
+  const lectureFromUrl = lectures?.data?.find(
+    (item) => item.id === requestedLectureId
+  );
+  const lecture = selectedLecture ?? lectureFromUrl ?? lectures?.data?.[0] ?? null;
   const rawCourseTitle = course?.data?.title?.trim() || "";
   const rawCourseDescription = course?.data?.description?.trim() || "";
   const rawLectureTitle = lecture?.title?.trim() || "";

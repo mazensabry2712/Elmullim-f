@@ -37,7 +37,7 @@ const ViewQuiz = () => {
   const hasCourseContext = Number.isSafeInteger(returnCourseId) && returnCourseId > 0;
   const backHref = hasCourseContext ? `/courses/${returnCourseId}/view` : "/profile";
   const backLabel = hasCourseContext
-    ? language === "ar" ? "العودة إلى الكورس" : "Back to course"
+    ? (language === "ar" ? "العودة إلى الكورس" : "Back to course")
     : pageCopy.back;
   const { data, isLoading, isError, refetch } = useGetStudentQuiz({ token, quizId });
   const { mutateAsync: startQuiz, isPending: isStartPending } = useStartStudentQuiz();

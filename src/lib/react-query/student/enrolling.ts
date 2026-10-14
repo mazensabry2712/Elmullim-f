@@ -1,4 +1,6 @@
 import QueryKeys from "@/enums";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 import {
   enrollFreeCourse,
   getMyCourses,
@@ -7,12 +9,20 @@ import {
 } from "@/services/student/enrolling";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-export const useGetMyCourses = (token: string, enabled = true) =>
-  useQuery({
-    queryKey: [QueryKeys.MY_COURSES],
+const useEnrollmentSessionScope = () =>
+  useSelector((state: RootState) =>
+    `${state.auth.sessionVersion}:${state.auth.isAuthenticated ? state.auth.role ?? "authenticated" : "guest"}`
+  );
+
+export const useGetMyCourses = (token: string, enabled = true) => {
+  const sessionScope = useEnrollmentSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.MY_COURSES, sessionScope],
     queryFn: () => getMyCourses(token),
     enabled: enabled && !!token,
   });
+};
 
 export const useEnrollFreeCourse = () => {
   const queryClient = useQueryClient();
@@ -20,11 +30,14 @@ export const useEnrollFreeCourse = () => {
   return useMutation({
     mutationFn: ({ token, courseId }: { token: string; courseId: number }) =>
       enrollFreeCourse({ token, courseId }),
-    onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] });
-      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] });
-      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES] });
-    },
+    onSuccess: (_data, variables) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.SUB_CATEGORY_COURSES] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.courseId] }),
+        queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, variables.courseId] }),
+      ]),
   });
 };
 
@@ -33,12 +46,18 @@ export const useInitiatePayment = () => {
 
   return useMutation({
     mutationFn: initiatePayment,
-    onSuccess: (response) => {
+    onSuccess: (response, variables) => {
       if (response.data?.payment_required === false) {
-        void queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] });
-        void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] });
-        void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES] });
+        return Promise.all([
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.MY_COURSES] }),
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSES] }),
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.SUB_CATEGORY_COURSES] }),
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, variables.courseId] }),
+          queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_LECTURES, variables.courseId] }),
+        ]);
       }
+
+      return undefined;
     },
   });
 };

@@ -68,6 +68,10 @@ const renderPage = (courseId = 7) => {
         <I18nProvider>
           <Routes>
             <Route path="/course/:courseId/enroll" element={<EnrollCourse />} />
+            <Route
+              path="/courses/:courseId/view"
+              element={<div data-testid="course-learning-page">Course learning page</div>}
+            />
           </Routes>
         </I18nProvider>
       </MemoryRouter>
@@ -146,6 +150,106 @@ describe("Course enrollment", () => {
         courseId: 7,
       })
     );
+
+    expect(await screen.findByTestId("course-learning-page")).toBeInTheDocument();
+  });
+
+  it("guides Arabic-speaking students to verify email when free enrollment is blocked", async () => {
+    localStorage.setItem("elmullim-language", "ar");
+    document.documentElement.lang = "ar";
+    document.documentElement.dir = "rtl";
+
+    mockUseGetCourseById.mockReturnValue({
+      data: {
+        data: {
+          id: 7,
+          title: "معرض الباب الاول",
+          price: 0,
+          level: "expert",
+          hasEnrolled: false,
+          teacher: { name: "mazen sabry" },
+        },
+      },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    const enrollFree = vi.fn().mockRejectedValue({
+      response: {
+        data: {
+          status: false,
+          message: "Sorry, we couldn't verify your email address. Please try again.",
+        },
+      },
+    });
+    mockUseEnrollFreeCourse.mockReturnValue({
+      mutateAsync: enrollFree,
+      isPending: false,
+    });
+
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: /اشترك مجانًا/i }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "يجب تأكيد بريدك الإلكتروني قبل الاشتراك في هذا الكورس."
+    );
+    expect(screen.getByRole("link", { name: "تأكيد البريد الإلكتروني" })).toHaveAttribute(
+      "href",
+      "/verify-account"
+    );
+  });
+
+  it("opens the course when the API says the student is already enrolled", async () => {
+    const refetch = vi.fn().mockResolvedValue({
+      data: {
+        data: {
+          id: 7,
+          title: "Physics Fundamentals",
+          price: 0,
+          hasEnrolled: true,
+        },
+      },
+    });
+
+    mockUseGetCourseById.mockReturnValue({
+      data: {
+        data: {
+          id: 7,
+          title: "Physics Fundamentals",
+          price: 0,
+          level: "Beginner",
+          created_at: "2026-01-10T00:00:00.000Z",
+          hasEnrolled: false,
+          teacher: { name: "Teacher One" },
+          image: "/course.jpg",
+        },
+      },
+      isLoading: false,
+      isError: false,
+      refetch,
+    });
+
+    const enrollFree = vi.fn().mockRejectedValue({
+      response: {
+        data: {
+          status: false,
+          message: "you are already enrolled in this course",
+        },
+      },
+    });
+    mockUseEnrollFreeCourse.mockReturnValue({
+      mutateAsync: enrollFree,
+      isPending: false,
+    });
+
+    renderPage();
+
+    fireEvent.click(screen.getByRole("button", { name: /enroll for free/i }));
+
+    expect(await screen.findByTestId("course-learning-page")).toBeInTheDocument();
+    expect(refetch).toHaveBeenCalledTimes(1);
   });
 
   it("shows the payment methods for paid courses and sends the selected one", async () => {

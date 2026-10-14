@@ -6,7 +6,14 @@ import {
   getCourseLectures,
   getRelatedCourse,
 } from "@/services/courses/courses";
+import { useSelector } from "react-redux";
+import type { RootState } from "@/store/store";
 import { useQuery } from "@tanstack/react-query";
+
+const useCourseSessionScope = () =>
+  useSelector((state: RootState) =>
+    `${state.auth.sessionVersion}:${state.auth.isAuthenticated ? state.auth.role ?? "authenticated" : "guest"}`
+  );
 
 export const useGetCourses = ({
   token,
@@ -15,8 +22,10 @@ export const useGetCourses = ({
   token?: string;
   q?: string;
 }) => {
+  const sessionScope = useCourseSessionScope();
+
   return useQuery({
-    queryKey: [QueryKeys.COURSES, q],
+    queryKey: [QueryKeys.COURSES, q, sessionScope],
     queryFn: () => getAllCourses({ token, q }),
   });
 };
@@ -27,12 +36,15 @@ export const useGetCourseById = ({
 }: {
   courseId: number;
   token?: string;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.COURSE, courseId],
+}) => {
+  const sessionScope = useCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.COURSE, courseId, sessionScope],
     queryFn: () => getCourseById({ token, courseId }),
     enabled: !!courseId,
   });
+};
 
 export const useGetCourseContents = (courseId: number) =>
   useQuery({
@@ -51,12 +63,15 @@ export const useGetCourseLectures = ({
   courseId: number;
   contentId: number;
   enabled?: boolean;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.COURSE_CONTENTS, courseId, contentId],
+}) => {
+  const sessionScope = useCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.COURSE_LECTURES, courseId, contentId, sessionScope],
     queryFn: () => getCourseLectures({ token, courseId, contentId }),
     enabled: enabled && !!courseId && !!contentId && !!token,
   });
+};
 
 export const useGetRelatedCourses = ({
   subCategoryId,
@@ -66,9 +81,12 @@ export const useGetRelatedCourses = ({
   subCategoryId: number;
   courseId: number;
   token?: string;
-}) =>
-  useQuery({
-    queryKey: [QueryKeys.SUB_CATEGORY_COURSES, subCategoryId, courseId],
+}) => {
+  const sessionScope = useCourseSessionScope();
+
+  return useQuery({
+    queryKey: [QueryKeys.SUB_CATEGORY_COURSES, subCategoryId, courseId, sessionScope],
     queryFn: () => getRelatedCourse({ subCategoryId, courseId, token }),
     enabled: !!subCategoryId && !!courseId,
   });
+};

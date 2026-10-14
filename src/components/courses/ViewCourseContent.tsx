@@ -11,7 +11,7 @@ import {
 } from "@/lib/react-query/courses/courses";
 import cookieService from "@/utils/cookieService";
 import { motion } from "framer-motion";
-import { FileVideo, Loader, Loader2 } from "lucide-react";
+import { ClipboardCheck, FileVideo, Loader, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
@@ -86,19 +86,35 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
                 ) : (
                   <div className="space-y-1 mt-3">
                     {lectures.data.map((lecture) => (
-                      <Link
-                        to={`/courses/${courseId}/view`}
-                        state={{ lecture }}
-                        key={lecture.id}
-                        className="block bg-[#f1f1f1] space-y-0.5 px-4 py-2 hover:bg-[#dcdcdc] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-inset"
-                      >
-                        <h4 className="flex items-center gap-2 text-base font-medium">
-                          <FileVideo className="shrink-0" size={18} aria-hidden="true" />
-                          {lecture.title}
-                        </h4>
-                        <p className="pl-4 text-sm">{lecture.description}</p>
-                        <span className="sr-only">{copy.watchLecture}</span>
-                      </Link>
+                      <div key={lecture.id} className="space-y-2">
+                        <Link
+                          to={`/courses/${courseId}/view`}
+                          state={{ lecture }}
+                          className="block space-y-0.5 bg-[#f1f1f1] px-4 py-2 transition-all duration-300 hover:bg-[#dcdcdc] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-inset"
+                        >
+                          <h4 className="flex items-center gap-2 text-base font-medium">
+                            <FileVideo className="shrink-0" size={18} aria-hidden="true" />
+                            {lecture.title}
+                          </h4>
+                          <p className="pl-4 text-sm">{lecture.description}</p>
+                          <span className="sr-only">{copy.watchLecture}</span>
+                        </Link>
+                        {lecture.quiz ? (
+                          <Link
+                            to={`/view-quiz?quiz=${lecture.quiz.id}&course=${courseId}`}
+                            state={{ lecture }}
+                            className="flex items-center justify-between gap-3 rounded-md border border-main/20 bg-main/5 px-4 py-2 text-sm text-main transition hover:bg-main/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
+                          >
+                            <span className="flex min-w-0 items-center gap-2 font-semibold">
+                              <ClipboardCheck className="shrink-0" size={17} aria-hidden="true" />
+                              <span className="truncate">
+                                {copy.courseQuiz}: {lecture.quiz.title || copy.courseQuiz}
+                              </span>
+                            </span>
+                            <span className="shrink-0 text-xs font-bold">{copy.takeQuiz}</span>
+                          </Link>
+                        ) : null}
+                      </div>
                     ))}
                   </div>
                 )}

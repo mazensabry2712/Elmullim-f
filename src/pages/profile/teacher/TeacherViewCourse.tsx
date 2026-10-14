@@ -173,6 +173,14 @@ const TeacherViewCourse = () => {
   const isValidCourseId = !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
   const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
   const navigate = useNavigate();
+  const location = useLocation();
+  const routeState = location.state as {
+    lecture?: ILecture;
+    contentId?: number;
+  } | null;
+  const selectedLecture = routeState?.lecture;
+  const selectedLectureId = selectedLecture?.id;
+  const requestedContentId = Number(routeState?.contentId);
 
   const {
     data: course,
@@ -185,16 +193,21 @@ const TeacherViewCourse = () => {
 
   const { data: contents, isLoading: isLoadingContents } =
     useGetTeacherCourseContents({ token, courseId: queryCourseId });
+  const contentIdForLecture =
+    Number.isSafeInteger(requestedContentId) && requestedContentId > 0
+      ? String(requestedContentId)
+      : contents?.data?.[0]?.id.toString() || "";
+
   const { data: lectures, isLoading: isLoadingLectures } =
     useGetTeacherCourseLectures({
       token,
       courseId: queryCourseId,
-      contentId: contents?.data?.[0]?.id.toString() || "",
+      contentId: contentIdForLecture,
     });
 
-  const location = useLocation();
-  const selectedLecture = (location.state as { lecture?: ILecture } | null)?.lecture;
-  const lecture = selectedLecture ?? lectures?.data?.[0] ?? null;
+  const lecture = selectedLectureId
+    ? lectures?.data?.find((item) => item.id === selectedLectureId) ?? null
+    : lectures?.data?.[0] ?? null;
   const rawCourseTitle = course?.data?.title?.trim() || "";
   const rawCourseDescription = course?.data?.description?.trim() || "";
   const rawLectureTitle = lecture?.title?.trim() || "";

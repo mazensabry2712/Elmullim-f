@@ -89,10 +89,8 @@ const CourseForm = ({ action, course }: IProps) => {
           title: language === "ar" ? "تم بنجاح" : "Done",
           text: message ?? undefined,
         });
-        navigate("/profile", {
-          state: {
-            myCourses: true,
-          },
+        navigate(`/profile/my-courses/${course?.id}/view`, {
+          replace: true,
         });
         form.reset();
         return;

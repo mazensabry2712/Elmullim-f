@@ -115,7 +115,8 @@ const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
 
                                   {lecture.quiz ? (
                                     <Link
-                                      to={"/view-quiz?quiz=" + lecture.quiz.id}
+                                      to={"/view-quiz?quiz=" + lecture.quiz.id + "&course=" + courseId}
+                                      state={{ lecture }}
                                       className="mt-2 flex items-center justify-between gap-3 rounded-md border border-main/20 bg-main/5 px-3 py-2 text-sm text-main hover:bg-main/10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main"
                                     >
                                       <span className="min-w-0 truncate font-semibold">

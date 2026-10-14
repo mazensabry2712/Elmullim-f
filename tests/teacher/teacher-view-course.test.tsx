@@ -164,7 +164,7 @@ describe("TeacherViewCourse", () => {
       "/profile/my-courses/10/update"
     );
     expect(screen.queryByRole("button", { name: /delete course/i })).not.toBeInTheDocument();
-    expect(screen.getByText(/course is published/i)).toBeInTheDocument();
+    expect(screen.getByText("Published")).toBeInTheDocument();
   });
 
   it("shows a short course description as entered and explains what needs review", () => {

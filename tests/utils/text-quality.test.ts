@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { hasMinimumWords, hasRepeatedTextPattern, isDisplayableProfileText } from "@/utils/textQuality";
+import {
+  hasMinimumWords,
+  hasRepeatedTextPattern,
+  hasRepeatedWordPattern,
+  isDisplayableProfileText,
+} from "@/utils/textQuality";
 
 describe("text quality safeguards", () => {
   it("detects repetitive placeholder strings", () => {
@@ -14,6 +19,11 @@ describe("text quality safeguards", () => {
     expect(hasRepeatedTextPattern("الرياضيات")).toBe(false);
     expect(hasRepeatedTextPattern("A qualified teacher with classroom experience")).toBe(false);
     expect(hasRepeatedTextPattern("اللغةالعربيةجميلةوممتعة")).toBe(false);
+  });
+  it("flags consecutive repeated words without rejecting natural repeated terms", () => {
+    expect(hasRepeatedWordPattern("الحنكليس الحنكليس الحنكليس")).toBe(true);
+    expect(hasRepeatedWordPattern("The course explains the idea and the practice")).toBe(false);
+    expect(hasRepeatedWordPattern("Learn, learn, learn!")).toBe(true);
   });
   it("requires complete profile descriptions", () => {
     expect(hasMinimumWords("Experienced teacher with a patient teaching style", 3)).toBe(true);

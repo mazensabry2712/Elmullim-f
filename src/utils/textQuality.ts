@@ -32,19 +32,21 @@ export const hasRepeatedTextPattern = (value: string | null | undefined): boolea
 };
 /**
  * Detects obvious repeated filler such as the same word repeated three or more
- * times in a short field. This deliberately avoids judging grammar or meaning.
+ * consecutive times. It does not flag a common word that appears elsewhere in
+ * an otherwise natural sentence.
  */
 export const hasRepeatedWordPattern = (value: string | null | undefined): boolean => {
   const words = (value ?? "")
     .normalize("NFKC")
     .toLocaleLowerCase()
     .match(/[\p{L}\p{N}]+/gu) ?? [];
-  const counts = new Map<string, number>();
+  let previousWord = "";
+  let consecutiveCount = 0;
 
   for (const word of words) {
-    const count = (counts.get(word) ?? 0) + 1;
-    if (count >= 3) return true;
-    counts.set(word, count);
+    consecutiveCount = word === previousWord ? consecutiveCount + 1 : 1;
+    previousWord = word;
+    if (consecutiveCount >= 3) return true;
   }
 
   return false;

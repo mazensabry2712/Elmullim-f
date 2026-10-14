@@ -11,6 +11,7 @@ describe("teacher course authoring validation", () => {
   it("rejects repetitive placeholder text, including repeated words", () => {
     expect(courseSchema.safeParse({title:"ؤؤصيؤصؤسيؤسصؤسصثبؤسصثي",description:validDescription,price:100,level:"beginner",sub_category_id:"1",category_id:"1"}).success).toBe(false);
     expect(courseSchema.safeParse({title:"Frontend Development",description:"الحنكليس الحنكليس الحنكليس",price:100,level:"beginner",sub_category_id:"1",category_id:"1"}).success).toBe(false);
+    expect(courseSchema.safeParse({title:"Learning the Basics",description:"The course explains the idea and the practice in clear examples.",price:100,level:"beginner",sub_category_id:"1",category_id:"1"}).success).toBe(true);
     expect(courseContentSchema.safeParse({title:"قثبقثبثقبقثبقثبقثب",description:"fdfdgfdgfdgfdgfdgfdgfdgdfgfdgfdgfdgfdg",courseId:"1"}).success).toBe(false);
   });
 

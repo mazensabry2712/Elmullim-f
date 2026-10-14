@@ -73,14 +73,22 @@ describe("course-linked quiz navigation", () => {
         data: {
           id: 501,
           quiz_id: 99,
-          score: 10,
+          score: 0,
           total_score: 10,
-          percentage: 100,
-          correct_answers: 1,
+          percentage: 0,
+          correct_answers: 0,
           started_at: "2026-10-14T00:00:00.000Z",
           deadline_at: null,
           submitted_at: "2026-10-14T00:10:00.000Z",
-          answers: [],
+          answers: [{
+            question_id: 20,
+            question_title: "What is 2 + 2?",
+            selected_option_id: 11,
+            selected_option_title: "3",
+            correct_option_title: "4",
+            is_correct: false,
+            awarded_score: 0,
+          }],
         },
       },
       isLoading: false,
@@ -113,5 +121,8 @@ describe("course-linked quiz navigation", () => {
 
     const returnLink = await screen.findByRole("link", { name: "Back to course" });
     await waitFor(() => expect(returnLink).toHaveAttribute("href", "/courses/7/view"));
+    expect(screen.getByText("What is 2 + 2?")).toBeInTheDocument();
+    expect(screen.getByText("3")).toBeInTheDocument();
+    expect(screen.getByText("4")).toBeInTheDocument();
   });
 });

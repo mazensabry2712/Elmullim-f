@@ -5,9 +5,11 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { I18nProvider } from "@/i18n";
 import DeleteTeacherCourseAction from "@/components/profiles/teacher/courses/DeleteTeacherCourseAction";
 
-const mockDeleteCourse = vi.fn();
-const mockToastSuccess = vi.fn();
-const mockToastError = vi.fn();
+const { mockDeleteCourse, mockToastSuccess, mockToastError } = vi.hoisted(() => ({
+  mockDeleteCourse: vi.fn(),
+  mockToastSuccess: vi.fn(),
+  mockToastError: vi.fn(),
+}));
 
 vi.mock("@/lib/react-query/teacher/courses", () => ({
   useDeleteTeacherCourse: () => ({

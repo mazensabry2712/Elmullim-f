@@ -1,5 +1,5 @@
 import CreateCourseContent from "@/components/profiles/teacher/courses/CreateCourseContent";
-import DeleteCourse from "@/components/profiles/teacher/courses/DeleteCourse";
+import DeleteTeacherCourseAction from "@/components/profiles/teacher/courses/DeleteTeacherCourseAction";
 import CreateCourseLecture from "@/components/profiles/teacher/courses/CreateCourseLecture";
 import { Button } from "@/components/ui/button";
 import TeacherViewCourseContent from "@/components/profiles/teacher/courses/TeacherViewCourseContent";
@@ -388,7 +388,7 @@ const TeacherViewCourse = () => {
                         <PencilLine className="h-4 w-4" aria-hidden="true" />
                         <span>{text.editCourse}</span>
                       </Link>
-                      <DeleteCourse id={course.data.id.toString()} />
+                      <DeleteTeacherCourseAction id={course.data.id.toString()} courseTitle={rawCourseTitle || text.untitledCourse} />
                     </>
                   ) : null}
                 </div>

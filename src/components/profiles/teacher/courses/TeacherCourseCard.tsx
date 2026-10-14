@@ -223,7 +223,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
               />
             </div>
           ) : (
-            <div className="flex justify-end">
+            <div className="flex flex-col items-end gap-1">
               <button
                 type="button"
                 disabled
@@ -234,6 +234,15 @@ const TeacherCourseCard = ({ course }: IProps) => {
                 <LockKeyhole className="h-4 w-4" />
                 {isArabic ? "حذف غير متاح" : "Delete unavailable"}
               </button>
+              <p className="max-w-full text-right text-[11px] leading-5 text-slate-500" role="note">
+                {status === "published"
+                  ? isArabic
+                    ? "الحذف محظور لحماية تسجيلات الطلاب وسجلات المدفوعات."
+                    : "Deletion is blocked to protect student enrollments and payment records."
+                  : isArabic
+                    ? "انتظر انتهاء المراجعة قبل محاولة الحذف."
+                    : "Deletion is unavailable while review is pending."}
+              </p>
             </div>
           )}
         </div>

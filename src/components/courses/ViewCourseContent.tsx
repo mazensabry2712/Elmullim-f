@@ -88,7 +88,7 @@ const ViewCourseContent = ({ courseId, copy: providedCopy }: IProps) => {
                     {lectures.data.map((lecture) => (
                       <div key={lecture.id} className="space-y-1">
                         <Link
-                          to={`/courses/${courseId}/view`}
+                          to={`/courses/${courseId}/view?content=${id}&lecture=${lecture.id}`}
                           state={{ lecture }}
                           className="block bg-[#f1f1f1] space-y-0.5 px-4 py-2 hover:bg-[#dcdcdc] transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-inset"
                         >

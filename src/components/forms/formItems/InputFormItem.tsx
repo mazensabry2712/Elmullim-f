@@ -47,11 +47,11 @@ const InputFormItem = ({ input, field, label = false, disabled = false }: IProps
 
       <FormControl>
         <Input
-          disabled={disabled}
           type={inputType}
           placeholder={translateFormText(language, input.placeholder)}
           autoComplete={autoComplete}
           {...field}
+          disabled={disabled}
           min={0}
           className="bg-white py-6 text-black-blue border-input focus-visible:ring-0 placeholder:text-black-blue/50 placeholder:text-sm placeholder:font-sora"
         />

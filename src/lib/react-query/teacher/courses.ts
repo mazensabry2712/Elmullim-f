@@ -171,10 +171,12 @@ export const useCreateTeacherCourseContent = () => {
       content: ICreateCourseContent;
     }) => createTeacherCourseContent({ token, content }),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS],
-      });
+    onSuccess: (_response, variables) => {
+      const courseId = Number(variables.content.courseId);
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE, String(courseId)] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_CONTENTS, courseId] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, courseId] });
     },
   });
 };
@@ -190,10 +192,12 @@ export const useUpdateTeacherCourseContent = () => {
       content: IUpdateCourseContent;
     }) => updateTeacherCourseContent({ token, content }),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS],
-      });
+    onSuccess: (_response, variables) => {
+      const courseId = Number(variables.content.courseId);
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE, String(courseId)] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_CONTENTS, courseId] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, courseId] });
     },
   });
 };
@@ -211,10 +215,12 @@ export const useDeleteTeacherCourseContent = () => {
       courseId: string;
     }) => deleteTeacherCourseContent({ token, id, courseId }),
 
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS],
-      });
+    onSuccess: (_response, variables) => {
+      const courseId = Number(variables.courseId);
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE_CONTENTS] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.TEACHER_COURSE, String(courseId)] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE_CONTENTS, courseId] });
+      void queryClient.invalidateQueries({ queryKey: [QueryKeys.COURSE, courseId] });
     },
   });
 };

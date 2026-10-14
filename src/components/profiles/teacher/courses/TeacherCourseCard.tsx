@@ -237,7 +237,7 @@ const TeacherCourseCard = ({ course }: IProps) => {
               <p className="max-w-full text-right text-[11px] leading-5 text-slate-500" role="note">
                 {status === "published"
                   ? isArabic
-                    ? "الحذف محظور لحماية تسجيلات الطلاب وسجلات المدفوعات."
+                    ? "لا يمكن للمدرّس حذف الكورسات المنشورة. تواصل مع الدعم إذا لزم إزالتها."
                     : "Deletion is blocked to protect student enrollments and payment records."
                   : isArabic
                     ? "انتظر انتهاء المراجعة قبل محاولة الحذف."

@@ -32,6 +32,9 @@ import {
   Wallet,
 } from "lucide-react";
 import { useEffect } from "react";
+import { useQueries } from "@tanstack/react-query";
+import QueryKeys from "@/enums";
+import { getTeacherCourseLectures } from "@/services/teacher/courses";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
@@ -91,8 +94,15 @@ const TeacherViewCourse = () => {
         needsReview: "مراجعة مطلوبة",
         titleGood: "العنوان واضح وغير مكرر.",
         descriptionGood: "الوصف مكتمل.",
-        contentGood: "تمت إضافة وحدة واحدة على الأقل.",
+        contentGood: "كل وحدة تحتوي على محاضرة واحدة على الأقل.",
         contentMissing: "أضف وحدة واحدة على الأقل.",
+        contentNeedsLectures: "أضف محاضرة واحدة على الأقل داخل كل وحدة.",
+        checkingContent: "جارٍ التحقق من المحاضرات داخل كل وحدة...",
+        videosReady: "تم رفع فيديو لكل المحاضرات.",
+        videosNeedUpload: "ارفع فيديو لكل محاضرة قبل إرسال الكورس للمراجعة.",
+        videosNeedLectures: "أضف محاضرة لكل وحدة أولًا.",
+        checkingVideos: "جارٍ التحقق من فيديوهات كل المحاضرات...",
+        readinessError: "تعذر التحقق من المحتوى. أعد تحميل الصفحة وحاول مرة أخرى.",
         videosHint: "راجع حالة الفيديو داخل بطاقة كل محاضرة.",
         checkVideosHint: "راجع وجود فيديو داخل بطاقة كل محاضرة.",
         titleNeedsReview: "راجع عنوان الكورس؛ يجب أن يكون واضحًا وغير مكرر.",
@@ -154,8 +164,15 @@ const TeacherViewCourse = () => {
         needsReview: "Needs review",
         titleGood: "The title is clear and not repetitive.",
         descriptionGood: "The description is complete.",
-        contentGood: "At least one content unit has been added.",
+        contentGood: "Every content unit has at least one lecture.",
         contentMissing: "Add at least one content unit.",
+        contentNeedsLectures: "Add at least one lecture inside every content unit.",
+        checkingContent: "Checking lectures in every content unit...",
+        videosReady: "Every lecture has a video.",
+        videosNeedUpload: "Upload a video for every lecture before submitting the course for review.",
+        videosNeedLectures: "Add at least one lecture to every unit first.",
+        checkingVideos: "Checking videos for every lecture...",
+        readinessError: "Unable to verify the content. Reload the page and try again.",
         videosHint: "Review video status on each lecture card.",
         checkVideosHint: "Confirm that every lecture has a video in its card.",
         titleNeedsReview: "Review the course title and use clear, non-repeated wording.",
@@ -187,6 +204,18 @@ const TeacherViewCourse = () => {
 
   const { data: contents, isLoading: isLoadingContents } =
     useGetTeacherCourseContents({ token, courseId: queryCourseId });
+  const contentUnits = contents?.data ?? [];
+  const readinessLectureQueries = useQueries({
+    queries: contentUnits.map((content) => ({
+      queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, content.id.toString(), queryCourseId],
+      queryFn: () => getTeacherCourseLectures({
+        token,
+        courseId: queryCourseId,
+        contentId: content.id.toString(),
+      }),
+      enabled: Boolean(token && queryCourseId),
+    })),
+  });
   const { data: lectures, isLoading: isLoadingLectures } =
     useGetTeacherCourseLectures({
       token,
@@ -219,7 +248,22 @@ const TeacherViewCourse = () => {
   const courseStatus: CoursePublishingStatus = course?.data?.publishing_status ?? "draft";
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
   const canEditDetails = canEdit || courseStatus === "published";
-  const contentCount = contents?.data?.length ?? 0;
+  const contentCount = contentUnits.length;
+  const isCheckingReadiness = isLoadingContents || readinessLectureQueries.some((query) => query.isLoading);
+  const hasReadinessError = readinessLectureQueries.some((query) => query.isError);
+  const everyUnitHasLectures = contentCount > 0 && contentUnits.every(
+    (_content, index) => (readinessLectureQueries[index]?.data?.data?.length ?? 0) > 0
+  );
+  const everyLectureHasVideo = everyUnitHasLectures && readinessLectureQueries.every(
+    (query) => (query.data?.data ?? []).every((item) => item.hasVideo)
+  );
+  const canSubmitForReview =
+    courseTitleIsValid &&
+    courseDescriptionIsValid &&
+    everyUnitHasLectures &&
+    everyLectureHasVideo &&
+    !isCheckingReadiness &&
+    !hasReadinessError;
 
   const statusLabel =
     courseStatus === "published" ? text.published :
@@ -505,15 +549,27 @@ const TeacherViewCourse = () => {
                 {
                   key: "content",
                   label: text.checkContent,
-                  detail: contentCount > 0 ? text.contentGood : text.contentMissing,
-                  passed: contentCount > 0,
+                  detail: isCheckingReadiness
+                    ? text.checkingContent
+                    : hasReadinessError
+                      ? text.readinessError
+                      : everyUnitHasLectures
+                        ? text.contentGood
+                        : contentCount > 0 ? text.contentNeedsLectures : text.contentMissing,
+                  passed: isCheckingReadiness || hasReadinessError ? null as boolean | null : everyUnitHasLectures,
                   icon: Layers3,
                 },
                 {
                   key: "videos",
                   label: text.checkVideos,
-                  detail: text.checkVideosHint,
-                  passed: null as boolean | null,
+                  detail: isCheckingReadiness
+                    ? text.checkingVideos
+                    : hasReadinessError
+                      ? text.readinessError
+                      : everyLectureHasVideo
+                        ? text.videosReady
+                        : everyUnitHasLectures ? text.videosNeedUpload : text.videosNeedLectures,
+                  passed: isCheckingReadiness || hasReadinessError ? null as boolean | null : everyLectureHasVideo,
                   icon: Video,
                 },
               ].map((item) => {
@@ -561,7 +617,7 @@ const TeacherViewCourse = () => {
               <Button
                 type="button"
                 onClick={() => void handleSubmitForReview()}
-                disabled={isSubmittingForReview}
+                disabled={isSubmittingForReview || !canSubmitForReview}
                 className="min-h-11 w-full rounded-xl bg-[#111c31] px-5 font-bold text-white hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 sm:w-auto"
               >
                 {isSubmittingForReview ? (

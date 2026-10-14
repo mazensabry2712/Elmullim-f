@@ -447,7 +447,7 @@ const TeacherViewCourse = () => {
                     <span>{text.descriptionNeedsReview}</span>
                   </div>
                 ) : null}
-undefined              </div>
+              </div>
             </div>
           </div>
         </section>

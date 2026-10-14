@@ -63,7 +63,10 @@ export interface IStudentQuizSubmissionAnswer {
 
 export interface IStudentQuizAttemptAnswer {
   question_id: number;
+  question_title?: string | null;
   selected_option_id: number;
+  selected_option_title?: string | null;
+  correct_option_title?: string | null;
   is_correct: boolean;
   awarded_score: number;
 }

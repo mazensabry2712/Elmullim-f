@@ -975,7 +975,7 @@ const CourseWizardForm = () => {
             : "The course was saved as a draft.",
       });
 
-      window.location.href = "/profile";
+      window.location.href = `/profile/my-courses/${courseId}/view`;
     } catch (error) {
       setUploadingLectureId(null);
       setUploadProgress(0);

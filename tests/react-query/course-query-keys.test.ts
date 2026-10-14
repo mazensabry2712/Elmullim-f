@@ -23,6 +23,7 @@ import {
   useGetCourses,
   useGetCourseLectures,
 } from "@/lib/react-query/courses/courses";
+import { useGetStudentQuiz } from "@/lib/react-query/student/quizzes";
 
 describe("course query keys", () => {
   beforeEach(() => {
@@ -40,6 +41,17 @@ describe("course query keys", () => {
     };
 
     expect(options.queryKey).toEqual(["courses", "math", "7:student"]);
+    expect(JSON.stringify(options.queryKey)).not.toContain("secret-token");
+  });
+
+  it("scopes student quiz details to the active session without storing the token", () => {
+    useGetStudentQuiz({ token: "secret-token", quizId: 91 });
+
+    const options = useQueryMock.mock.calls[0]?.[0] as {
+      queryKey: unknown[];
+    };
+
+    expect(options.queryKey).toEqual(["studentQuiz", 91, "7:student"]);
     expect(JSON.stringify(options.queryKey)).not.toContain("secret-token");
   });
 

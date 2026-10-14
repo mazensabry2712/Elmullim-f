@@ -1,4 +1,5 @@
 import { render, screen, waitFor } from "@testing-library/react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { I18nProvider } from "@/i18n";
@@ -10,16 +11,26 @@ vi.mock("@/services/student/enrolling", () => ({
   getPaymentStatus: (...args: unknown[]) => mockGetPaymentStatus(...args),
 }));
 
-const renderPage = (entry = "/payment/result?order=5001&sig=signed") =>
-  render(
-    <MemoryRouter initialEntries={[entry]}>
-      <I18nProvider>
-        <Routes>
-          <Route path="/payment/result" element={<PaymentResult />} />
-        </Routes>
-      </I18nProvider>
-    </MemoryRouter>
+const renderPage = (entry = "/payment/result?order=5001&sig=signed") => {
+  const queryClient = new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  });
+
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={[entry]}>
+        <I18nProvider>
+          <Routes>
+            <Route path="/payment/result" element={<PaymentResult />} />
+          </Routes>
+        </I18nProvider>
+      </MemoryRouter>
+    </QueryClientProvider>
   );
+};
 
 describe("Payment result", () => {
   beforeEach(() => {

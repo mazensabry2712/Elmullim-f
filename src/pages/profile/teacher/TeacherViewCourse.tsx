@@ -10,6 +10,7 @@ import {
   useGetTeacherCourseById,
   useGetTeacherCourseContents,
   useGetTeacherCourseLectures,
+  useGetTeacherCourseReadinessLectures,
   useSubmitTeacherCourseForReview,
 } from "@/lib/react-query/teacher/courses";
 import type { AxiosResErr } from "@/types";
@@ -32,9 +33,6 @@ import {
   Wallet,
 } from "lucide-react";
 import { useEffect } from "react";
-import { useQueries } from "@tanstack/react-query";
-import QueryKeys from "@/enums";
-import { getTeacherCourseLectures } from "@/services/teacher/courses";
 import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
@@ -205,16 +203,11 @@ const TeacherViewCourse = () => {
   const { data: contents, isLoading: isLoadingContents } =
     useGetTeacherCourseContents({ token, courseId: queryCourseId });
   const contentUnits = contents?.data ?? [];
-  const readinessLectureQueries = useQueries({
-    queries: contentUnits.map((content) => ({
-      queryKey: [QueryKeys.TEACHER_COURSE_LECTURES, content.id.toString(), queryCourseId],
-      queryFn: () => getTeacherCourseLectures({
-        token,
-        courseId: queryCourseId,
-        contentId: content.id.toString(),
-      }),
-      enabled: Boolean(token && queryCourseId),
-    })),
+  const readinessLectureQueries = useGetTeacherCourseReadinessLectures({
+    token,
+    courseId: queryCourseId,
+    contents: contentUnits,
+    enabled: Boolean(token && queryCourseId),
   });
   const { data: lectures, isLoading: isLoadingLectures } =
     useGetTeacherCourseLectures({

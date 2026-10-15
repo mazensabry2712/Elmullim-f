@@ -1015,7 +1015,7 @@ const CourseWizardForm = () => {
 
         <div className="grid gap-6 lg:grid-cols-[280px_1fr]">
           <ImageUpload
-            allowedFormats={["png", "jpg", "jpeg", "svg"]}
+            allowedFormats={["png", "jpg", "jpeg", "webp"]}
             file={image}
             setFile={setImage}
             title={

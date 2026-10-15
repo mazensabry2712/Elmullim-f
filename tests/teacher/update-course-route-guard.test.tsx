@@ -111,7 +111,7 @@ describe("UpdateCourse route guard", () => {
     }
   );
 
-  it.each(["pending_approval", "published"])(
+  it.each(["pending_approval"])(
     "redirects a %s course to its management page",
     async (status) => {
       mockCourseResponse(status);
@@ -126,6 +126,17 @@ describe("UpdateCourse route guard", () => {
       );
     }
   );
+
+  it("allows editing published course details", async () => {
+    mockCourseResponse("published");
+    renderRoute();
+
+    expect(await screen.findByTestId("course-form")).toHaveTextContent(
+      "update: Physics Fundamentals"
+    );
+    expect(screen.queryByText("Course management destination")).not.toBeInTheDocument();
+    expect(mocks.toastInfo).not.toHaveBeenCalled();
+  });
 
   it("rejects an invalid course ID instead of rendering an empty form", async () => {
     mocks.useGetTeacherCourseById.mockReturnValue({

@@ -185,7 +185,7 @@ describe("TeacherViewCourse", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("keeps course edit/delete controls visible but disabled once the course is published", () => {
+  it("keeps edit/delete actions available once the course is published", () => {
     mocks.useGetTeacherCourseById.mockReturnValue({
       data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },
       isLoading: false,
@@ -194,13 +194,15 @@ describe("TeacherViewCourse", () => {
 
     renderPage();
 
-    expect(screen.queryByRole("link", { name: /edit course/i })).not.toBeInTheDocument();
-    expect(screen.getByRole("button", { name: /edit course unavailable/i })).toBeDisabled();
+    expect(screen.getByRole("link", { name: /edit course/i })).toHaveAttribute(
+      "href",
+      "/profile/my-courses/10/update"
+    );
+    expect(screen.queryByRole("button", { name: /edit course unavailable/i })).not.toBeInTheDocument();
 
     const deleteButton = screen.getByRole("button", { name: /delete course/i });
-    expect(deleteButton).toBeDisabled();
-    expect(deleteButton.getAttribute("title")).toMatch(/published/i);
-    expect(screen.getByRole("note")).toHaveTextContent(/course is published/i);
+    expect(deleteButton).toBeEnabled();
+    expect(deleteButton).not.toHaveAttribute("title");
   });
 
   it("shows a short course description as entered and explains what needs review", () => {

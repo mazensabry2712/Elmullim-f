@@ -219,4 +219,20 @@ describe("TeacherViewCourse", () => {
     expect(screen.getByText("Sura Al Zalzalah", { selector: "p" })).toBeInTheDocument();
     expect(screen.getByText(/at least 20 characters and 3 words/i)).toBeInTheDocument();
   });
+
+  it("offers safe content additions on a published course", () => {
+    mocks.useGetTeacherCourseById.mockReturnValue({
+      data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },
+      isLoading: false,
+      failureReason: undefined,
+    });
+
+    renderPage();
+
+    expect(screen.getByRole("button", { name: /add content/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add lecture/i })).toBeInTheDocument();
+    expect(
+      screen.getByText(/new additions remain hidden from students until an admin approves them/i)
+    ).toBeInTheDocument();
+  });
 });

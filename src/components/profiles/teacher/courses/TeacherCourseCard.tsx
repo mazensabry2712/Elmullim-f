@@ -1,18 +1,17 @@
 import { Link } from "react-router-dom";
 import { ICourse } from "@/interfaces/courses/courses";
 import truncateTxt from "@/utils/truncateTxt";
-import DeleteTeacherCourseAction from "./DeleteTeacherCourseAction";
 import {
   BookOpen,
   CalendarDays,
   Eye,
   Layers3,
-  Pen,
   Tag,
   Video,
 } from "lucide-react";
 import { useI18n } from "@/i18n";
 import { isDisplayableProfileText } from "@/utils/textQuality";
+import TeacherCourseActions from "./TeacherCourseActions";
 
 interface IProps {
   course: ICourse;
@@ -173,41 +172,20 @@ const TeacherCourseCard = ({ course }: IProps) => {
         ) : null}
 
         <div className="mt-auto space-y-2 pt-5">
-          <div className="grid grid-cols-2 gap-2">
-            <Link
-              to={`/profile/my-courses/${course.id}/view`}
-              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-main px-3 py-2.5 text-xs font-extrabold text-white transition hover:bg-main/90"
-            >
-              <Eye className="h-4 w-4" />
-              {isArabic ? "إدارة الكورس" : "Manage course"}
-            </Link>
+          <Link
+            to={"/profile/my-courses/" + course.id + "/view"}
+            className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl bg-main px-3 py-2.5 text-xs font-extrabold text-white transition hover:bg-main/90"
+          >
+            <Eye className="h-4 w-4" />
+            {isArabic ? "إدارة الكورس" : "Manage course"}
+          </Link>
 
-            {canEdit ? (
-              <Link
-                to={`/profile/my-courses/${course.id}/update`}
-                aria-label={isArabic ? "تعديل الكورس" : "Edit course"}
-                title={isArabic ? "تعديل الكورس" : "Edit course"}
-                className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs font-extrabold text-blue-600 transition hover:bg-blue-600 hover:text-white"
-              >
-                <Pen className="h-4 w-4" />
-                {isArabic ? "تعديل" : "Edit"}
-              </Link>
-            ) : (
-              <div className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-xs font-extrabold text-slate-500">
-                <Layers3 className="h-4 w-4" />
-                {isArabic ? "مجمّد" : "Frozen"}
-              </div>
-            )}
-          </div>
-
-          {canEdit ? (
-            <div className="flex justify-end">
-              <DeleteTeacherCourseAction
-                id={course.id.toString()}
-                courseTitle={courseTitle}
-              />
-            </div>
-          ) : null}
+          <TeacherCourseActions
+            courseId={course.id.toString()}
+            courseTitle={courseTitle}
+            status={status}
+            layout="card"
+          />
         </div>
       </div>
     </article>

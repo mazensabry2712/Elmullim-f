@@ -385,90 +385,7 @@ const ManageCourseQuiz = ({
     }
   };
 
-  if (quiz) {
-    return (
-      <div className="mt-3 rounded-lg border border-main/20 bg-main/5 p-3">
-        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 text-main">
-              <CheckCircle2 className="h-4 w-4 shrink-0" />
-              <p className="truncate text-sm font-bold">
-                {isArabic ? "اختبار بعد المحاضرة" : "Quiz after lecture"}
-              </p>
-            </div>
-            <p className="mt-1 truncate text-sm font-semibold text-black-blue">
-              {quiz.title || (isArabic ? "اختبار" : "Quiz")}
-            </p>
-            {quiz.approval_status && quiz.approval_status !== "approved" ? (
-              <span className={"mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold " + (quiz.approval_status === "rejected" ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800")}>
-                {quiz.approval_status === "rejected"
-                  ? (isArabic ? "الاختبار مرفوض — عدّله وأعد إرساله" : "Quiz rejected — edit and resubmit")
-                  : (isArabic ? "الاختبار قيد مراجعة الإدارة" : "Quiz awaiting admin review")}
-              </span>
-            ) : null}
-            {quiz.approval_note ? <p className="mt-1 text-xs leading-5 text-rose-700">{quiz.approval_note}</p> : null}
-            <p className="mt-1 text-xs text-black-blue/60">
-              {quiz.questions_count} {isArabic ? "أسئلة" : "questions"} ·{" "}
-              {quiz.time_limit
-                ? `${quiz.time_limit} ${isArabic ? "دقيقة" : "min"}`
-                : isArabic
-                  ? "بدون حد زمني"
-                  : "No time limit"}
-            </p>
-          </div>
-          {canEditExistingQuiz && (
-            <div className="flex shrink-0 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={openEditor}
-                disabled={isLoadingQuiz}
-                className="border-main text-main hover:bg-main hover:text-white"
-              >
-                {isLoadingQuiz ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Pencil className="h-4 w-4" />
-                )}
-                <span>{isArabic ? "تعديل الاختبار" : "Edit quiz"}</span>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => void handleDelete()}
-                disabled={isDeleting}
-                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-              >
-                {isDeleting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-                <span>{isArabic ? "حذف الاختبار" : "Delete quiz"}</span>
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
-    );
-  }
-
-  if (!canAddQuiz || !lecture.hasVideo) {
-    return null;
-  }
-
-  return (
-    <>
-      <Button
-        type="button"
-        variant="outline"
-        onClick={openEditor}
-        className="mt-3 border-main text-main hover:bg-main hover:text-white"
-      >
-        <Plus className="h-4 w-4" />
-        {isArabic ? "إضافة اختبار بعد الفيديو" : "Add quiz after video"}
-      </Button>
-
+  const quizEditor = (
       <Modal
         isOpen={isOpen}
         onOpenChange={closeEditor}
@@ -667,6 +584,96 @@ const ManageCourseQuiz = ({
           </div>
         </form>
       </Modal>
+  );
+
+  if (quiz) {
+    return (
+      <>
+      <div className="mt-3 rounded-lg border border-main/20 bg-main/5 p-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 text-main">
+              <CheckCircle2 className="h-4 w-4 shrink-0" />
+              <p className="truncate text-sm font-bold">
+                {isArabic ? "اختبار بعد المحاضرة" : "Quiz after lecture"}
+              </p>
+            </div>
+            <p className="mt-1 truncate text-sm font-semibold text-black-blue">
+              {quiz.title || (isArabic ? "اختبار" : "Quiz")}
+            </p>
+            {quiz.approval_status && quiz.approval_status !== "approved" ? (
+              <span className={"mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold " + (quiz.approval_status === "rejected" ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800")}>
+                {quiz.approval_status === "rejected"
+                  ? (isArabic ? "الاختبار مرفوض — عدّله وأعد إرساله" : "Quiz rejected — edit and resubmit")
+                  : (isArabic ? "الاختبار قيد مراجعة الإدارة" : "Quiz awaiting admin review")}
+              </span>
+            ) : null}
+            {quiz.approval_note ? <p className="mt-1 text-xs leading-5 text-rose-700">{quiz.approval_note}</p> : null}
+            <p className="mt-1 text-xs text-black-blue/60">
+              {quiz.questions_count} {isArabic ? "أسئلة" : "questions"} ·{" "}
+              {quiz.time_limit
+                ? `${quiz.time_limit} ${isArabic ? "دقيقة" : "min"}`
+                : isArabic
+                  ? "بدون حد زمني"
+                  : "No time limit"}
+            </p>
+          </div>
+          {canEditExistingQuiz && (
+            <div className="flex shrink-0 gap-2">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={openEditor}
+                disabled={isLoadingQuiz}
+                className="border-main text-main hover:bg-main hover:text-white"
+              >
+                {isLoadingQuiz ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Pencil className="h-4 w-4" />
+                )}
+                <span>{isArabic ? "تعديل الاختبار" : "Edit quiz"}</span>
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => void handleDelete()}
+                disabled={isDeleting}
+                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+              >
+                {isDeleting ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : (
+                  <Trash2 className="h-4 w-4" />
+                )}
+                <span>{isArabic ? "حذف الاختبار" : "Delete quiz"}</span>
+              </Button>
+            </div>
+          )}
+        </div>
+      </div>
+      {canEditExistingQuiz ? quizEditor : null}
+      </>
+    );
+  }
+
+  if (!canAddQuiz || !lecture.hasVideo) {
+    return null;
+  }
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="outline"
+        onClick={openEditor}
+        className="mt-3 border-main text-main hover:bg-main hover:text-white"
+      >
+        <Plus className="h-4 w-4" />
+        {isArabic ? "إضافة اختبار بعد الفيديو" : "Add quiz after video"}
+      </Button>
+
+{quizEditor}
     </>
   );
 };

@@ -122,7 +122,7 @@ describe("UpdateCourse route guard", () => {
       ).toBeInTheDocument();
       expect(screen.queryByTestId("course-form")).not.toBeInTheDocument();
       expect(mocks.toastInfo).toHaveBeenCalledWith(
-        "Courses cannot be edited while under review or after publication."
+        "Courses cannot be edited while under review."
       );
     }
   );

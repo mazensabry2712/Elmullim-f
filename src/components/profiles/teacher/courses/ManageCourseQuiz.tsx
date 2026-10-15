@@ -552,9 +552,13 @@ const ManageCourseQuiz = ({
           <div className="flex items-center gap-2 border-t border-gray-200 pt-4">
             <AlertCircle className="h-4 w-4 text-main" />
             <p className="text-xs text-black-blue/60">
-              {isArabic
-                ? "سيتم إرسال الاختبار مع الكورس إلى مراجعة الإدارة."
-                : "The quiz will be reviewed together with the course."}
+              {courseStatus === "published"
+                ? isArabic
+                  ? "سيتم إرسال الاختبار لمراجعة مستقلة، ولن يظهر للطلاب إلا بعد اعتماده."
+                  : "This quiz will be reviewed separately and stay hidden from students until approved."
+                : isArabic
+                  ? "سيتم مراجعة الاختبار ضمن مراجعة الكورس."
+                  : "The quiz will be reviewed as part of the course review."}
             </p>
           </div>
 

@@ -35,7 +35,22 @@ vi.mock("@/components/profiles/teacher/courses/CreateCourseLecture", () => ({
 }));
 
 vi.mock("@/components/profiles/teacher/courses/DeleteTeacherCourseAction", () => ({
-  default: () => <button type="button" aria-label="Delete course">Delete course</button>,
+  default: ({
+    disabled,
+    disabledReason,
+  }: {
+    disabled?: boolean;
+    disabledReason?: string;
+  }) => (
+    <button
+      type="button"
+      aria-label="Delete course"
+      disabled={disabled}
+      title={disabled ? disabledReason : undefined}
+    >
+      Delete course
+    </button>
+  ),
 }));
 
 vi.mock("@/components/profiles/teacher/courses/TeacherViewCourseContent", () => ({
@@ -170,7 +185,7 @@ describe("TeacherViewCourse", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("hides course edit/delete actions once the course is published", () => {
+  it("keeps course edit/delete controls visible but disabled once the course is published", () => {
     mocks.useGetTeacherCourseById.mockReturnValue({
       data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },
       isLoading: false,
@@ -180,7 +195,12 @@ describe("TeacherViewCourse", () => {
     renderPage();
 
     expect(screen.queryByRole("link", { name: /edit course/i })).not.toBeInTheDocument();
-    expect(screen.queryByRole("button", { name: /delete course/i })).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /edit course unavailable/i })).toBeDisabled();
+
+    const deleteButton = screen.getByRole("button", { name: /delete course/i });
+    expect(deleteButton).toBeDisabled();
+    expect(deleteButton.getAttribute("title")).toMatch(/published/i);
+    expect(screen.getByRole("note")).toHaveTextContent(/course is published/i);
   });
 
   it("shows a short course description as entered and explains what needs review", () => {

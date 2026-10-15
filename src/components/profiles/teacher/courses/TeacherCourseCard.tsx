@@ -68,8 +68,6 @@ const TeacherCourseCard = ({ course }: IProps) => {
       }).format(new Date(course.updated_at))
     : null;
 
-  const canEdit = status === "draft" || status === "rejected";
-
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-3xl border border-black-blue/[0.07] bg-white shadow-[0_12px_38px_rgba(33,55,75,0.06)] transition duration-200 hover:-translate-y-1 hover:shadow-[0_18px_48px_rgba(33,55,75,0.1)]">
       <div className="relative aspect-[16/9] overflow-hidden bg-[#F4F7F7]">

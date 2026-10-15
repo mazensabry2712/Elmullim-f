@@ -597,17 +597,44 @@ undefined              </div>
             </div>
           </section>
         ) : (
-          <section className="flex flex-col gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-4 sm:flex-row sm:items-center">
+          <section className="flex flex-col gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4 sm:px-5">
+            <div className="flex items-start gap-2">
+              {courseStatus === "published" ? (
+                <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0 text-emerald-600" />
+              ) : (
+                <CircleAlert className="mt-0.5 h-5 w-5 shrink-0 text-amber-600" />
+              )}
+              <div>
+                <p className="text-sm font-semibold text-slate-700">
+                  {courseStatus === "published"
+                    ? (isArabic ? "الكورس منشور. يمكنك إضافة وحدات ومحاضرات وفيديوهات وكويزات جديدة." : "This course is published. You can add new sections, lectures, videos and quizzes.")
+                    : (isArabic ? "الكورس قيد مراجعة الإدارة حاليًا. يمكنك متابعة الإضافات بعد انتهاء المراجعة." : "This course is currently under review. New additions are available after this review finishes.")}
+                </p>
+                {courseStatus === "published" ? (
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    {isArabic
+                      ? "الإضافات الجديدة لن تظهر للطلاب إلا بعد اعتمادها من الإدارة، والمحتوى المنشور الحالي لن يتغير."
+                      : "New additions remain hidden from students until an admin approves them. Existing published content stays unchanged."}
+                  </p>
+                ) : null}
+              </div>
+            </div>
             {courseStatus === "published" ? (
-              <CheckCircle2 className="h-5 w-5 shrink-0 text-emerald-600" />
-            ) : (
-              <CircleAlert className="h-5 w-5 shrink-0 text-amber-600" />
-            )}
-            <p className="text-sm font-semibold text-slate-700">
-              {courseStatus === "published"
-                ? (isArabic ? "الكورس منشور." : "This course is published.")
-                : (isArabic ? "الكورس قيد مراجعة الإدارة حاليًا." : "This course is currently under review.")}
-            </p>
+              <div className="grid w-full grid-cols-1 gap-3 sm:grid-cols-2">
+                <CreateCourseContent courseId={course.data.id}>
+                  <Button type="button" className="min-h-11 w-full rounded-xl bg-emerald-600 px-4 font-bold text-white hover:bg-emerald-700">
+                    <FolderPlus className="h-4 w-4" aria-hidden="true" />
+                    {text.addContent}
+                  </Button>
+                </CreateCourseContent>
+                <CreateCourseLecture courseId={course.data.id}>
+                  <Button type="button" className="min-h-11 w-full rounded-xl border border-slate-200 bg-white px-4 font-bold text-slate-800 hover:border-emerald-500 hover:bg-emerald-50">
+                    <BookPlus className="h-4 w-4 text-emerald-700" aria-hidden="true" />
+                    {text.addLecture}
+                  </Button>
+                </CreateCourseLecture>
+              </div>
+            ) : null}
           </section>
         )}
 

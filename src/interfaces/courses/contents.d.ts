@@ -2,6 +2,8 @@ export interface IContent {
   id: number;
   title: string;
   description: string;
+  approval_status?: "approved" | "pending_approval" | "rejected";
+  approval_note?: string | null;
 }
 
 export interface IContentRes {

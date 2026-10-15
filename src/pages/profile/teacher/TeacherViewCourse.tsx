@@ -230,6 +230,7 @@ const TeacherViewCourse = () => {
   const courseStatus: CoursePublishingStatus = course?.data?.publishing_status ?? "draft";
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
   const contentCount = contents?.data?.length ?? 0;
+  const reviewReadiness = course?.data?.review_readiness;
 
   const statusLabel =
     courseStatus === "published" ? text.published :
@@ -504,15 +505,31 @@ undefined              </div>
                 {
                   key: "content",
                   label: text.checkContent,
-                  detail: contentCount > 0 ? text.contentGood : text.contentMissing,
-                  passed: contentCount > 0,
+                  detail: reviewReadiness
+                    ? reviewReadiness.content_valid
+                      ? text.contentGood
+                      : reviewReadiness.content_count === 0
+                        ? text.contentMissing
+                        : isArabic
+                          ? `أكمل ${new Intl.NumberFormat(locale).format(reviewReadiness.contents_without_lectures)} وحدة محتوى بإضافة محاضرة واحدة على الأقل لكل وحدة.`
+                          : `Add at least one lecture to each of the ${new Intl.NumberFormat(locale).format(reviewReadiness.contents_without_lectures)} incomplete content units.`
+                    : contentCount > 0 ? text.contentGood : text.contentMissing,
+                  passed: reviewReadiness ? reviewReadiness.content_valid : contentCount > 0,
                   icon: Layers3,
                 },
                 {
                   key: "videos",
                   label: text.checkVideos,
-                  detail: text.checkVideosHint,
-                  passed: null as boolean | null,
+                  detail: reviewReadiness
+                    ? reviewReadiness.lecture_count === 0
+                      ? isArabic ? "أضف المحاضرات أولًا ثم ارفع فيديو لكل محاضرة." : "Add lectures first, then upload a video for every lecture."
+                      : reviewReadiness.lectures_without_videos > 0
+                        ? isArabic
+                          ? `ارفع فيديو لـ ${new Intl.NumberFormat(locale).format(reviewReadiness.lectures_without_videos)} محاضرة قبل الإرسال للمراجعة.`
+                          : `Upload videos for ${new Intl.NumberFormat(locale).format(reviewReadiness.lectures_without_videos)} lecture(s) before submitting.`
+                        : isArabic ? "تم رفع فيديو لكل المحاضرات." : "Every lecture has an uploaded video."
+                    : text.checkVideosHint,
+                  passed: reviewReadiness ? reviewReadiness.videos_valid : null as boolean | null,
                   icon: Video,
                 },
               ].map((item) => {
@@ -560,7 +577,7 @@ undefined              </div>
               <Button
                 type="button"
                 onClick={() => void handleSubmitForReview()}
-                disabled={isSubmittingForReview}
+                disabled={isSubmittingForReview || (reviewReadiness !== undefined && !reviewReadiness.can_submit)}
                 className="min-h-11 w-full rounded-xl bg-[#111c31] px-5 font-bold text-white hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-emerald-500 focus-visible:ring-offset-2 sm:w-auto"
               >
                 {isSubmittingForReview ? (

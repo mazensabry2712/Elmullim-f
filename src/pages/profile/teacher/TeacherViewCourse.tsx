@@ -92,6 +92,7 @@ const TeacherViewCourse = () => {
         descriptionGood: "الوصف مكتمل.",
         contentGood: "تمت إضافة وحدة واحدة على الأقل.",
         contentMissing: "أضف وحدة واحدة على الأقل.",
+        contentCheckFallback: "سيؤكد الخادم اكتمال المحاضرات داخل كل وحدة عند إرسال الكورس للمراجعة.",
         videosHint: "راجع حالة الفيديو داخل بطاقة كل محاضرة.",
         checkVideosHint: "راجع وجود فيديو داخل بطاقة كل محاضرة.",
         titleNeedsReview: "راجع عنوان الكورس؛ يجب أن يكون واضحًا وغير مكرر.",
@@ -154,6 +155,7 @@ const TeacherViewCourse = () => {
         descriptionGood: "The description is complete.",
         contentGood: "At least one content unit has been added.",
         contentMissing: "Add at least one content unit.",
+        contentCheckFallback: "The server will verify that every unit has a lecture before accepting the course for review.",
         videosHint: "Review video status on each lecture card.",
         checkVideosHint: "Confirm that every lecture has a video in its card.",
         titleNeedsReview: "Review the course title and use clear, non-repeated wording.",
@@ -513,8 +515,8 @@ undefined              </div>
                         : isArabic
                           ? `أكمل ${new Intl.NumberFormat(locale).format(reviewReadiness.contents_without_lectures)} وحدة محتوى بإضافة محاضرة واحدة على الأقل لكل وحدة.`
                           : `Add at least one lecture to each of the ${new Intl.NumberFormat(locale).format(reviewReadiness.contents_without_lectures)} incomplete content units.`
-                    : contentCount > 0 ? text.contentGood : text.contentMissing,
-                  passed: reviewReadiness ? reviewReadiness.content_valid : contentCount > 0,
+                    : text.contentCheckFallback,
+                  passed: reviewReadiness ? reviewReadiness.content_valid : null as boolean | null,
                   icon: Layers3,
                 },
                 {

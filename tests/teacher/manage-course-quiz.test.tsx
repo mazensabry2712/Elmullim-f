@@ -55,20 +55,24 @@ vi.mock("@/components/ui/button", () => ({
 
 const quizDetails = {
   data: {
-    id: 18,
-    title: "Pending lecture quiz",
-    time_limit: 12,
-    questions: [
-      {
-        id: 40,
-        title: "What is the answer?",
-        score: 5,
-        options: [
-          { id: 71, title: "Correct option", is_correct: true },
-          { id: 72, title: "Other option", is_correct: false },
-        ],
-      },
-    ],
+    status: true,
+    message: null,
+    data: {
+      id: 18,
+      title: "Pending lecture quiz",
+      time_limit: 12,
+      questions: [
+        {
+          id: 40,
+          title: "What is the answer?",
+          score: 5,
+          options: [
+            { id: 71, title: "Correct option", is_correct: true },
+            { id: 72, title: "Other option", is_correct: false },
+          ],
+        },
+      ],
+    },
   },
   isLoading: false,
 };

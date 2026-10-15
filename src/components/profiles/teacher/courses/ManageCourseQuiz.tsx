@@ -79,8 +79,12 @@ const ManageCourseQuiz = ({
     lectureId: lecture.id.toString(),
     enabled: isOpen && !!quiz,
   });
-  const canEdit =
-    courseStatus === "draft" || courseStatus === "rejected";
+  const canEdit = courseStatus === "draft" || courseStatus === "rejected";
+  const canEditExistingQuiz =
+    canEdit ||
+    (courseStatus === "published" &&
+      (quiz?.approval_status === "pending_approval" || quiz?.approval_status === "rejected"));
+  const canAddQuiz = canEdit || courseStatus === "published";
 
   const resetForm = () => {
     setTitle("");
@@ -323,13 +327,17 @@ const ManageCourseQuiz = ({
       setIsOpen(false);
       resetForm();
       toast.success(
-        quiz
+        courseStatus === "published"
           ? isArabic
-            ? "تم تحديث الاختبار"
-            : "Quiz updated"
-          : isArabic
-            ? "تم إضافة الاختبار للمحاضرة"
-            : "Quiz added to the lecture"
+            ? "تم إرسال الاختبار للمراجعة ولن يظهر للطلاب إلا بعد اعتماده"
+            : "Quiz submitted for review; students will see it after approval"
+          : quiz
+            ? isArabic
+              ? "تم تحديث الاختبار"
+              : "Quiz updated"
+            : isArabic
+              ? "تم إضافة الاختبار للمحاضرة"
+              : "Quiz added to the lecture"
       );
     } catch (error: unknown) {
       const message =
@@ -339,7 +347,7 @@ const ManageCourseQuiz = ({
   };
 
   const handleDelete = async () => {
-    if (!quiz || isDeleting || !canEdit) return;
+    if (!quiz || isDeleting || !canEditExistingQuiz) return;
 
     const result = await Swal.fire({
       icon: "warning",
@@ -391,6 +399,14 @@ const ManageCourseQuiz = ({
             <p className="mt-1 truncate text-sm font-semibold text-black-blue">
               {quiz.title || (isArabic ? "اختبار" : "Quiz")}
             </p>
+            {quiz.approval_status && quiz.approval_status !== "approved" ? (
+              <span className={"mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold " + (quiz.approval_status === "rejected" ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800")}>
+                {quiz.approval_status === "rejected"
+                  ? (isArabic ? "الاختبار مرفوض — عدّله وأعد إرساله" : "Quiz rejected — edit and resubmit")
+                  : (isArabic ? "الاختبار قيد مراجعة الإدارة" : "Quiz awaiting admin review")}
+              </span>
+            ) : null}
+            {quiz.approval_note ? <p className="mt-1 text-xs leading-5 text-rose-700">{quiz.approval_note}</p> : null}
             <p className="mt-1 text-xs text-black-blue/60">
               {quiz.questions_count} {isArabic ? "أسئلة" : "questions"} ·{" "}
               {quiz.time_limit
@@ -400,7 +416,7 @@ const ManageCourseQuiz = ({
                   : "No time limit"}
             </p>
           </div>
-          {canEdit && (
+          {canEditExistingQuiz && (
             <div className="flex shrink-0 gap-2">
               <Button
                 type="button"
@@ -437,7 +453,7 @@ const ManageCourseQuiz = ({
     );
   }
 
-  if (!canEdit || !lecture.hasVideo) {
+  if (!canAddQuiz || !lecture.hasVideo) {
     return null;
   }
 

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import DeleteTeacherCourseAction from "./DeleteTeacherCourseAction";
 
-type CourseActionStatus = "draft" | "rejected" | "pending_approval" | "published" | string;
+type CourseActionStatus = string;
 
 interface TeacherCourseActionsProps {
   courseId: string;

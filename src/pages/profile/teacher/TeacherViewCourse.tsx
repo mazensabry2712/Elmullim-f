@@ -1,7 +1,7 @@
 import CreateCourseContent from "@/components/profiles/teacher/courses/CreateCourseContent";
-import DeleteTeacherCourseAction from "@/components/profiles/teacher/courses/DeleteTeacherCourseAction";
 import CreateCourseLecture from "@/components/profiles/teacher/courses/CreateCourseLecture";
 import { Button } from "@/components/ui/button";
+import TeacherCourseActions from "@/components/profiles/teacher/courses/TeacherCourseActions";
 import TeacherViewCourseContent from "@/components/profiles/teacher/courses/TeacherViewCourseContent";
 import VideoPlayer from "@/components/shared/VideoPlayer";
 import type { ILecture } from "@/interfaces/courses/lectures";
@@ -25,7 +25,6 @@ import {
   GraduationCap,
   Layers3,
   Loader2,
-  PencilLine,
   Send,
   Video,
   VideoOff,
@@ -346,8 +345,20 @@ const TeacherViewCourse = () => {
         className="bg-[#111c31] px-4 pb-10 pt-10 text-white md:px-6 md:pb-12 md:pt-14"
       >
         <div className="mx-auto max-w-7xl">
-          <p className="text-xs font-bold text-white/55">
-            {text.home} <span className="mx-2 text-emerald-400">/</span> {text.myCourses} <span className="mx-2 text-emerald-400">/</span> {text.title}
+          <p className="flex flex-wrap items-center gap-y-1 text-xs font-bold text-white/55">
+            <Link to="/" className="transition hover:text-white">
+              {text.home}
+            </Link>
+            <span className="mx-2 text-emerald-400" aria-hidden="true">/</span>
+            <Link
+              to="/profile"
+              state={{ myCourses: true }}
+              className="transition hover:text-white"
+            >
+              {text.myCourses}
+            </Link>
+            <span className="mx-2 text-emerald-400" aria-hidden="true">/</span>
+            <span className="text-white/80">{text.title}</span>
           </p>
           <div className="mt-5">
             <p className="text-sm font-bold text-emerald-300">{text.overview}</p>
@@ -390,27 +401,17 @@ const TeacherViewCourse = () => {
                     </p>
                   ) : null}
                 </div>
-                <div className="flex shrink-0 flex-wrap items-center gap-2">
-                  <span className={"inline-flex items-center rounded-full border px-3 py-1 text-xs font-extrabold " + statusClass}>
+                <div className="flex w-full flex-col gap-3 sm:w-auto sm:items-end">
+                  <span className={"inline-flex w-fit items-center rounded-full border px-3 py-1 text-xs font-extrabold " + statusClass}>
                     {statusLabel}
                   </span>
-                  {canEdit ? (
-                    <>
-                      <Link
-                        to={"/profile/my-courses/" + course.data.id + "/update"}
-                        className="inline-flex min-h-10 items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-3 text-sm font-bold text-slate-700 shadow-sm transition hover:border-indigo-300 hover:bg-indigo-50 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-400"
-                        aria-label={text.editCourse}
-                      >
-                        <PencilLine className="h-4 w-4" aria-hidden="true" />
-                        <span>{text.editCourse}</span>
-                      </Link>
-                      <DeleteTeacherCourseAction
-                        id={course.data.id.toString()}
-                        courseTitle={rawCourseTitle || text.untitledCourse}
-                        onDeleted={() => navigate("/profile", { replace: true, state: { myCourses: true } })}
-                      />
-                    </>
-                  ) : null}
+                  <TeacherCourseActions
+                    courseId={course.data.id.toString()}
+                    courseTitle={rawCourseTitle || text.untitledCourse}
+                    status={courseStatus}
+                    layout="detail"
+                    onDeleted={() => navigate("/profile", { replace: true, state: { myCourses: true } })}
+                  />
                 </div>
               </div>
 

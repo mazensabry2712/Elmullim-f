@@ -167,7 +167,7 @@ const CourseForm = ({ action, course }: IProps) => {
               file={file}
               setFile={setFile}
               existingUrl={course?.image || undefined}
-              allowedFormats={["png", "jpg", "jpeg", "webp"]}
+              allowedFormats={["png", "jpg", "jpeg"]}
               title={
                 language === "ar"
                   ? "اضغط لرفع صورة الكورس"

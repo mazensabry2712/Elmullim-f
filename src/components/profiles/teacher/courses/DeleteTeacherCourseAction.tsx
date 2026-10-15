@@ -23,6 +23,9 @@ interface DeleteTeacherCourseActionProps {
   id: string;
   courseTitle: string;
   onDeleted?: () => void;
+  disabled?: boolean;
+  disabledReason?: string;
+  fullWidth?: boolean;
 }
 
 interface ApiErrorResponse {
@@ -34,6 +37,9 @@ const DeleteTeacherCourseAction = ({
   id,
   courseTitle,
   onDeleted,
+  disabled = false,
+  disabledReason,
+  fullWidth = false,
 }: DeleteTeacherCourseActionProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const { language } = useI18n();
@@ -65,6 +71,8 @@ const DeleteTeacherCourseAction = ({
       };
 
   const handleDelete = async () => {
+    if (disabled) return;
+
     const token = cookieService.getToken();
     if (!token) {
       toast.error(copy.authError);
@@ -99,16 +107,21 @@ const DeleteTeacherCourseAction = ({
     <AlertDialog
       open={isOpen}
       onOpenChange={(nextOpen) => {
-        if (!isPending) setIsOpen(nextOpen);
+        if (!isPending && !disabled) setIsOpen(nextOpen);
       }}
     >
       <AlertDialogTrigger asChild>
         <Button
           type="button"
           variant="destructive"
-          disabled={isPending}
+          disabled={disabled || isPending}
+          title={disabled ? disabledReason : undefined}
           aria-label={copy.trigger}
-          className="inline-flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-extrabold sm:w-auto"
+          aria-disabled={disabled || isPending}
+          className={
+            "inline-flex min-h-11 items-center justify-center gap-2 rounded-xl px-4 text-sm font-extrabold " +
+            (fullWidth ? "w-full" : "w-full sm:w-auto")
+          }
         >
           <Trash2 className="h-4 w-4" aria-hidden="true" />
           {copy.trigger}

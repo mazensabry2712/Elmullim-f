@@ -119,8 +119,8 @@ describe("ManageCourseQuiz", () => {
     fireEvent.click(screen.getByRole("button", { name: /edit quiz/i }));
 
     expect(await screen.findByRole("dialog", { name: "Edit lecture quiz" })).toBeInTheDocument();
-    expect(screen.getByDisplayValue("Pending lecture quiz")).toBeInTheDocument();
-    expect(screen.getByDisplayValue("What is the answer?")).toBeInTheDocument();
+    expect(await screen.findByDisplayValue("Pending lecture quiz")).toBeInTheDocument();
+    expect(await screen.findByDisplayValue("What is the answer?")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: /save changes/i })).toBeInTheDocument();
   });
 });

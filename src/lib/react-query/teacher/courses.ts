@@ -55,6 +55,12 @@ const invalidateTeacherCourseStructure = (
   Promise.all([
     queryClient.invalidateQueries({
       queryKey: [
+        QueryKeys.TEACHER_COURSE,
+        ...(courseId !== undefined ? [String(courseId)] : []),
+      ],
+    }),
+    queryClient.invalidateQueries({
+      queryKey: [
         QueryKeys.TEACHER_COURSE_CONTENTS,
         ...(courseId !== undefined ? [String(courseId)] : []),
       ],

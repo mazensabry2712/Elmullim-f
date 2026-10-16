@@ -1,0 +1,6 @@
+import{z as r,P as e,D as u,I as s,T as o}from"./App-B3mPTGL-.js";/**
+ * @license lucide-react v0.510.0 - ISC
+ *
+ * This source code is licensed under the ISC license.
+ * See the LICENSE file in the root directory of this source tree.
+ */const d=[["path",{d:"M10.268 21a2 2 0 0 0 3.464 0",key:"vwvbt9"}],["path",{d:"M3.262 15.326A1 1 0 0 0 4 17h16a1 1 0 0 0 .74-1.673C19.41 13.956 18 12.499 18 8A6 6 0 0 0 6 8c0 4.499-1.411 5.956-2.738 7.326",key:"11g9vi"}]],h=r("bell",d),i=t=>({Authorization:`Bearer ${t}`}),l=async({token:t})=>{const{data:a}=await e.get("/notifications",{headers:i(t)});return a},y=async({token:t,notificationId:a})=>{const{data:c}=await e.post(`/notifications/${a}/read`,{},{headers:i(t)});return c},f=async({token:t})=>{const{data:a}=await e.post("/notifications/read-all",{},{headers:i(t)});return a},n={all:["notifications"],mine:()=>["notifications","mine"]},N=({token:t,enabled:a=!0})=>u({queryKey:n.mine(),queryFn:()=>l({token:t}),enabled:a&&!!t}),p=()=>{const t=s();return o({mutationFn:y,onSuccess:a=>{t.invalidateQueries({queryKey:n.mine()})}})},q=()=>{const t=s();return o({mutationFn:f,onSuccess:a=>{t.invalidateQueries({queryKey:n.mine()})}})};export{h as B,p as a,q as b,N as u};

@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 interface IProps {
   courseId: number;
@@ -64,6 +65,14 @@ const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
             ) : (
               contents.data.map((content) => {
                 const isOpen = openContentId === content.id.toString();
+                const displayTitle = isDisplayableProfileText(content.title)
+                  ? content.title.trim()
+                  : language === "ar"
+                    ? "عنوان المحتوى قيد المراجعة"
+                    : "Content title under review";
+                const displayDescription = isDisplayableProfileText(content.description)
+                  ? content.description.trim()
+                  : "";
 
                 return (
                   <motion.div key={content.id} variants={itemVariants}>
@@ -72,10 +81,10 @@ const CourseContent = ({ courseId, hasEnrolled, copy }: IProps) => {
                       className="rounded-[5px] border border-[#2E1E1]"
                     >
                       <AccordionTrigger className="rounded-t-[5px] px-4 text-xl font-bold text-black-blue hover:no-underline data-[state=open]:mb-2 data-[state=open]:bg-[#eaeaea]">
-                        {content.title}
+                        {displayTitle}
                       </AccordionTrigger>
                       <AccordionContent className="pb-0 pt-2 font-sora text-[#333931]">
-                        <p className="px-4 text-sm">{content.description}</p>
+                        {displayDescription ? <p className="px-4 text-sm">{displayDescription}</p> : null}
 
                         {isAuthenticated && hasEnrolled && isOpen ? (
                           <div className="mt-3 space-y-2">

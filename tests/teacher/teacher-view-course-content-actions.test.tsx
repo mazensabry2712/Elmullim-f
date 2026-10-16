@@ -133,6 +133,22 @@ describe("TeacherViewCourseContent actions", () => {
     expect(screen.getByRole("button", { name: "Delete lecture 94" })).toBeInTheDocument();
   });
 
+
+  it("does not render a technical error string as the content title", () => {
+    mocks.useGetTeacherCourseContents.mockReturnValue({
+      data: { status: true, message: null, data: [{ ...content, title: "Request failed with status code 500" }] },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    renderList("draft");
+
+    expect(screen.getByText("Untitled content")).toBeInTheDocument();
+    expect(screen.getByText("Title needs review")).toBeInTheDocument();
+    expect(screen.queryByText("Request failed with status code 500")).not.toBeInTheDocument();
+  });
+
   it("hides edit/delete controls after a course is published", () => {
     renderList("published");
 

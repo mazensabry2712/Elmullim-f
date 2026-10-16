@@ -4,6 +4,7 @@ import {
   hasRepeatedTextPattern,
   hasRepeatedWordPattern,
   isDisplayableProfileText,
+  isTechnicalErrorText,
 } from "@/utils/textQuality";
 
 describe("text quality safeguards", () => {
@@ -29,5 +30,12 @@ describe("text quality safeguards", () => {
     expect(hasMinimumWords("Experienced teacher with a patient teaching style", 3)).toBe(true);
     expect(isDisplayableProfileText("fdfdgfdgfdgfdgfdgfdgfdgdfgfdgfdgfdgfdgfd", 3)).toBe(false);
     expect(isDisplayableProfileText("Experienced teacher with classroom experience", 3)).toBe(true);
+  });
+
+  it("rejects repeated words and technical error messages as displayable content", () => {
+    expect(isDisplayableProfileText("الحنكليس الحنكليس الحنكليس")).toBe(false);
+    expect(isTechnicalErrorText("Request failed with status code 500")).toBe(true);
+    expect(isDisplayableProfileText("Request failed with status code 500")).toBe(false);
+    expect(isTechnicalErrorText("A clear description of the unit")).toBe(false);
   });
 });

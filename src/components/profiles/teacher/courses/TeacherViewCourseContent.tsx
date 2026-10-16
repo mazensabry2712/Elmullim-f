@@ -6,6 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
+import VideoPlayer from "@/components/shared/VideoPlayer";
 import DeleteCourseContent from "./DeleteCourseContent";
 import DeleteCourseLecture from "./DeleteCourseLecture";
 import UpdateCourseContent from "./UpdateCourseContent";
@@ -82,6 +83,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
         tryAgain: "حاول مرة أخرى",
         videoReady: "فيديو مرفوع",
         videoMissing: "لم يُرفع فيديو",
+        videoPreviewUnavailable: "الفيديو مرفوع، لكن رابط المعاينة غير متاح حاليًا. حدّث الصفحة، وإذا استمرت المشكلة تواصل مع الدعم.",
         uploadVideo: "رفع فيديو للمحاضرة",
         replaceVideo: "استبدال الفيديو",
       }
@@ -102,6 +104,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
         tryAgain: "Try again",
         videoReady: "Video uploaded",
         videoMissing: "Video not uploaded",
+        videoPreviewUnavailable: "The video is uploaded, but its preview link is currently unavailable. Refresh the page and contact support if the issue persists.",
         uploadVideo: "Upload lecture video",
         replaceVideo: "Replace video",
       };
@@ -286,6 +289,16 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                     </div>
                                   ) : null}
                                 </div>
+
+                                {lecture.videoUrl ? (
+                                  <div className="relative mt-3 aspect-video overflow-hidden rounded-xl bg-slate-950">
+                                    <VideoPlayer videoUrl={lecture.videoUrl} />
+                                  </div>
+                                ) : lecture.hasVideo ? (
+                                  <p className="mt-3 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800" role="status">
+                                    {text.videoPreviewUnavailable}
+                                  </p>
+                                ) : null}
 
                                 {canEdit ? (
                                   <details className="group mt-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">

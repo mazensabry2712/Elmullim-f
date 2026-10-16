@@ -66,7 +66,7 @@ const TeacherViewCourse = () => {
         pending: "قيد المراجعة",
         published: "منشور",
         rejected: "مرفوض",
-        addContent: "إضافة وحدة",
+        addContent: "إضافة محتوى",
         addLecture: "إضافة محاضرة",
         submitForReview: "إرسال للمراجعة",
         resubmitForReview: "إعادة الإرسال للمراجعة",
@@ -107,7 +107,7 @@ const TeacherViewCourse = () => {
         pending: "Pending review",
         published: "Published",
         rejected: "Rejected",
-        addContent: "Add unit",
+        addContent: "Add content",
         addLecture: "Add lecture",
         submitForReview: "Submit for review",
         resubmitForReview: "Resubmit for review",
@@ -486,9 +486,9 @@ const TeacherViewCourse = () => {
           <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-5">
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">
+                <h3 className="text-base font-extrabold text-slate-900">
                   {rawLectureTitle || text.untitledLecture}
-                </h2>
+                </h3>
                 <p className="mt-1 text-sm text-slate-500">{text.selectedLecture}</p>
               </div>
               <span className={"inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold " + (lecture.hasVideo ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800")}>

@@ -185,6 +185,31 @@ describe("TeacherViewCourse", () => {
     ).not.toBeInTheDocument();
   });
 
+  it("renders an uploaded lecture video returned by the teacher API", () => {
+    const videoUrl = "https://vimeo.com/123456/private-hash";
+    const selectedLecture = {
+      id: 94,
+      title: "Uploaded lecture",
+      description: "A clear lecture description with enough words.",
+      videoUrl: "",
+      hasVideo: true,
+    };
+
+    mocks.useGetTeacherCourseLectures.mockReturnValue({
+      data: {
+        status: true,
+        message: null,
+        data: [{ ...selectedLecture, videoUrl }],
+      },
+      isLoading: false,
+    });
+
+    renderPage({ lecture: selectedLecture, contentId: 26 });
+
+    expect(screen.getByTestId("video-player")).toHaveTextContent(videoUrl);
+    expect(screen.getByText("Video uploaded")).toBeInTheDocument();
+  });
+
   it("keeps edit/delete controls available once published and explains learner protection", () => {
     mocks.useGetTeacherCourseById.mockReturnValue({
       data: { status: true, message: null, data: { ...validCourse, publishing_status: "published" } },

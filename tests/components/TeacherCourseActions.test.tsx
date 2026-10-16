@@ -41,7 +41,7 @@ const renderActions = (status: "draft" | "rejected" | "pending_approval" | "publ
   );
 
 describe("TeacherCourseActions", () => {
-  it.each(["draft", "rejected"] as const)(
+  it.each(["draft", "rejected", "published"] as const)(
     "keeps edit and delete available for %s courses",
     (status) => {
       renderActions(status);
@@ -55,28 +55,17 @@ describe("TeacherCourseActions", () => {
     }
   );
 
-  it.each([
-    [
-      "published",
-      "الكورس منشور. التعديل والحذف المباشران مقفولان لحماية النسخة المنشورة وبيانات الطلاب.",
-    ],
-    [
-      "pending_approval",
-      "الكورس قيد مراجعة الإدارة؛ انتظر انتهاء المراجعة قبل التعديل أو الحذف.",
-    ],
-  ] as const)(
-    "shows locked action buttons and explains the restriction for %s courses",
-    (status, reason) => {
-      renderActions(status);
+  it("keeps course edit/delete locked only while it is pending admin review", () => {
+    const reason = "الكورس قيد مراجعة الإدارة؛ انتظر انتهاء المراجعة قبل التعديل أو الحذف.";
+    renderActions("pending_approval");
 
-      expect(
-        screen.getByRole("button", { name: "تعديل الكورس غير متاح" })
-      ).toBeDisabled();
-      const deleteButton = screen.getByRole("button", { name: "حذف الكورس" });
-      expect(deleteButton).toBeDisabled();
-      expect(deleteButton).toHaveAttribute("title", reason);
-      expect(screen.getByRole("note")).toHaveTextContent(reason);
-      expect(screen.queryByRole("link", { name: "تعديل الكورس" })).not.toBeInTheDocument();
-    }
-  );
+    expect(
+      screen.getByRole("button", { name: "تعديل الكورس غير متاح" })
+    ).toBeDisabled();
+    const deleteButton = screen.getByRole("button", { name: "حذف الكورس" });
+    expect(deleteButton).toBeDisabled();
+    expect(deleteButton).toHaveAttribute("title", reason);
+    expect(screen.getByRole("note")).toHaveTextContent(reason);
+    expect(screen.queryByRole("link", { name: "تعديل الكورس" })).not.toBeInTheDocument();
+  });
 });

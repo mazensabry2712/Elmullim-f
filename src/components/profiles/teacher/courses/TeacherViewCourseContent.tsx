@@ -107,6 +107,16 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
       };
 
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
+  const isPublished = courseStatus === "published";
+  const canManageContent = (content: IContent) =>
+    canEdit || (isPublished && (content.approval_status === "pending_approval" || content.approval_status === "rejected"));
+  const canManageLecture = (lecture: ILecture) =>
+    canEdit || (isPublished && (lecture.approval_status === "pending_approval" || lecture.approval_status === "rejected"));
+  const reviewStatusLabel = (status?: string) => {
+    if (status === "pending_approval") return isArabic ? "قيد مراجعة الإضافة" : "Addition under review";
+    if (status === "rejected") return isArabic ? "الإضافة مرفوضة — عدّلها وأعد إرسالها" : "Addition rejected — edit and resubmit";
+    return null;
+  };
   const hasContents = Boolean(contents?.data?.length);
 
   return (
@@ -173,13 +183,19 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                               {text.contentReview}
                             </span>
                           ) : null}
+                          {reviewStatusLabel(content.approval_status) ? (
+                            <span className={"mt-1 inline-flex rounded-full px-2 py-0.5 text-[10px] font-bold " + (content.approval_status === "rejected" ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800")}>
+                              {reviewStatusLabel(content.approval_status)}
+                            </span>
+                          ) : null}
+                          {content.approval_note ? <span className="mt-1 block text-xs leading-5 text-rose-700">{content.approval_note}</span> : null}
                         </span>
                         <span className="me-2 shrink-0 rounded-lg bg-slate-100 px-2 py-1 text-[11px] font-extrabold text-slate-500">
                           {isArabic ? "وحدة " : "Unit "}{index + 1}
                         </span>
                       </span>
                     </AccordionTrigger>
-                    {canEdit ? (
+                    {canManageContent(content) ? (
                       <div className="flex shrink-0 items-center gap-1.5 pb-1">
                         <UpdateCourseContent courseContent={content} courseId={courseId} />
                         <DeleteCourseContent id={content.id.toString()} courseId={courseId.toString()} />
@@ -252,11 +268,19 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                         <span className="rounded-full bg-slate-50 px-2 py-0.5 text-[10px] font-bold text-slate-400">
                                           {isArabic ? "محاضرة " : "Lecture "}{lectureIndex + 1}
                                         </span>
+                                        {reviewStatusLabel(lecture.approval_status) ? (
+                                          <span className={"rounded-full px-2 py-0.5 text-[10px] font-bold " + (lecture.approval_status === "rejected" ? "bg-rose-50 text-rose-700" : "bg-amber-50 text-amber-800")}>
+                                            {reviewStatusLabel(lecture.approval_status)}
+                                          </span>
+                                        ) : null}
                                       </span>
                                       {lectureDescription ? (
                                         <span className="mt-1 block whitespace-pre-line break-words text-xs leading-5 text-slate-500">
                                           {lectureDescription}
                                         </span>
+                                      ) : null}
+                                      {lecture.approval_note ? (
+                                        <span className="mt-1 block text-[11px] leading-5 text-rose-700">{lecture.approval_note}</span>
                                       ) : null}
                                       {!lectureTitleIsValid ? (
                                         <span className="mt-1 inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700">
@@ -279,7 +303,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                     {lecture.hasVideo ? <CheckCircle2 className="h-3.5 w-3.5" /> : <VideoOff className="h-3.5 w-3.5" />}
                                     {lecture.hasVideo ? text.videoReady : text.videoMissing}
                                   </span>
-                                  {canEdit ? (
+                                  {canManageLecture(lecture) ? (
                                     <div className="flex shrink-0 items-center gap-1.5">
                                       <UpdateCourseLecture lecture={lecture} courseLectureId={courseId} contentId={content.id} />
                                       <DeleteCourseLecture id={lecture.id.toString()} courseId={courseId.toString()} contentId={content.id.toString()} />
@@ -287,7 +311,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                   ) : null}
                                 </div>
 
-                                {canEdit ? (
+                                {canManageLecture(lecture) ? (
                                   <details className="group mt-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
                                     <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 text-xs font-extrabold text-slate-700 outline-none hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-500">
                                       <span className="inline-flex items-center gap-2">

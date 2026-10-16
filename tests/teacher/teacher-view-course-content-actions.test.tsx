@@ -82,6 +82,7 @@ const content = {
   id: 26,
   title: "Unit one",
   description: "This is an understandable content description.",
+  approval_status: "approved" as const,
 };
 const lecture = {
   id: 94,
@@ -90,6 +91,7 @@ const lecture = {
   duration: null,
   videoUrl: "",
   hasVideo: false,
+  approval_status: "approved" as const,
 };
 
 const renderList = (courseStatus: "draft" | "pending_approval" | "published" | "rejected") =>
@@ -133,7 +135,7 @@ describe("TeacherViewCourseContent actions", () => {
     expect(screen.getByRole("button", { name: "Delete lecture 94" })).toBeInTheDocument();
   });
 
-  it("hides edit/delete controls after a course is published", () => {
+  it("hides edit/delete controls for approved content after a course is published", () => {
     renderList("published");
 
     expect(screen.queryByRole("button", { name: "Edit content 26" })).not.toBeInTheDocument();
@@ -143,5 +145,31 @@ describe("TeacherViewCourseContent actions", () => {
 
     expect(screen.queryByRole("button", { name: "Edit lecture 94" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Delete lecture 94" })).not.toBeInTheDocument();
+  });
+
+  it("allows editing pending or rejected additions without unlocking approved course content", () => {
+    mocks.useGetTeacherCourseContents.mockReturnValue({
+      data: { status: true, message: null, data: [{ ...content, approval_status: "pending_approval" }] },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+    mocks.useGetTeacherCourseLectures.mockReturnValue({
+      data: { status: true, message: null, data: [{ ...lecture, approval_status: "rejected" }] },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    renderList("published");
+
+    expect(screen.getByRole("button", { name: "Edit content 26" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete content 26" })).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: /Unit one/ }));
+
+    expect(screen.getByRole("button", { name: "Edit lecture 94" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Delete lecture 94" })).toBeInTheDocument();
+    expect(screen.getByText("Addition under review")).toBeInTheDocument();
   });
 });

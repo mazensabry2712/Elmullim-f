@@ -22,20 +22,11 @@ const TeacherCourseActions = ({
 }: TeacherCourseActionsProps) => {
   const { language } = useI18n();
   const isArabic = language === "ar";
-  const canManage = status === "draft" || status === "rejected";
+  const canManage = status === "draft" || status === "rejected" || status === "published";
 
-  const lockedReason =
-    status === "pending_approval"
-      ? isArabic
-        ? "الكورس قيد مراجعة الإدارة؛ انتظر انتهاء المراجعة قبل التعديل أو الحذف."
-        : "This course is under review. Wait for the review to finish before editing or deleting it."
-      : status === "published"
-        ? isArabic
-          ? "الكورس منشور. التعديل والحذف المباشران مقفولان لحماية النسخة المنشورة وبيانات الطلاب."
-          : "This course is published. Direct editing and deletion are locked to protect the published version and student records."
-        : isArabic
-          ? "التعديل والحذف غير متاحين في حالة الكورس الحالية."
-          : "Editing and deletion are unavailable in the current course state.";
+  const lockedReason = isArabic
+    ? "الكورس قيد مراجعة الإدارة؛ انتظر انتهاء المراجعة قبل التعديل أو الحذف."
+    : "This course is under review. Wait for the review to finish before editing or deleting it.";
 
   const actionLayout =
     layout === "card" ? "grid grid-cols-2 gap-2" : "flex flex-wrap items-center gap-2";

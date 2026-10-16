@@ -5,6 +5,7 @@ import { RootState } from "@/store/store";
 import cookieService from "@/utils/cookieService";
 import truncateTxt from "@/utils/truncateTxt";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 interface IProps {
   course: ICourse;
@@ -15,6 +16,12 @@ const CourseCard = ({ course, copy }: IProps) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const role = cookieService.getRole();
   const navigate = useNavigate();
+  const displayCourseTitle = isDisplayableProfileText(course.title)
+    ? course.title.trim()
+    : copy.titleUnderReview;
+  const displayCourseDescription = isDisplayableProfileText(course.description, 3)
+    ? truncateTxt(course.description ?? "", 50)
+    : copy.descriptionUnderReview;
 
   return (
     <article className="h-full p-3 sm:p-5 shadow-[0px_0px_40px_0px_#0E2A4614] transition-all duration-300 hover:shadow-lg rounded-[5px] space-y-5 sm:max-w-[80%] md:max-w-full mx-auto bg-white">
@@ -24,7 +31,7 @@ const CourseCard = ({ course, copy }: IProps) => {
         </span>
         <img
           src={course.image || "/images/placeholder-img.webp"}
-          alt={`${course.title} ${copy.categoryImageAlt}`}
+          alt={`${displayCourseTitle} ${copy.categoryImageAlt}`}
           className="object-cover object-center w-full"
           loading="lazy"
         />
@@ -35,13 +42,13 @@ const CourseCard = ({ course, copy }: IProps) => {
           <Link
             to={`/courses/${course.id}`}
             className="space-y-2 block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 rounded"
-            aria-label={`${copy.details}: ${course.title}`}
+            aria-label={`${copy.details}: ${displayCourseTitle}`}
           >
             <h4 className="text-black-blue capitalize font-semibold text-[21px] leading-[30px]">
-              {course.title}
+              {displayCourseTitle}
             </h4>
             <p className="text-[#4D5756] font-sora">
-              {truncateTxt(course.description ?? "", 50)}
+              {displayCourseDescription}
             </p>
           </Link>
 

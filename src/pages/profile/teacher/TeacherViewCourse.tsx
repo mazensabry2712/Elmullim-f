@@ -238,7 +238,7 @@ const TeacherViewCourse = () => {
 
   if (!isValidCourseId) return null;
 
-  if (isLoading || isLoadingContents || isLoadingLectures) {
+  if (isLoading || isLoadingContents) {
     return (
       <main className="flex min-h-[55vh] items-center justify-center bg-slate-50 px-4 py-12">
         <div className="flex flex-col items-center gap-3 text-center text-slate-500" role="status" aria-live="polite">

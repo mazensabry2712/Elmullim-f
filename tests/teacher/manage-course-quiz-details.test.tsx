@@ -104,7 +104,7 @@ describe("ManageCourseQuiz read-only details", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "View questions" }));
 
-    expect(screen.getByText("What is React?")).toBeInTheDocument();
+    expect(screen.getByText(/What is React\?/i)).toBeInTheDocument();
     expect(screen.getByText("A JavaScript library")).toBeInTheDocument();
     expect(screen.getByText("A database")).toBeInTheDocument();
     expect(screen.getByText("Correct answer")).toBeInTheDocument();

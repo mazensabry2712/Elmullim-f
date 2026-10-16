@@ -81,9 +81,7 @@ const ManageCourseQuiz = ({
     enabled: (isOpen || isDetailsOpen) && !!quiz,
   });
   const canEdit =
-    courseStatus === "draft" ||
-    courseStatus === "rejected" ||
-    (courseStatus === "published" && !quiz);
+    courseStatus === "draft" || courseStatus === "rejected";
 
   const resetForm = () => {
     setTitle("");

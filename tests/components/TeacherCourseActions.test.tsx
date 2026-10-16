@@ -52,7 +52,7 @@ describe("TeacherCourseActions", () => {
       );
       expect(screen.getByRole("button", { name: "حذف الكورس" })).toBeEnabled();
       if (status === "published") {
-        expect(screen.getByRole("note")).toHaveTextContent("سيظل الكورس ومحتواه متاحين له ولن يُحذف");
+        expect(screen.getByRole("note")).toHaveTextContent("السعر ثابت بعد النشر، والحذف يتوقف لو فيه نشاط طلابي");
       } else {
         expect(screen.queryByRole("note")).not.toBeInTheDocument();
       }

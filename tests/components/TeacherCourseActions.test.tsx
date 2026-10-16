@@ -41,7 +41,7 @@ const renderActions = (status: "draft" | "rejected" | "pending_approval" | "publ
   );
 
 describe("TeacherCourseActions", () => {
-  it.each(["draft", "rejected"] as const)(
+  it.each(["draft", "rejected", "published"] as const)(
     "keeps edit and delete available for %s courses",
     (status) => {
       renderActions(status);
@@ -51,32 +51,23 @@ describe("TeacherCourseActions", () => {
         "/profile/my-courses/13/update"
       );
       expect(screen.getByRole("button", { name: "حذف الكورس" })).toBeEnabled();
-      expect(screen.queryByRole("note")).not.toBeInTheDocument();
+      if (status === "published") {
+        expect(screen.getByRole("note")).toHaveTextContent("سيظل الكورس ومحتواه متاحين له ولن يُحذف");
+      } else {
+        expect(screen.queryByRole("note")).not.toBeInTheDocument();
+      }
     }
   );
 
-  it.each([
-    [
-      "published",
-      "الكورس منشور. التعديل والحذف المباشران مقفولان لحماية النسخة المنشورة وبيانات الطلاب.",
-    ],
-    [
-      "pending_approval",
-      "الكورس قيد مراجعة الإدارة؛ انتظر انتهاء المراجعة قبل التعديل أو الحذف.",
-    ],
-  ] as const)(
-    "shows locked action buttons and explains the restriction for %s courses",
-    (status, reason) => {
-      renderActions(status);
+  it("keeps actions locked while a course is pending admin review", () => {
+    renderActions("pending_approval");
+    const reason = "الكورس قيد مراجعة الإدارة؛ انتظر انتهاء المراجعة قبل التعديل أو الحذف.";
 
-      expect(
-        screen.getByRole("button", { name: "تعديل الكورس غير متاح" })
-      ).toBeDisabled();
-      const deleteButton = screen.getByRole("button", { name: "حذف الكورس" });
-      expect(deleteButton).toBeDisabled();
-      expect(deleteButton).toHaveAttribute("title", reason);
-      expect(screen.getByRole("note")).toHaveTextContent(reason);
-      expect(screen.queryByRole("link", { name: "تعديل الكورس" })).not.toBeInTheDocument();
-    }
-  );
+    expect(screen.getByRole("button", { name: "تعديل الكورس غير متاح" })).toBeDisabled();
+    const deleteButton = screen.getByRole("button", { name: "حذف الكورس" });
+    expect(deleteButton).toBeDisabled();
+    expect(deleteButton).toHaveAttribute("title", reason);
+    expect(screen.getByRole("note")).toHaveTextContent(reason);
+    expect(screen.queryByRole("link", { name: "تعديل الكورس" })).not.toBeInTheDocument();
+  });
 });

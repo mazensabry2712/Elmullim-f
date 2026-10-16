@@ -94,7 +94,7 @@ describe("UpdateCourse route guard", () => {
     document.documentElement.dir = "ltr";
   });
 
-  it.each(["draft", "rejected"])(
+  it.each(["draft", "rejected", "published"])(
     "allows editing a %s course",
     async (status) => {
       mockCourseResponse(status);
@@ -111,21 +111,14 @@ describe("UpdateCourse route guard", () => {
     }
   );
 
-  it.each(["pending_approval", "published"])(
-    "redirects a %s course to its management page",
-    async (status) => {
-      mockCourseResponse(status);
-      renderRoute();
+  it("redirects a course that is pending admin review", async () => {
+    mockCourseResponse("pending_approval");
+    renderRoute();
 
-      expect(
-        await screen.findByText("Course management destination")
-      ).toBeInTheDocument();
-      expect(screen.queryByTestId("course-form")).not.toBeInTheDocument();
-      expect(mocks.toastInfo).toHaveBeenCalledWith(
-        "Courses cannot be edited while under review or after publication."
-      );
-    }
-  );
+    expect(await screen.findByText("Course management destination")).toBeInTheDocument();
+    expect(screen.queryByTestId("course-form")).not.toBeInTheDocument();
+    expect(mocks.toastInfo).toHaveBeenCalledWith("Courses cannot be edited while under review.");
+  });
 
   it("rejects an invalid course ID instead of rendering an empty form", async () => {
     mocks.useGetTeacherCourseById.mockReturnValue({

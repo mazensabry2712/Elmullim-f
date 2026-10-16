@@ -28,12 +28,12 @@ const UpdateCourse = () => {
   });
 
   const course = courseResponse?.data;
-  // Match the actions shown on the course card and management page. The API
-  // also enforces this rule, but the UI should not offer an edit form for a
-  // course that is pending review or already published.
+  // Published metadata can be edited; pending review stays locked.
+  // The API independently preserves price and enforces ownership.
   const canEditCourse =
     course?.publishing_status === "draft" ||
-    course?.publishing_status === "rejected";
+    course?.publishing_status === "rejected" ||
+    course?.publishing_status === "published";
 
   useEffect(() => {
     if (!isValidCourseId) {
@@ -54,8 +54,8 @@ const UpdateCourse = () => {
     if (course && !canEditCourse) {
       toast.info(
         language === "ar"
-          ? "لا يمكن تعديل الكورس أثناء المراجعة أو بعد النشر."
-          : "Courses cannot be edited while under review or after publication."
+          ? "لا يمكن تعديل الكورس أثناء مراجعة الإدارة."
+          : "Courses cannot be edited while under review."
       );
       navigate(`/profile/my-courses/${course.id}/view`, { replace: true });
     }

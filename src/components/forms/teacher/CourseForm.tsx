@@ -34,6 +34,7 @@ const CourseForm = ({ action, course }: IProps) => {
   const navigate = useNavigate();
   const token = cookieService.getToken()!;
   const { language } = useI18n();
+  const isPublishedCourse = action === "update" && course?.publishing_status === "published";
   const { data: categories } = useGetCategories();
   const categoriesOptions = categories?.data.map((cate) => ({
     label: cate.name,
@@ -71,7 +72,7 @@ const CourseForm = ({ action, course }: IProps) => {
             id: course?.id as number,
             description: data.description,
             level: data.level,
-            price: data.price,
+            price: isPublishedCourse ? Number(course?.price ?? data.price) : data.price,
             sub_category_id: data.sub_category_id,
             title: data.title,
             image: file,
@@ -161,6 +162,13 @@ const CourseForm = ({ action, course }: IProps) => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        {isPublishedCourse ? (
+          <p role="note" className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+            {language === "ar"
+              ? "سعر الكورس المنشور ثابت لحماية الطلاب الحاليين؛ يمكنك تعديل بيانات الكورس الأخرى."
+              : "Published course pricing is locked to protect existing students; the other course details remain editable."}
+          </p>
+        ) : null}
         <div className="flex flex-col gap-4 lg:flex-row">
           <div className="max-w-full w-full lg:max-w-[40%]">
             <ImageUpload
@@ -183,6 +191,7 @@ const CourseForm = ({ action, course }: IProps) => {
                   form={form}
                   input={input}
                   schema={courseSchema}
+                  disablePrice={isPublishedCourse}
                   options={{
                     categories: categoriesOptions!,
                     subCategories: subCategoriesOptions!,

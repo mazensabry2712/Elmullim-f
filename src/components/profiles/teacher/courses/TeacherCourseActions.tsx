@@ -22,20 +22,15 @@ const TeacherCourseActions = ({
 }: TeacherCourseActionsProps) => {
   const { language } = useI18n();
   const isArabic = language === "ar";
-  const canManage = status === "draft" || status === "rejected";
+  const canManage = status === "draft" || status === "rejected" || status === "published";
 
-  const lockedReason =
-    status === "pending_approval"
-      ? isArabic
-        ? "الكورس قيد مراجعة الإدارة؛ انتظر انتهاء المراجعة قبل التعديل أو الحذف."
-        : "This course is under review. Wait for the review to finish before editing or deleting it."
-      : status === "published"
-        ? isArabic
-          ? "الكورس منشور. التعديل والحذف المباشران مقفولان لحماية النسخة المنشورة وبيانات الطلاب."
-          : "This course is published. Direct editing and deletion are locked to protect the published version and student records."
-        : isArabic
-          ? "التعديل والحذف غير متاحين في حالة الكورس الحالية."
-          : "Editing and deletion are unavailable in the current course state.";
+  const lockedReason = status === "pending_approval"
+    ? isArabic
+      ? "الكورس قيد مراجعة الإدارة؛ انتظر انتهاء المراجعة قبل التعديل أو الحذف."
+      : "This course is under review. Wait for the review to finish before editing or deleting it."
+    : isArabic
+      ? "التعديل والحذف غير متاحين في حالة الكورس الحالية."
+      : "Editing and deletion are unavailable in the current course state.";
 
   const actionLayout =
     layout === "card" ? "grid grid-cols-2 gap-2" : "flex flex-wrap items-center gap-2";
@@ -82,6 +77,16 @@ const TeacherCourseActions = ({
         />
       </div>
 
+      {status === "published" ? (
+        <p
+          role="note"
+          className="rounded-xl border border-blue-200 bg-blue-50 px-3 py-2.5 text-xs leading-5 text-blue-900"
+        >
+          {isArabic
+            ? "يمكنك تعديل بيانات الكورس أو حذفه إذا لم يرتبط بنشاط طلابي. لو طالب اشترى الكورس أو سجّل فيه أو بدأ اختبارًا، سيظل الكورس ومحتواه متاحين له ولن يُحذف."
+            : "You can edit or delete this course if it has no learner activity. If a student purchased or enrolled in it, or started a quiz, the course and its content remain available and deletion is blocked."}
+        </p>
+      ) : null}
       {!canManage ? (
         <p
           role="note"

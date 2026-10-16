@@ -15,6 +15,7 @@ import cookieService from "@/utils/cookieService";
 import { AxiosResErr } from "@/types";
 import { useI18n } from "@/i18n";
 import { getCoursesCopy } from "./courseCopy";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 const CourseDetails = () => {
   const { language } = useI18n();
@@ -95,6 +96,13 @@ const CourseDetails = () => {
   }
 
   const courseData = course.data;
+  const displayCourseTitle = isDisplayableProfileText(courseData.title)
+    ? courseData.title.trim()
+    : copy.titleUnderReview;
+  const displayCourseDescription = isDisplayableProfileText(courseData.description, 3)
+    ? courseData.description.trim()
+    : copy.descriptionUnderReview;
+
   return (
     <main>
       <motion.div
@@ -126,10 +134,10 @@ const CourseDetails = () => {
               <div className="col-span-12 lg:col-span-7 order-2 h-fit">
                 <div className="space-y-2 text-center lg:text-start mt-8 lg:mt-0">
                   <h2 id="course-details-title" className="text-black-blue font-bold text-3xl lg:text-5xl">
-                    {courseData.title}
+                    {displayCourseTitle}
                   </h2>
                   <p className="font-sora text-[15px] text-[#4D5756] leading-relaxed px-4">
-                    {courseData.description}
+                    {displayCourseDescription}
                   </p>
                 </div>
 
@@ -185,7 +193,7 @@ const CourseDetails = () => {
                 <div className="max-h-96 overflow-hidden relative z-10 before:absolute before:w-full before:h-full before:top-3 lg:before:top-6 before:left-3 lg:before:left-6 before:bg-black-blue before:-z-10 before:rounded-lg before:shadow-lg">
                   <img
                     src={courseData.image || "/images/placeholder-img.webp"}
-                    alt={courseData.title}
+                    alt={displayCourseTitle}
                     height="100%"
                     width="100%"
                     className="rounded-lg shadow-lg max-h-96 w-full object-cover"

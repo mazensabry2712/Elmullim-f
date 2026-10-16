@@ -100,4 +100,40 @@ describe("CourseDetails", () => {
       "/course/7/enroll"
     );
   });
+
+  it("hides technical and repeated placeholder text from course details", () => {
+    mockUseGetCourseById.mockReturnValue({
+      data: {
+        data: {
+          id: 7,
+          title: "Request failed with status code 500",
+          description: "الحنكليس الحنكليس الحنكليس",
+          price: 150,
+          hasEnrolled: false,
+          teacher: { id: 3, name: "Teacher One" },
+          sub_category: { id: 4 },
+        },
+      },
+      isLoading: false,
+      isError: false,
+      failureReason: undefined,
+      refetch: vi.fn(),
+    });
+
+    render(
+      <MemoryRouter initialEntries={["/courses/7"]}>
+        <I18nProvider>
+          <Routes>
+            <Route path="/courses/:courseId" element={<CourseDetails />} />
+          </Routes>
+        </I18nProvider>
+      </MemoryRouter>
+    );
+
+    expect(screen.getByRole("heading", { name: "Course title under review", level: 2 })).toBeInTheDocument();
+    expect(screen.getByText("Description under review")).toBeInTheDocument();
+    expect(screen.queryByText("Request failed with status code 500")).not.toBeInTheDocument();
+    expect(screen.queryByText("الحنكليس الحنكليس الحنكليس")).not.toBeInTheDocument();
+  });
+
 });

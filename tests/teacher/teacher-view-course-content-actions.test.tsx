@@ -134,6 +134,33 @@ describe("TeacherViewCourseContent actions", () => {
   });
 
 
+  it("shows the uploaded lecture video in the teacher course view", () => {
+    mocks.useGetTeacherCourseLectures.mockReturnValue({
+      data: {
+        status: true,
+        message: null,
+        data: [
+          {
+            ...lecture,
+            videoUrl: "https://vimeo.com/123456789/abcDEF123?share=copy",
+            hasVideo: true,
+          },
+        ],
+      },
+      isLoading: false,
+      isError: false,
+      refetch: vi.fn(),
+    });
+
+    renderList("draft");
+    fireEvent.click(screen.getByRole("button", { name: /Unit one/ }));
+
+    expect(screen.getByTitle("Course lecture video")).toHaveAttribute(
+      "src",
+      "https://player.vimeo.com/video/123456789?title=0&byline=0&portrait=0&dnt=1&h=abcDEF123"
+    );
+  });
+
   it("does not render a technical error string as the content title", () => {
     mocks.useGetTeacherCourseContents.mockReturnValue({
       data: { status: true, message: null, data: [{ ...content, title: "Request failed with status code 500" }] },

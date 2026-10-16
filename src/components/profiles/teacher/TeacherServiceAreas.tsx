@@ -108,7 +108,7 @@ const TeacherServiceAreas = () => {
         confirm: "نعم، احذفها",
         keep: "إلغاء",
         invalid:
-          "اختر موقعًا صحيحًا وأدخل نطاق خدمة أكبر من صفر.",
+          "اختر موقعًا صحيحًا وأدخل نطاق خدمة من 0.1 إلى 1000 كم.",
         saved: "تم حفظ منطقة الخدمة بنجاح.",
         updated: "تم تحديث منطقة الخدمة بنجاح.",
         deleted: "تم حذف منطقة الخدمة.",
@@ -152,7 +152,7 @@ const TeacherServiceAreas = () => {
           "The area will be removed from your service-area list and can no longer be selected for lessons.",
         confirm: "Yes, delete it",
         keep: "Cancel",
-        invalid: "Select a valid location and enter a radius greater than zero.",
+        invalid: "Select a valid location and enter a radius between 0.1 and 1,000 km.",
         saved: "Service area saved successfully.",
         updated: "Service area updated successfully.",
         deleted: "Service area deleted.",
@@ -177,7 +177,8 @@ const TeacherServiceAreas = () => {
       form.latitude == null ||
       form.longitude == null ||
       !Number.isFinite(radius) ||
-      radius <= 0
+      radius < 0.1 ||
+      radius > 1000
     ) {
       toast.error(text.invalid);
       return;
@@ -386,6 +387,7 @@ const TeacherServiceAreas = () => {
                     <Input
                       type="number"
                       min="0.1"
+                      max="1000"
                       step="0.1"
                       inputMode="decimal"
                       value={form.radius_km}

@@ -3,31 +3,25 @@ import CreateCourseLecture from "@/components/profiles/teacher/courses/CreateCou
 import { Button } from "@/components/ui/button";
 import TeacherCourseActions from "@/components/profiles/teacher/courses/TeacherCourseActions";
 import TeacherViewCourseContent from "@/components/profiles/teacher/courses/TeacherViewCourseContent";
-import VideoPlayer from "@/components/shared/VideoPlayer";
-import type { ILecture } from "@/interfaces/courses/lectures";
 import type { CoursePublishingStatus } from "@/interfaces/courses/courses";
 import {
   useGetTeacherCourseById,
   useGetTeacherCourseContents,
-  useGetTeacherCourseLectures,
   useSubmitTeacherCourseForReview,
 } from "@/lib/react-query/teacher/courses";
 import type { AxiosResErr } from "@/types";
 import cookieService from "@/utils/cookieService";
 import {
-  CheckCircle2,
   CircleAlert,
   FileText,
   GraduationCap,
   Layers3,
   Loader2,
   Send,
-  Video,
-  VideoOff,
   Wallet,
 } from "lucide-react";
 import { useEffect } from "react";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useI18n } from "@/i18n";
 import { hasRepeatedTextPattern, isDisplayableProfileText } from "@/utils/textQuality";
@@ -39,11 +33,6 @@ const TeacherViewCourse = () => {
   const locale = isArabic ? "ar-EG" : "en-US";
   const { courseId } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-  const routeState = location.state as { lecture?: ILecture; contentId?: number } | null;
-  const selectedLecture = routeState?.lecture;
-  const selectedLectureId = selectedLecture?.id;
-  const requestedContentId = Number(routeState?.contentId);
   const isValidCourseId =
     !!courseId && Number.isSafeInteger(Number(courseId)) && Number(courseId) > 0;
   const queryCourseId = isValidCourseId ? String(Number(courseId)) : "";
@@ -58,10 +47,8 @@ const TeacherViewCourse = () => {
         contentHint: "الوحدات والمحاضرات",
         noContents: "لم تتم إضافة محتوى للكورس بعد.",
         noContentsHint: "ابدأ بإضافة وحدة، ثم أضف المحاضرات داخلها.",
-        noLectureVideo: "لا يوجد فيديو لهذه المحاضرة حتى الآن.",
         loadError: "تعذر تحميل بيانات الكورس.",
         untitledCourse: "كورس بدون عنوان",
-        untitledLecture: "محاضرة بدون عنوان",
         draft: "مسودة",
         pending: "قيد المراجعة",
         published: "منشور",
@@ -86,9 +73,6 @@ const TeacherViewCourse = () => {
         videosMissing: "ارفع فيديو لكل محاضرة قبل الإرسال للمراجعة.",
         pendingHint: "الكورس قيد مراجعة الإدارة؛ التعديل والحذف غير متاحين حتى تنتهي المراجعة.",
         loading: "جارٍ تحميل بيانات الكورس...",
-        selectedLecture: "المحاضرة المحددة",
-        videoReady: "الفيديو مرفوع",
-        videoMissing: "لم يُرفع فيديو",
       }
     : {
         title: "Course management",
@@ -99,10 +83,8 @@ const TeacherViewCourse = () => {
         contentHint: "Units and lectures",
         noContents: "No course content has been added yet.",
         noContentsHint: "Add a unit first, then add lectures inside it.",
-        noLectureVideo: "No video has been uploaded for this lecture yet.",
         loadError: "Unable to load course details.",
         untitledCourse: "Untitled course",
-        untitledLecture: "Untitled lecture",
         draft: "Draft",
         pending: "Pending review",
         published: "Published",
@@ -127,9 +109,6 @@ const TeacherViewCourse = () => {
         videosMissing: "Upload a video for every lecture before submitting.",
         pendingHint: "This course is under admin review. Editing and deletion stay locked until the review is complete.",
         loading: "Loading course details...",
-        selectedLecture: "Selected lecture",
-        videoReady: "Video uploaded",
-        videoMissing: "No video uploaded",
       };
 
   const {
@@ -146,37 +125,14 @@ const TeacherViewCourse = () => {
     useSubmitTeacherCourseForReview();
   const { data: contents, isLoading: isLoadingContents } =
     useGetTeacherCourseContents({ token, courseId: queryCourseId });
-  const contentIdForLecture =
-    Number.isSafeInteger(requestedContentId) && requestedContentId > 0
-      ? String(requestedContentId)
-      : contents?.data?.[0]?.id.toString() || "";
-  const { data: lectures, isLoading: isLoadingLectures } =
-    useGetTeacherCourseLectures({
-      token,
-      courseId: queryCourseId,
-      contentId: contentIdForLecture,
-    });
-
-  const lecture = selectedLectureId
-    ? lectures?.data?.find((item) => item.id === selectedLectureId) ?? null
-    : null;
   const rawCourseTitle = course?.data?.title?.trim() || "";
   const rawCourseDescription = course?.data?.description?.trim() || "";
-  const rawLectureTitle = lecture?.title?.trim() || "";
-  const rawLectureDescription = lecture?.description?.trim() || "";
   const courseTitleIsValid =
     isDisplayableProfileText(rawCourseTitle) && !hasRepeatedTextPattern(rawCourseTitle);
   const courseDescriptionIsValid =
     rawCourseDescription.length >= 20 &&
     isDisplayableProfileText(rawCourseDescription, 3) &&
     !hasRepeatedTextPattern(rawCourseDescription);
-  const lectureTitleIsValid =
-    isDisplayableProfileText(rawLectureTitle) && !hasRepeatedTextPattern(rawLectureTitle);
-  const lectureDescriptionIsValid =
-    !rawLectureDescription ||
-    (rawLectureDescription.length >= 20 &&
-      isDisplayableProfileText(rawLectureDescription, 3) &&
-      !hasRepeatedTextPattern(rawLectureDescription));
 
   const courseStatus: CoursePublishingStatus = course?.data?.publishing_status ?? "draft";
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
@@ -480,42 +436,6 @@ const TeacherViewCourse = () => {
           )}
         </section>
 
-        {lecture ? (
-          <section className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-5">
-              <div>
-                <h3 className="text-base font-extrabold text-slate-900">
-                  {rawLectureTitle || text.untitledLecture}
-                </h3>
-                <p className="mt-1 text-sm text-slate-500">{text.selectedLecture}</p>
-              </div>
-              <span className={"inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold " + (lecture.hasVideo ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800")}>
-                {lecture.hasVideo ? <CheckCircle2 className="h-4 w-4" /> : <VideoOff className="h-4 w-4" />}
-                {lecture.hasVideo ? text.videoReady : text.videoMissing}
-              </span>
-            </div>
-            <div className="p-3 sm:p-4">
-              <div className="relative aspect-video max-h-[560px] overflow-hidden rounded-xl bg-slate-950">
-                {lecture.videoUrl ? (
-                  <VideoPlayer videoUrl={lecture.videoUrl} />
-                ) : (
-                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-5 text-center text-white">
-                    <Video className="h-8 w-8 text-slate-300" />
-                    <p className="text-sm">{text.noLectureVideo}</p>
-                  </div>
-                )}
-              </div>
-              {rawLectureDescription ? (
-                <p className="mt-3 whitespace-pre-line break-words text-sm leading-6 text-slate-600">{rawLectureDescription}</p>
-              ) : null}
-              {!lectureTitleIsValid || !lectureDescriptionIsValid ? (
-                <p className="mt-2 text-xs font-medium text-amber-700" role="status">
-                  {isArabic ? "راجع عنوان ووصف المحاضرة قبل إرسال الكورس للمراجعة." : "Review the lecture title and description before submitting the course."}
-                </p>
-              ) : null}
-            </div>
-          </section>
-        ) : null}
       </div>
     </main>
   );

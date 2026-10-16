@@ -146,43 +146,21 @@ describe("TeacherViewCourse", () => {
     expect(screen.getByRole("button", { name: /delete course/i })).toBeInTheDocument();
   });
 
-  it("loads the selected content unit and uses the refreshed lecture returned by the API", () => {
-    const routeLecture = {
-      id: 95,
-      title: "Old lecture title",
-      description: "The cached lecture title before the edit.",
-      videoUrl: "/old-video",
-      hasVideo: true,
-    };
-    mocks.useGetTeacherCourseLectures.mockReturnValue({
-      data: {
-        status: true,
-        message: null,
-        data: [
-          {
-            ...routeLecture,
-            title: "Updated lecture title",
-            description: "Fresh API details for the updated lecture.",
-            videoUrl: "/updated-video",
-          },
-        ],
+  it("does not render a second selected-lecture panel outside course content", () => {
+    renderPage({
+      lecture: {
+        id: 95,
+        title: "Selected lecture",
+        description: "A clear lecture description for testing.",
+        videoUrl: "https://vimeo.com/123456789",
+        hasVideo: true,
       },
-      isLoading: false,
+      contentId: 27,
     });
 
-    renderPage({ lecture: routeLecture, contentId: 27 });
-
-    expect(mocks.useGetTeacherCourseLectures).toHaveBeenCalledWith({
-      token: "teacher-test-token",
-      courseId: "10",
-      contentId: "27",
-    });
-    expect(
-      screen.getByRole("heading", { name: "Updated lecture title", level: 3 })
-    ).toBeInTheDocument();
-    expect(
-      screen.queryByRole("heading", { name: "Old lecture title", level: 3 })
-    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("course-content-list")).toBeInTheDocument();
+    expect(screen.queryByText("Selected lecture")).not.toBeInTheDocument();
+    expect(screen.queryByTestId("video-player")).not.toBeInTheDocument();
   });
 
   it("keeps edit/delete controls available once published and explains learner protection", () => {

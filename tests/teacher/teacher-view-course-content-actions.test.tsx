@@ -155,7 +155,9 @@ describe("TeacherViewCourseContent actions", () => {
     renderList("draft");
     fireEvent.click(screen.getByRole("button", { name: /Unit one/ }));
 
-    expect(screen.getByTitle("Course lecture video")).toHaveAttribute(
+    const videoPlayers = screen.getAllByTitle("Course lecture video");
+    expect(videoPlayers).toHaveLength(1);
+    expect(videoPlayers[0]).toHaveAttribute(
       "src",
       "https://player.vimeo.com/video/123456789?title=0&byline=0&portrait=0&dnt=1&h=abcDEF123"
     );

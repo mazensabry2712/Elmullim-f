@@ -31,7 +31,6 @@ import {
   VideoOff,
 } from "lucide-react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import ManageCourseQuiz from "./ManageCourseQuiz";
 import UploadCourseVideo from "./UploadCourseVideo";
 import { useI18n } from "@/i18n";
@@ -238,11 +237,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                 key={lecture.id}
                                 className="rounded-2xl border border-slate-100 bg-white p-3 transition-colors hover:border-emerald-200"
                               >
-                                <Link
-                                  to={"/profile/my-courses/" + courseId + "/view"}
-                                  state={{ lecture, contentId: content.id }}
-                                  className="block rounded-xl outline-none focus-visible:ring-2 focus-visible:ring-emerald-500"
-                                >
+                                <div className="block rounded-xl">
                                   <div className="flex min-w-0 items-start gap-3">
                                     <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-slate-600">
                                       <FileVideo className="h-4 w-4" />
@@ -275,7 +270,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                       ) : null}
                                     </span>
                                   </div>
-                                </Link>
+                                </div>
 
                                 <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-slate-100 pt-3">
                                   <span className={"inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold " + (lecture.hasVideo ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-800")}>

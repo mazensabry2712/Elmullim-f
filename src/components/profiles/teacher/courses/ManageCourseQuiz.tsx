@@ -11,7 +11,7 @@ import {
   useUpdateTeacherCourseQuiz,
 } from "@/lib/react-query/teacher/courses";
 import cookieService from "@/utils/cookieService";
-import { AlertCircle, CheckCircle2, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2, Pencil, Plus, Trash2 } from "lucide-react";
 import { type FormEvent, useEffect, useState } from "react";
 import Swal from "sweetalert2";
 import { toast } from "react-toastify";
@@ -60,6 +60,7 @@ const ManageCourseQuiz = ({
   const { language } = useI18n();
   const isArabic = language === "ar";
   const [isOpen, setIsOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [timeLimit, setTimeLimit] = useState(0);
   const [questions, setQuestions] = useState<QuizQuestionDraft[]>([makeQuestion()]);
@@ -72,12 +73,12 @@ const ManageCourseQuiz = ({
     useDeleteTeacherCourseQuiz();
 
   const quiz = lecture.quiz;
-  const { data: fullQuiz, isLoading: isLoadingQuiz } = useGetTeacherCourseQuiz({
+  const { data: fullQuiz, isLoading: isLoadingQuiz, isError: isQuizError } = useGetTeacherCourseQuiz({
     token,
     courseId: courseId.toString(),
     contentId: contentId.toString(),
     lectureId: lecture.id.toString(),
-    enabled: isOpen && !!quiz,
+    enabled: (isOpen || isDetailsOpen) && !!quiz,
   });
   const canEdit =
     courseStatus === "draft" || courseStatus === "rejected";
@@ -400,39 +401,113 @@ const ManageCourseQuiz = ({
                   : "No time limit"}
             </p>
           </div>
-          {canEdit && (
-            <div className="flex shrink-0 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={openEditor}
-                disabled={isLoadingQuiz}
-                className="border-main text-main hover:bg-main hover:text-white"
-              >
-                {isLoadingQuiz ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Pencil className="h-4 w-4" />
-                )}
-                <span>{isArabic ? "تعديل الاختبار" : "Edit quiz"}</span>
-              </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => void handleDelete()}
-                disabled={isDeleting}
-                className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
-              >
-                {isDeleting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <Trash2 className="h-4 w-4" />
-                )}
-                <span>{isArabic ? "حذف الاختبار" : "Delete quiz"}</span>
-              </Button>
-            </div>
-          )}
+
+          <div className="flex flex-wrap items-center gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              aria-expanded={isDetailsOpen}
+              onClick={() => setIsDetailsOpen((open) => !open)}
+              className="border-main/40 text-main hover:bg-main/10"
+            >
+              {isDetailsOpen ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+              <span>
+                {isDetailsOpen
+                  ? (isArabic ? "إخفاء الأسئلة" : "Hide questions")
+                  : (isArabic ? "عرض الأسئلة" : "View questions")}
+              </span>
+            </Button>
+            {canEdit ? (
+              <div className="flex shrink-0 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={openEditor}
+                  disabled={isLoadingQuiz}
+                  className="border-main text-main hover:bg-main hover:text-white"
+                >
+                  {isLoadingQuiz ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Pencil className="h-4 w-4" />
+                  )}
+                  <span>{isArabic ? "تعديل الاختبار" : "Edit quiz"}</span>
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => void handleDelete()}
+                  disabled={isDeleting}
+                  className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    <Trash2 className="h-4 w-4" />
+                  )}
+                  <span>{isArabic ? "حذف الاختبار" : "Delete quiz"}</span>
+                </Button>
+              </div>
+            ) : null}
+          </div>
         </div>
+
+        {isDetailsOpen ? (
+          <div className="mt-3 border-t border-main/10 pt-3" aria-live="polite">
+            {isLoadingQuiz ? (
+              <p className="py-3 text-sm text-black-blue/60" role="status">
+                {isArabic ? "جارٍ تحميل أسئلة الاختبار..." : "Loading quiz questions..."}
+              </p>
+            ) : isQuizError ? (
+              <p className="py-3 text-sm text-red-600" role="alert">
+                {isArabic ? "تعذر تحميل أسئلة الاختبار." : "Unable to load quiz questions."}
+              </p>
+            ) : fullQuiz?.data?.questions?.length ? (
+              <ol className="space-y-3">
+                {fullQuiz.data.questions.map((question, index) => (
+                  <li key={question.id} className="rounded-xl border border-slate-200 bg-white p-3">
+                    <div className="flex flex-wrap items-start justify-between gap-2">
+                      <p className="min-w-0 flex-1 text-sm font-bold text-slate-900">
+                        {index + 1}. {question.title || (isArabic ? "سؤال بدون عنوان" : "Untitled question")}
+                      </p>
+                      <span className="rounded-md bg-slate-100 px-2 py-1 text-xs font-semibold text-slate-600">
+                        {question.score} {isArabic ? "درجة" : "points"}
+                      </span>
+                    </div>
+                    <ul className="mt-2 space-y-2">
+                      {question.options.map((option) => (
+                        <li
+                          key={option.id}
+                          className={
+                            "flex flex-wrap items-center justify-between gap-2 rounded-lg px-3 py-2 text-sm " +
+                            (option.is_correct
+                              ? "bg-emerald-50 text-emerald-800"
+                              : "bg-slate-50 text-slate-700")
+                          }
+                        >
+                          <span>{option.title || (isArabic ? "إجابة بدون نص" : "Untitled option")}</span>
+                          {option.is_correct ? (
+                            <span className="shrink-0 text-xs font-bold">
+                              {isArabic ? "الإجابة الصحيحة" : "Correct answer"}
+                            </span>
+                          ) : null}
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ol>
+            ) : (
+              <p className="py-3 text-sm text-slate-500" role="status">
+                {isArabic ? "لا توجد أسئلة محفوظة في هذا الاختبار." : "No questions are saved in this quiz."}
+              </p>
+            )}
+          </div>
+        ) : null}
       </div>
     );
   }

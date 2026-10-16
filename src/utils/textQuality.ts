@@ -57,12 +57,18 @@ export const isTechnicalErrorText = (value: string | null | undefined): boolean 
   const text = (value ?? "").trim().normalize("NFKC");
   if (!text) return false;
 
-  return /\\b(?:request failed with status code\\s*\\d{3}|internal server error|sqlstate\\s*\\[|stack trace|uncaught exception|fatal error|http error\\s*5\\d{2})\\b/iu.test(text);
+  return /\b(?:request failed with status code\s*\d{3}|internal server error|sqlstate\s*\[|stack trace|uncaught exception|fatal error|http error\s*5\d{2})\b/iu.test(text);
 };
 
 export const hasMinimumWords = (value: string, minimum: number): boolean =>
   value.trim().split(/\s+/u).filter(Boolean).length >= minimum;
 export const isDisplayableProfileText = (value: string | null | undefined, minimumWords = 1): boolean => {
   const text = value?.trim() ?? "";
-  return text.length > 0 && hasMinimumWords(text, minimumWords) && !hasRepeatedTextPattern(text) && !hasRepeatedWordPattern(text) && !isTechnicalErrorText(text);
+  return (
+    text.length > 0 &&
+    hasMinimumWords(text, minimumWords) &&
+    !hasRepeatedTextPattern(text) &&
+    !hasRepeatedWordPattern(text) &&
+    !isTechnicalErrorText(text)
+  );
 };

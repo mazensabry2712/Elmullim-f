@@ -15,6 +15,7 @@ import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useI18n } from "@/i18n";
 import type { CoursesCopy } from "@/pages/courses/courseCopy";
+import { isDisplayableProfileText } from "@/utils/textQuality";
 
 interface IProps {
   courseId: number;

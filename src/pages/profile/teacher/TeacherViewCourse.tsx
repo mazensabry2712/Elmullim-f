@@ -55,6 +55,8 @@ const TeacherViewCourse = () => {
         rejected: "مرفوض",
         addContent: "إضافة محتوى",
         addLecture: "إضافة محاضرة",
+        publishedAddContentTitle: "إضافة محتوى جديد للكورس المنشور",
+        publishedAddContentHint: "يمكنك إضافة وحدات ومحاضرات جديدة. لحماية الطلاب، يظل المحتوى المنشور الحالي محميًا من التعديل والحذف.",
         submitForReview: "إرسال للمراجعة",
         resubmitForReview: "إعادة الإرسال للمراجعة",
         resubmitting: "جارٍ الإرسال...",
@@ -91,6 +93,8 @@ const TeacherViewCourse = () => {
         rejected: "Rejected",
         addContent: "Add content",
         addLecture: "Add lecture",
+        publishedAddContentTitle: "Add to the published course",
+        publishedAddContentHint: "You can add new units and lectures. Existing published content stays locked to protect learners.",
         submitForReview: "Submit for review",
         resubmitForReview: "Resubmit for review",
         resubmitting: "Submitting...",
@@ -136,6 +140,7 @@ const TeacherViewCourse = () => {
 
   const courseStatus: CoursePublishingStatus = course?.data?.publishing_status ?? "draft";
   const canEdit = courseStatus === "draft" || courseStatus === "rejected";
+  const canManageContents = canEdit || courseStatus === "published";
   const contentCount = contents?.data?.length ?? 0;
   const reviewReadiness = course?.data?.review_readiness;
 
@@ -360,16 +365,18 @@ const TeacherViewCourse = () => {
           </div>
         </section>
 
-        {canEdit ? (
+        {canManageContents ? (
           <section className="rounded-2xl border border-slate-200 bg-white p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <h2 className="text-base font-extrabold text-slate-900">{text.readyTitle}</h2>
+                <h2 className="text-base font-extrabold text-slate-900">{canEdit ? text.readyTitle : text.publishedAddContentTitle}</h2>
                 <p className="mt-1 text-sm text-slate-500">
-                  {isArabic ? "أضف الوحدات والمحاضرات، ثم أرسل الكورس للمراجعة." : "Add units and lectures, then submit the course for review."}
+                  {canEdit
+                    ? (isArabic ? "أضف الوحدات والمحاضرات، ثم أرسل الكورس للمراجعة." : "Add units and lectures, then submit the course for review.")
+                    : text.publishedAddContentHint}
                 </p>
               </div>
-              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <div className={"grid grid-cols-1 gap-2 " + (canEdit ? "sm:grid-cols-3" : "sm:grid-cols-2")}>
                 <CreateCourseContent courseId={course.data.id}>
                   <Button type="button" className="min-h-10 rounded-lg bg-main px-4 font-bold text-white hover:bg-main/90">
                     {text.addContent}
@@ -380,22 +387,24 @@ const TeacherViewCourse = () => {
                     {text.addLecture}
                   </Button>
                 </CreateCourseLecture>
-                <Button
-                  type="button"
-                  onClick={() => void handleSubmitForReview()}
-                  disabled={isSubmittingForReview || reviewReadiness?.can_submit === false}
-                  className="min-h-10 rounded-lg bg-slate-900 px-4 font-bold text-white hover:bg-slate-800"
-                >
-                  {isSubmittingForReview ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
-                  {isSubmittingForReview
-                    ? text.resubmitting
-                    : courseStatus === "rejected"
-                      ? text.resubmitForReview
-                      : text.submitForReview}
-                </Button>
+                {canEdit ? (
+                  <Button
+                    type="button"
+                    onClick={() => void handleSubmitForReview()}
+                    disabled={isSubmittingForReview || reviewReadiness?.can_submit === false}
+                    className="min-h-10 rounded-lg bg-slate-900 px-4 font-bold text-white hover:bg-slate-800"
+                  >
+                    {isSubmittingForReview ? <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" /> : <Send className="h-4 w-4" aria-hidden="true" />}
+                    {isSubmittingForReview
+                      ? text.resubmitting
+                      : courseStatus === "rejected"
+                        ? text.resubmitForReview
+                        : text.submitForReview}
+                  </Button>
+                ) : null}
               </div>
             </div>
-            {reviewHint ? (
+            {canEdit && reviewHint ? (
               <p className="mt-3 flex items-start gap-2 rounded-lg bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800" role="status">
                 <CircleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
                 <span>{reviewHint}</span>

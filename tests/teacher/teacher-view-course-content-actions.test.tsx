@@ -188,5 +188,6 @@ describe("TeacherViewCourseContent actions", () => {
 
     expect(screen.queryByRole("button", { name: "Edit lecture 94" })).not.toBeInTheDocument();
     expect(screen.queryByRole("button", { name: "Delete lecture 94" })).not.toBeInTheDocument();
+    expect(screen.getByText("Upload lecture video")).toBeInTheDocument();
   });
 });

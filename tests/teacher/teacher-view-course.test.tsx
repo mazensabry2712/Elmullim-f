@@ -179,6 +179,10 @@ describe("TeacherViewCourse", () => {
 
     const deleteButton = screen.getByRole("button", { name: /delete course/i });
     expect(deleteButton).toBeEnabled();
+    expect(screen.getByRole("button", { name: /add content/i })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: /add lecture/i })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: /submit for review/i })).not.toBeInTheDocument();
+    expect(screen.getByText(/existing published content stays locked/i)).toBeInTheDocument();
     expect(
       screen.getByText(/deletion is blocked when learner activity exists/i)
     ).toBeInTheDocument();

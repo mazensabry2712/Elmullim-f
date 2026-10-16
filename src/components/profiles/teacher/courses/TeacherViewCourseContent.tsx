@@ -295,7 +295,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                                   </p>
                                 ) : null}
 
-                                {canEdit ? (
+                                {canEdit || (courseStatus === "published" && !lecture.hasVideo) ? (
                                   <details className="group mt-3 overflow-hidden rounded-xl border border-slate-200 bg-slate-50">
                                     <summary className="flex cursor-pointer list-none items-center justify-between gap-3 px-3 py-3 text-xs font-extrabold text-slate-700 outline-none hover:bg-emerald-50 focus-visible:ring-2 focus-visible:ring-emerald-500">
                                       <span className="inline-flex items-center gap-2">

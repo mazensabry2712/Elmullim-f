@@ -165,7 +165,7 @@ const TeacherViewCourseContent = ({ courseId, courseStatus }: IProps) => {
                         </span>
                         <span className="min-w-0 flex-1">
                           <span className="block break-words text-start">
-                            {content.title?.trim() || text.untitledContent}
+                            {contentTitleIsValid ? content.title?.trim() || text.untitledContent : text.untitledContent}
                           </span>
                           {!contentTitleIsValid ? (
                             <span className="mt-1 inline-flex items-center gap-1 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-800">

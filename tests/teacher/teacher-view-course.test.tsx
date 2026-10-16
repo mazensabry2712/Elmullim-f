@@ -202,7 +202,7 @@ describe("TeacherViewCourse", () => {
     const deleteButton = screen.getByRole("button", { name: /delete course/i });
     expect(deleteButton).toBeEnabled();
     expect(
-      screen.getByText(/if a student purchased or enrolled in it/i)
+      screen.getByText(/deletion is blocked when learner activity exists/i)
     ).toBeInTheDocument();
   });
 

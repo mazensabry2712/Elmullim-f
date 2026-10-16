@@ -338,7 +338,11 @@ const TeacherViewCourse = () => {
                 <span className={"inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-bold " + statusClass}>
                   {statusLabel}
                 </span>
-                <span className="text-xs text-slate-500">{categoryName} / {subCategoryName}</span>
+                <span className="inline-flex flex-wrap items-center gap-1 text-xs text-slate-500">
+                  <span>{categoryName}</span>
+                  <span aria-hidden="true">/</span>
+                  <span>{subCategoryName}</span>
+                </span>
               </div>
               <h2 className="mt-2 break-words text-xl font-extrabold leading-7 text-slate-900 sm:text-2xl">
                 {rawCourseTitle || text.untitledCourse}
@@ -397,12 +401,6 @@ const TeacherViewCourse = () => {
             <p className="mt-2 whitespace-pre-line break-words text-sm leading-6 text-slate-600">
               {rawCourseDescription || (isArabic ? "لم يُكتب وصف للكورس بعد." : "No course description has been added yet.")}
             </p>
-            {!courseDescriptionIsValid ? (
-              <p className="mt-2 flex items-start gap-2 text-xs font-medium leading-5 text-amber-700" role="status">
-                <CircleAlert className="mt-0.5 h-3.5 w-3.5 shrink-0" />
-                <span>{text.descriptionNeedsReview}</span>
-              </p>
-            ) : null}
           </div>
         </section>
 

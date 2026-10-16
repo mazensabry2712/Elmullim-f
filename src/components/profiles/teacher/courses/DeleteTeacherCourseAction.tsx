@@ -57,6 +57,7 @@ const DeleteTeacherCourseAction = ({
         authError: "انتهت الجلسة أو لم يتم تسجيل الدخول. سجّل الدخول ثم حاول مرة أخرى.",
         descriptionStart: "هل أنت متأكد أنك تريد حذف الكورس",
         descriptionEnd: "؟ لا يمكن التراجع عن هذا الإجراء.",
+        learnerGuard: "لو طالب اشترى الكورس أو سجّل فيه أو بدأ اختبارًا، سيتم رفض الحذف وسيظل المحتوى متاحًا له.",
       }
     : {
         trigger: "Delete course",
@@ -68,6 +69,7 @@ const DeleteTeacherCourseAction = ({
         authError: "Your session is missing or expired. Sign in and try again.",
         descriptionStart: "Are you sure you want to delete",
         descriptionEnd: "? This action cannot be undone.",
+        learnerGuard: "Deletion is blocked when learners purchased or enrolled in this course or started a quiz; their access remains intact.",
       };
 
   const handleDelete = async () => {
@@ -149,6 +151,7 @@ const DeleteTeacherCourseAction = ({
                 {copy.descriptionStart} <strong>“{courseTitle}”</strong>{copy.descriptionEnd}
               </>
             )}
+            <span className="mt-2 block font-semibold text-amber-700">{copy.learnerGuard}</span>
           </AlertDialogDescription>
         </AlertDialogHeader>
 

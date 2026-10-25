@@ -5,6 +5,7 @@ import { Loader, Users } from "lucide-react";
 import { toast } from "react-toastify";
 import { useSelector } from "react-redux";
 import CourseContent from "@/components/courses/CourseContent";
+import CourseTeacherRating from "@/components/ratings/CourseTeacherRating";
 import RelatedCourses from "@/components/courses/RelatedCourses";
 import Newsletter from "@/components/Newsletter";
 import InstructorDetails from "@/components/shared/InstructorDetails";
@@ -212,6 +213,9 @@ const CourseDetails = () => {
               copy={copy}
             />
           </div>
+          {isAuthenticated && role === "student" && courseData.hasEnrolled && (
+            <CourseTeacherRating courseId={courseData.id} token={token || ""} />
+          )}
           <InstructorDetails instructor={courseData.teacher as ITeacher} />
           <RelatedCourses
             courseId={numericCourseId}

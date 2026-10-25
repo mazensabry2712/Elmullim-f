@@ -1,4 +1,5 @@
 import RelatedCourses from "@/components/courses/RelatedCourses";
+import CourseTeacherRating from "@/components/ratings/CourseTeacherRating";
 import ViewCourseContent from "@/components/courses/ViewCourseContent";
 import InstructorDetails from "@/components/shared/InstructorDetails";
 import VideoPlayer from "@/components/shared/VideoPlayer";
@@ -23,6 +24,7 @@ const ViewCourse = () => {
   const { language } = useI18n();
   const copy = getCoursesCopy(language);
   const token = cookieService.getToken() || "";
+  const role = cookieService.getRole();
   const { courseId } = useParams<{ courseId: string }>();
   const navigate = useNavigate();
   const numericCourseId = Number(courseId);
@@ -171,6 +173,9 @@ const ViewCourse = () => {
               </div>
 
               <div className="container">
+                {role === "student" && courseData.hasEnrolled && (
+                  <CourseTeacherRating courseId={courseData.id} token={token} />
+                )}
                 <InstructorDetails instructor={courseData.teacher as ITeacher} />
                 <RelatedCourses
                   courseId={courseData.id}

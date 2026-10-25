@@ -4,7 +4,7 @@ import { ILesson } from "@/interfaces/lessons/lesson";
 import type { LessonsCopy } from "@/pages/lessons/lessonCopy";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 import { useI18n } from "@/i18n";
-import { CalendarDays, Clock3, MapPin, Navigation, UsersRound } from "lucide-react";
+import { CalendarDays, Clock3, MapPin, Navigation, Star, UsersRound } from "lucide-react";
 
 interface IProps {
   lesson: ILesson;
@@ -51,6 +51,15 @@ const LessonCard = ({ lesson, copy }: IProps) => {
               {truncateTxt(lesson.description, 100)}
             </p>
           </Link>
+
+          <div className="mt-3 inline-flex items-center gap-2 text-xs font-bold text-black-blue/60" aria-label={language === "ar" ? "تقييم الدرس" : "Lesson rating"}>
+            <Star className="h-4 w-4 fill-current text-main" aria-hidden="true" />
+            {Number(lesson.rating_count ?? 0) > 0 ? (
+              <span>{Number(lesson.rating_average ?? 0).toFixed(1)} · {lesson.rating_count} {language === "ar" ? "تقييم للدرس" : "lesson ratings"}</span>
+            ) : (
+              <span>{language === "ar" ? "لا توجد تقييمات للدرس بعد" : "No lesson ratings yet"}</span>
+            )}
+          </div>
 
           <div className="mt-4 grid grid-cols-2 gap-2">
             <span className="inline-flex min-w-0 items-center gap-2 rounded-xl bg-main/[0.055] px-3 py-2.5 text-xs font-bold text-black-blue/70">

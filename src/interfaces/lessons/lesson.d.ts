@@ -37,6 +37,10 @@ export interface ILesson {
   title: string;
   description: string;
   logo: string | null;
+  /** Average public rating for this specific lesson, not the teacher. */
+  rating_average?: number | null;
+  /** Number of completed-booking ratings for this specific lesson. */
+  rating_count?: number;
   price: string;
   delivery_mode?: LessonDeliveryMode;
   booking_type?: LessonBookingType;

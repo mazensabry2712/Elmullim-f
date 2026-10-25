@@ -23,6 +23,7 @@ import cookieService from "@/utils/cookieService";
 import { useGetLessonById } from "@/lib/react-query/lessons/lessons";
 import RelatedLessons from "@/components/lessons/RelatedLessons";
 import BookLessonDialog from "@/components/lessons/BookLessonDialog";
+import LessonRating from "@/components/ratings/LessonRating";
 import { useI18n } from "@/i18n";
 import { getLessonsCopy } from "./lessonCopy";
 
@@ -398,6 +399,13 @@ const LessonDetails = () => {
 
                 <div className="mt-6 grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
                   <div className="space-y-6">
+                    <LessonRating
+                      lessonId={lessonData.id}
+                      average={lessonData.rating_average}
+                      count={lessonData.rating_count ?? 0}
+                      token={token}
+                      role={role}
+                    />
                     <section className="rounded-3xl border border-black-blue/[0.07] bg-white p-5 md:p-6 shadow-sm">
                       <div className="flex items-start gap-3">
                         <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-main/10 text-main">

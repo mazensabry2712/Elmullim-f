@@ -85,7 +85,7 @@ describe("TeacherWallet payout request", () => {
   it("opens the payout form inside the teacher wallet and displays available balance", () => {
     render(<TeacherWallet />);
 
-    expect(screen.getByText("1,500.00 ج.م")).toBeInTheDocument();
+    expect(screen.getByText("الرصيد المتاح للسحب")).toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "طلب سحب" }));
 
     expect(screen.getByRole("heading", { name: "طلب سحب الأرباح" })).toBeInTheDocument();

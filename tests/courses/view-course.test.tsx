@@ -19,6 +19,7 @@ vi.mock("@/lib/react-query/courses/courses", () => ({
 vi.mock("@/utils/cookieService", () => ({
   default: {
     getToken: vi.fn(() => "token"),
+    getRole: vi.fn(() => "student"),
   },
 }));
 
@@ -32,6 +33,12 @@ vi.mock("react-router-dom", async () => {
 
 vi.mock("@/components/courses/ViewCourseContent", () => ({
   default: () => <div data-testid="view-course-content">Course content</div>,
+}));
+
+vi.mock("@/components/ratings/CourseTeacherRating", () => ({
+  default: ({ courseId }: { courseId: number }) => (
+    <div data-testid="course-teacher-rating">Rate teacher for course {courseId}</div>
+  ),
 }));
 
 vi.mock("@/components/courses/RelatedCourses", () => ({
@@ -102,6 +109,7 @@ describe("ViewCourse", () => {
     expect(screen.getByRole("heading", { name: /physics fundamentals/i, level: 2 })).toBeInTheDocument();
     expect(screen.getByText("Lesson 1")).toBeInTheDocument();
     expect(screen.getByTestId("view-course-content")).toBeInTheDocument();
+    expect(screen.getByTestId("course-teacher-rating")).toHaveTextContent("course 7");
   });
 
   it("renders a loading state while course data is loading", () => {

@@ -171,7 +171,10 @@ describe("TeacherWallet payout request", () => {
     });
     render(<TeacherWallet />);
 
-    expect(screen.getByRole("button", { name: "طلب سحب" })).toBeDisabled();
+    expect(screen.getByRole("button", { name: "طلب سحب" })).toBeEnabled();
+    fireEvent.click(screen.getByRole("button", { name: "طلب سحب" }));
+    expect(screen.getByRole("heading", { name: "طلب سحب الأرباح" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "إرسال طلب السحب" })).toBeDisabled();
     expect(screen.getByRole("alert")).toHaveTextContent("إعدادات التحويلات لدى المنصة لم تكتمل");
   });
 });

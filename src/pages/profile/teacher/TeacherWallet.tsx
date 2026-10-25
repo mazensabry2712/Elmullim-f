@@ -413,7 +413,7 @@ const TeacherWallet = () => {
               setFormError("");
               setNotice("");
             }}
-            disabled={!payoutsEnabled}
+            disabled={wallet.isLoading || wallet.isError}
             aria-expanded={payoutFormOpen}
             className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-main px-5 py-3 font-sora text-sm font-semibold text-white transition hover:bg-main/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
           >

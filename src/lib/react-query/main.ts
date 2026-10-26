@@ -7,7 +7,6 @@ import {
   getAllEducationSystems,
   getPublicSubjectsForEducationLevel,
   getTeacherSubjects,
-  getAllSubjects,
   getSubCategory,
   getUserSearch,
 } from "@/services/main";

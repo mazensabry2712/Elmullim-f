@@ -1,0 +1,1 @@
+import{j as t,d as e}from"./index-DedRE2uL.js";const r=()=>t.jsx("div",{className:"flex justify-center items-center",children:t.jsx(e,{visible:!0,width:"64px",strokeColor:"#0AB99D",strokeWidth:"5px",animationDuration:"0.75",ariaLabel:"rotating-lines-loading"})});export{r as L};

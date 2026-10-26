@@ -5,7 +5,6 @@ import {
   BookOpen,
   CalendarClock,
   CalendarDays,
-  ClipboardList,
   Home,
   MessageCircle,
   Star,
@@ -17,12 +16,11 @@ import { useI18n } from "@/i18n";
 const StudentMainProfile = lazy(() => import("./StudentMainProfile"));
 const StudentCourses = lazy(() => import("./StudentCourses"));
 const Chat = lazy(() => import("@/components/chat/Chat"));
-const QuizSchedules = lazy(() => import("./quizes/QuizSchedules"));
 
 const StudentProfile = () => {
   const location = useLocation();
   const state = location.state as
-    | { myCourses?: boolean; chat?: boolean; quiz?: boolean }
+    | { myCourses?: boolean; chat?: boolean }
     | null;
   const { language } = useI18n();
   const isArabic = language === "ar";
@@ -32,7 +30,6 @@ const StudentProfile = () => {
         main: "الرئيسية",
         courses: "كورساتي",
         chat: "الدردشة",
-        quizzes: "الاختبارات",
         bookings: "حجزاتي",
         schedule: "مواعيدي",
         ratings: "تقييماتي",
@@ -41,14 +38,12 @@ const StudentProfile = () => {
         loadingMain: "جاري تحميل بيانات الملف الشخصي...",
         loadingCourses: "جاري تحميل كورساتك...",
         loadingChat: "جاري تحميل الدردشة...",
-        loadingQuizzes: "جاري تحميل الاختبارات...",
         sections: "أقسام حساب الطالب",
       }
     : {
         main: "Main",
         courses: "My Courses",
         chat: "Chat",
-        quizzes: "Quizzes",
         bookings: "My Bookings",
         schedule: "My Schedule",
         ratings: "My Ratings",
@@ -57,7 +52,6 @@ const StudentProfile = () => {
         loadingMain: "Loading profile information...",
         loadingCourses: "Loading your courses...",
         loadingChat: "Loading chat...",
-        loadingQuizzes: "Loading quizzes...",
         sections: "Student account sections",
       };
 
@@ -65,9 +59,7 @@ const StudentProfile = () => {
     ? "courses"
     : state?.chat
       ? "chat"
-      : state?.quiz
-        ? "quiz"
-        : "main-profile";
+      : "main-profile";
 
   const triggerClassName =
     "flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-none border-b-4 border-transparent px-3 py-3 text-xs font-semibold text-white transition-colors data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FBDC0F] sm:px-3 sm:text-sm";
@@ -117,10 +109,6 @@ const StudentProfile = () => {
                     <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
                     {text.chat}
                   </TabsTrigger>
-                  <TabsTrigger value="quiz" className={triggerClassName}>
-                    <ClipboardList className="h-4 w-4 shrink-0" aria-hidden="true" />
-                    {text.quizzes}
-                  </TabsTrigger>
                 </TabsList>
 
                 <div
@@ -167,11 +155,6 @@ const StudentProfile = () => {
           <TabsContent value="chat" className="mt-0">
             <Suspense fallback={fallback(text.loadingChat)}>
               <Chat />
-            </Suspense>
-          </TabsContent>
-          <TabsContent value="quiz" className="mt-0">
-            <Suspense fallback={fallback(text.loadingQuizzes)}>
-              <QuizSchedules />
             </Suspense>
           </TabsContent>
         </Tabs>

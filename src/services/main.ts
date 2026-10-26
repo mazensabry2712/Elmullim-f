@@ -18,6 +18,32 @@ export interface IPublicTeacherSubject {
   education_level?: IEducationLevel | null;
 }
 
+export interface IPublicSubject {
+  id: number;
+  name: string;
+  image?: string | null;
+  education_level_id: number;
+  education_level_name: string | null;
+  visibility_mode: "core" | "after_published_lesson";
+  is_core: boolean;
+  published_lessons_count: number;
+}
+
+export interface IPublicSubjectsRes {
+  status: boolean;
+  message: string | null;
+  data: {
+    subjects: IPublicSubject[];
+    pagination: {
+      current_page: number;
+      last_page: number;
+      per_page: number;
+      total: number;
+    };
+  };
+}
+
+
 export interface IPublicTeacher {
   id: number;
   name: string;
@@ -108,6 +134,21 @@ export const getPublicTeacherDirectory = async (
       page,
       per_page: perPage,
       ...(subjectId ? { subject_id: subjectId } : {}),
+    },
+  });
+  return data;
+};
+
+export const getPublicSubjects = async (
+  page = 1,
+  perPage = 24,
+  search?: string
+): Promise<IPublicSubjectsRes> => {
+  const { data } = await axiosAPI.get("/main/subjects", {
+    params: {
+      page,
+      per_page: perPage,
+      ...(search?.trim() ? { q: search.trim() } : {}),
     },
   });
   return data;

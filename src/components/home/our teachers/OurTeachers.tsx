@@ -21,8 +21,10 @@ const OurTeachers = () => {
     <section
       id="our-teachers"
       aria-labelledby="our-teachers-title"
-      className="overflow-hidden bg-main pb-10 pt-16 sm:pt-20"
+      className="relative overflow-hidden bg-gradient-to-br from-[#123B43] via-[#087A68] to-[#0AB99D] pb-10 pt-16 sm:pt-20"
     >
+      <div className="pointer-events-none absolute -end-24 -top-28 h-80 w-80 rounded-full border-[42px] border-white/5" aria-hidden="true" />
+      <div className="pointer-events-none absolute -bottom-36 -start-20 h-80 w-80 rounded-full bg-white/5 blur-3xl" aria-hidden="true" />
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -30,13 +32,19 @@ const OurTeachers = () => {
         viewport={{ once: true }}
         className="container"
       >
-        <motion.div variants={itemVariants}>
+        <motion.div variants={itemVariants} className="mx-auto max-w-3xl text-center">
+          <p className="font-sora text-xs font-extrabold uppercase tracking-[0.2em] text-[#BDF6E8] sm:text-sm">
+            {t("home.teachers.eyebrow")}
+          </p>
           <h2
             id="our-teachers-title"
-            className="px-2 text-center font-sora text-4xl font-semibold leading-tight capitalize text-white sm:text-5xl lg:text-6xl"
+            className="mt-3 px-2 text-center font-sora text-4xl font-semibold leading-tight capitalize text-white sm:text-5xl lg:text-6xl"
           >
             {t("home.teachers.title")}
           </h2>
+          <p className="mx-auto mt-4 max-w-2xl px-3 font-sora text-sm leading-7 text-white/80 sm:text-base">
+            {t("home.teachers.description")}
+          </p>
         </motion.div>
 
         {isPending ? (

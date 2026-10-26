@@ -11,9 +11,9 @@ const Home = () => {
     <main className="w-full overflow-x-clip">
       <Hero />
       <Category />
-      <OurTeachers />
       <PopularLessons />
       <PopularCourses />
+      <OurTeachers />
       <HomeHighlights />
       <ChatRoom />
     </main>

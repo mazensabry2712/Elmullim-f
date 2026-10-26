@@ -42,4 +42,17 @@ describe("getPublicSubjects", () => {
 
     expect(axiosAPI.get).toHaveBeenCalledWith("/main/3/teacher-subjects");
   });
+
+  it("falls back to the legacy subject endpoint only when the teacher endpoint is missing", async () => {
+    vi.mocked(axiosAPI.get)
+      .mockRejectedValueOnce({ response: { status: 404 } })
+      .mockResolvedValueOnce({
+        data: { status: true, message: null, data: [] },
+      } as never);
+
+    await getTeacherSubjects("3");
+
+    expect(axiosAPI.get).toHaveBeenNthCalledWith(1, "/main/3/teacher-subjects");
+    expect(axiosAPI.get).toHaveBeenNthCalledWith(2, "/main/3/subjects");
+  });
 });

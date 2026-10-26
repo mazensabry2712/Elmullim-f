@@ -213,10 +213,23 @@ export const getPublicSubjectsForEducationLevel = async (
 export const getTeacherSubjects = async (
   educationLevelId: string
 ): Promise<ISubjectsRes> => {
-  const { data } = await axiosAPI.get(
-    `/main/${educationLevelId}/teacher-subjects`
-  );
-  return data;
+  try {
+    const { data } = await axiosAPI.get(
+      `/main/${educationLevelId}/teacher-subjects`
+    );
+    return data;
+  } catch (error) {
+    // During a staggered frontend/backend deployment, keep teacher forms
+    // working against the previous API version. Do not hide other failures.
+    const status =
+      typeof error === "object" && error !== null && "response" in error
+        ? (error as { response?: { status?: number } }).response?.status
+        : undefined;
+
+    if (status !== 404) throw error;
+
+    return getPublicSubjectsForEducationLevel(educationLevelId);
+  }
 };
 
 // Backward-compatible alias for existing student-facing consumers.

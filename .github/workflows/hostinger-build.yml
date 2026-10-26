@@ -41,7 +41,8 @@ jobs:
 
       - name: Build production bundle
         env:
-          VITE_API: https://api.elmullim.com
+          # The live API currently routes correctly through the public/ path.
+          VITE_API: https://api.elmullim.com/public
           VITE_ENV: production
         run: npm run build
 

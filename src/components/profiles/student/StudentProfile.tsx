@@ -1,7 +1,17 @@
 import { lazy, Suspense } from "react";
 import { motion } from "framer-motion";
+import {
+  Bell,
+  BookOpen,
+  CalendarClock,
+  CalendarDays,
+  ClipboardList,
+  Home,
+  MessageCircle,
+  Star,
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useLocation } from "react-router-dom";
+import { NavLink, useLocation } from "react-router-dom";
 import { useI18n } from "@/i18n";
 
 const StudentMainProfile = lazy(() => import("./StudentMainProfile"));
@@ -23,6 +33,11 @@ const StudentProfile = () => {
         courses: "كورساتي",
         chat: "الدردشة",
         quizzes: "الاختبارات",
+        bookings: "حجزاتي",
+        schedule: "مواعيدي",
+        ratings: "تقييماتي",
+        notifications: "الإشعارات",
+        quickLinks: "روابط الطالب المهمة",
         loadingMain: "جاري تحميل بيانات الملف الشخصي...",
         loadingCourses: "جاري تحميل كورساتك...",
         loadingChat: "جاري تحميل الدردشة...",
@@ -34,6 +49,11 @@ const StudentProfile = () => {
         courses: "My Courses",
         chat: "Chat",
         quizzes: "Quizzes",
+        bookings: "My Bookings",
+        schedule: "My Schedule",
+        ratings: "My Ratings",
+        notifications: "Notifications",
+        quickLinks: "Important student links",
         loadingMain: "Loading profile information...",
         loadingCourses: "Loading your courses...",
         loadingChat: "Loading chat...",
@@ -50,7 +70,14 @@ const StudentProfile = () => {
         : "main-profile";
 
   const triggerClassName =
-    "h-full shrink-0 whitespace-nowrap rounded-none border-b-4 border-transparent px-2 py-3 text-xs font-semibold text-white data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-[#21374B] sm:px-3 sm:text-sm md:px-4 md:text-base";
+    "flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-none border-b-4 border-transparent px-3 py-3 text-xs font-semibold text-white transition-colors data-[state=active]:border-[#FBDC0F] data-[state=active]:text-[#FBDC0F] data-[state=active]:shadow-none !bg-transparent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FBDC0F] sm:px-3 sm:text-sm";
+
+  const quickLinks = [
+    { to: "/bookings", label: text.bookings, icon: CalendarDays },
+    { to: "/schedule", label: text.schedule, icon: CalendarClock },
+    { to: "/ratings", label: text.ratings, icon: Star },
+    { to: "/notifications", label: text.notifications, icon: Bell },
+  ];
 
   const fallback = (label: string) => (
     <div
@@ -71,25 +98,61 @@ const StudentProfile = () => {
     >
       <div className="mt-8 sm:mt-10">
         <Tabs key={location.key} defaultValue={defaultTab} className="w-full">
-          <TabsList
-            aria-label={text.sections}
-            className="flex h-auto w-full max-w-full justify-start overflow-x-auto overscroll-x-contain rounded-lg bg-[#21374B] p-0 px-2 sm:px-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            <div className="mx-auto flex w-max min-w-full items-stretch justify-start gap-4 sm:justify-center sm:gap-6 lg:gap-8">
-              <TabsTrigger value="main-profile" className={triggerClassName}>
-                {text.main}
-              </TabsTrigger>
-              <TabsTrigger value="courses" className={triggerClassName}>
-                {text.courses}
-              </TabsTrigger>
-              <TabsTrigger value="chat" className={triggerClassName}>
-                {text.chat}
-              </TabsTrigger>
-              <TabsTrigger value="quiz" className={triggerClassName}>
-                {text.quizzes}
-              </TabsTrigger>
+          <div className="overflow-hidden rounded-lg bg-[#21374B] shadow-sm">
+            <div className="overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              <div className="flex w-max min-w-full items-stretch justify-start gap-1 px-2 sm:px-3 lg:justify-center">
+                <TabsList
+                  aria-label={text.sections}
+                  className="flex h-auto shrink-0 items-stretch justify-start gap-1 rounded-none border-0 bg-transparent p-0 text-white"
+                >
+                  <TabsTrigger value="main-profile" className={triggerClassName}>
+                    <Home className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {text.main}
+                  </TabsTrigger>
+                  <TabsTrigger value="courses" className={triggerClassName}>
+                    <BookOpen className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {text.courses}
+                  </TabsTrigger>
+                  <TabsTrigger value="chat" className={triggerClassName}>
+                    <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {text.chat}
+                  </TabsTrigger>
+                  <TabsTrigger value="quiz" className={triggerClassName}>
+                    <ClipboardList className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    {text.quizzes}
+                  </TabsTrigger>
+                </TabsList>
+
+                <div
+                  aria-hidden="true"
+                  className="my-2 w-px shrink-0 bg-white/25"
+                />
+
+                <nav
+                  aria-label={text.quickLinks}
+                  className="flex shrink-0 items-stretch gap-1"
+                >
+                  {quickLinks.map(({ to, label, icon: Icon }) => (
+                    <NavLink
+                      key={to}
+                      to={to}
+                      className={({ isActive }) =>
+                        [
+                          "flex h-12 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-none border-b-4 px-3 py-3 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-[#FBDC0F] sm:text-sm",
+                          isActive
+                            ? "border-[#FBDC0F] text-[#FBDC0F]"
+                            : "border-transparent text-white hover:bg-white/5 hover:text-[#FBDC0F]",
+                        ].join(" ")
+                      }
+                    >
+                      <Icon className="h-4 w-4 shrink-0" aria-hidden="true" />
+                      {label}
+                    </NavLink>
+                  ))}
+                </nav>
+              </div>
             </div>
-          </TabsList>
+          </div>
 
           <TabsContent value="main-profile" className="mt-0">
             <Suspense fallback={fallback(text.loadingMain)}>

@@ -38,6 +38,8 @@ export interface IStudentQuizQuestion {
   id: number;
   title: string | null;
   score: number;
+  answer_type?: "options" | "text";
+  image_url?: string | null;
   options: IStudentQuizOption[];
 }
 
@@ -58,12 +60,16 @@ export interface IStudentQuizDetailsResponse {
 
 export interface IStudentQuizSubmissionAnswer {
   question_id: number;
-  option_id: number;
+  option_id?: number;
+  answer_text?: string;
 }
 
 export interface IStudentQuizAttemptAnswer {
   question_id: number;
-  selected_option_id: number;
+  question_title?: string | null;
+  selected_option_id: number | null;
+  selected_option_title?: string | null;
+  submitted_text?: string | null;
   is_correct: boolean;
   awarded_score: number;
 }

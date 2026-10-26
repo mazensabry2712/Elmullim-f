@@ -24,7 +24,7 @@ const SubjectsDirectory = () => {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["public-subjects", "directory", page, search],
     queryFn: () => getPublicSubjects(page, PAGE_SIZE, search || undefined),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
     retry: 1,
   });
   const subjects = data?.data.subjects ?? [];

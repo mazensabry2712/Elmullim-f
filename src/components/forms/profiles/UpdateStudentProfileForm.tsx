@@ -20,7 +20,7 @@ import {
   useGetAllCountries,
   useGetAllEducationLevels,
   useGetAllEducationSystems,
-  useGetAllSubjects,
+  useGetPublicSubjectsForEducationLevel,
 } from "@/lib/react-query/main";
 import Loader from "@/components/Loader";
 import { useNavigate } from "react-router-dom";
@@ -42,7 +42,7 @@ const UpdateStudentProfileForm = () => {
   const { data: countries } = useGetAllCountries();
   const { data: educationSystems } = useGetAllEducationSystems(countryId);
   const { data: educationLevels } = useGetAllEducationLevels(educationSystemId);
-  const { data: subjects } = useGetAllSubjects(educationLevelId);
+  const { data: subjects } = useGetPublicSubjectsForEducationLevel(educationLevelId);
 
   const countriesOptions = countries?.data.map((country) => ({
     label: `${country.code} - ${country.name}`,

@@ -201,7 +201,7 @@ export const getAllEducationLevels = async (
   return data;
 };
 
-export const getAllSubjects = async (
+export const getPublicSubjectsForEducationLevel = async (
   educationLevelId: string
 ): Promise<ISubjectsRes> => {
   const { data } = await axiosAPI.get(
@@ -209,6 +209,18 @@ export const getAllSubjects = async (
   );
   return data;
 };
+
+export const getTeacherSubjects = async (
+  educationLevelId: string
+): Promise<ISubjectsRes> => {
+  const { data } = await axiosAPI.get(
+    `/main/${educationLevelId}/teacher-subjects`
+  );
+  return data;
+};
+
+// Backward-compatible alias for existing student-facing consumers.
+export const getAllSubjects = getPublicSubjectsForEducationLevel;
 
 // Categories
 export const getCategories = async (): Promise<ICategoriesRes> => {

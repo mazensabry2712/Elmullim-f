@@ -2,7 +2,7 @@ import ImageUpload from "@/components/shared/ImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useGetAllSubjects } from "@/lib/react-query/main";
+import { useGetTeacherSubjects } from "@/lib/react-query/main";
 import { useGetTeacherProfile } from "@/lib/react-query/teacher/teacherProfile";
 import { useGetTeacherServiceAreas } from "@/lib/react-query/teacher/serviceAreas";
 import {
@@ -266,7 +266,7 @@ const SmartLessonForm = ({ action, lesson }: IProps) => {
   const profileLongitude = teacherProfile?.data?.longitude;
 
   const { data: subjects, isLoading: isLoadingSubjects } =
-    useGetAllSubjects(
+    useGetTeacherSubjects(
       educationLevelId ? String(educationLevelId) : ""
     );
 

@@ -5,6 +5,8 @@ import {
   getAllCountries,
   getAllEducationLevels,
   getAllEducationSystems,
+  getPublicSubjectsForEducationLevel,
+  getTeacherSubjects,
   getAllSubjects,
   getSubCategory,
   getUserSearch,
@@ -31,12 +33,22 @@ export const useGetAllEducationLevels = (educationSystemId: string) =>
     enabled: !!educationSystemId,
   });
 
-export const useGetAllSubjects = (educationLevelId: string) =>
+export const useGetPublicSubjectsForEducationLevel = (educationLevelId: string) =>
   useQuery({
-    queryKey: [QueryKeys.SUBJECTS, educationLevelId],
-    queryFn: () => getAllSubjects(educationLevelId),
+    queryKey: [QueryKeys.SUBJECTS, "public", educationLevelId],
+    queryFn: () => getPublicSubjectsForEducationLevel(educationLevelId),
     enabled: !!educationLevelId,
   });
+
+export const useGetTeacherSubjects = (educationLevelId: string) =>
+  useQuery({
+    queryKey: [QueryKeys.SUBJECTS, "teacher", educationLevelId],
+    queryFn: () => getTeacherSubjects(educationLevelId),
+    enabled: !!educationLevelId,
+  });
+
+// Keep the previous hook available for compatibility. It is public-filtered.
+export const useGetAllSubjects = useGetPublicSubjectsForEducationLevel;
 
 // Categories
 export const useGetCategories = () =>

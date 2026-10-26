@@ -12,7 +12,7 @@ const Categories = () => {
   const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["public-subjects", "homepage"],
     queryFn: () => getPublicSubjects(1, 8),
-    staleTime: 5 * 60 * 1000,
+    staleTime: 30 * 1000,
     retry: 1,
   });
   const subjects = data?.data.subjects ?? [];

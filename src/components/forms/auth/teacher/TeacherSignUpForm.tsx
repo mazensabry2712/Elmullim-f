@@ -11,7 +11,7 @@ import {
   useGetAllCountries,
   useGetAllEducationLevels,
   useGetAllEducationSystems,
-  useGetAllSubjects,
+  useGetTeacherSubjects,
 } from "@/lib/react-query/main";
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/store/store";
@@ -32,7 +32,7 @@ const TeacherSignUpForm = () => {
   const { data: countries } = useGetAllCountries();
   const { data: educationSystems } = useGetAllEducationSystems(countryId);
   const { data: educationLevels } = useGetAllEducationLevels(educationSystemId);
-  const { data: subjects } = useGetAllSubjects(educationLevelId);
+  const { data: subjects } = useGetTeacherSubjects(educationLevelId);
   const countriesOptions = countries?.data.map((country) => ({
     label: `${country.code} - ${country.name}`,
     value: `${country.id}`,

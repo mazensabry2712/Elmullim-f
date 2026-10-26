@@ -24,7 +24,7 @@ import {
   useGetAllCountries,
   useGetAllEducationLevels,
   useGetAllEducationSystems,
-  useGetAllSubjects,
+  useGetTeacherSubjects,
 } from "@/lib/react-query/main";
 import Loader from "@/components/Loader";
 import { useNavigate } from "react-router-dom";
@@ -61,7 +61,7 @@ const UpdateTeacherProfileForm = () => {
   const { data: educationLevels, isLoading: isLoadingLevels } =
     useGetAllEducationLevels(educationSystemId);
   const { data: subjects, isLoading: isLoadingSubjects } =
-    useGetAllSubjects(educationLevelId);
+    useGetTeacherSubjects(educationLevelId);
 
   const countriesOptions = useMemo(
     () =>

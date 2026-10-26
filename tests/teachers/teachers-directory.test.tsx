@@ -115,7 +115,7 @@ describe("Teachers directory", () => {
     expect(screen.getByRole("button", { name: "Science (2)" })).toBeInTheDocument();
   });
 
-  it("opens the teacher profile directly when the selected subject has exactly one teacher", async () => {
+  it("keeps a single-teacher subject filter in the directory instead of redirecting", () => {
     queryState.data = {
       data: {
         teachers: [{
@@ -126,7 +126,10 @@ describe("Teachers directory", () => {
           rating: 4.5,
           rating_count: 2,
           lessons_count: 1,
-          subjects: [{ id: 101, name: "Math" }],
+          subjects: [
+            { id: 101, name: "Math" },
+            { id: 102, name: "Science" },
+          ],
         }],
         pagination: { current_page: 1, last_page: 1, per_page: 12, total: 1 },
       },
@@ -143,13 +146,17 @@ describe("Teachers directory", () => {
       </I18nProvider>
     );
 
-    expect(await screen.findByText("Teacher profile opened")).toBeInTheDocument();
+    expect(screen.getByRole("heading", { level: 1, name: "Teachers" })).toBeInTheDocument();
+    expect(screen.queryByText("Teacher profile opened")).not.toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Math (4)" })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("link", { name: "View Only Math Teacher's profile for Math" })).toBeInTheDocument();
+    expect(screen.queryByRole("link", { name: "View Only Math Teacher's profile for Science" })).not.toBeInTheDocument();
 
     queryState.data = {
       data: {
         teachers: Array.from({ length: 12 }, (_, index) => ({
           id: index + 1,
-          name: `Directory Teacher ${index + 1}`,
+          name: "Directory Teacher " + (index + 1),
           profile_image: "",
           description: "Public profile",
           rating: 0,

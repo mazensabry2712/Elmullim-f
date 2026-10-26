@@ -6,11 +6,15 @@ import type { IPublicTeacher } from "@/services/main";
 
 interface IProps {
   teacher: IPublicTeacher;
+  subjectFilterId?: number;
 }
 
-const TeacherCard = ({ teacher }: IProps) => {
+const TeacherCard = ({ teacher, subjectFilterId }: IProps) => {
   const isArabic = typeof document !== "undefined" && document.documentElement.lang === "ar";
-  const subjectNames = teacher.subjects?.map((subject) => subject.name).filter(Boolean) ?? [];
+  const visibleSubjects = (teacher.subjects ?? []).filter((subject) =>
+    subjectFilterId ? subject.id === subjectFilterId : true
+  );
+  const subjectNames = visibleSubjects.map((subject) => subject.name).filter(Boolean);
   const initials = teacher.name
     .trim()
     .split(/\s+/)
@@ -76,7 +80,7 @@ const TeacherCard = ({ teacher }: IProps) => {
           <BookOpen className="mt-1 h-4 w-4 shrink-0" aria-hidden="true" />
           <div className="flex flex-wrap gap-1.5">
             {subjectNames.length > 0 ? (
-              teacher.subjects.map((subject) => (
+              visibleSubjects.map((subject) => (
                 <Link
                   key={subject.id}
                   to={profileHref}

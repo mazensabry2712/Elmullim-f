@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Check, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useSearchParams } from "react-router-dom";
 import Newsletter from "@/components/Newsletter";
 import TeacherCard from "@/components/home/our teachers/TeacherCard";
 import { getPublicTeacherCategories, getPublicTeacherDirectory } from "@/services/main";
@@ -14,7 +14,6 @@ const TeachersDirectory = () => {
   const { language } = useI18n();
   const isArabic = language === "ar";
   const [searchParams, setSearchParams] = useSearchParams();
-  const navigate = useNavigate();
   const requestedPage = Number(searchParams.get("page") ?? "1");
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
 
@@ -81,17 +80,6 @@ const TeachersDirectory = () => {
     document.title = `${copy.title} | Elmullim`;
   }, [copy.title]);
 
-  useEffect(() => {
-    if (
-      selectedSubjectId &&
-      !isPending &&
-      !isError &&
-      pagination?.total === 1 &&
-      teachers.length === 1
-    ) {
-      navigate(`/teachers/${teachers[0].id}`);
-    }
-  }, [selectedSubjectId, isPending, isError, pagination?.total, teachers, navigate]);
 
   const changeSubject = (nextSubjectId?: number) => {
     const next = new URLSearchParams(searchParams);
@@ -220,7 +208,7 @@ const TeachersDirectory = () => {
               className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 lg:gap-6 xl:grid-cols-4"
             >
               {teachers.map((teacher) => (
-                <TeacherCard teacher={teacher} key={teacher.id} />
+                <TeacherCard teacher={teacher} key={teacher.id} subjectFilterId={selectedSubjectId} />
               ))}
             </motion.div>
           )}

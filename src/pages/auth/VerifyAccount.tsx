@@ -51,7 +51,12 @@ const VerifyAccount = () => {
   return (
     <main>
       <PageTitle />
-      <AuthHeader title="verification" description={copy.verificationCode} discover={false} />
+      <AuthHeader
+        title="verification"
+        description={copy.verificationCode}
+        discover={false}
+        showLogoutButton={false}
+      />
       <motion.section variants={containerVariants} initial="hidden" animate="visible" className="bg-white py-10 md:py-16">
         <div className="flex flex-col lg:flex-row items-center justify-center lg:justify-between container">
           <VerifyAccountForm />

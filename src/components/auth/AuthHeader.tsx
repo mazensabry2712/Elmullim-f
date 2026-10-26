@@ -15,9 +15,17 @@ interface IProps {
   linkTitle?: string;
   description: string | ReactNode;
   discover?: boolean;
+  showLogoutButton?: boolean;
 }
 
-const AuthHeader = ({ title, linkPath, linkTitle, description, discover = true }: IProps) => {
+const AuthHeader = ({
+  title,
+  linkPath,
+  linkTitle,
+  description,
+  discover = true,
+  showLogoutButton = true,
+}: IProps) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const { language } = useI18n();
   const copy = getAuthCopy(language);
@@ -55,7 +63,7 @@ const AuthHeader = ({ title, linkPath, linkTitle, description, discover = true }
             )}
             <motion.div variants={navItemsVariants} className="flex shrink-0 items-center gap-1.5 sm:gap-2">
               {isAuthenticated ? (
-                <LogoutAuthButton />
+                showLogoutButton ? <LogoutAuthButton /> : null
               ) : (
                 <Link to={linkPath || "/"} className="flex items-center justify-center gap-1.5 rounded-[5px] bg-main px-2.5 py-2 text-[13px] font-bold capitalize text-white shadow-sm transition-colors hover:bg-main/90 sm:px-4 sm:py-2.5 sm:text-[15px]">
                   <span className="max-w-[110px] truncate sm:max-w-none">{linkMap[linkTitle ?? ""] ?? linkTitle}</span>

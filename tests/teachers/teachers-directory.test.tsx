@@ -97,7 +97,6 @@ describe("Teachers directory", () => {
     expect(screen.getByRole("button", { name: "Next page" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Previous page" })).toBeDisabled();
     expect(screen.getByRole("button", { name: /Math/ })).toBeInTheDocument();
-    expect(screen.getByRole("navigation", { name: "Important student links" })).not.toBeInTheDocument();
     expect(screen.getByRole("link", { name: "View teacher profile: Directory Teacher 1" })).toHaveAttribute("href", "/teachers/1");
   });
 

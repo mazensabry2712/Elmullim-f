@@ -136,6 +136,7 @@ const QuizQuestions: React.FC<QuestionFormProps> = ({
 
   const handleAddOption = () => {
     setQuestion((prev) => {
+      if (prev.options.length >= 4) return prev;
       const updatedOptions = [
         ...prev.options,
         {
@@ -152,6 +153,7 @@ const QuizQuestions: React.FC<QuestionFormProps> = ({
 
   const handleRemoveOption = (id: string) => {
     setQuestion((prev) => {
+      if (prev.options.length <= 2) return prev;
       const updatedOptions = prev.options.filter((opt) => opt.id !== id);
       const updatedQ = { ...prev, options: updatedOptions };
       onQuestionChange(updatedQ);
@@ -345,7 +347,8 @@ const QuizQuestions: React.FC<QuestionFormProps> = ({
             <button
               type="button"
               onClick={handleAddOption}
-              className="px-2 py-1 text-sm bg-[#DCEBF9] text-[#194D80] rounded-md flex items-center space-x-1"
+              disabled={question.options.length >= 4}
+              className="px-2 py-1 text-sm bg-[#DCEBF9] text-[#194D80] rounded-md flex items-center space-x-1 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Plus
                 className="bg-[#194D80] rounded-full text-white"

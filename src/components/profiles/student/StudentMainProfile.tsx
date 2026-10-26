@@ -27,7 +27,7 @@ import { Button } from "@/components/ui/button";
 const StudentMainProfile = () => {
   const token = cookieService.getToken()!;
   const navigate = useNavigate();
-  const { data: student, isLoading } = useGetStudentProfile(token);
+  const { data: student, isLoading, isError, refetch } = useGetStudentProfile(token);
   const { data: ratings } = useGetStudentRatings(token);
   const { language } = useI18n();
   const isArabic = language === "ar";
@@ -48,6 +48,10 @@ const StudentMainProfile = () => {
         favorites: "المواد المفضلة",
         studentRatings: "تقييمات الطالب",
         noRatings: "لا توجد تقييمات بعد",
+        loadingProfile: "جاري تحميل بيانات الملف الشخصي...",
+        profileLoadError: "تعذر الاتصال بالخادم لتحميل بيانات الملف الشخصي.",
+        profileUnavailable: "بيانات الملف الشخصي غير متاحة حاليًا.",
+        retry: "حاول مرة أخرى",
         nothing: "غير محدد",
         male: "ذكر",
         female: "أنثى",
@@ -67,6 +71,10 @@ const StudentMainProfile = () => {
         favorites: "Favorite subjects",
         studentRatings: "Student ratings",
         noRatings: "No ratings yet",
+        loadingProfile: "Loading your profile...",
+        profileLoadError: "Could not connect to the server to load your profile.",
+        profileUnavailable: "Profile information is currently unavailable.",
+        retry: "Try again",
         nothing: "Not provided",
         male: "Male",
         female: "Female",
@@ -75,8 +83,9 @@ const StudentMainProfile = () => {
   if (isLoading) {
     return (
       <div className="container overflow-hidden">
-        <div className="my-20 flex items-center justify-center overflow-hidden rounded-lg bg-white py-20">
+        <div className="my-20 flex min-h-56 items-center justify-center overflow-hidden rounded-lg bg-white py-20" role="status" aria-live="polite">
           <Loader />
+          <span className="sr-only">{text.loadingProfile}</span>
         </div>
       </div>
     );
@@ -86,10 +95,18 @@ const StudentMainProfile = () => {
 
   if (!profile) {
     return (
-      <div className="container py-20 text-center text-black-blue">
-        {isArabic
-          ? "تعذر تحميل بيانات الملف الشخصي."
-          : "Unable to load profile information."}
+      <div className="container py-20">
+        <div className="mx-auto max-w-xl rounded-xl border border-gray-200 bg-white p-8 text-center text-black-blue shadow-sm" role={isError ? "alert" : "status"}>
+          <p>{isError ? text.profileLoadError : text.profileUnavailable}</p>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => void refetch()}
+            className="mt-4"
+          >
+            {text.retry}
+          </Button>
+        </div>
       </div>
     );
   }

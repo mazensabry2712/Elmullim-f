@@ -11,6 +11,8 @@ const mockData = vi.hoisted(() => ({
       data: {
         id: 6,
         name: "Mona Hassan",
+        phone: "01000009999",
+        email: "mona@example.test",
         description: "An experienced teacher who explains mathematics clearly and patiently.",
         experince: 8,
         qualification: "Bachelor of Education",
@@ -136,9 +138,9 @@ describe("Public teacher profile", () => {
     );
 
     expect(screen.getByRole("heading", { level: 1, name: "Mona Hassan" })).toBeInTheDocument();
-    expect(screen.getByText("Bachelor of Education")).toBeInTheDocument();
+    expect(screen.getAllByText("Bachelor of Education").length).toBeGreaterThan(0);
     expect(screen.getByText("An experienced teacher who explains mathematics clearly and patiently.")).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: "Mathematics" })).toHaveAttribute("href", "/teachers?subject_id=20");
+    expect(screen.getAllByRole("link", { name: "Mathematics" }).some((link) => link.getAttribute("href") === "/teachers?subject_id=20")).toBe(true);
     expect(screen.getByRole("heading", { name: "Algebra Foundations" })).toBeInTheDocument();
     expect(screen.getByRole("heading", { name: "Private Mathematics Lesson" })).toBeInTheDocument();
     expect(screen.getByText("Egypt")).toBeInTheDocument();

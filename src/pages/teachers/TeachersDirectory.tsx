@@ -1,11 +1,11 @@
 import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { Check, ChevronLeft, ChevronRight, SlidersHorizontal } from "lucide-react";
 import { motion } from "framer-motion";
 import { useSearchParams } from "react-router-dom";
 import Newsletter from "@/components/Newsletter";
 import TeacherCard from "@/components/home/our teachers/TeacherCard";
-import { getPublicTeacherDirectory } from "@/services/main";
+import { getPublicTeacherCategories, getPublicTeacherDirectory } from "@/services/main";
 import { useI18n } from "@/i18n";
 
 const PAGE_SIZE = 12;
@@ -27,6 +27,10 @@ const TeachersDirectory = () => {
         retry: "حاول مرة أخرى",
         empty: "لا يوجد معلمون متاحون للعرض حاليًا.",
         results: "معلم",
+        categoriesTitle: "اختار تخصص المعلم",
+        allCategories: "كل التخصصات",
+        teacherCount: "معلم",
+        filteredEmpty: "لا يوجد معلمون بهذا التخصص حاليًا.",
         previous: "الصفحة السابقة",
         next: "الصفحة التالية",
         page: "صفحة",
@@ -41,15 +45,30 @@ const TeachersDirectory = () => {
         retry: "Try again",
         empty: "There are no public teachers to show right now.",
         results: "teachers",
+        categoriesTitle: "Browse teachers by subject",
+        allCategories: "All subjects",
+        teacherCount: "teachers",
+        filteredEmpty: "No teachers are available in this subject right now.",
         previous: "Previous page",
         next: "Next page",
         page: "Page",
         of: "of",
       };
 
+  const rawSubjectId = Number(searchParams.get("subject_id") ?? "");
+  const selectedSubjectId = Number.isInteger(rawSubjectId) && rawSubjectId > 0 ? rawSubjectId : undefined;
+
+  const { data: subjectResponse, isPending: subjectsPending } = useQuery({
+    queryKey: ["public-teachers", "subjects"],
+    queryFn: getPublicTeacherCategories,
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
+  });
+  const subjects = subjectResponse?.data ?? [];
+
   const { data, isPending, isError, refetch } = useQuery({
-    queryKey: ["public-teachers", "directory", page],
-    queryFn: () => getPublicTeacherDirectory(page, PAGE_SIZE),
+    queryKey: ["public-teachers", "directory", page, selectedSubjectId ?? null],
+    queryFn: () => getPublicTeacherDirectory(page, PAGE_SIZE, selectedSubjectId),
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
@@ -60,6 +79,15 @@ const TeachersDirectory = () => {
   useEffect(() => {
     document.title = `${copy.title} | Elmullim`;
   }, [copy.title]);
+
+  const changeSubject = (nextSubjectId?: number) => {
+    const next = new URLSearchParams(searchParams);
+    next.delete("page");
+    if (nextSubjectId) next.set("subject_id", String(nextSubjectId));
+    else next.delete("subject_id");
+    setSearchParams(next);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   const changePage = (nextPage: number) => {
     const next = new URLSearchParams(searchParams);
@@ -91,6 +119,55 @@ const TeachersDirectory = () => {
             {copy.title}
           </h2>
 
+          <section className="mb-8 rounded-2xl border border-black-blue/[0.07] bg-[#F8FAFA] p-4 sm:p-5" aria-labelledby="teacher-subjects-title">
+            <div className="mb-4 flex items-center gap-2 text-black-blue">
+              <SlidersHorizontal className="h-5 w-5 text-main" aria-hidden="true" />
+              <h2 id="teacher-subjects-title" className="text-base font-extrabold sm:text-lg">{copy.categoriesTitle}</h2>
+            </div>
+            {subjectsPending ? (
+              <div className="flex flex-wrap gap-2" role="status" aria-label={copy.loading}>
+                {Array.from({ length: 6 }, (_, index) => <span key={index} className="h-10 w-24 animate-pulse rounded-full bg-slate-200" />)}
+              </div>
+            ) : subjects.length ? (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  type="button"
+                  aria-pressed={!selectedSubjectId}
+                  onClick={() => changeSubject()}
+                  className={[
+                    "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2",
+                    !selectedSubjectId ? "border-main bg-main text-white" : "border-black-blue/10 bg-white text-black-blue hover:border-main/50 hover:text-main",
+                  ].join(" ")}
+                >
+                  {!selectedSubjectId ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
+                  {copy.allCategories}
+                </button>
+                {subjects.map((subject) => {
+                  const selected = selectedSubjectId === subject.id;
+                  return (
+                    <button
+                      key={subject.id}
+                      type="button"
+                      aria-pressed={selected}
+                      onClick={() => changeSubject(subject.id)}
+                      title={subject.education_level_name || subject.name}
+                      className={[
+                        "inline-flex min-h-10 items-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-main focus-visible:ring-offset-2",
+                        selected ? "border-main bg-main text-white" : "border-black-blue/10 bg-white text-black-blue hover:border-main/50 hover:text-main",
+                      ].join(" ")}
+                    >
+                      {selected ? <Check className="h-4 w-4" aria-hidden="true" /> : null}
+                      <span>{subject.name}</span>
+                      <span className={selected ? "text-white/80" : "text-black-blue/40"}>({subject.teachers_count})</span>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <p className="text-sm text-black-blue/55">{copy.empty}</p>
+            )}
+          </section>
+
           {pagination && !isPending && !isError ? (
             <p className="mb-6 text-sm font-semibold text-black-blue/60" aria-live="polite">
               {pagination.total} {copy.results}
@@ -121,7 +198,7 @@ const TeachersDirectory = () => {
             </div>
           ) : teachers.length === 0 ? (
             <p role="status" className="py-12 text-center text-[#4D5756]">
-              {copy.empty}
+              {selectedSubjectId ? copy.filteredEmpty : copy.empty}
             </p>
           ) : (
             <motion.div

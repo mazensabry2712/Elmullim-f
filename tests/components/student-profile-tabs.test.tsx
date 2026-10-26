@@ -73,7 +73,18 @@ describe("StudentProfile tabs", () => {
     expect(await screen.findByText("Student courses content")).toBeInTheDocument();
   });
 
-  it("localizes the student tabs in Arabic", () => {
+  it("shows shortcuts for important student account pages", () => {
+    renderProfile();
+
+    const nav = screen.getByRole("navigation", { name: "Important student links" });
+    expect(nav).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "My Bookings" })).toHaveAttribute("href", "/bookings");
+    expect(screen.getByRole("link", { name: "My Schedule" })).toHaveAttribute("href", "/schedule");
+    expect(screen.getByRole("link", { name: "My Ratings" })).toHaveAttribute("href", "/ratings");
+    expect(screen.getByRole("link", { name: "Notifications" })).toHaveAttribute("href", "/notifications");
+  });
+
+  it("localizes the student tabs and shortcuts in Arabic", () => {
     language = "ar";
     renderProfile();
 
@@ -81,5 +92,9 @@ describe("StudentProfile tabs", () => {
     expect(screen.getByRole("tab", { name: "كورساتي" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "الدردشة" })).toBeInTheDocument();
     expect(screen.getByRole("tab", { name: "الاختبارات" })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: "حجزاتي" })).toHaveAttribute("href", "/bookings");
+    expect(screen.getByRole("link", { name: "مواعيدي" })).toHaveAttribute("href", "/schedule");
+    expect(screen.getByRole("link", { name: "تقييماتي" })).toHaveAttribute("href", "/ratings");
+    expect(screen.getByRole("link", { name: "الإشعارات" })).toHaveAttribute("href", "/notifications");
   });
 });

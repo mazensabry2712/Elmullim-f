@@ -21,8 +21,8 @@ import {
   getPublicTeacherCourses,
   getPublicTeacherLessons,
   getTeacherDetails,
-  IPublicTeacherCourse,
 } from "@/services/main";
+import type { IPublicTeacherCourse } from "@/services/main";
 import LessonCard from "@/components/lessons/LessonCard";
 import { getLessonsCopy } from "@/pages/lessons/lessonCopy";
 import { isDisplayableProfileText } from "@/utils/textQuality";

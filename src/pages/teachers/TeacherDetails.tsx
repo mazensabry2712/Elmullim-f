@@ -136,14 +136,14 @@ const TeacherDetails = () => {
   const coursesQuery = useQuery({
     queryKey: ["public-teacher", "courses", teacherId],
     queryFn: () => getPublicTeacherCourses(teacherId),
-    enabled: isValidTeacherId,
+    enabled: isValidTeacherId && !!teacherQuery.data?.data,
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
   const lessonsQuery = useQuery({
     queryKey: ["public-teacher", "lessons", teacherId],
     queryFn: () => getPublicTeacherLessons(teacherId),
-    enabled: isValidTeacherId,
+    enabled: isValidTeacherId && !!teacherQuery.data?.data,
     staleTime: 5 * 60 * 1000,
     retry: 1,
   });
@@ -214,8 +214,6 @@ const TeacherDetails = () => {
     : typeof teacher.course_types === "string"
       ? [teacher.course_types]
       : [];
-  const subjectIds = new Set(teacher.subjects?.map((subject) => subject.id) ?? []);
-
   const formatCourseType = (type: string) => {
     const normalized = type.toLowerCase();
     if (normalized === "online") return text.online;
@@ -540,6 +538,7 @@ const TeacherCourseCard = ({
     price: string;
     free: string;
     courseDetails: string;
+    details: string;
   };
   isArabic: boolean;
   formatLevel: (level: string) => string;

@@ -4,7 +4,6 @@ import OurTeachers from "@/components/home/our teachers/OurTeachers";
 import PopularLessons from "@/components/home/PopularLesson";
 import PopularCourses from "@/components/home/PopularCourses";
 import HomeHighlights from "@/components/home/comments/Comments";
-import Career from "@/components/home/Career/Career";
 import ChatRoom from "@/components/home/ChatRoom/ChatRoom";
 
 const Home = () => {
@@ -16,7 +15,6 @@ const Home = () => {
       <PopularLessons />
       <PopularCourses />
       <HomeHighlights />
-      <Career />
       <ChatRoom />
     </main>
   );

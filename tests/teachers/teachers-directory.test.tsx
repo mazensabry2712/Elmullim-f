@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { I18nProvider } from "@/i18n";
 import TeachersDirectory from "@/pages/teachers/TeachersDirectory";
 
@@ -113,6 +113,53 @@ describe("Teachers directory", () => {
     expect(screen.getByRole("button", { name: "All subjects" })).toHaveAttribute("aria-pressed", "true");
     expect(screen.getByRole("button", { name: "Math (4)" })).toHaveAttribute("aria-pressed", "false");
     expect(screen.getByRole("button", { name: "Science (2)" })).toBeInTheDocument();
+  });
+
+  it("opens the teacher profile directly when the selected subject has exactly one teacher", async () => {
+    queryState.data = {
+      data: {
+        teachers: [{
+          id: 6,
+          name: "Only Math Teacher",
+          profile_image: "",
+          description: "A public profile",
+          rating: 4.5,
+          rating_count: 2,
+          lessons_count: 1,
+          subjects: [{ id: 101, name: "Math" }],
+        }],
+        pagination: { current_page: 1, last_page: 1, per_page: 12, total: 1 },
+      },
+    };
+
+    render(
+      <I18nProvider>
+        <MemoryRouter initialEntries={["/teachers?subject_id=101"]}>
+          <Routes>
+            <Route path="/teachers" element={<TeachersDirectory />} />
+            <Route path="/teachers/:teacherId" element={<p>Teacher profile opened</p>} />
+          </Routes>
+        </MemoryRouter>
+      </I18nProvider>
+    );
+
+    expect(await screen.findByText("Teacher profile opened")).toBeInTheDocument();
+
+    queryState.data = {
+      data: {
+        teachers: Array.from({ length: 12 }, (_, index) => ({
+          id: index + 1,
+          name: `Directory Teacher ${index + 1}`,
+          profile_image: "",
+          description: "Public profile",
+          rating: 0,
+          rating_count: 0,
+          lessons_count: 0,
+          subjects: [{ id: index + 1, name: "Math" }],
+        })),
+        pagination: { current_page: 1, last_page: 2, per_page: 12, total: 13 },
+      },
+    };
   });
 
   it("shows a retryable error when the directory cannot load", () => {
